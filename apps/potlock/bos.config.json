@@ -1,1 +1,6 @@
-{}
+{
+  "appAccount": "changeme.near",
+  "aliases": {
+    "nui": "nearui.near"
+  }
+}
