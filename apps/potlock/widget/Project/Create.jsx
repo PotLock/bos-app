@@ -1,0 +1,1 @@
+const Container = styled.div``;

@@ -17,7 +17,7 @@ const Container = styled.div`
 
 const Label = styled.label`
   font-style: normal;
-  font-weight: 600;
+  // font-weight: 600;
   font-size: 0.95em;
   line-height: 1.25em;
   color: #344054;

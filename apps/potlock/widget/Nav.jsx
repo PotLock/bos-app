@@ -67,22 +67,6 @@ const ownerId = "potlock.near";
 //   }
 // }
 
-const Header = styled.div`
-  display: flex;
-  padding: 0 0 0.75rem 0;
-  justify-content: space-between;
-  align-items: center;
-  align-self: stretch;
-
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-
-  & > a {
-    width: 10rem;
-  }
-`;
-
 // const Actions = styled.div`
 //   display: flex;
 //   justify-content: flex-end;
@@ -162,6 +146,60 @@ const Header = styled.div`
 //   }
 // `;
 
+const Nav = styled.div`
+  display: flex;
+  padding: 0 64px 0 64px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  height: 110px;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+
+  & > a {
+    width: 10rem;
+  }
+`;
+
+const NavLeft = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center
+`
+
+const NavIcon = styled.div`
+text-align: center;
+color: #2E2E2E;
+font-size: 23.95px;
+font-weight: 700;
+line-height: 23.95px;
+word-wrap: break-word;
+margin-right: 48px;
+`
+
+const NavTabs = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center
+`
+
+const NavTab = styled.a`
+:not(:last-child) {
+  margin-right: 32px;
+}
+cursor: pointer;
+color: #7B7B7B;
+fontSize: 14;
+fontFamily: Mona-Sans;
+fontWeight: 500;
+lineHeight: 16;
+wordWrap: break-word
+`
+
 // const profileIcon = (
 //   <Widget
 //     src={`${ownerId}/widget/Project.Icon`}
@@ -169,8 +207,15 @@ const Header = styled.div`
 //   />
 // );
 
+const tabOptions = ["Projects", "Pot", "Feed"]
+
 return (
-  <Header>
-    <h3>🍯 PotLock</h3>
-  </Header>
+  <Nav>
+    <NavLeft>
+      <NavIcon>🫕 Potlock</NavIcon>
+      <NavTabs>{tabOptions.map(tab => {
+        return <NavTab>{tab}</NavTab>
+      })}</NavTabs>
+    </NavLeft>
+  </Nav>
 );
