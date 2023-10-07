@@ -1,0 +1,26 @@
+name: Deploy Components to Mainnet
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy-widgets:
+    runs-on: ubuntu-latest
+    name: Deploy widgets to social.near (mainnet)
+    # env:
+    #   BOS_DEPLOY_ACCOUNT_ID: ${{ vars.DEPLOY_ACCOUNT_ID }}
+    #   BOS_SIGNER_ACCOUNT_ID: ${{ vars.SIGNER_ACCOUNT_ID }}
+    #   BOS_SIGNER_PUBLIC_KEY: ${{ vars.SIGNER_PUBLIC_KEY }}
+    #   BOS_SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}
+
+    # steps:
+    #   - name: Checkout repository
+    #     uses: actions/checkout@v2
+
+    #   - name: Install near-social CLI
+    #     run: |
+    #       curl --proto '=https' --tlsv1.2 -LsSf https://github.com/FroVolod/bos-cli-rs/releases/download/v0.3.1/bos-cli-v0.3.1-installer.sh | sh
+
+    #   - name: Deploy widgets
+    #     working-directory: ./build/potluck
+    #     run: |
+    #       bos components deploy "$BOS_DEPLOY_ACCOUNT_ID" sign-as "$BOS_SIGNER_ACCOUNT_ID" network-config mainnet sign-with-plaintext-private-key --signer-public-key "$BOS_SIGNER_PUBLIC_KEY" --signer-private-key "$BOS_SIGNER_PRIVATE_KEY" send

@@ -5,12 +5,16 @@
   "repository": "git@github.com:PotLock/bos-app.git",
   "license": "MIT",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "bosworkspace": "bos-workspace",
+    "dev": "npm run bosworkspace dev"
+  },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
+    "bos-workspace": "^0.0.1-alpha.0",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.8"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "prettier --write --ignore-unknown"

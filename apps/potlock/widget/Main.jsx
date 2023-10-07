@@ -83,11 +83,11 @@ const tabContentWidget = {
 //   />
 // );
 
-const Page = styled.div`
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid #eaeaea;
-`;
+// const Page = styled.div`
+//   width: 100%;
+//   border-radius: 0.5rem;
+//   border: 1px solid #eaeaea;
+// `;
 
 const Content = styled.div`
   width: 100%;
@@ -127,9 +127,15 @@ const isForm = [
 
 return (
   <>
-    <Widget src={`${ownerId}/widget/Header`} />
-    <Page>
-      <Widget src={`${ownerId}/widget/Project.Form`} />
-    </Page>
+    <Widget src={`${ownerId}/widget/Nav`} />
+    <Widget
+      src={`${ownerId}/widget/Components.Header`}
+      props={{
+        title: "Create new project",
+        description:
+          "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+      }}
+    />
+    <Widget src={`${ownerId}/widget/Project.Form`} />
   </>
 );
