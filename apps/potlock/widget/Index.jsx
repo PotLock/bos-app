@@ -48,7 +48,7 @@ const tabContentWidget = {
   // help: "Help.Page",
   // legal: "TNCPage",
   // admin: "Admin.Page",
-  // projects: "Project.ListPage",
+  projects: "Project.ListPage",
   // investors: "Investor.ListPage",
   // backers: "Investor.ListPage",
   // vendors: "Vendor.ListPage",
@@ -65,23 +65,23 @@ const tabContentWidget = {
   // profile: "Profile.Page",
 };
 
-// const getTabWidget = (tab) => {
-//   if (tab in tabContentWidget) {
-//     return tabContentWidget[tab];
-//   }
+const getTabWidget = (tab) => {
+  if (tab in tabContentWidget) {
+    return tabContentWidget[tab];
+  }
 
-//   return "Dashboard";
-// };
+  return "Project.ListPage";
+};
 
-// const tabContent = (
-//   <Widget
-//     src={`${ownerId}/widget/${getTabWidget(props.tab)}`}
-//     props={{
-//       ...props,
-//       urlProps: props,
-//     }}
-//   />
-// );
+const tabContent = (
+  <Widget
+    src={`${ownerId}/widget/${getTabWidget(props.tab)}`}
+    props={{
+      ...props,
+      urlProps: props,
+    }}
+  />
+);
 
 // const Page = styled.div`
 //   width: 100%;
@@ -128,14 +128,15 @@ const isForm = [
 return (
   <>
     <Widget src={`${ownerId}/widget/Nav`} />
-    <Widget
+    {/* <Widget
       src={`${ownerId}/widget/Components.Header`}
       props={{
         title: "Create new project",
         description:
           "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
       }}
-    />
-    <Widget src={`${ownerId}/widget/Project.Form`} />
+    /> */}
+    {/* <Widget src={`${ownerId}/widget/Project.Form`} /> */}
+    <Content className={isForm ? "form" : ""}>{tabContent}</Content>
   </>
 );

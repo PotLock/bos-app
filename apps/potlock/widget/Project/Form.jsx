@@ -173,8 +173,6 @@ const isCreateProjectDisabled =
   !state.category ||
   state.categoryError;
 
-console.log("isCreateProjectDisabled: ", isCreateProjectDisabled);
-
 return (
   <Container>
     <Banner>
@@ -339,8 +337,9 @@ return (
           />
           <div style={{ marginBottom: "24px" }} />
           <Widget
-            src={`${ownerId}/widget/Buttons.Red`}
+            src={`${ownerId}/widget/Buttons.Button`}
             props={{
+              type: "primary",
               text: "Create new project",
               disabled: isCreateProjectDisabled,
             }}

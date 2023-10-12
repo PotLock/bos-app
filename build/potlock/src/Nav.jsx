@@ -164,41 +164,41 @@ const Nav = styled.div`
 `;
 
 const NavLeft = styled.div`
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center
-`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
 
 const NavIcon = styled.div`
-text-align: center;
-color: #2E2E2E;
-font-size: 23.95px;
-font-weight: 700;
-line-height: 23.95px;
-word-wrap: break-word;
-margin-right: 48px;
-`
+  text-align: center;
+  color: #2e2e2e;
+  font-size: 23.95px;
+  font-weight: 700;
+  line-height: 23.95px;
+  word-wrap: break-word;
+  margin-right: 48px;
+`;
 
 const NavTabs = styled.div`
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: center
-`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
 
 const NavTab = styled.a`
-:not(:last-child) {
-  margin-right: 32px;
-}
-cursor: pointer;
-color: #7B7B7B;
-fontSize: 14;
-fontFamily: Mona-Sans;
-fontWeight: 500;
-lineHeight: 16;
-wordWrap: break-word
-`
+  :not(:last-child) {
+    margin-right: 32px;
+  }
+  cursor: pointer;
+  color: #7b7b7b;
+  fontsize: 14;
+  fontfamily: Mona-Sans;
+  fontweight: 500;
+  lineheight: 16;
+  wordwrap: break-word;
+`;
 
 // const profileIcon = (
 //   <Widget
@@ -207,15 +207,26 @@ wordWrap: break-word
 //   />
 // );
 
-const tabOptions = ["Projects", "Pot", "Feed"]
+const tabOptions = [
+  { text: "Projects", link: "projects", disabled: false },
+  { text: "Pot", link: "pot", disabled: true },
+  { text: "Feed", link: "feed", disabled: true },
+];
 
 return (
   <Nav>
     <NavLeft>
       <NavIcon>🫕 Potlock</NavIcon>
-      <NavTabs>{tabOptions.map(tab => {
-        return <NavTab>{tab}</NavTab>
-      })}</NavTabs>
+      <NavTabs>
+        {tabOptions.map((tab) => {
+          if (tab.disabled) return null;
+          return (
+            <a href={`?tab=${tab.link}`}>
+              <NavTab>{tab.text}</NavTab>
+            </a>
+          );
+        })}
+      </NavTabs>
     </NavLeft>
   </Nav>
 );
