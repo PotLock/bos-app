@@ -128,6 +128,7 @@ return (
               type: "secondary",
               text: "Create project",
               disabled: false,
+              href: `?tab=createproject`,
             }}
           />
         ),

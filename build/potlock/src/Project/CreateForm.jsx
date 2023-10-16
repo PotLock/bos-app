@@ -1,5 +1,10 @@
 const ownerId = "potlock.near";
 
+const DEFAULT_BANNER_IMAGE =
+  "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
+const DEFAULT_PROFILE_IMAGE =
+  "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+
 if (!context.accountId) {
   return (
     <Widget
@@ -106,35 +111,26 @@ const FormSectionDescription = styled.div`
 `;
 
 const FormSectionIsRequired = styled.div`
-  font-size: 16;
+  font-size: 16px;
   // font-family: Mona-Sans;
   font-weight: 400;
   word-wrap: break-word;
+  position: relative;
 `;
 
-// const FormSectionRightItem = style.div`
-//   margin: 0 0 24px 0;
-// `;
+const SvgContainer = styled.div`
+  position: absolute;
+  top: -6;
+  left: -26;
+`;
 
 State.init({
   name: "",
   nameError: "",
-  // accountId: "",
-  // accountIdError: "",
-  // verticals: [],
-  // verticalsError: "",
-  // productType: [],
-  // productTypeError: "",
   category: null,
   categoryError: "",
-  // dev: null,
-  // devError: "",
-  // tagline: "",
-  // taglineError: "",
   description: "",
   descriptionError: "",
-  // tags: [],
-  // tagsError: "",
   website: "",
   websiteError: "",
   twitter: "",
@@ -143,14 +139,10 @@ State.init({
   telegramError: "",
   github: "",
   githubError: "",
-  // geo: "",
-  // geoError: "",
-  // team: null,
-  // teamError: "",
-  // accountsWithPermissions: [],
-  // accountsWithPermissionsIsFetched: false,
-  // oss: null,
-  // ossError: "",
+  profileImage: DEFAULT_PROFILE_IMAGE,
+  profileImageError: "",
+  bannerImage: DEFAULT_BANNER_IMAGE,
+  bannerImageError: "",
 });
 
 const FormSectionLeft = (title, description, isRequired) => {
@@ -158,8 +150,30 @@ const FormSectionLeft = (title, description, isRequired) => {
     <FormSectionLeftDiv>
       <FormSectionTitle>{title}</FormSectionTitle>
       <FormSectionDescription>{description}</FormSectionDescription>
-      <FormSectionIsRequired style={{ color: isRequired ? "#DD5633" : "#7B7B7B" }}>
+      <FormSectionIsRequired
+        style={{
+          color: isRequired ? "#DD5633" : "#7B7B7B",
+        }}
+      >
         {isRequired ? "Required" : "Optional"}
+        {isRequired && (
+          <SvgContainer style={{ top: -6, left: -26 }}>
+            <svg
+              width="117"
+              height="31"
+              viewBox="0 0 117 31"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M81.8 3.40116C82.247 3.1908 83.0709 3.13488 82.6 2.60116C81.0461 0.840105 83.0819 0.798833 78.6667 1.22338C65.6302 2.47689 52.5192 4.47997 39.6667 6.95672C31.3106 8.56697 19.0395 10.1936 12.7333 17.09C3.95785 26.6869 29.2286 29.1656 32.9333 29.3567C53.953 30.4413 75.9765 28.9386 96.5111 24.1789C99.8286 23.41 122.546 18.5335 112.733 11.5345C107.621 7.88815 100.796 6.47335 94.7333 5.75672C77.7504 3.74928 60.1141 5.22649 43.2222 7.35671C28.8721 9.16641 14.4138 11.8506 1 17.4012"
+                stroke="#2E2E2E"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </SvgContainer>
+        )}
       </FormSectionIsRequired>
     </FormSectionLeftDiv>
   );
@@ -173,17 +187,15 @@ const isCreateProjectDisabled =
   !state.category ||
   state.categoryError;
 
+const handleCreateProject = (e) => {
+  if (isCreateProjectDisabled) return;
+};
+
 return (
   <Container>
     <Banner>
-      <BannerImage
-        src="https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
-        alt="banner"
-      />
-      <ProfileImage
-        src="https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u"
-        alt="profile"
-      />
+      <BannerImage src={state.bannerImage} alt="banner" />
+      <ProfileImage src={state.profileImage} alt="profile" />
     </Banner>
     <FormBody>
       <FormDivider />
@@ -193,11 +205,6 @@ return (
           "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
           true
         )}
-        {/* <FormSectionLeft
-          title="Project details"
-          description="Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat."
-          isRequired={true}
-        /> */}
         <FormSectionRightDiv>
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
@@ -282,17 +289,13 @@ return (
           "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
           false
         )}
-        {/* <FormSectionLeft
-          title="Project details"
-          description="Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat."
-          isRequired={true}
-        /> */}
         <FormSectionRightDiv>
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "Twitter",
-              placeholder: "Twitter handle",
+              prefix: "twitter.com/",
+              // placeholder: "your-twitter-username",
               value: state.twitter,
               onChange: (twitter) => State.update({ twitter }),
               validate: () => {
@@ -312,7 +315,8 @@ return (
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "Telegram",
-              placeholder: "Telegram URL",
+              prefix: "t.me/",
+              // placeholder: "your-telegram-id",
               value: state.telegram,
               onChange: (telegram) => State.update({ telegram }),
               validate: () => {
@@ -326,7 +330,8 @@ return (
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "GitHub",
-              placeholder: "GitHub username",
+              prefix: "github.com/",
+              // placeholder: "your-github-",
               value: state.github,
               onChange: (github) => State.update({ github }),
               validate: () => {
@@ -340,8 +345,10 @@ return (
             src={`${ownerId}/widget/Buttons.Button`}
             props={{
               type: "primary",
+              prefix: "https://",
               text: "Create new project",
               disabled: isCreateProjectDisabled,
+              onClick: handleCreateProject,
             }}
           />
           <div style={{ marginBottom: "24px" }} />

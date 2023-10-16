@@ -1,29 +1,52 @@
-const Button = styled.button`
+const getButtonBackground = () => {
+  if (props.type === "primary") {
+    if (props.disabled) {
+      return "#e5e5e5";
+    }
+    return "#dd3345";
+  } else if (props.type === "secondary") {
+    // TODO: handle disabled
+    return "#FCE9D5";
+  }
+};
+
+const getButtonColor = () => {
+  if (props.type === "primary") {
+    if (props.disabled) {
+      return "darkgrey";
+    }
+    return "white";
+  }
+  return "#2E2E2E";
+};
+
+const Button = styled.a`
   // width: 100%;
   height: 100%;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   padding: 8px 24px 12px 24px;
-  background: ${props.type === "primary" ? "#dd3345" : "#FCE9D5"};
+  background: ${getButtonBackground()};
   overflow: hidden;
   box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
   border-radius: 6px;
+  border: 1px solid #4a4a4a;
   gap: 8px;
   display: inline-flex;
   text-align: center;
-  color: ${props.type === "primary" ? "white" : "#2E2E2E"};
+  color: ${getButtonColor()};
   font-size: 14px;
   font-weight: 600;
 
-  &:disabled {
-    background: #e5e5e5;
-    color: darkgrey;
+  &:hover {
+    text-decoration: none;
+    cursor: ${props.disabled ? "not-allowed" : "pointer"};
   }
 `;
 
 return (
-  <Button onClick={props.onClick} disabled={props.disabled}>
+  <Button href={props.href} onClick={props.onClick} disabled={props.disabled}>
     {props.text}
   </Button>
 );

@@ -38,7 +38,7 @@ const tabContentWidget = {
   // vendor: "Vendor.Page",
   // backer: "Investor.Page",
   // contribution: "Contribution.Page",
-  createproject: "Project.Form",
+  createproject: "Project.Create",
   // createrequest: "Request.Form",
   // createvendor: "Vendor.Form",
   // createbacker: "Investor.Form",
@@ -83,6 +83,8 @@ const tabContent = (
   />
 );
 
+console.log("tab content: ", tabContent);
+
 // const Page = styled.div`
 //   width: 100%;
 //   border-radius: 0.5rem;
@@ -92,7 +94,7 @@ const tabContent = (
 const Content = styled.div`
   width: 100%;
   background: #ffffff;
-  padding: 3em;
+  // padding: 3em;
   border-radius: 0rem 0rem 1.5rem 1.5rem;
   border-top: 1px solid var(--ui-elements-light, #eceef0);
   background: var(--base-white, #fff);
