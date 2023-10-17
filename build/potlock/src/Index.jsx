@@ -1,5 +1,7 @@
 const ownerId = "potlock.near";
 
+const CREATE_PROJECT_TAB = "createproject";
+
 State.init({
   tnc: true,
   tncIsFetched: false,
@@ -38,7 +40,7 @@ const tabContentWidget = {
   // vendor: "Vendor.Page",
   // backer: "Investor.Page",
   // contribution: "Contribution.Page",
-  createproject: "Project.Form",
+  createproject: "Project.Create",
   // createrequest: "Request.Form",
   // createvendor: "Vendor.Form",
   // createbacker: "Investor.Form",
@@ -73,15 +75,24 @@ const getTabWidget = (tab) => {
   return "Project.ListPage";
 };
 
+console.log("Index props: ", props);
+
+const successfulRegistration = props.tab == CREATE_PROJECT_TAB && props.transactionHashes;
+
 const tabContent = (
   <Widget
-    src={`${ownerId}/widget/${getTabWidget(props.tab)}`}
+    src={`${ownerId}/widget/${
+      successfulRegistration ? tabContentWidget.projects : getTabWidget(props.tab)
+    }`}
     props={{
       ...props,
       urlProps: props,
+      successfulRegistration,
     }}
   />
 );
+
+console.log("tab content: ", tabContent);
 
 // const Page = styled.div`
 //   width: 100%;
@@ -92,7 +103,7 @@ const tabContent = (
 const Content = styled.div`
   width: 100%;
   background: #ffffff;
-  padding: 3em;
+  // padding: 3em;
   border-radius: 0rem 0rem 1.5rem 1.5rem;
   border-top: 1px solid var(--ui-elements-light, #eceef0);
   background: var(--base-white, #fff);
@@ -117,7 +128,7 @@ const Content = styled.div`
 //   "legal",
 // ].includes(props.tab);
 const isForm = [
-  "createproject",
+  CREATE_PROJECT_TAB,
   // "createrequest",
   // "createvendor",
   // "createbacker",
