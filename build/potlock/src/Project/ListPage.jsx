@@ -113,7 +113,7 @@ return (
         centered: true,
         buttonPrimary: (
           <Widget
-            src={`${ownerId}/widget/Buttons.Button`}
+            src={`${ownerId}/widget/Buttons.ActionButton`}
             props={{
               type: "primary",
               text: "Explore projects",
@@ -123,7 +123,7 @@ return (
         ),
         buttonSecondary: (
           <Widget
-            src={`${ownerId}/widget/Buttons.Button`}
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
             props={{
               type: "secondary",
               text: "Create project",
@@ -135,6 +135,7 @@ return (
       }}
     />
     <Separator />
+    {props.successfulRegistration && <h1>Success!</h1>}
     <SectionTitle>Featured projects</SectionTitle>
     <Widget
       src={`${ownerId}/widget/Project.Carousel`}

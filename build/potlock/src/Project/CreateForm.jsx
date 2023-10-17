@@ -1,16 +1,20 @@
+// TODO:
+// 1. pull in data from near.social if it already exists
+
 const ownerId = "potlock.near";
 
-const DEFAULT_BANNER_IMAGE =
-  "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
-const DEFAULT_PROFILE_IMAGE =
-  "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const DEFAULT_BANNER_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
 
 if (!context.accountId) {
   return (
     <Widget
       src={`${ownerId}/widget/InfoSegment`}
       props={{
-        title: "Not logged inn!",
+        title: "Not logged in!",
         description: "You must log in to create a new project!",
       }}
     />
@@ -139,11 +143,219 @@ State.init({
   telegramError: "",
   github: "",
   githubError: "",
-  profileImage: DEFAULT_PROFILE_IMAGE,
+  profileImageUrl: "",
   profileImageError: "",
-  bannerImage: DEFAULT_BANNER_IMAGE,
+  bannerImageCid: "",
   bannerImageError: "",
+  socialDataFetched: false,
+  socialDataIsFetching: false,
 });
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+  // else {
+  //   // get media from NFT if present
+  //   if (image.nft) {
+  //     const { contractId, tokenId } = image.nft;
+  //     const contractMetadata = Near.view(contractId, "nft_metadata", {});
+  //     console.log("contractMetadata: ", contractMetadata);
+  //     if (contractMetadata) {
+  //       const baseUri = contractMetadata?.base_uri.endsWith("/")
+  //         ? contractMetadata?.base_uri
+  //         : `${contractMetadata?.base_uri}/`;
+  //       const nft = Near.view(contractId, "nft_token", { token_id: tokenId });
+  //       console.log("nft: ", nft);
+  //       const nftMedia = nft.metadata.media;
+  //       const url = baseUri + nftMedia;
+  //       console.log("url: ", url);
+  //       return url;
+  //       // const res = fetch(url); // fetch to make sure it's a valid URL
+  //       // console.log("url res: ", res);
+  //       // if (res.ok) {
+  //       //   return url;
+  //       // }
+  //     }
+  //   }
+  // }
+};
+
+// useEffect(() => {
+//   if (context.accountId && !state.socialDataFetched && !state.socialDataIsFetching) {
+//     State.update({ socialDataIsFetching: true });
+//     const socialData = Social.get(`${context.accountId}/profile/**`);
+//     if (!socialData) return;
+//     // get profile image URL
+//     let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+//     if (socialData.image) {
+//       const imageUrl = getImageUrlFromSocialImage(socialData.image);
+//       if (imageUrl) profileImageUrl = imageUrl;
+//     }
+//     // get banner image URL
+//     let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+//     if (socialData.backgroundImage) {
+//       const imageUrl = getImageUrlFromSocialImage(socialData.backgroundImage);
+//       if (imageUrl) bannerImageUrl = imageUrl;
+//     }
+//     // description
+//     let description = socialData.description || "";
+//     // linktree
+//     const linktree = socialData.linktree || {};
+//     const twitter = linktree.twitter || "";
+//     const telegram = linktree.telegram || "";
+//     const github = linktree.github || "";
+//     const website = linktree.website || "";
+//     // update state
+//     State.update({
+//       name: socialData?.name || "",
+//       description,
+//       twitter,
+//       telegram,
+//       github,
+//       website,
+//       profileImageUrl,
+//       bannerImageUrl,
+//       socialDataFetched: true,
+//       socialDataIsFetching: false,
+//     });
+//   }
+// }, []);
+
+// useEffect(() => {
+//   if (context.accountId && !state.socialDataFetched && !state.socialDataIsFetching) {
+//     State.update({ socialDataIsFetching: true });
+//     Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
+//       .then((socialData) => {
+//         console.log("social data: ", socialData);
+//         if (!socialData) return;
+//         const profileData = socialData[context.accountId].profile;
+//         if (!profileData) return;
+//         console.log("profile data: ", profileData);
+//         // construct array of promises
+//         const promises = [];
+//         // get profile image URL
+//         let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+//         if (profileData.image) {
+//           const profileImage = profileData.image;
+//           if (profileImage.url) {
+//             profileImageUrl = profileImage.url;
+//           } else if (profileImage.ipfs_cid) {
+//             profileImageUrl = IPFS_BASE_URL + profileImage.ipfs_cid;
+//           } else {
+//             // get media from NFT if present
+//             if (profileImage.nft) {
+//               const { contractId, tokenId } = profileImage.nft;
+//               promises.push(Near.asyncView(contractId, "nft_metadata", {}));
+//               promises.push(Near.asyncView(contractId, "nft_token", { token_id: tokenId }));
+//             }
+//           }
+//         }
+//         // get banner image URL
+//         let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+//         if (profileData.backgroundImage) {
+//           const backgroundImage = profileData.backgroundImage;
+//           if (backgroundImage.url) {
+//             bannerImageUrl = backgroundImage.url;
+//           } else if (backgroundImage.ipfs_cid) {
+//             bannerImageUrl = IPFS_BASE_URL + backgroundImage.ipfs_cid;
+//           } else {
+//             // get media from NFT if present
+//             if (backgroundImage.nft) {
+//               const { contractId, tokenId } = backgroundImage.nft;
+//               promises.push(Near.asyncView(contractId, "nft_metadata", {}));
+//               promises.push(Near.asyncView(contractId, "nft_token", { token_id: tokenId }));
+//             }
+//           }
+//         }
+//         console.log("promises: ", promises);
+//         // wait for promises to resolve
+//         Promise.all(promises)
+//           .then((results) => {
+//             console.log("results: ", results);
+//           })
+//           .catch((e) => {
+//             console.log("error resolving a promise: ", e);
+//           });
+//         //   // description
+//         //   let description = socialData.description || "";
+//         //   // linktree
+//         //   const linktree = socialData.linktree || {};
+//         //   const twitter = linktree.twitter || "";
+//         //   const telegram = linktree.telegram || "";
+//         //   const github = linktree.github || "";
+//         //   const website = linktree.website || "";
+//         //   // update state
+//         //   State.update({
+//         //     name: socialData?.name || "",
+//         //     description,
+//         //     twitter,
+//         //     telegram,
+//         //     github,
+//         //     website,
+//         //     profileImageUrl,
+//         //     bannerImageUrl,
+//         //     socialDataFetched: true,
+//         //     socialDataIsFetching: false,
+//         //   });
+//       })
+//       .catch((e) => {
+//         console.log("error getting near social data: ", e);
+//       });
+//   }
+// }, []);
+
+if (context.accountId && !state.socialDataFetched) {
+  // State.update({ socialDataIsFetching: true });
+  // const socialData = Social.get(`${context.accountId}/profile/**`);
+  Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
+    .then((socialData) => {
+      console.log("social data: ", socialData);
+      if (!socialData) return;
+      const profileData = socialData[context.accountId].profile;
+      if (!profileData) return;
+      console.log("profile data: ", profileData);
+      // get profile image URL
+      let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+      if (profileData.image) {
+        const imageUrl = getImageUrlFromSocialImage(profileData.image);
+        if (imageUrl) profileImageUrl = imageUrl;
+      }
+      // get banner image URL
+      let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+      if (profileData.backgroundImage) {
+        const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
+        if (imageUrl) bannerImageUrl = imageUrl;
+      }
+      // description
+      let description = profileData.description || "";
+      // linktree
+      const linktree = profileData.linktree || {};
+      const twitter = linktree.twitter || "";
+      const telegram = linktree.telegram || "";
+      const github = linktree.github || "";
+      const website = linktree.website || "";
+      // update state
+      State.update({
+        name: profileData?.name || "",
+        description,
+        twitter,
+        telegram,
+        github,
+        website,
+        profileImageUrl,
+        bannerImageUrl,
+        socialDataFetched: true,
+        // socialDataIsFetching: false,
+      });
+    })
+    .catch((e) => {
+      console.log("error getting social data: ", e);
+      State.update({ socialDataFetched: true });
+    });
+}
 
 const FormSectionLeft = (title, description, isRequired) => {
   return (
@@ -189,13 +401,53 @@ const isCreateProjectDisabled =
 
 const handleCreateProject = (e) => {
   if (isCreateProjectDisabled) return;
+  const socialArgs = {
+    data: {
+      [context.accountId]: {
+        profile: {
+          name: state.name,
+          category: state.category, // TODO: consider changing format of this for consistency with near horizon
+          description: state.description,
+          linktree: {
+            website: state.website,
+            twitter: state.twitter,
+            telegram: state.telegram,
+            github: state.github,
+          },
+        },
+      },
+    },
+  };
+  const registerArgs = { name: state.name, team_members: [] };
+  const transactions = [
+    // set data on social.near
+    {
+      contractName: "social.near",
+      methodName: "set",
+      deposit: Big(JSON.stringify(socialArgs).length * 16).mul(Big(10).pow(20)),
+      args: socialArgs,
+    },
+    // register project on potlock
+    {
+      contractName: "registry1.tests.potlock.near", // TODO: CHANGE TO OWNER ID
+      methodName: "register",
+      deposit: Big(JSON.stringify(registerArgs).length * 16).mul(Big(10).pow(20)),
+      args: registerArgs,
+    },
+  ];
+  console.log("transactions; ", transactions);
+  const res = Near.call(transactions);
 };
+
+if (!state.socialDataFetched) return <></>;
+
+console.log("state: ", state);
 
 return (
   <Container>
     <Banner>
-      <BannerImage src={state.bannerImage} alt="banner" />
-      <ProfileImage src={state.profileImage} alt="profile" />
+      <BannerImage src={state.bannerImageUrl} alt="banner" />
+      <ProfileImage src={state.profileImageUrl} alt="profile" />
     </Banner>
     <FormBody>
       <FormDivider />
@@ -262,8 +514,11 @@ return (
               noLabel: false,
               placeholder: "Choose category",
               options: [
-                { text: "NFT", value: "nft" },
-                { text: "DAO", value: "dao" },
+                // Social Impact, NonProfit, Climate, Public Good
+                { text: "Social Impact", value: "nft" },
+                { text: "NonProfit", value: "non-profit" },
+                { text: "Climate", value: "climate" },
+                { text: "Public Good", value: "public-good" },
               ],
               value: state.category,
               onChange: (category) =>
@@ -342,7 +597,7 @@ return (
           />
           <div style={{ marginBottom: "24px" }} />
           <Widget
-            src={`${ownerId}/widget/Buttons.Button`}
+            src={`${ownerId}/widget/Buttons.ActionButton`}
             props={{
               type: "primary",
               prefix: "https://",

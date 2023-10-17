@@ -1,5 +1,7 @@
 const ownerId = "potlock.near";
 
+const CREATE_PROJECT_TAB = "createproject";
+
 State.init({
   tnc: true,
   tncIsFetched: false,
@@ -73,12 +75,19 @@ const getTabWidget = (tab) => {
   return "Project.ListPage";
 };
 
+console.log("Index props: ", props);
+
+const successfulRegistration = props.tab == CREATE_PROJECT_TAB && props.transactionHashes;
+
 const tabContent = (
   <Widget
-    src={`${ownerId}/widget/${getTabWidget(props.tab)}`}
+    src={`${ownerId}/widget/${
+      successfulRegistration ? tabContentWidget.projects : getTabWidget(props.tab)
+    }`}
     props={{
       ...props,
       urlProps: props,
+      successfulRegistration,
     }}
   />
 );
@@ -119,7 +128,7 @@ const Content = styled.div`
 //   "legal",
 // ].includes(props.tab);
 const isForm = [
-  "createproject",
+  CREATE_PROJECT_TAB,
   // "createrequest",
   // "createvendor",
   // "createbacker",
