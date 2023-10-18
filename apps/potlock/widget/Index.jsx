@@ -1,6 +1,7 @@
 const ownerId = "potlock.near";
 
 const CREATE_PROJECT_TAB = "createproject";
+const PROJECT_DETAIL_TAB = "project";
 
 State.init({
   tnc: true,
@@ -40,7 +41,7 @@ const tabContentWidget = {
   // vendor: "Vendor.Page",
   // backer: "Investor.Page",
   // contribution: "Contribution.Page",
-  createproject: "Project.Create",
+  [CREATE_PROJECT_TAB]: "Project.Create",
   // createrequest: "Request.Form",
   // createvendor: "Vendor.Form",
   // createbacker: "Investor.Form",
@@ -51,6 +52,7 @@ const tabContentWidget = {
   // legal: "TNCPage",
   // admin: "Admin.Page",
   projects: "Project.ListPage",
+  [PROJECT_DETAIL_TAB]: "Project.Detail",
   // investors: "Investor.ListPage",
   // backers: "Investor.ListPage",
   // vendors: "Vendor.ListPage",
@@ -67,6 +69,21 @@ const tabContentWidget = {
   // profile: "Profile.Page",
 };
 
+const successfulRegistration = props.tab == CREATE_PROJECT_TAB && props.transactionHashes;
+
+const getWidget = (props) => {
+  if (successfulRegistration) {
+    // user just successfully registered their project
+    // navigate to the project page
+    // get the project ID (do this in getWidgetProps)
+    return tabContentWidget[PROJECT_DETAIL_TAB];
+  } else if (props.tab in tabContentWidget) {
+    return tabContentWidget[props.tab];
+  }
+  // backup (TODO: review)
+  return "Project.ListPage";
+};
+
 const getTabWidget = (tab) => {
   if (tab in tabContentWidget) {
     return tabContentWidget[tab];
@@ -75,9 +92,26 @@ const getTabWidget = (tab) => {
   return "Project.ListPage";
 };
 
-console.log("Index props: ", props);
+const getWidgetProps = () => {
+  const props = {
+    ...props,
+    urlProps: props,
+  };
+  if (successfulRegistration) {
+    props.successfulRegistration = true;
+    // get the project ID
+    // get list of all registered projects
+    // find the one that matches context.accountId
+    // pass this project in props to the project page
+  }
+  return {
+    ...props,
+    urlProps: props,
+    successfulRegistration,
+  };
+}; // TODO: IMPLEMENT
 
-const successfulRegistration = props.tab == CREATE_PROJECT_TAB && props.transactionHashes;
+console.log("Index props: ", props);
 
 const tabContent = (
   <Widget

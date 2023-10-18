@@ -1,4 +1,5 @@
 const ownerId = "potlock.near";
+const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
 
 const HeroOuter = styled.div`
   padding: 136px 64px;
@@ -17,17 +18,38 @@ const Separator = styled.div`
   background-color: #f8f8f8;
 `;
 
+const SectionHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
 const SectionTitle = styled.div`
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 600;
   color: #2e2e2e;
-  font-family: Lora;
-  width: 100%;
-  text-align: center;
+  font-family: Mona-Sans;
+`;
+
+const ProjectsCount = styled.div`
+  color: #7b7b7b;
+  font-size: 24px;
+  font-weight: 400;
+  margin-left: 32px;
+`;
+
+const ProjectsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 96px 64px;
 `;
 
 const sampleProjects = [
   {
+    id: "1.near",
     name: "Space Explorer",
     description: "Navigate through the uncharted territories of outer space.",
     bannerImage:
@@ -37,6 +59,7 @@ const sampleProjects = [
     tags: ["React", "GraphQL"],
   },
   {
+    id: "2.near",
     name: "Weather App",
     description: "Get the latest weather updates for your location.",
     bannerImage:
@@ -46,6 +69,7 @@ const sampleProjects = [
     tags: ["Vue", "REST API"],
   },
   {
+    id: "3.near",
     name: "Recipe Book",
     description: "Find and save your favorite recipes.",
     bannerImage:
@@ -55,6 +79,7 @@ const sampleProjects = [
     tags: ["Angular", "Firebase"],
   },
   {
+    id: "4.near",
     name: "Fitness Tracker",
     description: "Monitor your fitness journey.",
     bannerImage:
@@ -64,6 +89,7 @@ const sampleProjects = [
     tags: ["Svelte", "MongoDB"],
   },
   {
+    id: "5.near",
     name: "Bookstore",
     description: "Discover and purchase books online.",
     bannerImage:
@@ -73,6 +99,7 @@ const sampleProjects = [
     tags: ["React", "Stripe API"],
   },
   {
+    id: "6.near",
     name: "Job Finder",
     description: "Connect employers and job seekers.",
     bannerImage:
@@ -82,6 +109,7 @@ const sampleProjects = [
     tags: ["Python", "Django"],
   },
   {
+    id: "7.near",
     name: "Social Media App",
     description: "Connect with friends and family.",
     bannerImage:
@@ -91,6 +119,7 @@ const sampleProjects = [
     tags: ["MERN Stack"],
   },
   {
+    id: "8.near",
     name: "E-commerce Platform",
     description: "Shop your favorite items online.",
     bannerImage:
@@ -100,6 +129,25 @@ const sampleProjects = [
     tags: ["MERN Stack"],
   },
 ];
+
+State.init({
+  // registeredProjects: null, // TODO: change this back to null
+  registeredProjects: sampleProjects,
+  getRegisteredProjectsError: "",
+});
+
+// if (context.accountId && !state.registeredProjects) {
+//   Near.asyncView(registryId, "get_projects", {})
+//     .then((projects) => {
+//       State.update({ registeredProjects: projects });
+//     })
+//     .catch((e) => {
+//       console.log("error getting projects: ", e);
+//       State.update({ getRegisteredProjectsError: e });
+//     });
+// }
+
+if (!state.registeredProjects) return <>Loading...</>;
 
 return (
   <>
@@ -135,13 +183,32 @@ return (
       }}
     />
     <Separator />
-    {props.successfulRegistration && <h1>Success!</h1>}
-    <SectionTitle>Featured projects</SectionTitle>
-    <Widget
+    {/* <SectionTitle>Featured projects</SectionTitle> */}
+    {/* <Widget
       src={`${ownerId}/widget/Project.Carousel`}
       props={{
         projects: sampleProjects,
       }}
-    />
+    /> */}
+    <ProjectsContainer>
+      <SectionHeader>
+        <SectionTitle>All projects</SectionTitle>
+        <ProjectsCount>{state.registeredProjects.length}</ProjectsCount>
+      </SectionHeader>
+      <Widget
+        src={`${ownerId}/widget/Project.ListSection`}
+        props={{
+          projects: state.registeredProjects,
+          renderItem: (project) => (
+            <Widget
+              src={`${ownerId}/widget/Project.Card`}
+              props={{
+                project,
+              }}
+            />
+          ),
+        }}
+      />
+    </ProjectsContainer>
   </>
 );

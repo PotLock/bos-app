@@ -2,6 +2,7 @@
 // 1. pull in data from near.social if it already exists
 
 const ownerId = "potlock.near";
+const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_URL =
@@ -128,6 +129,15 @@ const SvgContainer = styled.div`
   left: -26;
 `;
 
+const ButtonsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 32px;
+`;
+
 State.init({
   name: "",
   nameError: "",
@@ -149,6 +159,8 @@ State.init({
   bannerImageError: "",
   socialDataFetched: false,
   socialDataIsFetching: false,
+  registeredProjects: null,
+  getRegisteredProjectsError: "",
 });
 
 const getImageUrlFromSocialImage = (image) => {
@@ -357,6 +369,17 @@ if (context.accountId && !state.socialDataFetched) {
     });
 }
 
+if (context.accountId && !state.registeredProjects) {
+  Near.asyncView(registryId, "get_projects", {})
+    .then((projects) => {
+      State.update({ registeredProjects: projects });
+    })
+    .catch((e) => {
+      console.log("error getting projects: ", e);
+      State.update({ getRegisteredProjectsError: e });
+    });
+}
+
 const FormSectionLeft = (title, description, isRequired) => {
   return (
     <FormSectionLeftDiv>
@@ -429,13 +452,12 @@ const handleCreateProject = (e) => {
     },
     // register project on potlock
     {
-      contractName: "registry1.tests.potlock.near", // TODO: CHANGE TO OWNER ID
+      contractName: registryId,
       methodName: "register",
       deposit: Big(JSON.stringify(registerArgs).length * 16).mul(Big(10).pow(20)),
       args: registerArgs,
     },
   ];
-  console.log("transactions; ", transactions);
   const res = Near.call(transactions);
 };
 
@@ -443,172 +465,204 @@ if (!state.socialDataFetched) return <></>;
 
 console.log("state: ", state);
 
+const registeredProject = state.registeredProjects?.find(
+  (project) => project.id == context.accountId && project.status == "Approved"
+);
+
 return (
   <Container>
-    <Banner>
-      <BannerImage src={state.bannerImageUrl} alt="banner" />
-      <ProfileImage src={state.profileImageUrl} alt="profile" />
-    </Banner>
-    <FormBody>
-      <FormDivider />
-      <FormSectionContainer>
-        {FormSectionLeft(
-          "Project details",
-          "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-          true
-        )}
-        <FormSectionRightDiv>
+    {registeredProject ? (
+      <>
+        <h1>You've successfully registered!</h1>
+        <ButtonsContainer>
           <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              label: "Project name *",
-              placeholder: "Enter project name",
-              value: state.name,
-              onChange: (name) => State.update({ name }),
-              validate: () => {
-                if (state.name.length < 3) {
-                  State.update({ nameError: "Name must be at least 3 characters" });
-                  return;
-                }
-
-                if (state.name.length > 100) {
-                  State.update({
-                    nameError: "Name must be less than 100 characters",
-                  });
-                  return;
-                }
-
-                State.update({ nameError: "" });
-              },
-              error: state.nameError,
-            }}
-          />
-          <div style={{ marginBottom: "24px" }} />
-
-          <Widget
-            src={`${ownerId}/widget/Inputs.TextArea`}
-            props={{
-              label: "Overview *",
-              placeholder: "Give a short description of your project",
-              value: state.description,
-              onChange: (description) => State.update({ description }),
-              validate: () => {
-                if (state.description.length > 500) {
-                  State.update({
-                    descriptionError: "Description must be less than 500 characters",
-                  });
-                  return;
-                }
-
-                State.update({ descriptionError: "" });
-              },
-              error: state.descriptionError,
-            }}
-          />
-          <div style={{ marginBottom: "24px" }} />
-
-          <Widget
-            src={`${ownerId}/widget/Inputs.Select`}
-            props={{
-              label: "Select category *",
-              noLabel: false,
-              placeholder: "Choose category",
-              options: [
-                // Social Impact, NonProfit, Climate, Public Good
-                { text: "Social Impact", value: "nft" },
-                { text: "NonProfit", value: "non-profit" },
-                { text: "Climate", value: "climate" },
-                { text: "Public Good", value: "public-good" },
-              ],
-              value: state.category,
-              onChange: (category) =>
-                State.update({
-                  category,
-                }),
-              validate: () => {
-                if (!state.category) {
-                  State.update({
-                    categoryError: "Please select a category",
-                  });
-                }
-              },
-              error: state.categoryError,
-            }}
-          />
-        </FormSectionRightDiv>
-      </FormSectionContainer>
-      <FormDivider />
-      <FormSectionContainer>
-        {FormSectionLeft(
-          "Social links",
-          "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-          false
-        )}
-        <FormSectionRightDiv>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              label: "Twitter",
-              prefix: "twitter.com/",
-              // placeholder: "your-twitter-username",
-              value: state.twitter,
-              onChange: (twitter) => State.update({ twitter }),
-              validate: () => {
-                if (state.twitter.length > 15) {
-                  State.update({
-                    twitterError: "Invalid Twitter handle",
-                  });
-                  return;
-                }
-                State.update({ twitterError: "" });
-              },
-              error: state.twitterError,
-            }}
-          />
-          <div style={{ marginBottom: "24px" }} />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              label: "Telegram",
-              prefix: "t.me/",
-              // placeholder: "your-telegram-id",
-              value: state.telegram,
-              onChange: (telegram) => State.update({ telegram }),
-              validate: () => {
-                // TODO: add validation
-              },
-              error: state.telegramError,
-            }}
-          />
-          <div style={{ marginBottom: "24px" }} />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              label: "GitHub",
-              prefix: "github.com/",
-              // placeholder: "your-github-",
-              value: state.github,
-              onChange: (github) => State.update({ github }),
-              validate: () => {
-                // TODO: add validation
-              },
-              error: state.githubError,
-            }}
-          />
-          <div style={{ marginBottom: "24px" }} />
-          <Widget
-            src={`${ownerId}/widget/Buttons.ActionButton`}
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
             props={{
               type: "primary",
-              prefix: "https://",
-              text: "Create new project",
-              disabled: isCreateProjectDisabled,
-              onClick: handleCreateProject,
+              text: "View your project",
+              disabled: false,
+              href: `?tab=project&projectId=${registeredProject.id}`,
             }}
           />
-          <div style={{ marginBottom: "24px" }} />
-        </FormSectionRightDiv>
-      </FormSectionContainer>
-    </FormBody>
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              type: "secondary",
+              text: "View all projects",
+              disabled: false,
+              href: `?tab=projects`,
+            }}
+          />
+        </ButtonsContainer>
+      </>
+    ) : (
+      <>
+        <Banner>
+          <BannerImage src={state.bannerImageUrl} alt="banner" />
+          <ProfileImage src={state.profileImageUrl} alt="profile" />
+        </Banner>
+        <FormBody>
+          <FormDivider />
+          <FormSectionContainer>
+            {FormSectionLeft(
+              "Project details",
+              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+              true
+            )}
+            <FormSectionRightDiv>
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "Project name *",
+                  placeholder: "Enter project name",
+                  value: state.name,
+                  onChange: (name) => State.update({ name }),
+                  validate: () => {
+                    if (state.name.length < 3) {
+                      State.update({ nameError: "Name must be at least 3 characters" });
+                      return;
+                    }
+
+                    if (state.name.length > 100) {
+                      State.update({
+                        nameError: "Name must be less than 100 characters",
+                      });
+                      return;
+                    }
+
+                    State.update({ nameError: "" });
+                  },
+                  error: state.nameError,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+
+              <Widget
+                src={`${ownerId}/widget/Inputs.TextArea`}
+                props={{
+                  label: "Overview *",
+                  placeholder: "Give a short description of your project",
+                  value: state.description,
+                  onChange: (description) => State.update({ description }),
+                  validate: () => {
+                    if (state.description.length > 500) {
+                      State.update({
+                        descriptionError: "Description must be less than 500 characters",
+                      });
+                      return;
+                    }
+
+                    State.update({ descriptionError: "" });
+                  },
+                  error: state.descriptionError,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+
+              <Widget
+                src={`${ownerId}/widget/Inputs.Select`}
+                props={{
+                  label: "Select category *",
+                  noLabel: false,
+                  placeholder: "Choose category",
+                  options: [
+                    // Social Impact, NonProfit, Climate, Public Good
+                    { text: "Social Impact", value: "nft" },
+                    { text: "NonProfit", value: "non-profit" },
+                    { text: "Climate", value: "climate" },
+                    { text: "Public Good", value: "public-good" },
+                  ],
+                  value: state.category,
+                  onChange: (category) =>
+                    State.update({
+                      category,
+                    }),
+                  validate: () => {
+                    if (!state.category) {
+                      State.update({
+                        categoryError: "Please select a category",
+                      });
+                    }
+                  },
+                  error: state.categoryError,
+                }}
+              />
+            </FormSectionRightDiv>
+          </FormSectionContainer>
+          <FormDivider />
+          <FormSectionContainer>
+            {FormSectionLeft(
+              "Social links",
+              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+              false
+            )}
+            <FormSectionRightDiv>
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "Twitter",
+                  prefix: "twitter.com/",
+                  // placeholder: "your-twitter-username",
+                  value: state.twitter,
+                  onChange: (twitter) => State.update({ twitter }),
+                  validate: () => {
+                    if (state.twitter.length > 15) {
+                      State.update({
+                        twitterError: "Invalid Twitter handle",
+                      });
+                      return;
+                    }
+                    State.update({ twitterError: "" });
+                  },
+                  error: state.twitterError,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "Telegram",
+                  prefix: "t.me/",
+                  // placeholder: "your-telegram-id",
+                  value: state.telegram,
+                  onChange: (telegram) => State.update({ telegram }),
+                  validate: () => {
+                    // TODO: add validation
+                  },
+                  error: state.telegramError,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "GitHub",
+                  prefix: "github.com/",
+                  // placeholder: "your-github-",
+                  value: state.github,
+                  onChange: (github) => State.update({ github }),
+                  validate: () => {
+                    // TODO: add validation
+                  },
+                  error: state.githubError,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+              <Widget
+                src={`${ownerId}/widget/Buttons.ActionButton`}
+                props={{
+                  type: "primary",
+                  prefix: "https://",
+                  text: "Create new project",
+                  disabled: isCreateProjectDisabled,
+                  onClick: handleCreateProject,
+                }}
+              />
+              <div style={{ marginBottom: "24px" }} />
+            </FormSectionRightDiv>
+          </FormSectionContainer>
+        </FormBody>
+      </>
+    )}
   </Container>
 );
