@@ -493,31 +493,32 @@ return (
   <Container>
     {!state.socialDataFetched ? (
       <div>Loading...</div>
-    ) : registeredProject ? (
-      <>
-        <h1>You've successfully registered!</h1>
-        <ButtonsContainer>
-          <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
-            props={{
-              type: "primary",
-              text: "View your project",
-              disabled: false,
-              href: `?tab=project&projectId=${registeredProject.id}`,
-            }}
-          />
-          <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
-            props={{
-              type: "secondary",
-              text: "View all projects",
-              disabled: false,
-              href: `?tab=projects`,
-            }}
-          />
-        </ButtonsContainer>
-      </>
     ) : (
+      // registeredProject ? (
+      //   <>
+      //     <h1>You've successfully registered!</h1>
+      //     <ButtonsContainer>
+      //       <Widget
+      //         src={`${ownerId}/widget/Buttons.NavigationButton`}
+      //         props={{
+      //           type: "primary",
+      //           text: "View your project",
+      //           disabled: false,
+      //           href: `?tab=project&projectId=${registeredProject.id}`,
+      //         }}
+      //       />
+      //       <Widget
+      //         src={`${ownerId}/widget/Buttons.NavigationButton`}
+      //         props={{
+      //           type: "secondary",
+      //           text: "View all projects",
+      //           disabled: false,
+      //           href: `?tab=projects`,
+      //         }}
+      //       />
+      //     </ButtonsContainer>
+      //   </>
+      // ) :
       <>
         <Banner>
           <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
