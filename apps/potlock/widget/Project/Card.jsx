@@ -1,9 +1,15 @@
-const Card = styled.div`
+const ownerId = "potlock.near";
+
+const Card = styled.a`
   display: flex;
   flex-direction: column;
   width: 100%;
   border-radius: 6px;
   background-color: white;
+  &:hover {
+    text-decoration: none;
+    cursor: pointer;
+  }
 `;
 
 const Banner = styled.div`
@@ -59,15 +65,16 @@ const Tag = styled.span`
   padding: 4px 8px;
   border-radius: 4px;
   border: 1px solid rgba(123, 123, 123, 0.36);
+  color: #2e2e2e;
 `;
 
-const { id, bannerImage, profileImage, name, description, tags } = props.project;
+const { id, bannerImageUrl, profileImageUrl, name, description, tags } = props.project;
 
 return (
-  <Card key={id}>
+  <Card href={`?tab=project&projectId=${id}`} key={id}>
     <Banner>
-      <BannerImage src={bannerImage} alt="banner" />
-      <ProfileImage src={profileImage} alt="profile" />
+      <BannerImage src={bannerImageUrl} alt="banner" />
+      <ProfileImage src={profileImageUrl} alt="profile" />
     </Banner>
     <Info>
       <ProjectName>{name}</ProjectName>

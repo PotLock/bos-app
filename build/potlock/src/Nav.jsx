@@ -147,12 +147,18 @@ const ownerId = "potlock.near";
 // `;
 
 const Nav = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   padding: 0 64px 0 64px;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
   height: 110px;
+  background: #ffffff;
+  z-index: 1000;
 
   @media screen and (max-width: 768px) {
     display: none;

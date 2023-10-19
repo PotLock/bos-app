@@ -135,6 +135,7 @@ console.log("tab content: ", tabContent);
 // `;
 
 const Content = styled.div`
+  padding-top: 110px;
   width: 100%;
   background: #ffffff;
   // padding: 3em;
@@ -145,11 +146,6 @@ const Content = styled.div`
   &.form {
     border: none;
     background: #fafafa;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
   }
 `;
 

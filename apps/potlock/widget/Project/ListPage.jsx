@@ -1,6 +1,20 @@
 const ownerId = "potlock.near";
 const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
 
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const DEFAULT_BANNER_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+};
+
 const HeroOuter = styled.div`
   padding: 136px 64px;
 `;
@@ -47,105 +61,63 @@ const ProjectsContainer = styled.div`
   padding: 96px 64px;
 `;
 
-const sampleProjects = [
-  {
-    id: "1.near",
-    name: "Space Explorer",
-    description: "Navigate through the uncharted territories of outer space.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["React", "GraphQL"],
-  },
-  {
-    id: "2.near",
-    name: "Weather App",
-    description: "Get the latest weather updates for your location.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Vue", "REST API"],
-  },
-  {
-    id: "3.near",
-    name: "Recipe Book",
-    description: "Find and save your favorite recipes.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Angular", "Firebase"],
-  },
-  {
-    id: "4.near",
-    name: "Fitness Tracker",
-    description: "Monitor your fitness journey.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Svelte", "MongoDB"],
-  },
-  {
-    id: "5.near",
-    name: "Bookstore",
-    description: "Discover and purchase books online.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["React", "Stripe API"],
-  },
-  {
-    id: "6.near",
-    name: "Job Finder",
-    description: "Connect employers and job seekers.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Python", "Django"],
-  },
-  {
-    id: "7.near",
-    name: "Social Media App",
-    description: "Connect with friends and family.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["MERN Stack"],
-  },
-  {
-    id: "8.near",
-    name: "E-commerce Platform",
-    description: "Shop your favorite items online.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["MERN Stack"],
-  },
-];
-
 State.init({
-  // registeredProjects: null, // TODO: change this back to null
-  registeredProjects: sampleProjects,
+  registeredProjects: null, // TODO: change this back to null
+  // registeredProjects: sampleProjects,
   getRegisteredProjectsError: "",
 });
 
-// if (context.accountId && !state.registeredProjects) {
-//   Near.asyncView(registryId, "get_projects", {})
-//     .then((projects) => {
-//       State.update({ registeredProjects: projects });
-//     })
-//     .catch((e) => {
-//       console.log("error getting projects: ", e);
-//       State.update({ getRegisteredProjectsError: e });
-//     });
-// }
+if (context.accountId && !state.registeredProjects) {
+  Near.asyncView(registryId, "get_projects", {})
+    .then((projects) => {
+      // get social data for each project
+      // name
+      // description
+      // bannerImage
+      // profileImage
+      // category
+      // horizon stuff, e.g. tags
+      Near.asyncView("social.near", "get", {
+        keys: projects.map((project) => `${project.id}/profile/**`),
+      }).then((socialData) => {
+        console.log("social data: ", socialData);
+        const formattedProjects = projects.map((project) => {
+          console.log("project line 153: ", project);
+          const profileData = socialData[project.id]?.profile;
+          console.log("profileData line 154: ", profileData);
+          let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+          if (profileData.image) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.image);
+            if (imageUrl) profileImageUrl = imageUrl;
+          }
+          // get banner image URL
+          let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+          if (profileData.backgroundImage) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
+            if (imageUrl) bannerImageUrl = imageUrl;
+          }
+          const formatted = {
+            id: project.id,
+            name: profileData.name ?? "",
+            description: profileData.description ?? "",
+            bannerImageUrl,
+            profileImageUrl,
+            tags: [profileData.category.text ?? ""], // TODO: change this to get tags from horizon/social
+          };
+          console.log("formatted: ", formatted);
+          return formatted;
+        });
+        console.log("formatted projects: ", formattedProjects);
+        State.update({ registeredProjects: formattedProjects });
+      });
+    })
+    .catch((e) => {
+      console.log("error getting projects: ", e);
+      State.update({ getRegisteredProjectsError: e });
+    });
+}
+
+console.log("state: ", state);
 
 if (!state.registeredProjects) return <>Loading...</>;
 
