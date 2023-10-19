@@ -5,7 +5,13 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_URL =
   IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 const DEFAULT_PROFILE_IMAGE_URL =
-  IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+  IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
+const ADD_TEAM_MEMBERS_ICON_URL =
+  IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
+const CLOSE_ICON_URL =
+  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+
+const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
 if (!context.accountId) {
   return (
@@ -51,14 +57,35 @@ const BannerImage = styled.img`
   border-radius: 6px;
 `;
 
+const LowerBannerContainer = styled.div`
+  position: absolute;
+  bottom: -60px;
+  left: 113px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+`;
+
 const ProfileImage = styled.img`
   width: 120px;
   height: 120px;
   border-radius: 50%;
   border: 5px solid white;
-  position: absolute;
-  bottom: -60px;
-  left: 113px;
+  // position: absolute;
+  // bottom: -60px;
+  // left: 113px;
+`;
+
+const AddTeamMembers = styled.a`
+  margin: 0px 0px 16px 36px;
+  cursor: pointer;
+  color: #dd3345;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: none;
+  }
 `;
 
 const FormBody = styled.div`
@@ -139,6 +166,85 @@ const Space = styled.div`
   height: ${(props) => props.height}px;
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalContent = styled.div`
+  border-radius: 14px;
+  // width: 60%;
+  padding: 32px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 24px;
+`;
+
+const ModalHeaderLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+const IconContainer = styled.div`
+  width: 40px;
+  height: 40px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+`;
+
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+  cursor: ${(props) => (props.cursor ? props.cursor : "default")};
+`;
+
+const ModalTitle = styled.div`
+  font-color: #2e2e2e;
+  font-size: 16px;
+  font-weight: 600;
+  // font-family: Mona-Sans;
+`;
+
+const ModalDescription = styled.p`
+  font-color: #2e2e2e;
+  font-size: 16px;
+  font-weight: 400;
+  // font-family: Mona-Sans;
+`;
+
+const MembersCount = styled.span`
+  color: #2e2e2e;
+  font-weight: 600;
+`;
+
+const MembersText = styled.div`
+  color: #7b7b7b;
+  font-size: 12px;
+  font-weight: 400;
+`;
+
 State.init({
   name: "",
   nameError: "",
@@ -162,6 +268,10 @@ State.init({
   socialDataIsFetching: false,
   registeredProjects: null,
   getRegisteredProjectsError: "",
+  isModalOpen: false,
+  teamMember: "",
+  teamMembers: [],
+  nearAccountIdError: "",
 });
 
 const getImageUrlFromSocialImage = (image) => {
@@ -170,155 +280,17 @@ const getImageUrlFromSocialImage = (image) => {
   } else if (image.ipfs_cid) {
     return IPFS_BASE_URL + image.ipfs_cid;
   }
-  // else {
-  //   // get media from NFT if present
-  //   if (image.nft) {
-  //     const { contractId, tokenId } = image.nft;
-  //     const contractMetadata = Near.view(contractId, "nft_metadata", {});
-  //     console.log("contractMetadata: ", contractMetadata);
-  //     if (contractMetadata) {
-  //       const baseUri = contractMetadata?.base_uri.endsWith("/")
-  //         ? contractMetadata?.base_uri
-  //         : `${contractMetadata?.base_uri}/`;
-  //       const nft = Near.view(contractId, "nft_token", { token_id: tokenId });
-  //       console.log("nft: ", nft);
-  //       const nftMedia = nft.metadata.media;
-  //       const url = baseUri + nftMedia;
-  //       console.log("url: ", url);
-  //       return url;
-  //       // const res = fetch(url); // fetch to make sure it's a valid URL
-  //       // console.log("url res: ", res);
-  //       // if (res.ok) {
-  //       //   return url;
-  //       // }
-  //     }
-  //   }
-  // }
 };
 
-// useEffect(() => {
-//   if (context.accountId && !state.socialDataFetched && !state.socialDataIsFetching) {
-//     State.update({ socialDataIsFetching: true });
-//     const socialData = Social.get(`${context.accountId}/profile/**`);
-//     if (!socialData) return;
-//     // get profile image URL
-//     let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
-//     if (socialData.image) {
-//       const imageUrl = getImageUrlFromSocialImage(socialData.image);
-//       if (imageUrl) profileImageUrl = imageUrl;
-//     }
-//     // get banner image URL
-//     let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
-//     if (socialData.backgroundImage) {
-//       const imageUrl = getImageUrlFromSocialImage(socialData.backgroundImage);
-//       if (imageUrl) bannerImageUrl = imageUrl;
-//     }
-//     // description
-//     let description = socialData.description || "";
-//     // linktree
-//     const linktree = socialData.linktree || {};
-//     const twitter = linktree.twitter || "";
-//     const telegram = linktree.telegram || "";
-//     const github = linktree.github || "";
-//     const website = linktree.website || "";
-//     // update state
-//     State.update({
-//       name: socialData?.name || "",
-//       description,
-//       twitter,
-//       telegram,
-//       github,
-//       website,
-//       profileImageUrl,
-//       bannerImageUrl,
-//       socialDataFetched: true,
-//       socialDataIsFetching: false,
-//     });
-//   }
-// }, []);
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
 
-// useEffect(() => {
-//   if (context.accountId && !state.socialDataFetched && !state.socialDataIsFetching) {
-//     State.update({ socialDataIsFetching: true });
-//     Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
-//       .then((socialData) => {
-//         console.log("social data: ", socialData);
-//         if (!socialData) return;
-//         const profileData = socialData[context.accountId].profile;
-//         if (!profileData) return;
-//         console.log("profile data: ", profileData);
-//         // construct array of promises
-//         const promises = [];
-//         // get profile image URL
-//         let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
-//         if (profileData.image) {
-//           const profileImage = profileData.image;
-//           if (profileImage.url) {
-//             profileImageUrl = profileImage.url;
-//           } else if (profileImage.ipfs_cid) {
-//             profileImageUrl = IPFS_BASE_URL + profileImage.ipfs_cid;
-//           } else {
-//             // get media from NFT if present
-//             if (profileImage.nft) {
-//               const { contractId, tokenId } = profileImage.nft;
-//               promises.push(Near.asyncView(contractId, "nft_metadata", {}));
-//               promises.push(Near.asyncView(contractId, "nft_token", { token_id: tokenId }));
-//             }
-//           }
-//         }
-//         // get banner image URL
-//         let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
-//         if (profileData.backgroundImage) {
-//           const backgroundImage = profileData.backgroundImage;
-//           if (backgroundImage.url) {
-//             bannerImageUrl = backgroundImage.url;
-//           } else if (backgroundImage.ipfs_cid) {
-//             bannerImageUrl = IPFS_BASE_URL + backgroundImage.ipfs_cid;
-//           } else {
-//             // get media from NFT if present
-//             if (backgroundImage.nft) {
-//               const { contractId, tokenId } = backgroundImage.nft;
-//               promises.push(Near.asyncView(contractId, "nft_metadata", {}));
-//               promises.push(Near.asyncView(contractId, "nft_token", { token_id: tokenId }));
-//             }
-//           }
-//         }
-//         console.log("promises: ", promises);
-//         // wait for promises to resolve
-//         Promise.all(promises)
-//           .then((results) => {
-//             console.log("results: ", results);
-//           })
-//           .catch((e) => {
-//             console.log("error resolving a promise: ", e);
-//           });
-//         //   // description
-//         //   let description = socialData.description || "";
-//         //   // linktree
-//         //   const linktree = socialData.linktree || {};
-//         //   const twitter = linktree.twitter || "";
-//         //   const telegram = linktree.telegram || "";
-//         //   const github = linktree.github || "";
-//         //   const website = linktree.website || "";
-//         //   // update state
-//         //   State.update({
-//         //     name: socialData?.name || "",
-//         //     description,
-//         //     twitter,
-//         //     telegram,
-//         //     github,
-//         //     website,
-//         //     profileImageUrl,
-//         //     bannerImageUrl,
-//         //     socialDataFetched: true,
-//         //     socialDataIsFetching: false,
-//         //   });
-//       })
-//       .catch((e) => {
-//         console.log("error getting near social data: ", e);
-//       });
-//   }
-// }, []);
+  return (
+    <ModalOverlay onClick={onClose}>
+      <ModalContent onClick={(e) => e.stopPropagation()}>{children}</ModalContent>
+    </ModalOverlay>
+  );
+};
 
 if (context.accountId && !state.socialDataFetched) {
   // State.update({ socialDataIsFetching: true });
@@ -489,6 +461,70 @@ const registeredProject = state.registeredProjects
     )
   : null;
 
+// TODO: Move these elsewhere
+const MembersListItem = styled.div`
+  padding: 16px 0px;
+  border-top: 1px #f0f0f0 solid;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const RemoveMember = styled.a`
+  color: #2e2e2e;
+  font-size: 14px;
+  font-weight: 600;
+  visibility: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  ${MembersListItem}:hover & {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
+const MembersListItemLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+`;
+
+const MembersListItemText = styled.div`
+  font-size: 16px;
+  font-weight: 400;
+  color: #2e2e2e;
+`;
+
+const handleAddTeamMember = () => {
+  let isValid = NEAR_ACCOUNT_ID_REGEX.test(state.teamMember);
+  // Additional ".near" check for IDs less than 64 characters
+  if (state.teamMember.length < 64 && !state.teamMember.endsWith(".near")) {
+    isValid = false;
+  }
+  if (!isValid) {
+    State.update({
+      nearAccountIdError: "Invalid NEAR account ID",
+    });
+    return;
+  }
+  // TODO:
+  if (!state.teamMembers.includes(state.teamMember)) {
+    State.update({
+      teamMembers: [...state.teamMembers, state.teamMember.toLowerCase()],
+      teamMember: "",
+    });
+  }
+};
+
 return (
   <Container>
     {!state.socialDataFetched ? (
@@ -522,10 +558,18 @@ return (
       <>
         <Banner>
           <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
-          <ProfileImage src={state.profileImageUrl} alt="profile" />
+          <LowerBannerContainer>
+            <ProfileImage src={state.profileImageUrl} alt="profile" />
+            <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
+              Add team members
+            </AddTeamMembers>
+          </LowerBannerContainer>
         </Banner>
         <FormBody>
           <FormDivider />
+
+          {/* <button onClick={() => State.update({ isModalOpen: true })}>Open Modal</button> */}
+
           <FormSectionContainer>
             {FormSectionLeft(
               "Project details",
@@ -694,6 +738,68 @@ return (
             </FormSectionRightDiv>
           </FormSectionContainer>
         </FormBody>
+        <Modal isOpen={state.isModalOpen} onClose={() => State.update({ isModalOpen: false })}>
+          <ModalHeader>
+            <ModalHeaderLeft>
+              <IconContainer>
+                <Icon src={ADD_TEAM_MEMBERS_ICON_URL} />
+              </IconContainer>
+              <ModalTitle>Add team members</ModalTitle>
+            </ModalHeaderLeft>
+            <Icon
+              cursor={"pointer"}
+              src={CLOSE_ICON_URL}
+              onClick={() => State.update({ isModalOpen: false })}
+            />
+          </ModalHeader>
+          <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Text`}
+            props={{
+              // label: "Project name *",
+              placeholder: "NEAR account ID",
+              value: state.teamMember,
+              onChange: (teamMember) => {
+                State.update({ teamMember, nearAccountIdError: "" });
+              },
+              buttonText: "Add",
+              submit: true,
+              onClick: handleAddTeamMember,
+              handleKeyPress: (e) => {
+                if (e.key === "Enter") {
+                  handleAddTeamMember();
+                }
+              },
+              // validate: () => {
+
+              //   State.update({ nearAccountIdError: "" });
+              // },
+              error: state.nearAccountIdError,
+            }}
+          />
+          <Space height={24} />
+          <MembersText>
+            <MembersCount>{state.teamMembers.length} </MembersCount>
+            {state.teamMembers.length == 1 ? "member" : "members"}
+          </MembersText>
+          {state.teamMembers.map((teamMember) => (
+            <MembersListItem>
+              <MembersListItemLeft>
+                <Icon src={DEFAULT_PROFILE_IMAGE_URL} />
+                <MembersListItemText>@{teamMember}</MembersListItemText>
+              </MembersListItemLeft>
+              <RemoveMember
+                onClick={() =>
+                  State.update({
+                    teamMembers: state.teamMembers.filter((member) => member != teamMember),
+                  })
+                }
+              >
+                Remove
+              </RemoveMember>
+            </MembersListItem>
+          ))}
+        </Modal>
       </>
     )}
   </Container>

@@ -1,9 +1,13 @@
-const label = props.label ?? "Label";
-const placeholder = props.placeholder ?? "Placeholder";
+const ownerId = "potlock.near";
+
+const label = props.label ?? "";
+const placeholder = props.placeholder ?? "";
 const value = props.value ?? "";
 const onChange = props.onChange ?? (() => {});
 const validate = props.validate ?? (() => {});
 const error = props.error ?? "";
+
+// const borderRadiusPx = 4;
 
 const Container = styled.div`
   display: flex;
@@ -79,9 +83,13 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
+const InputButton = styled.button`
+  background: ;
+`;
+
 return (
   <Container>
-    <Label>{label}</Label>
+    {label && <Label>{label}</Label>}
     <InputContainer>
       {props.prefix && <InputPrefix>{props.prefix}</InputPrefix>}
       <Input
@@ -91,7 +99,22 @@ return (
         onChange={({ target: { value } }) => onChange(value)}
         onBlur={() => validate()}
         disabled={!!props.disabled}
+        onKeyDown={props.handleKeyPress ?? null}
       />
+      {props.buttonText && (
+        <Widget
+          src={`${ownerId}/widget/Buttons.ActionButton`}
+          props={{
+            type: "primary",
+            // prefix: "https://",
+            text: "Add",
+            // disabled: isCreateProjectDisabled,
+            onClick: props.onClick,
+            borderRadius: `0px 4px 4px 0px`,
+            submit: props.submit,
+          }}
+        />
+      )}
     </InputContainer>
     <Error className={error ? "show" : ""}>{error}</Error>
   </Container>

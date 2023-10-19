@@ -30,7 +30,7 @@ const Button = styled.button`
   background: ${getButtonBackground()};
   overflow: hidden;
   box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
-  border-radius: 6px;
+  border-radius: ${(props) => props.borderRadius ?? "6px"};
   border: 1px solid #4a4a4a;
   gap: 8px;
   display: inline-flex;
@@ -45,15 +45,15 @@ const Button = styled.button`
   }
 `;
 
-console.log("rendering action button");
-
 return (
   <Button
     onClick={(e) => {
       e.preventDefault();
       props.onClick(e);
     }}
+    borderRadius={props.borderRadius}
     disabled={props.disabled}
+    // submit={!!props.submit}
   >
     {props.text}
   </Button>
