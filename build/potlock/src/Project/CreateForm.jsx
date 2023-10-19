@@ -1,6 +1,3 @@
-// TODO:
-// 1. pull in data from near.social if it already exists
-
 const ownerId = "potlock.near";
 const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
 
@@ -136,6 +133,10 @@ const ButtonsContainer = styled.div`
   justify-content: center;
   gap: 32px;
   margin-top: 32px;
+`;
+
+const Space = styled.div`
+  height: ${(props) => props.height}px;
 `;
 
 State.init({
@@ -324,11 +325,9 @@ if (context.accountId && !state.socialDataFetched) {
   // const socialData = Social.get(`${context.accountId}/profile/**`);
   Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
     .then((socialData) => {
-      console.log("social data: ", socialData);
       if (!socialData) return;
       const profileData = socialData[context.accountId].profile;
       if (!profileData) return;
-      console.log("profile data: ", profileData);
       // get profile image URL
       let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
       if (profileData.image) {
@@ -414,6 +413,27 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
+const BannerImageWithFallback = (props) => {
+  const [bannerImageUrl, setBannerImageUrl] = useState(props.src);
+  const handleBannerImageError = (event) => {
+    event.stopPropagation();
+    event.target.onerror = null;
+    setBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
+  };
+  return <BannerImage src={bannerImageUrl} alt={props.alt} onError={handleBannerImageError} />;
+};
+
+// _NB: commenting this out for now; for some reason profileImageUrl inherits bannerImageUrl's value and is NOT set to props.src. this seems to be a bug with useState implementation_
+// const ProfileImageWithFallback = (props) => {
+//   const [profileImageUrl, setProfileImageUrl] = useState(props.src);
+//   const handleError = (event) => {
+//     event.stopPropagation();
+//     event.target.onerror = null;
+//     setProfileImageUrl(DEFAULT_PROFILE_IMAGE_URL);
+//   };
+//   return <ProfileImage src={profileImageUrl} alt={props.alt} onError={handleError} />;
+// };
+
 const isCreateProjectDisabled =
   !state.name ||
   state.nameError ||
@@ -461,17 +481,19 @@ const handleCreateProject = (e) => {
   const res = Near.call(transactions);
 };
 
-if (!state.socialDataFetched) return <></>;
-
 console.log("state: ", state);
 
-const registeredProject = state.registeredProjects?.find(
-  (project) => project.id == context.accountId && project.status == "Approved"
-);
+const registeredProject = state.registeredProjects
+  ? state.registeredProjects?.find(
+      (project) => project.id == context.accountId && project.status == "Approved"
+    )
+  : null;
 
 return (
   <Container>
-    {registeredProject ? (
+    {!state.socialDataFetched ? (
+      <div>Loading...</div>
+    ) : registeredProject ? (
       <>
         <h1>You've successfully registered!</h1>
         <ButtonsContainer>
@@ -498,7 +520,7 @@ return (
     ) : (
       <>
         <Banner>
-          <BannerImage src={state.bannerImageUrl} alt="banner" />
+          <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
           <ProfileImage src={state.profileImageUrl} alt="profile" />
         </Banner>
         <FormBody>
@@ -510,6 +532,15 @@ return (
               true
             )}
             <FormSectionRightDiv>
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "Project ID *",
+                  value: context.accountId,
+                  disabled: true,
+                }}
+              />
+              <Space height={24} />
               <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
@@ -535,7 +566,7 @@ return (
                   error: state.nameError,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
 
               <Widget
                 src={`${ownerId}/widget/Inputs.TextArea`}
@@ -557,7 +588,7 @@ return (
                   error: state.descriptionError,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
 
               <Widget
                 src={`${ownerId}/widget/Inputs.Select`}
@@ -617,7 +648,7 @@ return (
                   error: state.twitterError,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
               <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
@@ -632,7 +663,7 @@ return (
                   error: state.telegramError,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
               <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
@@ -647,7 +678,7 @@ return (
                   error: state.githubError,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
               <Widget
                 src={`${ownerId}/widget/Buttons.ActionButton`}
                 props={{
@@ -658,7 +689,7 @@ return (
                   onClick: handleCreateProject,
                 }}
               />
-              <div style={{ marginBottom: "24px" }} />
+              <Space height={24} />
             </FormSectionRightDiv>
           </FormSectionContainer>
         </FormBody>

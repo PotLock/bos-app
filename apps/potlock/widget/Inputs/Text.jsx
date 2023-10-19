@@ -90,6 +90,7 @@ return (
         value={value}
         onChange={({ target: { value } }) => onChange(value)}
         onBlur={() => validate()}
+        disabled={!!props.disabled}
       />
     </InputContainer>
     <Error className={error ? "show" : ""}>{error}</Error>
