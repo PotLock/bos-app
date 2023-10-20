@@ -13,6 +13,8 @@ const CLOSE_ICON_URL =
 
 const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
+const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
+
 if (!context.accountId) {
   return (
     <Widget
@@ -40,7 +42,7 @@ const ProfileImgContainer = styled.div`
   position: absolute;
   bottom: 0px;
   left: 113px;
-  background-color: pink;
+  // background-color: pink;
 `;
 
 const Banner = styled.div`
@@ -64,7 +66,7 @@ const LowerBannerContainer = styled.div`
   display: flex;
   align-items: stretch; /* Ensuring child elements stretch to full height */
   justify-content: space-between;
-  background: pink;
+  // background: pink;
   width: 100%;
 `;
 
@@ -81,21 +83,27 @@ const LowerBannerContainerRight = styled.div`
   align-items: flex-end;
   justify-content: flex-end; /* Pushes TeamContainer to the bottom */
   flex: 1;
-  background: yellow;
+  // background: yellow;
 `;
 
 const TeamContainer = styled.div`
   width: 200px;
   height: 30px;
-  background: green;
+  // background: green;
   margin-bottom: 16px;
+  display: flex;
+  flex-direction: row;
+  // gap: -40px;
 `;
 
 const ProfileImage = styled.img`
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   border-radius: 50%;
-  border: 5px solid white;
+  border: ${(props) => props.borderWidth ?? 5}px solid white;
+  margin: ${(props) => props.margin ?? "0px"};
+  z-index: ${(props) => props.zIndex ?? 0};
+  position: relative;
   // position: absolute;
   // bottom: -60px;
   // left: 113px;
@@ -201,6 +209,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  // padding-top: 30vh;
 `;
 
 const ModalContent = styled.div`
@@ -210,6 +219,7 @@ const ModalContent = styled.div`
   background: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  // z-index: 1000;
 `;
 
 const ModalHeader = styled.div`
@@ -323,6 +333,7 @@ if (context.accountId && !state.socialDataFetched) {
   Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
     .then((socialData) => {
       if (!socialData) return;
+      console.log("social data for current user: ", socialData);
       const profileData = socialData[context.accountId].profile;
       if (!profileData) return;
       // get profile image URL
@@ -345,6 +356,8 @@ if (context.accountId && !state.socialDataFetched) {
       const telegram = linktree.telegram || "";
       const github = linktree.github || "";
       const website = linktree.website || "";
+      // team
+      const team = profileData.team || {};
       // update state
       State.update({
         name: profileData?.name || "",
@@ -356,6 +369,10 @@ if (context.accountId && !state.socialDataFetched) {
         profileImageUrl,
         bannerImageUrl,
         socialDataFetched: true,
+        teamMembers: Object.keys(team).map((accountId) => ({
+          accountId,
+          imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
+        })),
         // socialDataIsFetching: false,
       });
     })
@@ -454,6 +471,7 @@ const handleCreateProject = (e) => {
             telegram: state.telegram,
             github: state.github,
           },
+          team: state.teamMembers.reduce((acc, tm) => ({ ...acc, [tm.accountId]: "" }), {}),
         },
       },
     },
@@ -527,6 +545,28 @@ const MembersListItemText = styled.div`
   font-size: 16px;
   font-weight: 400;
   color: #2e2e2e;
+`;
+
+const MoreTeamMembersContainer = styled.div`
+  width: 28px;
+  height: 28px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #dd3345;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: ${(props) => props.zIndex};
+  margin-right: -8px;
+`;
+
+const MoreTeamMembersText = styled.div`
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  // font-family: Mona-Sans;
 `;
 
 const handleAddTeamMember = () => {
@@ -618,7 +658,28 @@ return (
               </AddTeamMembers>
             </LowerBannerContainerLeft>
             <LowerBannerContainerRight>
-              <TeamContainer>Hi</TeamContainer>
+              <TeamContainer>
+                {state.teamMembers.length > MAX_TEAM_MEMBERS_DISPLAY_COUNT && (
+                  <MoreTeamMembersContainer zIndex={state.teamMembers.length + 1}>
+                    <MoreTeamMembersText>{MAX_TEAM_MEMBERS_DISPLAY_COUNT}+</MoreTeamMembersText>
+                  </MoreTeamMembersContainer>
+                )}
+                {state.teamMembers
+                  .slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT)
+                  .map((teamMember, idx) => {
+                    return (
+                      <ProfileImage
+                        src={teamMember.imageUrl}
+                        alt="profile"
+                        width={28}
+                        height={28}
+                        margin="0 -8px 0 0"
+                        zIndex={state.teamMembers.length - idx}
+                        borderWidth={2}
+                      />
+                    );
+                  })}
+              </TeamContainer>
             </LowerBannerContainerRight>
           </LowerBannerContainer>
         </Banner>
@@ -700,7 +761,7 @@ return (
                   placeholder: "Choose category",
                   options: [
                     // Social Impact, NonProfit, Climate, Public Good
-                    { text: "Social Impact", value: "nft" },
+                    { text: "Social Impact", value: "social-impact" },
                     { text: "NonProfit", value: "non-profit" },
                     { text: "Climate", value: "climate" },
                     { text: "Public Good", value: "public-good" },
@@ -827,10 +888,6 @@ return (
                   handleAddTeamMember();
                 }
               },
-              // validate: () => {
-
-              //   State.update({ nearAccountIdError: "" });
-              // },
               error: state.nearAccountIdError,
             }}
           />
@@ -840,11 +897,10 @@ return (
             {state.teamMembers.length == 1 ? "member" : "members"}
           </MembersText>
           {state.teamMembers.map((teamMember) => {
-            console.log("team member line 841: ", teamMember);
             return (
               <MembersListItem>
                 <MembersListItemLeft>
-                  <Icon src={teamMember.imageUrl} />
+                  <ProfileImage src={teamMember.imageUrl} width={40} height={40} />
                   <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
                 </MembersListItemLeft>
                 <RemoveMember
