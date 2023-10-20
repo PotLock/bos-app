@@ -79,11 +79,13 @@ return (
     <Info>
       <ProjectName>{name}</ProjectName>
       <ProjectDescription>{description}</ProjectDescription>
-      <Tags>
-        {tags.map((tag, tagIndex) => (
-          <Tag key={tagIndex}>{tag}</Tag>
-        ))}
-      </Tags>
+      <Widget
+        src={`${ownerId}/widget/Project.Tags`}
+        props={{
+          ...props,
+          tags: Object.keys(tags),
+        }}
+      />
     </Info>
   </Card>
 );
