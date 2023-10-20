@@ -88,6 +88,7 @@ const TeamContainer = styled.div`
   width: 200px;
   height: 30px;
   background: green;
+  margin-bottom: 16px;
 `;
 
 const ProfileImage = styled.img`
@@ -541,11 +542,38 @@ const handleAddTeamMember = () => {
     return;
   }
   // TODO:
-  if (!state.teamMembers.includes(state.teamMember)) {
-    State.update({
-      teamMembers: [...state.teamMembers, state.teamMember.toLowerCase()],
-      teamMember: "",
-    });
+  if (!state.teamMembers.find((tm) => tm.accountId == state.teamMember)) {
+    // get data from social.near
+    const profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+    const fullTeamMember = {
+      accountId: state.teamMember.toLowerCase(),
+      imageUrl: profileImageUrl,
+    };
+    Near.asyncView("social.near", "get", { keys: [`${state.teamMember}/profile/**`] })
+      .then((socialData) => {
+        console.log("social data line 554: ", socialData);
+        if (socialData) {
+          const profileData = socialData[state.teamMember].profile;
+          if (!profileData) return;
+          // get profile image URL
+          if (profileData.image) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.image);
+            if (imageUrl) fullTeamMember.imageUrl = imageUrl;
+            console.log("fullTeamMember.imageUrl line 562: ", fullTeamMember.imageUrl);
+          }
+        }
+      })
+      .catch((e) => {
+        console.log("error getting social data: ", e);
+      })
+      .finally(() => {
+        console.log("fullTeamMember.imageUrl line 570: ", fullTeamMember.imageUrl);
+        State.update({
+          teamMembers: [...state.teamMembers, fullTeamMember],
+          teamMember: "",
+          nearAccountIdError: "",
+        });
+      });
   }
 };
 
@@ -811,23 +839,26 @@ return (
             <MembersCount>{state.teamMembers.length} </MembersCount>
             {state.teamMembers.length == 1 ? "member" : "members"}
           </MembersText>
-          {state.teamMembers.map((teamMember) => (
-            <MembersListItem>
-              <MembersListItemLeft>
-                <Icon src={DEFAULT_PROFILE_IMAGE_URL} />
-                <MembersListItemText>@{teamMember}</MembersListItemText>
-              </MembersListItemLeft>
-              <RemoveMember
-                onClick={() =>
-                  State.update({
-                    teamMembers: state.teamMembers.filter((member) => member != teamMember),
-                  })
-                }
-              >
-                Remove
-              </RemoveMember>
-            </MembersListItem>
-          ))}
+          {state.teamMembers.map((teamMember) => {
+            console.log("team member line 841: ", teamMember);
+            return (
+              <MembersListItem>
+                <MembersListItemLeft>
+                  <Icon src={teamMember.imageUrl} />
+                  <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
+                </MembersListItemLeft>
+                <RemoveMember
+                  onClick={() =>
+                    State.update({
+                      teamMembers: state.teamMembers.filter((member) => member != teamMember),
+                    })
+                  }
+                >
+                  Remove
+                </RemoveMember>
+              </MembersListItem>
+            );
+          })}
         </Modal>
       </>
     )}
