@@ -60,15 +60,39 @@ const BannerImage = styled.img`
 const LowerBannerContainer = styled.div`
   position: absolute;
   bottom: -60px;
-  left: 113px;
+  left: 0px;
+  display: flex;
+  align-items: stretch; /* Ensuring child elements stretch to full height */
+  justify-content: space-between;
+  background: pink;
+  width: 100%;
+`;
+
+const LowerBannerContainerLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  margin-left: 113px;
+`;
+
+const LowerBannerContainerRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end; /* Pushes TeamContainer to the bottom */
+  flex: 1;
+  background: yellow;
+`;
+
+const TeamContainer = styled.div`
+  width: 200px;
+  height: 30px;
+  background: green;
 `;
 
 const ProfileImage = styled.img`
-  width: 120px;
-  height: 120px;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
   border-radius: 50%;
   border: 5px solid white;
   // position: absolute;
@@ -559,10 +583,15 @@ return (
         <Banner>
           <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
           <LowerBannerContainer>
-            <ProfileImage src={state.profileImageUrl} alt="profile" />
-            <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
-              Add team members
-            </AddTeamMembers>
+            <LowerBannerContainerLeft>
+              <ProfileImage src={state.profileImageUrl} alt="profile" width={120} height={120} />
+              <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
+                Add team members
+              </AddTeamMembers>
+            </LowerBannerContainerLeft>
+            <LowerBannerContainerRight>
+              <TeamContainer>Hi</TeamContainer>
+            </LowerBannerContainerRight>
           </LowerBannerContainer>
         </Banner>
         <FormBody>
