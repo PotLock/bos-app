@@ -20,9 +20,22 @@ const About = () => (
   />
 );
 
+console.log("Props in About: ", props);
+
+const Team = () => (
+  <Widget
+    src={`${ownerId}/widget/Project.Team`}
+    props={{
+      ...props,
+      team: Object.keys(props.profile.team),
+    }}
+  />
+);
+
 return (
   <>
     <Header>About {name}</Header>
     <About />
+    <Team />
   </>
 );
