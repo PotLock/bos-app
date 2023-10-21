@@ -7,22 +7,25 @@ const getButtonBackground = () => {
   } else if (props.type === "secondary") {
     // TODO: handle disabled
     return "#FCE9D5";
+  } else if (props.type === "tertiary") {
+    return "white";
   }
 };
 
-const getButtonColor = () => {
+const getButtonTextColor = () => {
   if (props.type === "primary") {
     if (props.disabled) {
       return "darkgrey";
     }
     return "white";
+  } else if (props.type === "secondary") {
+    return "#2E2E2E";
   }
-  return "#2E2E2E";
 };
 
 const Button = styled.button`
   // width: 100%;
-  height: 100%;
+  // height: 100%;
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -35,7 +38,7 @@ const Button = styled.button`
   gap: 8px;
   display: inline-flex;
   text-align: center;
-  color: ${getButtonColor()};
+  color: ${getButtonTextColor()};
   font-size: 14px;
   font-weight: 600;
 
@@ -45,8 +48,6 @@ const Button = styled.button`
   }
 `;
 
-console.log("rendering action button");
-
 return (
   <Button
     onClick={(e) => {
@@ -54,6 +55,7 @@ return (
       props.onClick(e);
     }}
     disabled={props.disabled}
+    style={{ ...props.style }}
   >
     {props.text}
   </Button>

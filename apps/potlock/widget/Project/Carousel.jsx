@@ -31,6 +31,7 @@ const Cards = styled.div`
   transition: transform 0.5s ease-in-out;
   transform: translateX(${({ translateX }) => translateX}px);
 `;
+
 const Card = styled.div`
   display: flex;
   flex: 0 0 auto;

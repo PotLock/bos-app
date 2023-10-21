@@ -1,4 +1,19 @@
 const ownerId = "potlock.near";
+const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
+
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const DEFAULT_BANNER_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+};
 
 const HeroOuter = styled.div`
   padding: 136px 64px;
@@ -17,89 +32,94 @@ const Separator = styled.div`
   background-color: #f8f8f8;
 `;
 
-const SectionTitle = styled.div`
-  font-size: 48px;
-  font-weight: 600;
-  color: #2e2e2e;
-  font-family: Lora;
+const SectionHeader = styled.div`
+  display: flex;
+  flex-direction: row;
   width: 100%;
-  text-align: center;
+  align-items: center;
+  margin-bottom: 24px;
 `;
 
-const sampleProjects = [
-  {
-    name: "Space Explorer",
-    description: "Navigate through the uncharted territories of outer space.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["React", "GraphQL"],
-  },
-  {
-    name: "Weather App",
-    description: "Get the latest weather updates for your location.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Vue", "REST API"],
-  },
-  {
-    name: "Recipe Book",
-    description: "Find and save your favorite recipes.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Angular", "Firebase"],
-  },
-  {
-    name: "Fitness Tracker",
-    description: "Monitor your fitness journey.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Svelte", "MongoDB"],
-  },
-  {
-    name: "Bookstore",
-    description: "Discover and purchase books online.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["React", "Stripe API"],
-  },
-  {
-    name: "Job Finder",
-    description: "Connect employers and job seekers.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["Python", "Django"],
-  },
-  {
-    name: "Social Media App",
-    description: "Connect with friends and family.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["MERN Stack"],
-  },
-  {
-    name: "E-commerce Platform",
-    description: "Shop your favorite items online.",
-    bannerImage:
-      "https://nftstorage.link/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-    profileImage:
-      "https://nftstorage.link/ipfs/bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u",
-    tags: ["MERN Stack"],
-  },
-];
+const SectionTitle = styled.div`
+  font-size: 24px;
+  font-weight: 600;
+  color: #2e2e2e;
+  font-family: Mona-Sans;
+`;
+
+const ProjectsCount = styled.div`
+  color: #7b7b7b;
+  font-size: 24px;
+  font-weight: 400;
+  margin-left: 32px;
+`;
+
+const ProjectsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 96px 64px;
+`;
+
+State.init({
+  registeredProjects: null, // TODO: change this back to null
+  // registeredProjects: sampleProjects,
+  getRegisteredProjectsError: "",
+});
+
+if (context.accountId && !state.registeredProjects) {
+  Near.asyncView(registryId, "get_projects", {})
+    .then((projects) => {
+      // get social data for each project
+      // name
+      // description
+      // bannerImage
+      // profileImage
+      // category
+      // horizon stuff, e.g. tags
+      Near.asyncView("social.near", "get", {
+        keys: projects.map((project) => `${project.id}/profile/**`),
+      }).then((socialData) => {
+        console.log("social data: ", socialData);
+        const formattedProjects = projects.map((project) => {
+          console.log("project line 153: ", project);
+          const profileData = socialData[project.id]?.profile;
+          console.log("profileData line 154: ", profileData);
+          let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+          if (profileData.image) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.image);
+            if (imageUrl) profileImageUrl = imageUrl;
+          }
+          // get banner image URL
+          let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+          if (profileData.backgroundImage) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
+            if (imageUrl) bannerImageUrl = imageUrl;
+          }
+          const formatted = {
+            id: project.id,
+            name: profileData.name ?? "",
+            description: profileData.description ?? "",
+            bannerImageUrl,
+            profileImageUrl,
+            tags: [profileData.category.text ?? ""], // TODO: change this to get tags from horizon/social
+          };
+          console.log("formatted: ", formatted);
+          return formatted;
+        });
+        console.log("formatted projects: ", formattedProjects);
+        State.update({ registeredProjects: formattedProjects });
+      });
+    })
+    .catch((e) => {
+      console.log("error getting projects: ", e);
+      State.update({ getRegisteredProjectsError: e });
+    });
+}
+
+console.log("state: ", state);
+
+if (!state.registeredProjects) return <>Loading...</>;
 
 return (
   <>
@@ -135,13 +155,32 @@ return (
       }}
     />
     <Separator />
-    {props.successfulRegistration && <h1>Success!</h1>}
-    <SectionTitle>Featured projects</SectionTitle>
-    <Widget
+    {/* <SectionTitle>Featured projects</SectionTitle> */}
+    {/* <Widget
       src={`${ownerId}/widget/Project.Carousel`}
       props={{
         projects: sampleProjects,
       }}
-    />
+    /> */}
+    <ProjectsContainer>
+      <SectionHeader>
+        <SectionTitle>All projects</SectionTitle>
+        <ProjectsCount>{state.registeredProjects.length}</ProjectsCount>
+      </SectionHeader>
+      <Widget
+        src={`${ownerId}/widget/Project.ListSection`}
+        props={{
+          projects: state.registeredProjects,
+          renderItem: (project) => (
+            <Widget
+              src={`${ownerId}/widget/Project.Card`}
+              props={{
+                project,
+              }}
+            />
+          ),
+        }}
+      />
+    </ProjectsContainer>
   </>
 );
