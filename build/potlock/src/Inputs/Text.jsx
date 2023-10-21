@@ -106,11 +106,9 @@ return (
           src={`${ownerId}/widget/Buttons.ActionButton`}
           props={{
             type: "primary",
-            // prefix: "https://",
             text: "Add",
-            // disabled: isCreateProjectDisabled,
             onClick: props.onClick,
-            borderRadius: `0px 4px 4px 0px`,
+            style: { borderRadius: `0px 4px 4px 0px` },
             submit: props.submit,
           }}
         />

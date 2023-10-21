@@ -22,12 +22,17 @@ const TeamMembersContainer = styled.div`
   gap: 40px;
 `;
 
-const TeamMemberItem = styled.div`
+const TeamMemberItem = styled.a`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 16px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none;
+  }
 `;
 
 const TeamMemberAccountId = styled.div`
@@ -51,7 +56,7 @@ const ImageContainer = styled.div`
 `;
 
 return (
-  <Container className="row align-items-start w-100">
+  <Container className="row gx-0 align-items-start w-100">
     <Column className="col-3">
       <Title>Team members</Title>
     </Column>
@@ -64,7 +69,10 @@ return (
             state.teamMembersProfiles[teamMember]
           );
           return (
-            <TeamMemberItem>
+            <TeamMemberItem
+              href={`https://near.social/mob.near/widget/ProfilePage?accountId=${teamMember}`}
+              target="_blank"
+            >
               <Widget
                 src="mob.near/widget/ProfileImage"
                 props={{

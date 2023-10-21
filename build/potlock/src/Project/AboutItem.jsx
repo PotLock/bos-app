@@ -15,7 +15,7 @@ const Title = styled.div`
 `;
 
 return (
-  <Container className="row align-items-start w-100">
+  <Container className="row gx-0 align-items-start w-100">
     <Column className="col-3">
       <Title>{props.title}</Title>
     </Column>

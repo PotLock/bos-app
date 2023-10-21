@@ -10,14 +10,16 @@ const Header = styled.div`
 `;
 
 const About = () => (
-  <Widget
-    src={`${ownerId}/widget/Project.AboutItem`}
-    props={{
-      ...props,
-      title: "Overview",
-      text: description.repeat(100),
-    }}
-  />
+  <>
+    <Widget
+      src={`${ownerId}/widget/Project.AboutItem`}
+      props={{
+        ...props,
+        title: "Overview",
+        text: description.repeat(100),
+      }}
+    />
+  </>
 );
 
 console.log("Props in About: ", props);
@@ -27,7 +29,7 @@ const Team = () => (
     src={`${ownerId}/widget/Project.Team`}
     props={{
       ...props,
-      team: Object.keys(props.profile.team),
+      team: Object.keys(props.profile.team ?? {}),
     }}
   />
 );

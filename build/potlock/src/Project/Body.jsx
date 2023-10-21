@@ -48,6 +48,15 @@ const Space = styled.div`
   height: ${(props) => props.height}px;
 `;
 
+const Actions = () => (
+  <Widget
+    src={`${ownerId}/widget/Project.Actions`}
+    props={{
+      ...props,
+    }}
+  />
+);
+
 return (
   <BodyContainer>
     <Name>{profile.name}</Name>
@@ -59,6 +68,8 @@ return (
         tags,
       }}
     />
+    <Space height={48} />
+    <Actions />
     <Space height={48} />
     <Widget
       src={`${ownerId}/widget/Project.About`}

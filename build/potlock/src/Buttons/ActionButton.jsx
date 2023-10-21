@@ -7,17 +7,20 @@ const getButtonBackground = () => {
   } else if (props.type === "secondary") {
     // TODO: handle disabled
     return "#FCE9D5";
+  } else if (props.type === "tertiary") {
+    return "white";
   }
 };
 
-const getButtonColor = () => {
+const getButtonTextColor = () => {
   if (props.type === "primary") {
     if (props.disabled) {
       return "darkgrey";
     }
     return "white";
+  } else if (props.type === "secondary") {
+    return "#2E2E2E";
   }
-  return "#2E2E2E";
 };
 
 const Button = styled.button`
@@ -30,12 +33,12 @@ const Button = styled.button`
   background: ${getButtonBackground()};
   overflow: hidden;
   box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
-  border-radius: ${(props) => props.borderRadius ?? "6px"};
+  border-radius: 6px;
   border: 1px solid #4a4a4a;
   gap: 8px;
   display: inline-flex;
   text-align: center;
-  color: ${getButtonColor()};
+  color: ${getButtonTextColor()};
   font-size: 14px;
   font-weight: 600;
 
@@ -51,9 +54,8 @@ return (
       e.preventDefault();
       props.onClick(e);
     }}
-    borderRadius={props.borderRadius}
     disabled={props.disabled}
-    // submit={!!props.submit}
+    style={{ ...props.style }}
   >
     {props.text}
   </Button>

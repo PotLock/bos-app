@@ -1,6 +1,7 @@
 const Tags = styled.div`
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 `;
 
 const Tag = styled.span`
