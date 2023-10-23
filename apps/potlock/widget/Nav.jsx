@@ -38,7 +38,7 @@ const NavRight = styled.div`
   justify-content: center;
 `;
 
-const NavIcon = styled.div`
+const NavLogo = styled.a`
   text-align: center;
   color: #2e2e2e;
   font-size: 23.95px;
@@ -46,6 +46,11 @@ const NavIcon = styled.div`
   line-height: 23.95px;
   word-wrap: break-word;
   margin-right: 48px;
+  text-decoration: none;
+
+  :hover {
+    text-decoration: none;
+  }
 `;
 
 const NavTabs = styled.div`
@@ -83,7 +88,7 @@ const tabOptions = [
 return (
   <Nav>
     <NavLeft>
-      <NavIcon>🫕 Potlock</NavIcon>
+      <NavLogo href={`?tab=projects`}>🫕 Potlock</NavLogo>
     </NavLeft>
     <NavRight>
       <NavTabs>
