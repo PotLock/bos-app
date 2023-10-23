@@ -26,6 +26,11 @@ jobs:
       - name: List contents of build directory
         run: ls -al build
 
+      - name: Check current directory
+        run: |
+          pwd
+          ls -al
+
       - name: Deploy widgets
         working-directory: ./build/potluck
         run: |
