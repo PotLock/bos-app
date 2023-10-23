@@ -79,6 +79,7 @@ return (
                   className: "mb-2",
                   imageClassName: "rounded-circle w-100 h-100 d-block",
                   thumbnail: false,
+                  tooltip: true,
                 }}
               />
               <TeamMemberAccountId>@{teamMember}</TeamMemberAccountId>

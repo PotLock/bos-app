@@ -1,5 +1,5 @@
 const ownerId = "potlock.near";
-const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
+const registryId = "registry.potlock.near"; // TODO: update when registry is deployed
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const DEFAULT_BANNER_IMAGE_URL =
@@ -529,9 +529,7 @@ const FormSectionLeft = (title, description, isRequired) => {
 return (
   <Container>
     {!state.socialDataFetched ? (
-      <div class="spinner-border text-secondary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
+      <div class="spinner-border text-secondary" role="status" />
     ) : registeredProject ? (
       <Container>
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
@@ -612,6 +610,7 @@ return (
                               className: "mb-2",
                               imageClassName: "rounded-circle w-100 h-100 d-block",
                               thumbnail: false,
+                              tooltip: true,
                             }}
                           />
                         );
@@ -849,6 +848,7 @@ return (
                       },
                       imageClassName: "rounded-circle w-100 h-100 d-block",
                       thumbnail: false,
+                      tooltip: true,
                     }}
                   />
                   <MembersListItemText>@{teamMember.accountId}</MembersListItemText>

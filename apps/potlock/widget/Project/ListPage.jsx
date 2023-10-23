@@ -1,5 +1,5 @@
 const ownerId = "potlock.near";
-const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
+const registryId = "registry.potlock.near"; // TODO: update when registry is deployed
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_URL =
