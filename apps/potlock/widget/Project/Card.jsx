@@ -82,6 +82,10 @@ return (
         ...props,
         projectId: id,
         profile,
+        profileImageTranslateYPx: 168,
+        containerStyle: {
+          paddingLeft: "16px",
+        },
         backgroundStyle: {
           objectFit: "cover",
           left: 0,
