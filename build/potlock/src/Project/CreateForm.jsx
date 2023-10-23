@@ -421,7 +421,7 @@ const handleCreateProject = (e) => {
       },
     },
   };
-  const registerArgs = { name: state.name, team_members: [] };
+  const registerArgs = { name: state.name };
   const transactions = [
     // set data on social.near
     {
@@ -437,6 +437,7 @@ const handleCreateProject = (e) => {
       deposit: Big(JSON.stringify(registerArgs).length * 16).mul(Big(10).pow(20)),
       args: registerArgs,
     },
+    // TODO: register on near horizon
   ];
   const res = Near.call(transactions);
 };
