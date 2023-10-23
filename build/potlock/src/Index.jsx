@@ -3,6 +3,17 @@ const ownerId = "potlock.near";
 const CREATE_PROJECT_TAB = "createproject";
 const PROJECT_DETAIL_TAB = "project";
 
+const monaSansCss = fetch("https://fonts.cdnfonts.com/css/mona-sans").body;
+
+if (!monaSansCss) return "";
+
+const Theme = styled.div`
+  * {
+    font-family: "Mona-Sans";
+  }
+  ${monaSansCss}
+`;
+
 State.init({
   tnc: true,
   tncIsFetched: false,
@@ -165,7 +176,7 @@ const isForm = [
 // const showTncDialog = !state.tnc && state.tosAccept && props.tab !== "legal";
 
 return (
-  <>
+  <Theme>
     <Widget src={`${ownerId}/widget/Nav`} />
     {/* <Widget
       src={`${ownerId}/widget/Components.Header`}
@@ -177,5 +188,5 @@ return (
     /> */}
     {/* <Widget src={`${ownerId}/widget/Project.Form`} /> */}
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
-  </>
+  </Theme>
 );
