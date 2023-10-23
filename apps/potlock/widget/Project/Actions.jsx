@@ -15,8 +15,6 @@ const SubRow = styled.div`
   gap: 40px;
 `;
 
-console.log("props in Actions: ", props);
-
 return (
   <Container className="gx-0">
     <SubRow className="col-4"></SubRow>

@@ -1,10 +1,13 @@
 const ownerId = "potlock.near";
 
+const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
+
 const headerTitleFontSizePx = 88;
 
 const HeaderContainer = styled.div`
   width: 100%;
-  background: #fffaf4;
+  // background: #fffaf4;
+  background: white;
   padding: 80px 64px;
 `;
 
@@ -17,15 +20,17 @@ const HeaderContent = styled.div`
 const HeaderTitle = styled.div`
   color: #2e2e2e;
   font-size: ${headerTitleFontSizePx}px;
-  font-weight: 600;
+  font-weight: 500;
   word-wrap: break-word;
   position: relative;
+  text-align: center;
+  font-family: "Lora";
+  ${loraCss}
 `;
 
 const HeaderDescription = styled.div`
   color: #2e2e2e;
   font-size: 32px;
-  font-family: Mona-Sans;
   font-weight: 400;
   word-wrap: break-word;
   max-width: 866px;
@@ -43,6 +48,7 @@ const ButtonsContainer = styled.div`
 `;
 
 return (
+  // <Theme>
   <HeaderContainer>
     <HeaderContent>
       <HeaderTitle>
@@ -78,4 +84,5 @@ return (
       {props.buttonSecondary && props.buttonSecondary}
     </ButtonsContainer>
   </HeaderContainer>
+  // </Theme>
 );

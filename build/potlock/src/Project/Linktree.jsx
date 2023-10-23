@@ -1,5 +1,3 @@
-console.log("props in Socials: ", props);
-
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
 const linktree = props.linktree;
@@ -34,6 +32,7 @@ const LinkText = styled.a`
   color: gray;
   font-weight: 400;
   margin-left: 16px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 
   &:hover {
     text-decoration: none;
@@ -48,6 +47,12 @@ const itemIconUrls = {
   NEAR: IPFS_BASE_URL + "bafkreigogi7iyonbdjsxi3n6seplll7at6e4jsrxwpgke5b5uk5obxkdpe",
 };
 
+const fullUrls = {
+  twitter: (handle) => `https://twitter.com/${handle}`,
+  github: (username) => `https://github.com/${username}`,
+  website: (url) => url,
+};
+
 return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
@@ -55,8 +60,14 @@ return (
         <LinktreeItemContainer>
           <Icon src={itemIconUrls[k]} />
           <LinkText
+            disabled={!v}
             target="_blank"
-            href={`https://www.google.com`} // TODO: UPDATE THIS
+            href={fullUrls[k](v)}
+            onClick={(e) => {
+              if (!v) {
+                e.preventDefault();
+              }
+            }}
           >
             {k[0].toUpperCase() + k.slice(1)}
           </LinkText>
@@ -67,7 +78,7 @@ return (
       <Icon src={itemIconUrls.NEAR} />
       <LinkText
         target="_blank"
-        href={`https://www.google.com`} // TODO: UPDATE THIS
+        href={`https://near.social/mob.near/widget/ProfilePage?accountId=${props.projectId}`}
       >
         NEAR
       </LinkText>

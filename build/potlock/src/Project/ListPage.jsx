@@ -1,5 +1,5 @@
 const ownerId = "potlock.near";
-const registryId = "registry1.tests.potlock.near"; // TODO: update when registry is deployed
+const registryId = "registry.potlock.near"; // TODO: update when registry is deployed
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_URL =
@@ -15,6 +15,15 @@ const getImageUrlFromSocialImage = (image) => {
   }
 };
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
 const HeroOuter = styled.div`
   padding: 136px 64px;
 `;
@@ -26,18 +35,13 @@ const HeroInner = styled.div`
   justify-content: space-between;
 `;
 
-const Separator = styled.div`
-  width: 100%;
-  height: 96px;
-  background-color: #f8f8f8;
-`;
-
 const SectionHeader = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   align-items: center;
   margin-bottom: 24px;
+  padding: 96px 64px 24px 64px;
 `;
 
 const SectionTitle = styled.div`
@@ -58,7 +62,8 @@ const ProjectsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 96px 64px;
+  // padding: 0px 64px 96px 64px;
+  // background: #fafafa;
 `;
 
 State.init({
@@ -80,11 +85,8 @@ if (context.accountId && !state.registeredProjects) {
       Near.asyncView("social.near", "get", {
         keys: projects.map((project) => `${project.id}/profile/**`),
       }).then((socialData) => {
-        console.log("social data: ", socialData);
         const formattedProjects = projects.map((project) => {
-          console.log("project line 153: ", project);
           const profileData = socialData[project.id]?.profile;
-          console.log("profileData line 154: ", profileData);
           let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
           if (profileData.image) {
             const imageUrl = getImageUrlFromSocialImage(profileData.image);
@@ -104,10 +106,8 @@ if (context.accountId && !state.registeredProjects) {
             profileImageUrl,
             tags: [profileData.category.text ?? ""], // TODO: change this to get tags from horizon/social
           };
-          console.log("formatted: ", formatted);
           return formatted;
         });
-        console.log("formatted projects: ", formattedProjects);
         State.update({ registeredProjects: formattedProjects });
       });
     })
@@ -117,9 +117,7 @@ if (context.accountId && !state.registeredProjects) {
     });
 }
 
-console.log("state: ", state);
-
-if (!state.registeredProjects) return <>Loading...</>;
+if (!state.registeredProjects) return "";
 
 return (
   <>
@@ -154,14 +152,6 @@ return (
         ),
       }}
     />
-    <Separator />
-    {/* <SectionTitle>Featured projects</SectionTitle> */}
-    {/* <Widget
-      src={`${ownerId}/widget/Project.Carousel`}
-      props={{
-        projects: sampleProjects,
-      }}
-    /> */}
     <ProjectsContainer>
       <SectionHeader>
         <SectionTitle>All projects</SectionTitle>

@@ -40,6 +40,7 @@ const Button = styled.button`
   text-align: center;
   color: ${getButtonTextColor()};
   font-size: 14px;
+  line-height: 16px;
   font-weight: 600;
 
   &:hover {

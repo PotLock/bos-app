@@ -1,0 +1,13 @@
+name: Deploy Components to Mainnet
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy-mainnet:
+    uses: FroVolod/bos-cli-rs/.github/workflows/deploy-mainnet.yml@master
+    with:
+      deploy-account-address: potlock.near
+      signer-account-address: potlock.near
+      signer-public-key: ed25519:3iWoL6haUT3FGd9KJjwpAS8fLqk7hAdyBX8trD3vSh6C
+    secrets:
+      SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}

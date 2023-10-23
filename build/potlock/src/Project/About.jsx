@@ -16,13 +16,11 @@ const About = () => (
       props={{
         ...props,
         title: "Overview",
-        text: description.repeat(100),
+        text: description,
       }}
     />
   </>
 );
-
-console.log("Props in About: ", props);
 
 const Team = () => (
   <Widget

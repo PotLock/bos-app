@@ -19,6 +19,9 @@ const name = profile.name || "No-name profile";
 const image = profile.image;
 const backgroundImage = profile.backgroundImage;
 const tags = Object.keys(profile.tags ?? {});
+const imageStyle = props.imageStyle ?? {};
+const backgroundStyle = props.backgroundStyle ?? {};
+const containerStyle = props.containerStyle ?? {};
 
 const Wrapper = styled.div`
   overflow: hidden;
@@ -26,32 +29,36 @@ const Wrapper = styled.div`
 `;
 
 return (
-  <div className="px-4 pt-0 pb-5 bg-dark position-relative">
+  <div className="pt-0 position-relative" style={{ ...containerStyle }}>
     {backgroundImage && (
       <Widget
         src="mob.near/widget/Image"
         props={{
           image: backgroundImage,
           alt: "profile background",
-          className: "position-absolute w-100 h-100",
-          style: { objectFit: "cover", left: 0, top: 0 },
+          className: "position-absolute w-100",
+          style: { ...backgroundStyle },
           fallbackUrl:
             "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm",
         }}
       />
     )}
-    <div className="profile-picture d-inline-block" style={{ transform: "translateY(7rem)" }}>
+    <div
+      className="profile-picture d-inline-block"
+      style={{ transform: `translateY(${props.profileImageTranslateYPx ?? 160}px)` }}
+    >
       <Widget
         src="mob.near/widget/ProfileImage"
         props={{
           profile,
           accountId,
-          style: { width: "10rem", height: "10rem" }, // TODO: move to props
+          style: { ...imageStyle },
           className: "mb-2",
           imageClassName: "rounded-circle w-100 h-100 img-thumbnail d-block",
           thumbnail: false,
         }}
       />
     </div>
+    {props.children && props.children}
   </div>
 );

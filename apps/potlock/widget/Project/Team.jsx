@@ -44,8 +44,6 @@ const TeamMemberAccountId = styled.div`
 
 const team = props.team ?? {};
 
-console.log("team in Team: ", team);
-
 const imageWidthPx = 129;
 
 const ImageContainer = styled.div`
@@ -63,11 +61,6 @@ return (
     <Column className="col-9">
       <TeamMembersContainer>
         {props.team.map((teamMember) => {
-          console.log("teammember: ", teamMember);
-          console.log(
-            "state.teamMembersProfiles[teamMember]: ",
-            state.teamMembersProfiles[teamMember]
-          );
           return (
             <TeamMemberItem
               href={`https://near.social/mob.near/widget/ProfilePage?accountId=${teamMember}`}
@@ -82,10 +75,11 @@ return (
                     height: `${imageWidthPx}px`,
                     border: `4px #dd3345 solid`,
                     borderRadius: "50%",
-                  }, // TODO: move to props
+                  },
                   className: "mb-2",
                   imageClassName: "rounded-circle w-100 h-100 d-block",
                   thumbnail: false,
+                  tooltip: true,
                 }}
               />
               <TeamMemberAccountId>@{teamMember}</TeamMemberAccountId>

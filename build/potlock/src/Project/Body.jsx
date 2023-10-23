@@ -1,15 +1,9 @@
-console.log("props in Body: ", props);
-
 const ownerId = "potlock.near";
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
-// const linktree = props.linktree;
-
-// if (!linktree) return "Loading...";
-
 const profile = props.profile;
 
-if (!profile) return "Loading...";
+if (!profile) return "Loading PROFILE...";
 
 const tags = Object.keys(profile.tags ?? {});
 
