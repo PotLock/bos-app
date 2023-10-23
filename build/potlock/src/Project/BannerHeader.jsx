@@ -38,6 +38,8 @@ const Wrapper = styled.div`
 
 // console.log("backgroundHeight - imageHeight / 2: ", backgroundHeight - imageHeight / 2);
 
+console.log("props.children: ", props.children);
+
 return (
   <div className="pt-0 position-relative" style={{ ...containerStyle }}>
     {backgroundImage && (
@@ -69,5 +71,6 @@ return (
         }}
       />
     </div>
+    {props.children && props.children}
   </div>
 );

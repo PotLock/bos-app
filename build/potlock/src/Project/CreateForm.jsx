@@ -27,11 +27,14 @@ if (!context.accountId) {
   );
 }
 
+const imageHeightPx = 120;
+const profileImageTranslateYPx = 220;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  // align-items: center;
+  // justify-content: center;
   width: 100%;
   padding: 72px 64px 72px 64px;
 `;
@@ -61,12 +64,11 @@ const BannerImage = styled.img`
 
 const LowerBannerContainer = styled.div`
   position: absolute;
-  bottom: -60px;
+  bottom: -210px;
   left: 0px;
   display: flex;
   align-items: stretch; /* Ensuring child elements stretch to full height */
   justify-content: space-between;
-  // background: pink;
   width: 100%;
 `;
 
@@ -74,7 +76,7 @@ const LowerBannerContainerLeft = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  margin-left: 113px;
+  margin-left: 190px;
 `;
 
 const LowerBannerContainerRight = styled.div`
@@ -619,8 +621,10 @@ const handleAddTeamMember = () => {
 
 return (
   <Container>
-    {!state.socialDataFetched ? (
-      <div>Loading CREATE FORM...</div>
+    {/* {!state.socialDataFetched ? (
+      <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
     ) : registeredProject ? (
       <>
         <h1>You've successfully registered!</h1>
@@ -645,277 +649,329 @@ return (
           />
         </ButtonsContainer>
       </>
-    ) : (
-      <>
-        <Banner>
-          <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
-          <LowerBannerContainer>
-            <LowerBannerContainerLeft>
-              <ProfileImage src={state.profileImageUrl} alt="profile" width={120} height={120} />
-              <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
-                Add team members
-              </AddTeamMembers>
-            </LowerBannerContainerLeft>
-            <LowerBannerContainerRight>
-              <TeamContainer>
-                {state.teamMembers.length > MAX_TEAM_MEMBERS_DISPLAY_COUNT && (
-                  <MoreTeamMembersContainer zIndex={state.teamMembers.length + 1}>
-                    <MoreTeamMembersText>{MAX_TEAM_MEMBERS_DISPLAY_COUNT}+</MoreTeamMembersText>
-                  </MoreTeamMembersContainer>
-                )}
-                {state.teamMembers
-                  .slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT)
-                  .map((teamMember, idx) => {
-                    return (
-                      <ProfileImage
-                        src={teamMember.imageUrl}
-                        alt="profile"
-                        width={28}
-                        height={28}
-                        margin="0 -8px 0 0"
-                        zIndex={state.teamMembers.length - idx}
-                        borderWidth={2}
-                      />
-                    );
-                  })}
-              </TeamContainer>
-            </LowerBannerContainerRight>
-          </LowerBannerContainer>
-        </Banner>
-        <FormBody>
-          <FormDivider />
+    ) : ( */}
+    <>
+      <Widget
+        src={`${ownerId}/widget/Project.BannerHeader`}
+        props={{
+          ...props,
+          projectId: context.accountId,
+          profileImageTranslateYPx,
+          containerStyle: {
+            paddingLeft: "64px",
+          },
+          backgroundStyle: {
+            objectFit: "cover",
+            left: 0,
+            top: 0,
+            height: "280px",
+          },
+          imageStyle: {
+            width: `${imageHeightPx}px`,
+            height: `${imageHeightPx}px`,
+          },
+          children: (
+            <LowerBannerContainer>
+              <LowerBannerContainerLeft>
+                <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
+                  Add team members
+                </AddTeamMembers>
+              </LowerBannerContainerLeft>
+              <LowerBannerContainerRight>
+                <TeamContainer>
+                  {state.teamMembers.length > MAX_TEAM_MEMBERS_DISPLAY_COUNT && (
+                    <MoreTeamMembersContainer zIndex={state.teamMembers.length + 1}>
+                      <MoreTeamMembersText>{MAX_TEAM_MEMBERS_DISPLAY_COUNT}+</MoreTeamMembersText>
+                    </MoreTeamMembersContainer>
+                  )}
+                  {state.teamMembers
+                    .slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT)
+                    .map((teamMember, idx) => {
+                      return (
+                        <ProfileImage
+                          src={teamMember.imageUrl}
+                          alt="profile"
+                          width={28}
+                          height={28}
+                          margin="0 -8px 0 0"
+                          zIndex={state.teamMembers.length - idx}
+                          borderWidth={2}
+                        />
+                      );
+                    })}
+                </TeamContainer>
+              </LowerBannerContainerRight>
+            </LowerBannerContainer>
+          ),
+        }}
+      />
+      {/* <Banner>
+        <BannerImageWithFallback src={state.bannerImageUrl} alt="banner" />
+        <LowerBannerContainer>
+          <LowerBannerContainerLeft>
+            <ProfileImage src={state.profileImageUrl} alt="profile" width={120} height={120} />
+            <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
+              Add team members
+            </AddTeamMembers>
+          </LowerBannerContainerLeft>
+          <LowerBannerContainerRight>
+            <TeamContainer>
+              {state.teamMembers.length > MAX_TEAM_MEMBERS_DISPLAY_COUNT && (
+                <MoreTeamMembersContainer zIndex={state.teamMembers.length + 1}>
+                  <MoreTeamMembersText>{MAX_TEAM_MEMBERS_DISPLAY_COUNT}+</MoreTeamMembersText>
+                </MoreTeamMembersContainer>
+              )}
+              {state.teamMembers.slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT).map((teamMember, idx) => {
+                return (
+                  <ProfileImage
+                    src={teamMember.imageUrl}
+                    alt="profile"
+                    width={28}
+                    height={28}
+                    margin="0 -8px 0 0"
+                    zIndex={state.teamMembers.length - idx}
+                    borderWidth={2}
+                  />
+                );
+              })}
+            </TeamContainer>
+          </LowerBannerContainerRight>
+        </LowerBannerContainer>
+      </Banner> */}
+      <FormBody style={{ padding: `${profileImageTranslateYPx + 40}px 68px` }}>
+        <FormDivider />
 
-          {/* <button onClick={() => State.update({ isModalOpen: true })}>Open Modal</button> */}
+        {/* <button onClick={() => State.update({ isModalOpen: true })}>Open Modal</button> */}
 
-          <FormSectionContainer>
-            {FormSectionLeft(
-              "Project details",
-              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-              true
-            )}
-            <FormSectionRightDiv>
-              <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
-                props={{
-                  label: "Project ID *",
-                  value: context.accountId,
-                  disabled: true,
-                }}
-              />
-              <Space height={24} />
-              <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
-                props={{
-                  label: "Project name *",
-                  placeholder: "Enter project name",
-                  value: state.name,
-                  onChange: (name) => State.update({ name }),
-                  validate: () => {
-                    if (state.name.length < 3) {
-                      State.update({ nameError: "Name must be at least 3 characters" });
-                      return;
-                    }
-
-                    if (state.name.length > 100) {
-                      State.update({
-                        nameError: "Name must be less than 100 characters",
-                      });
-                      return;
-                    }
-
-                    State.update({ nameError: "" });
-                  },
-                  error: state.nameError,
-                }}
-              />
-              <Space height={24} />
-
-              <Widget
-                src={`${ownerId}/widget/Inputs.TextArea`}
-                props={{
-                  label: "Overview *",
-                  placeholder: "Give a short description of your project",
-                  value: state.description,
-                  onChange: (description) => State.update({ description }),
-                  validate: () => {
-                    if (state.description.length > 500) {
-                      State.update({
-                        descriptionError: "Description must be less than 500 characters",
-                      });
-                      return;
-                    }
-
-                    State.update({ descriptionError: "" });
-                  },
-                  error: state.descriptionError,
-                }}
-              />
-              <Space height={24} />
-
-              <Widget
-                src={`${ownerId}/widget/Inputs.Select`}
-                props={{
-                  label: "Select category *",
-                  noLabel: false,
-                  placeholder: "Choose category",
-                  options: [
-                    // Social Impact, NonProfit, Climate, Public Good
-                    { text: "Social Impact", value: "social-impact" },
-                    { text: "NonProfit", value: "non-profit" },
-                    { text: "Climate", value: "climate" },
-                    { text: "Public Good", value: "public-good" },
-                  ],
-                  value: state.category,
-                  onChange: (category) =>
-                    State.update({
-                      category,
-                    }),
-                  validate: () => {
-                    if (!state.category) {
-                      State.update({
-                        categoryError: "Please select a category",
-                      });
-                    }
-                  },
-                  error: state.categoryError,
-                }}
-              />
-            </FormSectionRightDiv>
-          </FormSectionContainer>
-          <FormDivider />
-          <FormSectionContainer>
-            {FormSectionLeft(
-              "Social links",
-              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-              false
-            )}
-            <FormSectionRightDiv>
-              <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
-                props={{
-                  label: "Twitter",
-                  prefix: "twitter.com/",
-                  // placeholder: "your-twitter-username",
-                  value: state.twitter,
-                  onChange: (twitter) => State.update({ twitter }),
-                  validate: () => {
-                    if (state.twitter.length > 15) {
-                      State.update({
-                        twitterError: "Invalid Twitter handle",
-                      });
-                      return;
-                    }
-                    State.update({ twitterError: "" });
-                  },
-                  error: state.twitterError,
-                }}
-              />
-              <Space height={24} />
-              <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
-                props={{
-                  label: "Telegram",
-                  prefix: "t.me/",
-                  // placeholder: "your-telegram-id",
-                  value: state.telegram,
-                  onChange: (telegram) => State.update({ telegram }),
-                  validate: () => {
-                    // TODO: add validation
-                  },
-                  error: state.telegramError,
-                }}
-              />
-              <Space height={24} />
-              <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
-                props={{
-                  label: "GitHub",
-                  prefix: "github.com/",
-                  // placeholder: "your-github-",
-                  value: state.github,
-                  onChange: (github) => State.update({ github }),
-                  validate: () => {
-                    // TODO: add validation
-                  },
-                  error: state.githubError,
-                }}
-              />
-              <Space height={24} />
-              <Widget
-                src={`${ownerId}/widget/Buttons.ActionButton`}
-                props={{
-                  type: "primary",
-                  prefix: "https://",
-                  text: "Create new project",
-                  disabled: isCreateProjectDisabled,
-                  onClick: handleCreateProject,
-                }}
-              />
-              <Space height={24} />
-            </FormSectionRightDiv>
-          </FormSectionContainer>
-        </FormBody>
-        <Modal isOpen={state.isModalOpen} onClose={() => State.update({ isModalOpen: false })}>
-          <ModalHeader>
-            <ModalHeaderLeft>
-              <IconContainer>
-                <Icon src={ADD_TEAM_MEMBERS_ICON_URL} />
-              </IconContainer>
-              <ModalTitle>Add team members</ModalTitle>
-            </ModalHeaderLeft>
-            <Icon
-              cursor={"pointer"}
-              src={CLOSE_ICON_URL}
-              onClick={() => State.update({ isModalOpen: false })}
+        <FormSectionContainer>
+          {FormSectionLeft(
+            "Project details",
+            "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+            true
+          )}
+          <FormSectionRightDiv>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                label: "Project ID *",
+                value: context.accountId,
+                disabled: true,
+              }}
             />
-          </ModalHeader>
-          <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              // label: "Project name *",
-              placeholder: "NEAR account ID",
-              value: state.teamMember,
-              onChange: (teamMember) => {
-                State.update({ teamMember, nearAccountIdError: "" });
-              },
-              buttonText: "Add",
-              submit: true,
-              onClick: handleAddTeamMember,
-              handleKeyPress: (e) => {
-                if (e.key === "Enter") {
-                  handleAddTeamMember();
-                }
-              },
-              error: state.nearAccountIdError,
-            }}
-          />
-          <Space height={24} />
-          <MembersText>
-            <MembersCount>{state.teamMembers.length} </MembersCount>
-            {state.teamMembers.length == 1 ? "member" : "members"}
-          </MembersText>
-          {state.teamMembers.map((teamMember) => {
-            return (
-              <MembersListItem>
-                <MembersListItemLeft>
-                  <ProfileImage src={teamMember.imageUrl} width={40} height={40} />
-                  <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
-                </MembersListItemLeft>
-                <RemoveMember
-                  onClick={() =>
-                    State.update({
-                      teamMembers: state.teamMembers.filter((member) => member != teamMember),
-                    })
+            <Space height={24} />
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                label: "Project name *",
+                placeholder: "Enter project name",
+                value: state.name,
+                onChange: (name) => State.update({ name }),
+                validate: () => {
+                  if (state.name.length < 3) {
+                    State.update({ nameError: "Name must be at least 3 characters" });
+                    return;
                   }
-                >
-                  Remove
-                </RemoveMember>
-              </MembersListItem>
-            );
-          })}
-        </Modal>
-      </>
-    )}
+
+                  if (state.name.length > 100) {
+                    State.update({
+                      nameError: "Name must be less than 100 characters",
+                    });
+                    return;
+                  }
+
+                  State.update({ nameError: "" });
+                },
+                error: state.nameError,
+              }}
+            />
+            <Space height={24} />
+
+            <Widget
+              src={`${ownerId}/widget/Inputs.TextArea`}
+              props={{
+                label: "Overview *",
+                placeholder: "Give a short description of your project",
+                value: state.description,
+                onChange: (description) => State.update({ description }),
+                validate: () => {
+                  if (state.description.length > 500) {
+                    State.update({
+                      descriptionError: "Description must be less than 500 characters",
+                    });
+                    return;
+                  }
+
+                  State.update({ descriptionError: "" });
+                },
+                error: state.descriptionError,
+              }}
+            />
+            <Space height={24} />
+
+            <Widget
+              src={`${ownerId}/widget/Inputs.Select`}
+              props={{
+                label: "Select category *",
+                noLabel: false,
+                placeholder: "Choose category",
+                options: [
+                  // Social Impact, NonProfit, Climate, Public Good
+                  { text: "Social Impact", value: "social-impact" },
+                  { text: "NonProfit", value: "non-profit" },
+                  { text: "Climate", value: "climate" },
+                  { text: "Public Good", value: "public-good" },
+                ],
+                value: state.category,
+                onChange: (category) =>
+                  State.update({
+                    category,
+                  }),
+                validate: () => {
+                  if (!state.category) {
+                    State.update({
+                      categoryError: "Please select a category",
+                    });
+                  }
+                },
+                error: state.categoryError,
+              }}
+            />
+          </FormSectionRightDiv>
+        </FormSectionContainer>
+        <FormDivider />
+        <FormSectionContainer>
+          {FormSectionLeft(
+            "Social links",
+            "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+            false
+          )}
+          <FormSectionRightDiv>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                label: "Twitter",
+                prefix: "twitter.com/",
+                // placeholder: "your-twitter-username",
+                value: state.twitter,
+                onChange: (twitter) => State.update({ twitter }),
+                validate: () => {
+                  if (state.twitter.length > 15) {
+                    State.update({
+                      twitterError: "Invalid Twitter handle",
+                    });
+                    return;
+                  }
+                  State.update({ twitterError: "" });
+                },
+                error: state.twitterError,
+              }}
+            />
+            <Space height={24} />
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                label: "Telegram",
+                prefix: "t.me/",
+                // placeholder: "your-telegram-id",
+                value: state.telegram,
+                onChange: (telegram) => State.update({ telegram }),
+                validate: () => {
+                  // TODO: add validation
+                },
+                error: state.telegramError,
+              }}
+            />
+            <Space height={24} />
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                label: "GitHub",
+                prefix: "github.com/",
+                // placeholder: "your-github-",
+                value: state.github,
+                onChange: (github) => State.update({ github }),
+                validate: () => {
+                  // TODO: add validation
+                },
+                error: state.githubError,
+              }}
+            />
+            <Space height={24} />
+            <Widget
+              src={`${ownerId}/widget/Buttons.ActionButton`}
+              props={{
+                type: "primary",
+                prefix: "https://",
+                text: "Create new project",
+                disabled: isCreateProjectDisabled,
+                onClick: handleCreateProject,
+              }}
+            />
+            <Space height={24} />
+          </FormSectionRightDiv>
+        </FormSectionContainer>
+      </FormBody>
+      <Modal isOpen={state.isModalOpen} onClose={() => State.update({ isModalOpen: false })}>
+        <ModalHeader>
+          <ModalHeaderLeft>
+            <IconContainer>
+              <Icon src={ADD_TEAM_MEMBERS_ICON_URL} />
+            </IconContainer>
+            <ModalTitle>Add team members</ModalTitle>
+          </ModalHeaderLeft>
+          <Icon
+            cursor={"pointer"}
+            src={CLOSE_ICON_URL}
+            onClick={() => State.update({ isModalOpen: false })}
+          />
+        </ModalHeader>
+        <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
+        <Widget
+          src={`${ownerId}/widget/Inputs.Text`}
+          props={{
+            // label: "Project name *",
+            placeholder: "NEAR account ID",
+            value: state.teamMember,
+            onChange: (teamMember) => {
+              State.update({ teamMember, nearAccountIdError: "" });
+            },
+            buttonText: "Add",
+            submit: true,
+            onClick: handleAddTeamMember,
+            handleKeyPress: (e) => {
+              if (e.key === "Enter") {
+                handleAddTeamMember();
+              }
+            },
+            error: state.nearAccountIdError,
+          }}
+        />
+        <Space height={24} />
+        <MembersText>
+          <MembersCount>{state.teamMembers.length} </MembersCount>
+          {state.teamMembers.length == 1 ? "member" : "members"}
+        </MembersText>
+        {state.teamMembers.map((teamMember) => {
+          return (
+            <MembersListItem>
+              <MembersListItemLeft>
+                <ProfileImage src={teamMember.imageUrl} width={40} height={40} />
+                <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
+              </MembersListItemLeft>
+              <RemoveMember
+                onClick={() =>
+                  State.update({
+                    teamMembers: state.teamMembers.filter((member) => member != teamMember),
+                  })
+                }
+              >
+                Remove
+              </RemoveMember>
+            </MembersListItem>
+          );
+        })}
+      </Modal>
+    </>
+    {/* )} */}
   </Container>
 );
