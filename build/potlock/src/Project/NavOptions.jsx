@@ -1,5 +1,3 @@
-console.log("props in NavOptions: ", props);
-
 const navOptions = [
   {
     label: "Home",
@@ -22,8 +20,6 @@ const navOptions = [
     disabled: true,
   },
 ];
-
-console.log("props.nav: ", props.nav);
 
 const getSelectedNavOption = () => {
   const navOption = navOptions.find((option) => option.label == props.nav);

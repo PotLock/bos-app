@@ -85,11 +85,8 @@ if (context.accountId && !state.registeredProjects) {
       Near.asyncView("social.near", "get", {
         keys: projects.map((project) => `${project.id}/profile/**`),
       }).then((socialData) => {
-        console.log("social data: ", socialData);
         const formattedProjects = projects.map((project) => {
-          console.log("project line 153: ", project);
           const profileData = socialData[project.id]?.profile;
-          console.log("profileData line 154: ", profileData);
           let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
           if (profileData.image) {
             const imageUrl = getImageUrlFromSocialImage(profileData.image);
@@ -109,10 +106,8 @@ if (context.accountId && !state.registeredProjects) {
             profileImageUrl,
             tags: [profileData.category.text ?? ""], // TODO: change this to get tags from horizon/social
           };
-          console.log("formatted: ", formatted);
           return formatted;
         });
-        console.log("formatted projects: ", formattedProjects);
         State.update({ registeredProjects: formattedProjects });
       });
     })
@@ -121,8 +116,6 @@ if (context.accountId && !state.registeredProjects) {
       State.update({ getRegisteredProjectsError: e });
     });
 }
-
-console.log("state in ListPage: ", state);
 
 if (!state.registeredProjects) return "";
 

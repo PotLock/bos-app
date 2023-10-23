@@ -349,7 +349,6 @@ if (context.accountId && !state.socialDataFetched) {
   Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
     .then((socialData) => {
       if (!socialData) return;
-      console.log("social data for current user: ", socialData);
       const profileData = socialData[context.accountId].profile;
       if (!profileData) return;
       // description
@@ -470,7 +469,6 @@ const handleAddTeamMember = () => {
     };
     Near.asyncView("social.near", "get", { keys: [`${state.teamMember}/profile/**`] })
       .then((socialData) => {
-        console.log("social data line 554: ", socialData);
         if (socialData) {
           const profileData = socialData[state.teamMember].profile;
           if (!profileData) return;
@@ -478,7 +476,6 @@ const handleAddTeamMember = () => {
           if (profileData.image) {
             const imageUrl = getImageUrlFromSocialImage(profileData.image);
             if (imageUrl) fullTeamMember.imageUrl = imageUrl;
-            console.log("fullTeamMember.imageUrl line 562: ", fullTeamMember.imageUrl);
           }
         }
       })
@@ -486,7 +483,6 @@ const handleAddTeamMember = () => {
         console.log("error getting social data: ", e);
       })
       .finally(() => {
-        console.log("fullTeamMember.imageUrl line 570: ", fullTeamMember.imageUrl);
         State.update({
           teamMembers: [...state.teamMembers, fullTeamMember],
           teamMember: "",

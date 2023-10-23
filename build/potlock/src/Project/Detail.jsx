@@ -6,8 +6,6 @@ if (profile === null) {
   return "Loading";
 }
 
-console.log("profile in detail: ", profile);
-
 const name = profile.name || "No-name profile";
 const image = profile.image;
 const backgroundImage = profile.backgroundImage;

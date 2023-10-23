@@ -14,8 +14,6 @@ const Tag = styled.span`
 
 if (!props.tags || props.tags.length === 0) return "No tags";
 
-console.log("props.tags: ", props.tags);
-
 return (
   <Tags>
     {props.tags.map((tag, tagIndex) => (

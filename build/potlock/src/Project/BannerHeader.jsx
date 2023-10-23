@@ -23,22 +23,10 @@ const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};
 
-// const backgroundHeight = parseInt(backgroundStyle.height?.split("px")[0]) ?? 100;
-// const imageHeight = parseInt(imageStyle.height?.split("px")[0]) ?? 60;
-
 const Wrapper = styled.div`
   overflow: hidden;
   margin: 0 -12px;
 `;
-
-// console.log("props.backgroundStyle: ", props.backgroundStyle);
-// console.log("props.imageStyle: ", props.imageStyle);
-// console.log("backgroundHeight: ", backgroundHeight);
-// console.log("imageHeight: ", imageHeight);
-
-// console.log("backgroundHeight - imageHeight / 2: ", backgroundHeight - imageHeight / 2);
-
-console.log("props.children: ", props.children);
 
 return (
   <div className="pt-0 position-relative" style={{ ...containerStyle }}>
