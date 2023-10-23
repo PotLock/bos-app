@@ -126,8 +126,6 @@ const tabContent = (
   />
 );
 
-console.log("tab content: ", tabContent);
-
 // const Page = styled.div`
 //   width: 100%;
 //   border-radius: 0.5rem;
@@ -135,8 +133,9 @@ console.log("tab content: ", tabContent);
 // `;
 
 const Content = styled.div`
-  padding-top: 110px;
+  padding-top: 110px; // navbar height
   width: 100%;
+  height: 100%;
   background: #ffffff;
   // padding: 3em;
   border-radius: 0rem 0rem 1.5rem 1.5rem;

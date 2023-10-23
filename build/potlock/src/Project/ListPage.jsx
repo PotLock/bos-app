@@ -15,6 +15,15 @@ const getImageUrlFromSocialImage = (image) => {
   }
 };
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
 const HeroOuter = styled.div`
   padding: 136px 64px;
 `;
@@ -117,9 +126,9 @@ if (context.accountId && !state.registeredProjects) {
     });
 }
 
-console.log("state: ", state);
+console.log("state in ListPage: ", state);
 
-if (!state.registeredProjects) return <>Loading...</>;
+if (!state.registeredProjects) return "";
 
 return (
   <>

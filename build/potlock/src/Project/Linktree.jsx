@@ -4,7 +4,7 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
 const linktree = props.linktree;
 
-if (!linktree) return "Loading...";
+if (!linktree) return "Loading LINKTREE...";
 
 const LinktreeContainer = styled.div`
   display: flex;

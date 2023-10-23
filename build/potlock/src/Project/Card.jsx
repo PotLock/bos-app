@@ -4,36 +4,38 @@ const Card = styled.a`
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 30%;
   border-radius: 6px;
-  background-color: white;
+  background: white;
+  box-shadow: 0px -2px 0px #dbdbdb inset;
   &:hover {
     text-decoration: none;
     cursor: pointer;
   }
 `;
 
-const Banner = styled.div`
-  position: relative;
-  width: 100%;
-  height: 168;
-  margin-bottom: 30px;
-`;
+// const Banner = styled.div`
+//   position: relative;
+//   width: 100%;
+//   height: 168;
+//   margin-bottom: 30px;
+// `;
 
-const BannerImage = styled.img`
-  width: 100%;
-  height: 100%;
-  //   border-radius: 6px;
-`;
+// const BannerImage = styled.img`
+//   width: 100%;
+//   height: 100%;
+//   //   border-radius: 6px;
+// `;
 
-const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid white;
-  position: absolute;
-  bottom: -20px;
-  left: 60px;
-`;
+// const ProfileImage = styled.img`
+//   width: 40px;
+//   height: 40px;
+//   border-radius: 50%;
+//   border: 3px solid white;
+//   position: absolute;
+//   bottom: -20px;
+//   left: 60px;
+// `;
 
 const Info = styled.div`
   display: flex;
@@ -72,10 +74,28 @@ const { id, bannerImageUrl, profileImageUrl, name, description, tags } = props.p
 
 return (
   <Card href={`?tab=project&projectId=${id}`} key={id}>
-    <Banner>
-      <BannerImage src={bannerImageUrl} alt="banner" />
-      <ProfileImage src={profileImageUrl} alt="profile" />
-    </Banner>
+    <Widget
+      src={`${ownerId}/widget/Project.BannerHeader`}
+      props={{
+        ...props,
+        projectId: id,
+        profile,
+        backgroundStyle: {
+          objectFit: "cover",
+          left: 0,
+          top: 0,
+          height: "168px",
+          borderTopRadius: "6px",
+        },
+        imageStyle: {
+          width: "40px",
+          height: "40px",
+          position: "absolute",
+          bottom: "-10px",
+          left: "14px",
+        },
+      }}
+    />
     <Info>
       <ProjectName>{name}</ProjectName>
       <ProjectDescription>{description}</ProjectDescription>

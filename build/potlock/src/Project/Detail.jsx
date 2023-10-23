@@ -24,6 +24,15 @@ return (
       props={{
         ...props,
         profile,
+        backgroundStyle: {
+          objectFit: "cover",
+          left: 0,
+          top: 0,
+        },
+        imageStyle: {
+          width: "10rem",
+          height: "10rem",
+        },
       }}
     />
     <div style={{ padding: "68px" }}>

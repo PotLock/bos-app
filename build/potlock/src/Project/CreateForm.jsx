@@ -496,7 +496,7 @@ const handleCreateProject = (e) => {
   const res = Near.call(transactions);
 };
 
-console.log("state: ", state);
+console.log("state in CreateForm: ", state);
 
 const registeredProject = state.registeredProjects
   ? state.registeredProjects?.find(
@@ -620,7 +620,7 @@ const handleAddTeamMember = () => {
 return (
   <Container>
     {!state.socialDataFetched ? (
-      <div>Loading...</div>
+      <div>Loading CREATE FORM...</div>
     ) : registeredProject ? (
       <>
         <h1>You've successfully registered!</h1>

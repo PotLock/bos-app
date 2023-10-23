@@ -9,7 +9,7 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
 const profile = props.profile;
 
-if (!profile) return "Loading...";
+if (!profile) return "Loading PROFILE...";
 
 const tags = Object.keys(profile.tags ?? {});
 
