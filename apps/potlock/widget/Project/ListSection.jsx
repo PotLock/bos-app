@@ -5,10 +5,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 48px 0px;
+  padding: 48px 64px;
   gap: 40px;
   width: 100%;
   border-top: 2px #dbdbdb solid;
+  background: #fafafa;
 `;
 
 const List = styled.div`

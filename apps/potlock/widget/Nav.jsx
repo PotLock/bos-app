@@ -147,9 +147,9 @@ const ownerId = "potlock.near";
 // `;
 
 const Nav = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
+  // position: fixed;
+  // top: 0;
+  // left: 0;
   width: 100%;
   display: flex;
   padding: 0 64px 0 64px;

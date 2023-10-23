@@ -5,9 +5,10 @@ const Card = styled.a`
   flex-direction: column;
   width: 100%;
   max-width: 30%;
-  border-radius: 6px;
+  border-radius: 7px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
+  border: 1px solid #dbdbdb;
   &:hover {
     text-decoration: none;
     cursor: pointer;
@@ -40,6 +41,7 @@ const Card = styled.a`
 const Info = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: 160px;
   padding: 16px 24px;
   gap: 16px;
 `;
@@ -85,7 +87,7 @@ return (
           left: 0,
           top: 0,
           height: "168px",
-          borderTopRadius: "6px",
+          borderRadius: "6px 6px 0px 0px",
         },
         imageStyle: {
           width: "40px",
@@ -103,7 +105,7 @@ return (
         src={`${ownerId}/widget/Project.Tags`}
         props={{
           ...props,
-          tags: Object.keys(tags),
+          tags,
         }}
       />
     </Info>

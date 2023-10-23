@@ -133,7 +133,6 @@ const tabContent = (
 // `;
 
 const Content = styled.div`
-  padding-top: 110px; // navbar height
   width: 100%;
   height: 100%;
   background: #ffffff;

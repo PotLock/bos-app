@@ -35,18 +35,13 @@ const HeroInner = styled.div`
   justify-content: space-between;
 `;
 
-const Separator = styled.div`
-  width: 100%;
-  height: 96px;
-  background-color: #f8f8f8;
-`;
-
 const SectionHeader = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   align-items: center;
   margin-bottom: 24px;
+  padding: 96px 64px 24px 64px;
 `;
 
 const SectionTitle = styled.div`
@@ -67,7 +62,8 @@ const ProjectsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 96px 64px;
+  // padding: 0px 64px 96px 64px;
+  // background: #fafafa;
 `;
 
 State.init({
@@ -163,14 +159,6 @@ return (
         ),
       }}
     />
-    <Separator />
-    {/* <SectionTitle>Featured projects</SectionTitle> */}
-    {/* <Widget
-      src={`${ownerId}/widget/Project.Carousel`}
-      props={{
-        projects: sampleProjects,
-      }}
-    /> */}
     <ProjectsContainer>
       <SectionHeader>
         <SectionTitle>All projects</SectionTitle>

@@ -4,7 +4,8 @@ const headerTitleFontSizePx = 88;
 
 const HeaderContainer = styled.div`
   width: 100%;
-  background: #fffaf4;
+  // background: #fffaf4;
+  background: white;
   padding: 80px 64px;
 `;
 

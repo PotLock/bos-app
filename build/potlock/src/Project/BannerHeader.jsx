@@ -47,7 +47,7 @@ return (
         props={{
           profile,
           accountId,
-          style: { ...(props.imageStyle ?? {}) }, // TODO: move to props
+          style: { ...(props.imageStyle ?? {}) },
           className: "mb-2",
           imageClassName: "rounded-circle w-100 h-100 img-thumbnail d-block",
           thumbnail: false,
