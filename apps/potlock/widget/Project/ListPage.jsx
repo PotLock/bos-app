@@ -6,6 +6,8 @@ const DEFAULT_BANNER_IMAGE_URL =
   IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
+const HERO_BACKGROUND_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
@@ -66,6 +68,18 @@ const ProjectsContainer = styled.div`
   // background: #fafafa;
 `;
 
+const HeroContainer = styled.div`
+  width: 100%;
+  height: 700px;
+  position: relative;
+`;
+
+const Hero = styled.img`
+  width: 100%;
+  height: 100%;
+  display: block;
+`;
+
 State.init({
   registeredProjects: null, // TODO: change this back to null
   // registeredProjects: sampleProjects,
@@ -121,37 +135,48 @@ if (!state.registeredProjects) return "";
 
 return (
   <>
-    <Widget
-      src={`${ownerId}/widget/Components.Header`}
-      props={{
-        title1: "Transforming",
-        title2: "Funding for Public Goods",
-        description:
-          "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-        centered: true,
-        buttonPrimary: (
-          <Widget
-            src={`${ownerId}/widget/Buttons.ActionButton`}
-            props={{
-              type: "primary",
-              text: "Explore projects",
-              disabled: false,
-            }}
-          />
-        ),
-        buttonSecondary: (
-          <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
-            props={{
-              type: "secondary",
-              text: "Create project",
-              disabled: false,
-              href: `?tab=createproject`,
-            }}
-          />
-        ),
-      }}
-    />
+    <HeroContainer>
+      <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" />
+      <Widget
+        src={`${ownerId}/widget/Components.Header`}
+        props={{
+          title1: "Transforming",
+          title2: "Funding for Public Goods",
+          description:
+            "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+          centered: true,
+          containerStyle: {
+            position: "absolute",
+            height: "100%",
+            top: 0,
+            left: 0,
+            background:
+              "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
+          },
+          buttonPrimary: (
+            <Widget
+              src={`${ownerId}/widget/Buttons.ActionButton`}
+              props={{
+                type: "primary",
+                text: "Explore projects",
+                disabled: false,
+              }}
+            />
+          ),
+          buttonSecondary: (
+            <Widget
+              src={`${ownerId}/widget/Buttons.NavigationButton`}
+              props={{
+                type: "secondary",
+                text: "Create project",
+                disabled: false,
+                href: `?tab=createproject`,
+              }}
+            />
+          ),
+        }}
+      />
+    </HeroContainer>
     <ProjectsContainer>
       <SectionHeader>
         <SectionTitle>All projects</SectionTitle>

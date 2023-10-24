@@ -7,7 +7,7 @@ const headerTitleFontSizePx = 88;
 const HeaderContainer = styled.div`
   width: 100%;
   // background: #fffaf4;
-  background: white;
+  // background: white;
   padding: 80px 64px;
 `;
 
@@ -47,9 +47,10 @@ const ButtonsContainer = styled.div`
   margin-top: 32px;
 `;
 
+const containerStyle = props.containerStyle ?? {};
+
 return (
-  // <Theme>
-  <HeaderContainer>
+  <HeaderContainer style={containerStyle}>
     <HeaderContent>
       <HeaderTitle>
         {props.title1}
@@ -84,5 +85,4 @@ return (
       {props.buttonSecondary && props.buttonSecondary}
     </ButtonsContainer>
   </HeaderContainer>
-  // </Theme>
 );
