@@ -588,7 +588,9 @@ return (
               <LowerBannerContainer>
                 <LowerBannerContainerLeft>
                   <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
-                    Add team members
+                    {state.teamMembers.length > 0
+                      ? "Add or remove team members"
+                      : "Add team members"}
                   </AddTeamMembers>
                 </LowerBannerContainerLeft>
                 <LowerBannerContainerRight>
@@ -863,11 +865,13 @@ return (
                   <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
                 </MembersListItemLeft>
                 <RemoveMember
-                  onClick={() =>
+                  onClick={() => {
                     State.update({
-                      teamMembers: state.teamMembers.filter((member) => member != teamMember),
-                    })
-                  }
+                      teamMembers: state.teamMembers.filter(
+                        (member) => member.accountId != teamMember.accountId
+                      ),
+                    });
+                  }}
                 >
                   Remove
                 </RemoveMember>
