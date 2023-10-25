@@ -39,6 +39,8 @@ const List = styled.div`
   }
 `;
 
+console.log("props.projects: ", props.projects);
+
 return (
   <Container>
     <List>{props.projects.map((project) => renderItem(project))}</List>
