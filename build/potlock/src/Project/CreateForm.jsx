@@ -421,7 +421,8 @@ const handleCreateProject = (e) => {
       },
     },
   };
-  const registerArgs = { name: state.name };
+  const potlockRegistryArgs = {};
+  const horizonArgs = { account_id: context.accountId };
   const transactions = [
     // set data on social.near
     {
@@ -430,14 +431,20 @@ const handleCreateProject = (e) => {
       deposit: Big(JSON.stringify(socialArgs).length * 16).mul(Big(10).pow(20)),
       args: socialArgs,
     },
+    // register on NEAR Horizon
+    {
+      contractName: "nearhorizon.near",
+      methodName: "add_project",
+      deposit: Big(JSON.stringify(horizonArgs).length * 16).mul(Big(10).pow(20)),
+      args: horizonArgs,
+    },
     // register project on potlock
     {
       contractName: registryId,
       methodName: "register",
-      deposit: Big(JSON.stringify(registerArgs).length * 16).mul(Big(10).pow(20)),
-      args: registerArgs,
+      deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)),
+      args: potlockRegistryArgs,
     },
-    // TODO: register on near horizon
   ];
   const res = Near.call(transactions);
 };
