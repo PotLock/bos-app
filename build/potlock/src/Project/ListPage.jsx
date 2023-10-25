@@ -86,7 +86,7 @@ State.init({
   getRegisteredProjectsError: "",
 });
 
-if (!state.registeredProjects) {
+if (context.accountId && !state.registeredProjects) {
   Near.asyncView(registryId, "get_projects", {})
     .then((projects) => {
       // get social data for each project
