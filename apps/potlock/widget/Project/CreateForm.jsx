@@ -435,14 +435,13 @@ const handleCreateProject = (e) => {
     {
       contractName: "nearhorizon.near",
       methodName: "add_project",
-      deposit: Big(JSON.stringify(horizonArgs).length * 16).mul(Big(10).pow(20)),
       args: horizonArgs,
     },
     // register project on potlock
     {
       contractName: registryId,
       methodName: "register",
-      deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)),
+      deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)), // TODO: update this, it isn't correct
       args: potlockRegistryArgs,
     },
   ];
