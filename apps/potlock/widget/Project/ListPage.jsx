@@ -143,7 +143,7 @@ return (
           title1: "Transforming",
           title2: "Funding for Public Goods",
           description:
-            "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+            "Discover impact projects, donate directly, or get automatic referral fees for raising donations",
           centered: true,
           containerStyle: {
             position: "absolute",

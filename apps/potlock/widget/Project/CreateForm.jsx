@@ -627,7 +627,7 @@ return (
           <FormSectionContainer>
             {FormSectionLeft(
               "Project details",
-              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+              "Give an overview of your project including background details and your mission.",
               true
             )}
             <FormSectionRightDiv>
@@ -723,7 +723,7 @@ return (
           <FormSectionContainer>
             {FormSectionLeft(
               "Social links",
-              "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+              "Add your project social links to so supporters can connect with you directly.",
               false
             )}
             <FormSectionRightDiv>

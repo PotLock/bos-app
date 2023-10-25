@@ -7,7 +7,7 @@ return (
       props={{
         title1: "Create new project",
         description:
-          "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
+          "Create a profile for your impact project to receive direct donations, qualify for funding rounds, join NEAR's accelerator, and get discovered across social platforms.",
         centered: false,
         containerStyle: {
           background: "#FEF6EE",

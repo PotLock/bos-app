@@ -57,6 +57,7 @@ const ProjectDescription = styled.p`
   font-size: 16px;
   font-weight: 400;
   color: #2e2e2e;
+  word-wrap: break-word;
 `;
 
 const Tags = styled.div`

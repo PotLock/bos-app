@@ -17,9 +17,9 @@ const List = styled.div`
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 0px;
   flex-wrap: wrap;
   width: 100%;
+  gap: 40px;
   margin: -12px; /* Half of the margin you're giving to the children */
 
   & > div {
