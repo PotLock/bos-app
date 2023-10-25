@@ -708,6 +708,7 @@ return (
                     { text: "NonProfit", value: "non-profit" },
                     { text: "Climate", value: "climate" },
                     { text: "Public Good", value: "public-good" },
+                    { text: "DeSci", value: "de-sci" },
                   ],
                   value: state.category,
                   onChange: (category) =>
