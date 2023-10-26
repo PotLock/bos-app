@@ -14,6 +14,14 @@ const BodyContainer = styled.div`
   justify-content: flex-start;
 `;
 
+const NameContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
 const Name = styled.div`
   font-size: 48px;
   font-weight: 500;
@@ -53,7 +61,20 @@ const Actions = () => (
 
 return (
   <BodyContainer>
-    <Name>{profile.name}</Name>
+    <NameContainer>
+      <Name>{profile.name}</Name>
+      {props.projectId === context.accountId && (
+        <Widget
+          src={`${ownerId}/widget/Buttons.NavigationButton`}
+          props={{
+            type: "secondary",
+            text: "Edit profile",
+            disabled: false,
+            href: `?tab=editproject&projectId=${props.projectId}`,
+          }}
+        />
+      )}
+    </NameContainer>
     <AccountId>@{props.projectId}</AccountId>
     <Widget
       src={`${ownerId}/widget/Project.Tags`}
