@@ -37,6 +37,10 @@ const List = styled.div`
       width: calc(32% - 24px); /* Subtract double the margin */
     }
   }
+
+  @media screen and (max-width: 768px) {
+    justify-content: center;
+  }
 `;
 
 return (
