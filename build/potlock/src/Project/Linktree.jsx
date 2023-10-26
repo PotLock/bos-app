@@ -9,7 +9,6 @@ const LinktreeContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  background-color: pink;
   gap: 16px;
   width: 100%;
   padding: 0px 14px;
@@ -19,7 +18,6 @@ const LinktreeItemContainer = styled.div`
   padding: 8px 0px;
   display: flex;
   flex-direction: row;
-  background-color: yellow;
   align-items: center;
   justify-content: flex-start;
 `;
