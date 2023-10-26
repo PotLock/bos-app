@@ -27,6 +27,8 @@ if (!context.accountId) {
   );
 }
 
+const projects = Near.view(registryId, "get_projects", {});
+
 const imageHeightPx = 120;
 const profileImageTranslateYPx = 220;
 
@@ -431,20 +433,24 @@ const handleCreateProject = (e) => {
       deposit: Big(JSON.stringify(socialArgs).length * 16).mul(Big(10).pow(20)),
       args: socialArgs,
     },
-    // register on NEAR Horizon
-    {
-      contractName: "nearhorizon.near",
-      methodName: "add_project",
-      args: horizonArgs,
-    },
-    // register project on potlock
-    {
-      contractName: registryId,
-      methodName: "register",
-      deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)), // TODO: update this, it isn't correct
-      args: potlockRegistryArgs,
-    },
   ];
+  if (!props.edit) {
+    transactions.push(
+      // register on NEAR Horizon
+      {
+        contractName: "nearhorizon.near",
+        methodName: "add_project",
+        args: horizonArgs,
+      },
+      // register project on potlock
+      {
+        contractName: registryId,
+        methodName: "register",
+        deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)), // TODO: update this, it isn't correct
+        args: potlockRegistryArgs,
+      }
+    );
+  }
   const res = Near.call(transactions);
 };
 
@@ -533,9 +539,13 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
+if (props.edit && !registeredProject) {
+  return <div style={{ textAlign: "center", paddingTop: "12px" }}>Unauthorized</div>;
+}
+
 return (
   <Container>
-    {!state.socialDataFetched ? (
+    {!state.socialDataFetched || !projects ? (
       <div class="spinner-border text-secondary" role="status" />
     ) : registeredProject ? (
       <Container>
@@ -792,7 +802,7 @@ return (
                 props={{
                   type: "primary",
                   prefix: "https://",
-                  text: "Create new project",
+                  text: props.edit ? "Update your project" : "Create new project",
                   disabled: isCreateProjectDisabled,
                   onClick: handleCreateProject,
                 }}

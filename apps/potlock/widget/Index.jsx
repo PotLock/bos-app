@@ -1,6 +1,8 @@
 const ownerId = "potlock.near";
 
 const CREATE_PROJECT_TAB = "createproject";
+const EDIT_PROJECT_TAB = "editproject";
+const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
 
 const monaSansCss = fetch("https://fonts.cdnfonts.com/css/mona-sans").body;
@@ -22,7 +24,8 @@ State.init({
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
-  projects: "Project.ListPage",
+  [EDIT_PROJECT_TAB]: "Project.Create",
+  [PROJECTS_LIST_TAB]: "Project.ListPage",
   [PROJECT_DETAIL_TAB]: "Project.Detail",
 };
 
@@ -42,15 +45,16 @@ const getTabWidget = (tab) => {
   return "Project.ListPage";
 };
 
-const tabContent = (
-  <Widget
-    src={`${ownerId}/widget/${getTabWidget(props.tab)}`}
-    props={{
-      ...props,
-      urlProps: props,
-    }}
-  />
-);
+const props = {
+  ...props,
+  urlProps: props,
+};
+
+if (props.tab === EDIT_PROJECT_TAB) {
+  props.edit = true;
+}
+
+const tabContent = <Widget src={`${ownerId}/widget/${getTabWidget(props.tab)}`} props={props} />;
 
 const Content = styled.div`
   width: 100%;
