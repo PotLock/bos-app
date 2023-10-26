@@ -5,6 +5,7 @@ const Card = styled.a`
   flex-direction: column;
   width: 100%;
   max-width: 30%;
+  min-width: 320px;
   border-radius: 7px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;

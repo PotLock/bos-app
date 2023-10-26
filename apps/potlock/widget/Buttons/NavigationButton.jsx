@@ -37,6 +37,7 @@ const Button = styled.a`
   text-align: center;
   color: ${getButtonColor()};
   font-size: 14px;
+  line-height: 16px;
   font-weight: 600;
 
   &:hover {

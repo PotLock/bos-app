@@ -24,8 +24,14 @@ const HeaderTitle = styled.div`
   word-wrap: break-word;
   position: relative;
   text-align: center;
+  z-index: 1;
+  position: relative;
   font-family: "Lora";
   ${loraCss}
+
+  @media (max-width: 768px) {
+    font-size: 48px;
+  }
 `;
 
 const HeaderDescription = styled.div`
@@ -36,6 +42,10 @@ const HeaderDescription = styled.div`
   max-width: 866px;
   text-align: ${props.centered ? "center" : "flex-start"};
   margin-top: 32px;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
 `;
 
 const ButtonsContainer = styled.div`
@@ -47,6 +57,17 @@ const ButtonsContainer = styled.div`
   margin-top: 32px;
 `;
 
+const Underline = styled.div`
+  position: absolute;
+  top: ${headerTitleFontSizePx - 40}px;
+  left: -40px;
+  z-index: -1;
+
+  @media (max-width: 768px) {
+    top: 30px;
+    left: -30px;
+`;
+
 const containerStyle = props.containerStyle ?? {};
 
 return (
@@ -54,7 +75,7 @@ return (
     <HeaderContent>
       <HeaderTitle>
         {props.title1}
-        <div style={{ position: "absolute", top: headerTitleFontSizePx - 40, left: -40 }}>
+        <Underline>
           <svg
             width="340"
             height="42"
@@ -75,7 +96,7 @@ return (
               stroke-linecap="round"
             />
           </svg>
-        </div>
+        </Underline>
       </HeaderTitle>
       {props.title2 && <HeaderTitle>{props.title2}</HeaderTitle>}
       <HeaderDescription>{props.description}</HeaderDescription>

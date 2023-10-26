@@ -70,7 +70,7 @@ const ProjectsContainer = styled.div`
 
 const HeroContainer = styled.div`
   width: 100%;
-  height: 700px;
+  min-height: 700px;
   position: relative;
 `;
 

@@ -720,6 +720,9 @@ return (
                     { text: "Climate", value: "climate" },
                     { text: "Public Good", value: "public-good" },
                     { text: "DeSci", value: "de-sci" },
+                    { text: "Open Source", value: "open-source" },
+                    { text: "Community", value: "community" },
+                    { text: "Education", value: "education" },
                   ],
                   value: state.category,
                   onChange: (category) =>
