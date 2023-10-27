@@ -1,5 +1,6 @@
 const ownerId = "potlock.near";
-const registryId = "registry.potlock.near"; // TODO: update when registry is deployed
+const registryId = "registry.potlock.near";
+const horizonId = "nearhorizon.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const DEFAULT_BANNER_IMAGE_URL =
@@ -26,6 +27,10 @@ if (!context.accountId) {
     />
   );
 }
+
+const existingHorizonProject = Near.view(horizonId, "get_project", {
+  account_id: context.accountId,
+});
 
 const projects = Near.view(registryId, "get_projects", {});
 
@@ -436,12 +441,6 @@ const handleCreateProject = (e) => {
   ];
   if (!props.edit) {
     transactions.push(
-      // register on NEAR Horizon
-      {
-        contractName: "nearhorizon.near",
-        methodName: "add_project",
-        args: horizonArgs,
-      },
       // register project on potlock
       {
         contractName: registryId,
@@ -450,8 +449,18 @@ const handleCreateProject = (e) => {
         args: potlockRegistryArgs,
       }
     );
+    if (!existingHorizonProject) {
+      transactions.push(
+        // register on NEAR Horizon
+        {
+          contractName: horizonId,
+          methodName: "add_project",
+          args: horizonArgs,
+        }
+      );
+    }
   }
-  const res = Near.call(transactions);
+  Near.call(transactions);
 };
 
 const registeredProject = state.registeredProjects
