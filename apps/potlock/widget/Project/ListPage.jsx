@@ -160,6 +160,7 @@ return (
                 type: "primary",
                 text: "Explore projects",
                 disabled: false,
+                style: { padding: "16px 24px" },
               }}
             />
           ),
@@ -171,6 +172,7 @@ return (
                 text: "Create project",
                 disabled: false,
                 href: `?tab=createproject`,
+                style: { padding: "16px 24px" },
               }}
             />
           ),

@@ -5,15 +5,40 @@ const EDIT_PROJECT_TAB = "editproject";
 const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
 
-const monaSansCss = fetch("https://fonts.cdnfonts.com/css/mona-sans").body;
-
-if (!monaSansCss) return "";
-
 const Theme = styled.div`
   * {
     font-family: "Mona-Sans";
+    font-style: normal;
+    font-weight: 400;
   }
-  ${monaSansCss}
+  @font-face {
+    font-family: mona-sans;
+    font-style: normal;
+    font-weight: 400;
+    src: local("Mona-Sans"),
+      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Regular.woff) format("woff");
+  }
+  @font-face {
+    font-family: mona-sans;
+    font-style: normal;
+    font-weight: 500;
+    src: local("Mona-Sans"),
+      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Medium.woff) format("woff");
+  }
+  @font-face {
+    font-family: mona-sans;
+    font-style: normal;
+    font-weight: 600;
+    src: local("Mona-Sans"),
+      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-SemiBold.woff) format("woff");
+  }
+  @font-face {
+    font-family: mona-sans;
+    font-style: normal;
+    font-weight: 700;
+    src: local("Mona-Sans"),
+      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Bold.woff) format("woff");
+  }
 `;
 
 State.init({

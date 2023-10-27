@@ -3,7 +3,9 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
 const profile = props.profile;
 
-if (!profile) return "Loading PROFILE...";
+if (!profile) return "Loading...";
+
+const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
 const tags = Object.keys(profile.tags ?? {});
 
@@ -26,8 +28,9 @@ const Name = styled.div`
   font-size: 48px;
   font-weight: 500;
   color: #2e2e2e;
-  line-height: 48px;
-  // font-family: Lora
+  line-height: 56px;
+  font-family: "Lora";
+  ${loraCss}
 `;
 
 const AccountId = styled.div`

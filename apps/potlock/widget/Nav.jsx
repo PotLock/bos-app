@@ -81,7 +81,7 @@ const NavTab = styled.a`
 
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
-  { text: "Pot", link: "pot", disabled: true },
+  { text: "Pots", link: "pots", disabled: true },
   { text: "Feed", link: "feed", disabled: true },
 ];
 

@@ -26,7 +26,7 @@ const Button = styled.a`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 8px 24px 12px 24px;
+  padding: 8px 24px;
   background: ${getButtonBackground()};
   overflow: hidden;
   box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
@@ -47,7 +47,12 @@ const Button = styled.a`
 `;
 
 return (
-  <Button href={props.href} onClick={props.onClick} disabled={props.disabled}>
+  <Button
+    href={props.href}
+    onClick={props.onClick}
+    disabled={props.disabled}
+    style={{ ...props.style }}
+  >
     {props.text}
   </Button>
 );

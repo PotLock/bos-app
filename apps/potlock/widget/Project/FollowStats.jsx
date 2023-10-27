@@ -25,7 +25,9 @@ return (
           href={`#/mob.near/widget/FollowPage?accountId=${accountId}&tab=following`}
           className="text-dark"
         >
-          <span className="fw-bolder me-2">Following</span>
+          <span style={{ fontWeight: 500 }} className="me-2">
+            Following
+          </span>
           {numFollowing !== null ? <span className="text-muted">{numFollowing}</span> : "?"}
         </a>
       </div>
@@ -34,7 +36,9 @@ return (
           href={`#/mob.near/widget/FollowPage?accountId=${accountId}&tab=followers`}
           className="text-dark"
         >
-          <span className="fw-bolder me-2">Follower{numFollowers !== 1 && "s"}</span>
+          <span style={{ fontWeight: 500 }} className="me-2">
+            Follower{numFollowers !== 1 && "s"}
+          </span>
           {numFollowers !== null ? <span className="text-muted">{numFollowers}</span> : "?"}
         </a>
       </div>
