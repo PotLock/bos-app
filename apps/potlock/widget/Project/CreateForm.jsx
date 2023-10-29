@@ -556,7 +556,7 @@ return (
   <Container>
     {!state.socialDataFetched || !projects ? (
       <div class="spinner-border text-secondary" role="status" />
-    ) : registeredProject ? (
+    ) : !props.edit && registeredProject ? (
       <Container>
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
         <ButtonsContainer>
