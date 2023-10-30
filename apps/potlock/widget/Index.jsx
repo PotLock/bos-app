@@ -42,9 +42,7 @@ const Theme = styled.div`
 `;
 
 State.init({
-  tnc: true,
-  tncIsFetched: false,
-  tosAccept: true,
+  cart: null,
 });
 
 const tabContentWidget = {
@@ -59,7 +57,7 @@ const getWidget = (props) => {
     return tabContentWidget[props.tab];
   }
   // backup (TODO: review)
-  return "Project.ListPage";
+  return tabContentWidget[PROJECTS_LIST_TAB];
 };
 
 const getTabWidget = (tab) => {
@@ -67,13 +65,46 @@ const getTabWidget = (tab) => {
     return tabContentWidget[tab];
   }
 
-  return "Project.ListPage";
+  return tabContentWidget[PROJECTS_LIST_TAB];
 };
 
 const props = {
   ...props,
-  urlProps: props,
+  ...state,
+  addProjectToCart: (projectId, amount, ft) => {
+    const cart = state.cart ?? {};
+    cart[projectId] = { amount, ft };
+    State.update({ cart });
+    Storage.set(CART_KEY, JSON.stringify(cart));
+  },
+  removeProjectFromCart: (projectId) => {
+    const cart = state.cart ?? {};
+    delete cart[projectId];
+    State.update({ cart });
+    Storage.set(CART_KEY, JSON.stringify(cart));
+  },
 };
+
+const CART_KEY = "cart";
+const storageCart = Storage.get(CART_KEY);
+
+if (state.cart === null && storageCart !== null) {
+  // cart hasn't been set on state yet, and storageCart has been fetched
+  // if storageCart isn't undefined, set it on state
+  // otherwise, set default cart on state
+  let cart = {
+    // TODO: after testing, this should be empty object
+    // projectId -> amount, ft
+    "potlock.near": {
+      amount: "100000000000",
+      ft: "near",
+    },
+  };
+  if (storageCart) {
+    cart = JSON.parse(storageCart);
+  }
+  State.update({ cart });
+}
 
 if (props.tab === EDIT_PROJECT_TAB) {
   props.edit = true;
@@ -98,9 +129,13 @@ const Content = styled.div`
 
 const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
+if (!state.cart) {
+  return "";
+}
+
 return (
   <Theme>
-    <Widget src={`${ownerId}/widget/Nav`} />
+    <Widget src={`${ownerId}/widget/Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
   </Theme>
 );

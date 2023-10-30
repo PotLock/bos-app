@@ -1,4 +1,5 @@
 const ownerId = "potlock.near";
+const donationContractId = "donation.tests.potlock.near"; // TODO: change this after testing
 
 const Container = styled.div`
   display: flex;
@@ -15,9 +16,36 @@ const SubRow = styled.div`
   gap: 40px;
 `;
 
+console.log("actions props: ", props);
+
+const existsInCart = props.cart && !!props.cart[props.projectId];
+
 return (
   <Container className="gx-0">
-    <SubRow className="col-4"></SubRow>
+    <SubRow className="col-4">
+      {/* <Widget
+        src={`${ownerId}/widget/Buttons.ActionButton`}
+        props={{
+          type: "primary",
+          text: "Donate",
+          // disabled: isCreateProjectDisabled,
+          onClick: () => props.addProjectToCart(props.projectId, "0", "near"),
+        }}
+      /> */}
+      <Widget
+        src={`${ownerId}/widget/Buttons.ActionButton`}
+        props={{
+          type: "secondary",
+          text: existsInCart ? "Remove from cart" : "Add to cart",
+          // disabled: isCreateProjectDisabled,
+          onClick: () => {
+            existsInCart
+              ? props.removeProjectFromCart(props.projectId)
+              : props.addProjectToCart(props.projectId, "0", "near");
+          },
+        }}
+      />
+    </SubRow>
     <SubRow className="col-8" style={{ justifyContent: "flex-end" }}>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}

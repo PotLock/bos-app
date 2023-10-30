@@ -85,6 +85,10 @@ const tabOptions = [
   { text: "Feed", link: "feed", disabled: true },
 ];
 
+// const cart = JSON.parse(Storage.get("cart") ?? {});
+// console.log("cart in nav: ", cart);
+console.log("nav props: ", props);
+
 return (
   <Nav>
     <NavLeft>
@@ -105,6 +109,16 @@ return (
             </NavTab>
           );
         })}
+        <NavTab
+          // href={`?tab=${tab.link}`}
+          // disabled={tab.disabled}
+          onClick={(e) => {
+            // TODO: implement
+            // if (tab.disabled) e.preventDefault();
+          }}
+        >
+          Cart ({Object.keys(props.cart).length})
+        </NavTab>
       </NavTabs>
     </NavRight>
   </Nav>
