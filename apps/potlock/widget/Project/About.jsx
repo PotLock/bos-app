@@ -2,6 +2,12 @@ const ownerId = "potlock.near";
 
 const { name, description } = props.profile;
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+`;
+
 const Header = styled.div`
   color: #2e2e2e;
   font-size: 32px;
@@ -9,17 +15,24 @@ const Header = styled.div`
   // font-family: Lora;
 `;
 
+const DonationsInfo = () => (
+  <Widget
+    src={`${ownerId}/widget/Project.DonationsInfo`}
+    props={{
+      ...props,
+    }}
+  />
+);
+
 const About = () => (
-  <>
-    <Widget
-      src={`${ownerId}/widget/Project.AboutItem`}
-      props={{
-        ...props,
-        title: "Overview",
-        text: description,
-      }}
-    />
-  </>
+  <Widget
+    src={`${ownerId}/widget/Project.AboutItem`}
+    props={{
+      ...props,
+      title: "Overview",
+      text: description,
+    }}
+  />
 );
 
 const Team = () => (
@@ -33,9 +46,10 @@ const Team = () => (
 );
 
 return (
-  <>
+  <Container>
     <Header>About {name}</Header>
+    <DonationsInfo />
     <About />
     <Team />
-  </>
+  </Container>
 );

@@ -14,6 +14,7 @@ const BodyContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
+  gap: 48px;
 `;
 
 const NameContainer = styled.div`
@@ -49,10 +50,6 @@ const TagsContainer = styled.div`
   gap: 12px;
 `;
 
-const Space = styled.div`
-  height: ${(props) => props.height}px;
-`;
-
 const Actions = () => (
   <Widget
     src={`${ownerId}/widget/Project.Actions`}
@@ -64,31 +61,31 @@ const Actions = () => (
 
 return (
   <BodyContainer>
-    <NameContainer>
-      <Name>{profile.name}</Name>
-      {props.projectId === context.accountId && (
-        <Widget
-          src={`${ownerId}/widget/Buttons.NavigationButton`}
-          props={{
-            type: "secondary",
-            text: "Edit profile",
-            disabled: false,
-            href: `?tab=editproject&projectId=${props.projectId}`,
-          }}
-        />
-      )}
-    </NameContainer>
-    <AccountId>@{props.projectId}</AccountId>
-    <Widget
-      src={`${ownerId}/widget/Project.Tags`}
-      props={{
-        ...props,
-        tags,
-      }}
-    />
-    <Space height={48} />
+    <div>
+      <NameContainer>
+        <Name>{profile.name}</Name>
+        {props.projectId === context.accountId && (
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              type: "secondary",
+              text: "Edit profile",
+              disabled: false,
+              href: `?tab=editproject&projectId=${props.projectId}`,
+            }}
+          />
+        )}
+      </NameContainer>
+      <AccountId>@{props.projectId}</AccountId>
+      <Widget
+        src={`${ownerId}/widget/Project.Tags`}
+        props={{
+          ...props,
+          tags,
+        }}
+      />
+    </div>
     <Actions />
-    <Space height={48} />
     <Widget
       src={`${ownerId}/widget/Project.About`}
       props={{

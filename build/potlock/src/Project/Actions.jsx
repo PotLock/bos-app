@@ -1,5 +1,4 @@
 const ownerId = "potlock.near";
-const donationContractId = "donation.tests.potlock.near"; // TODO: change this after testing
 
 const Container = styled.div`
   display: flex;
@@ -15,8 +14,6 @@ const SubRow = styled.div`
   align-items: center;
   gap: 40px;
 `;
-
-console.log("actions props: ", props);
 
 const existsInCart = props.cart && !!props.cart[props.projectId];
 
