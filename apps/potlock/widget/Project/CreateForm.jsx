@@ -750,7 +750,6 @@ return (
                   // ],
                   value: state.category,
                   onChange: (category) => {
-                    console.log("category: ", category);
                     State.update({
                       category: category.value,
                     });
