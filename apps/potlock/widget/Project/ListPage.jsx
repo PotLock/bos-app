@@ -86,6 +86,17 @@ State.init({
   getRegisteredProjectsError: "",
 });
 
+const CATEGORY_MAPPINGS = {
+  "social-impact": "Social Impact",
+  "non-profit": "NonProfit",
+  climate: "Climate",
+  "public-good": "Public Good",
+  "de-sci": "DeSci",
+  "open-source": "Open Source",
+  community: "Community",
+  education: "Education",
+};
+
 if (!state.registeredProjects) {
   Near.asyncView(registryId, "get_projects", {})
     .then((projects) => {
@@ -118,7 +129,7 @@ if (!state.registeredProjects) {
             description: profileData.description ?? "",
             bannerImageUrl,
             profileImageUrl,
-            tags: [profileData.category.text ?? ""], // TODO: change this to get tags from horizon/social
+            tags: [CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: get tags from horizon/social instead?
           };
           return formatted;
         });
