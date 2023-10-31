@@ -312,7 +312,7 @@ const MoreTeamMembersText = styled.div`
 State.init({
   name: "",
   nameError: "",
-  category: null,
+  category: "",
   categoryError: "",
   description: "",
   descriptionError: "",
@@ -415,7 +415,7 @@ const handleCreateProject = (e) => {
       [context.accountId]: {
         profile: {
           name: state.name,
-          category: state.category, // TODO: consider changing format of this for consistency with near horizon
+          category: state.category,
           description: state.description,
           linktree: {
             website: state.website,
@@ -435,7 +435,7 @@ const handleCreateProject = (e) => {
     {
       contractName: "social.near",
       methodName: "set",
-      deposit: Big(JSON.stringify(socialArgs).length * 16).mul(Big(10).pow(20)),
+      deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
       args: socialArgs,
     },
   ];
@@ -445,7 +445,7 @@ const handleCreateProject = (e) => {
       {
         contractName: registryId,
         methodName: "register",
-        deposit: Big(JSON.stringify(potlockRegistryArgs).length * 16).mul(Big(10).pow(20)), // TODO: update this, it isn't correct
+        deposit: Big(0.05).mul(Big(10).pow(24)),
         args: potlockRegistryArgs,
       }
     );
@@ -514,6 +514,17 @@ const handleAddTeamMember = () => {
   }
 };
 
+const CATEGORY_MAPPINGS = {
+  "social-impact": "Social Impact",
+  "non-profit": "NonProfit",
+  climate: "Climate",
+  "public-good": "Public Good",
+  "de-sci": "DeSci",
+  "open-source": "Open Source",
+  community: "Community",
+  education: "Education",
+};
+
 const FormSectionLeft = (title, description, isRequired) => {
   return (
     <FormSectionLeftDiv>
@@ -556,7 +567,7 @@ return (
   <Container>
     {!state.socialDataFetched || !projects ? (
       <div class="spinner-border text-secondary" role="status" />
-    ) : registeredProject ? (
+    ) : !props.edit && registeredProject ? (
       <Container>
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
         <ButtonsContainer>
@@ -722,22 +733,27 @@ return (
                   label: "Select category *",
                   noLabel: false,
                   placeholder: "Choose category",
-                  options: [
-                    // Social Impact, NonProfit, Climate, Public Good
-                    { text: "Social Impact", value: "social-impact" },
-                    { text: "NonProfit", value: "non-profit" },
-                    { text: "Climate", value: "climate" },
-                    { text: "Public Good", value: "public-good" },
-                    { text: "DeSci", value: "de-sci" },
-                    { text: "Open Source", value: "open-source" },
-                    { text: "Community", value: "community" },
-                    { text: "Education", value: "education" },
-                  ],
+                  options: Object.entries(CATEGORY_MAPPINGS).map(([value, text]) => ({
+                    value,
+                    text,
+                  })),
+                  // options: [
+                  // Social Impact, NonProfit, Climate, Public Good
+                  // { text: "Social Impact", value: "social-impact" },
+                  // { text: "NonProfit", value: "non-profit" },
+                  // { text: "Climate", value: "climate" },
+                  // { text: "Public Good", value: "public-good" },
+                  // { text: "DeSci", value: "de-sci" },
+                  // { text: "Open Source", value: "open-source" },
+                  // { text: "Community", value: "community" },
+                  // { text: "Education", value: "education" },
+                  // ],
                   value: state.category,
-                  onChange: (category) =>
+                  onChange: (category) => {
                     State.update({
-                      category,
-                    }),
+                      category: category.value,
+                    });
+                  },
                   validate: () => {
                     if (!state.category) {
                       State.update({
