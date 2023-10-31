@@ -129,7 +129,7 @@ if (!state.registeredProjects) {
             description: profileData.description ?? "",
             bannerImageUrl,
             profileImageUrl,
-            tags: [CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: get tags from horizon/social instead?
+            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: change this to get tags from horizon/social
           };
           return formatted;
         });
