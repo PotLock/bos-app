@@ -445,7 +445,7 @@ const handleCreateProject = (e) => {
       {
         contractName: registryId,
         methodName: "register",
-        deposit: Big(JSON.stringify(potlockRegistryArgs).length * 0.00003).mul(Big(10).pow(24)),
+        deposit: Big(0.05).mul(Big(10).pow(24)),
         args: potlockRegistryArgs,
       }
     );
