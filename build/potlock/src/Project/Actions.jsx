@@ -37,8 +37,8 @@ return (
           // disabled: isCreateProjectDisabled,
           onClick: () => {
             existsInCart
-              ? props.removeProjectFromCart(props.projectId)
-              : props.addProjectToCart(props.projectId, "0", "near");
+              ? props.removeProjectsFromCart([props.projectId])
+              : props.addProjectsToCart([{ id: props.projectId, amount: "1", ft: "NEAR" }]);
           },
         }}
       />

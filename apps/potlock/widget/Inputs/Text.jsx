@@ -11,6 +11,7 @@ const error = props.error ?? "";
 
 const Container = styled.div`
   display: flex;
+  // flex: 1;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
@@ -20,11 +21,11 @@ const Container = styled.div`
 `;
 
 const Label = styled.label`
-  font-style: normal;
-  // font-weight: 600;
-  font-size: 0.95em;
-  line-height: 1.25em;
-  color: #344054;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  word-wrap: break-word;
+  color: #2e2e2e;
 `;
 
 const Error = styled.span`
@@ -77,6 +78,7 @@ const Input = styled.input`
   // background: #ffffff;
   // border: 1px solid #d0d5dd;
   // box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  box-shadow: 0px -2px 0px rgba(93, 93, 93, 0.24) inset;
   // border-radius: 4px;
   color: #101828;
   width: 100%;
@@ -91,7 +93,8 @@ return (
   <Container>
     {label && <Label>{label}</Label>}
     <InputContainer>
-      {props.prefix && <InputPrefix>{props.prefix}</InputPrefix>}
+      {props.prefixText && <InputPrefix>{props.prefixText}</InputPrefix>}
+      {props.prefixElement && props.prefixElement}
       <Input
         type="text"
         placeholder={placeholder}
@@ -100,6 +103,7 @@ return (
         onBlur={() => validate()}
         disabled={!!props.disabled}
         onKeyDown={props.handleKeyPress ?? null}
+        style={props.inputStyles || {}}
       />
       {props.buttonText && (
         <Widget

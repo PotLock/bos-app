@@ -4,6 +4,7 @@ const CREATE_PROJECT_TAB = "createproject";
 const EDIT_PROJECT_TAB = "editproject";
 const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
+const CART_TAB = "cart";
 
 const Theme = styled.div`
   * {
@@ -43,13 +44,20 @@ const Theme = styled.div`
 
 State.init({
   cart: null,
+  nearToUsd: null,
 });
+
+if (state.nearToUsd === null) {
+  const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
+  State.update({ nearToUsd: res.body.near.usd });
+}
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
   [EDIT_PROJECT_TAB]: "Project.Create",
   [PROJECTS_LIST_TAB]: "Project.ListPage",
   [PROJECT_DETAIL_TAB]: "Project.Detail",
+  [CART_TAB]: "Cart.Checkout",
 };
 
 const getWidget = (props) => {
@@ -71,15 +79,29 @@ const getTabWidget = (tab) => {
 const props = {
   ...props,
   ...state,
-  addProjectToCart: (projectId, amount, ft) => {
+  addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
-    cart[projectId] = { amount, ft };
+    projects.forEach(({ id, amount, ft }) => {
+      cart[id] = { amount, ft: ft ?? "NEAR" }; // default to NEAR
+    });
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  removeProjectFromCart: (projectId) => {
+  removeProjectsFromCart: (projectIds) => {
     const cart = state.cart ?? {};
-    delete cart[projectId];
+    projectIds.forEach((projectId) => {
+      delete cart[projectId];
+    });
+    State.update({ cart });
+    Storage.set(CART_KEY, JSON.stringify(cart));
+  },
+  updateCartItem: (projectId, amount, ft) => {
+    const cart = state.cart ?? {};
+    const updated = {};
+    // if (amount === "") updated.amount = "0";
+    if (amount || amount === "") updated.amount = amount;
+    if (ft) updated.ft = ft;
+    cart[projectId] = updated;
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
@@ -92,14 +114,7 @@ if (state.cart === null && storageCart !== null) {
   // cart hasn't been set on state yet, and storageCart has been fetched
   // if storageCart isn't undefined, set it on state
   // otherwise, set default cart on state
-  let cart = {
-    // TODO: after testing, this should be empty object
-    // projectId -> amount, ft
-    "potlock.near": {
-      amount: "100000000000",
-      ft: "near",
-    },
-  };
+  let cart = {};
   if (storageCart) {
     cart = JSON.parse(storageCart);
   }

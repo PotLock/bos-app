@@ -64,13 +64,13 @@ const NavTabs = styled.div`
 
 const NavTab = styled.a`
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  color: #7b7b7b;
-  fontsize: 14;
-  fontfamily: Mona-Sans;
-  fontweight: 500;
-  lineheight: 16;
-  wordwrap: break-word;
+  color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
+  font-size: 14px;
+  font-weight: ${(props) => (props.selected ? 500 : 400)};
+  line-height: 16px;
+  word-wrap: break-word;
   text-decoration: none;
+  position: relative;
 
   :not(:last-child) {
     margin-right: 32px;
@@ -79,6 +79,20 @@ const NavTab = styled.a`
   :hover {
     text-decoration: none;
   }
+`;
+
+const CartCount = styled.div`
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  // top: 20px;
+  // right: 20px;
+  text-align: center;
+  color: #dd3345;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+  word-wrap: break-word;
 `;
 
 const CartModal = styled.div`
@@ -199,6 +213,7 @@ return (
                 onClick={(e) => {
                   if (tab.disabled) e.preventDefault();
                 }}
+                selected={props.tab === tab.link}
               >
                 {tab.text}
               </NavTab>
@@ -208,8 +223,10 @@ return (
             onClick={(e) => {
               State.update({ isModalOpen: !state.isModalOpen });
             }}
+            selected={props.tab === "cart"}
           >
-            Cart ({Object.keys(props.cart).length})
+            Cart
+            <CartCount>{Object.keys(props.cart).length}</CartCount>
           </NavTab>
         </NavTabs>
       </NavRight>
@@ -227,18 +244,18 @@ return (
         {/* <Ear /> */}
       </ModalHeader>
       {Object.keys(props.cart).length === 0 ? (
-        <NoProjectsText>Get shopping! 👛</NoProjectsText>
+        <NoProjectsText>Get shopping! 💸</NoProjectsText>
       ) : (
         Object.keys(props.cart).map((projectId) => {
           // return <CartItem projectId={projectId} Object.keys(props.cart).length={Object.keys(props.cart).length} />;
           return (
             <Widget
-              src={`${ownerId}/widget/Project.CartItem`}
+              src={`${ownerId}/widget/Cart.CartModalItem`}
               props={{
                 ...props,
                 projectId,
-                removeProjectFromCart: (projectId) => {
-                  props.removeProjectFromCart(projectId);
+                removeProjectsFromCart: (projectIds) => {
+                  props.removeProjectsFromCart(projectIds);
                   if (Object.keys(props.cart).length === 1) {
                     State.update({ isModalOpen: false });
                   }
@@ -248,16 +265,13 @@ return (
           );
         })
       )}
-      {/* {Object.keys(props.cart).map((projectId) => {
-        return <CartItem projectId={projectId} numItems={numItems} />;
-      })} */}
       <ButtonContainer>
         <Widget
           src={`${ownerId}/widget/Buttons.NavigationButton`}
           props={{
             type: "primary",
             text: "Proceed to donate",
-            disabled: numItems === 0,
+            disabled: Object.keys(props.cart).length === 0,
             href: `?tab=cart`,
             style: {
               width: "100%",
@@ -268,9 +282,8 @@ return (
         <Widget
           src={`${ownerId}/widget/Buttons.ActionButton`}
           props={{
-            type: "secondary",
+            type: Object.keys(props.cart).length === 0 ? "primary" : "secondary",
             text: "Continue shopping",
-            disabled: numItems === 0,
             onClick: () => State.update({ isModalOpen: false }),
             style: {
               width: "100%",

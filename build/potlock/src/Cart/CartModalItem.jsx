@@ -55,6 +55,8 @@ const Text = styled.div`
   max-width: 270px;
 `;
 
+const MAX_DESCRIPTION_LENGTH = 120;
+
 if (!profile) return "";
 
 return (
@@ -76,8 +78,12 @@ return (
     />
     <ProjectDetails>
       <Text style={{ fontWeight: 600 }}>{profile.name}</Text>
-      <Text>{profile.description}</Text>
-      <TrashContainer onClick={() => props.removeProjectFromCart(props.projectId)}>
+      <Text>
+        {profile.description.length > MAX_DESCRIPTION_LENGTH
+          ? profile.description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
+          : profile.description}
+      </Text>
+      <TrashContainer onClick={() => props.removeProjectsFromCart([props.projectId])}>
         <TrashIcon src={TRASH_ICON_URL} />
       </TrashContainer>
     </ProjectDetails>
