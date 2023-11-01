@@ -357,7 +357,6 @@ if (context.accountId && !state.socialDataFetched) {
     .then((socialData) => {
       if (!socialData) return;
       const profileData = socialData[context.accountId].profile;
-      console.log("profile data: ", profileData);
       if (!profileData) return;
       // description
       const description = profileData.description || "";
@@ -570,8 +569,6 @@ const FormSectionLeft = (title, description, isRequired) => {
 if (props.edit && !registeredProject) {
   return <div style={{ textAlign: "center", paddingTop: "12px" }}>Unauthorized</div>;
 }
-
-console.log("state: ", state);
 
 return (
   <Container>
@@ -887,8 +884,12 @@ return (
           />
           <Space height={24} />
           <MembersText>
-            <MembersCount>{state.teamMembers.length} </MembersCount>
-            {state.teamMembers.length == 1 ? "member" : "members"}
+            <MembersCount>
+              {state.teamMembers.filter((teamMember) => !teamMember.remove).length}{" "}
+            </MembersCount>
+            {state.teamMembers.filter((teamMember) => !teamMember.remove).length == 1
+              ? "member"
+              : "members"}
           </MembersText>
           {state.teamMembers
             .filter((teamMember) => !teamMember.remove)
@@ -916,20 +917,13 @@ return (
                   </MembersListItemLeft>
                   <RemoveMember
                     onClick={() => {
-                      console.log("clicked!");
                       const teamMembers = state.teamMembers.map((tm) => {
                         if (tm.accountId == teamMember.accountId) {
                           return { ...tm, remove: true };
                         }
                         return tm;
                       });
-                      console.log("teamMembers: ", teamMembers);
                       State.update({ teamMembers });
-                      // State.update({
-                      //   teamMembers: state.teamMembers.filter(
-                      //     (member) => member.accountId != teamMember.accountId
-                      //   ),
-                      // });
                     }}
                   >
                     Remove
