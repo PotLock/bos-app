@@ -380,10 +380,12 @@ if (context.accountId && !state.socialDataFetched) {
         github,
         website,
         socialDataFetched: true,
-        teamMembers: Object.keys(team).map((accountId) => ({
-          accountId,
-          imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
-        })),
+        teamMembers: Object.entries(team)
+          .filter(([accountId, value]) => value !== null)
+          .map(([accountId, _]) => ({
+            accountId,
+            imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
+          })),
       });
     })
     .catch((e) => {
