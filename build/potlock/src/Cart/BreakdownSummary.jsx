@@ -209,7 +209,7 @@ return (
       props={{
         type: "primary",
         text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
-        disabled: !Object.keys(props.cart).length || donationTooSmall,
+        disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
         style: {
           width: "100%",
@@ -221,5 +221,6 @@ return (
         Minimum required donation per project is {MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT} N
       </ErrorText>
     )}
+    {!context.accountId && <ErrorText>Please sign in to donate</ErrorText>}
   </Container>
 );
