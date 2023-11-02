@@ -93,6 +93,16 @@ const TotalText = styled.div`
   word-wrap: break-word;
 `;
 
+const ErrorText = styled.div`
+  color: #dd3345;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word;
+  width: 100%;
+  text-align: center;
+`;
+
 // TODO: move this to state to handle selected FT once we support multiple FTs
 // TODO: note this is duplicated in Cart.CheckoutItem
 const SUPPORTED_FTS = {
@@ -103,14 +113,18 @@ const SUPPORTED_FTS = {
   },
 };
 
-const [amountsByFt, totalAmount] = useMemo(() => {
+const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
+
+const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   const amountsByFt = {};
+  let donationTooSmall = false;
   Object.entries(props.cart).forEach(([projectId, { ft, amount }]) => {
     if (!amountsByFt[ft]) amountsByFt[ft] = 0;
     amountsByFt[ft] += parseFloat(amount || 0);
+    if (amountsByFt[ft] < MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT) donationTooSmall = true;
   });
   const totalAmount = Object.values(amountsByFt).reduce((acc, amount) => acc + amount, 0);
-  return [amountsByFt, totalAmount];
+  return [amountsByFt, totalAmount, donationTooSmall];
 }, [props]);
 
 // TODO: handle successful transaction
@@ -195,12 +209,17 @@ return (
       props={{
         type: "primary",
         text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
-        disabled: !Object.keys(props.cart).length,
+        disabled: !Object.keys(props.cart).length || donationTooSmall,
         onClick: handleDonate,
         style: {
           width: "100%",
         },
       }}
     />
+    {donationTooSmall && (
+      <ErrorText>
+        Minimum required donation per project is {MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT} N
+      </ErrorText>
+    )}
   </Container>
 );
