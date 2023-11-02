@@ -123,7 +123,12 @@ return (
             placeholder: "0",
             value: props.cart[projectId]?.amount,
             onChange: (amount) => {
-              props.updateCartItem(projectId, amount, props.cart[projectId]?.ft); // TODO: update this to use selected FT ID
+              props.updateCartItem(
+                projectId,
+                amount,
+                props.cart[projectId]?.ft,
+                props.cart[projectId]?.referrerId
+              ); // TODO: update this to use selected FT ID
             },
             inputStyles: {
               textAlign: "right",

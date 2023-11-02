@@ -81,8 +81,8 @@ const props = {
   ...state,
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
-    projects.forEach(({ id, amount, ft }) => {
-      cart[id] = { amount, ft: ft ?? "NEAR" }; // default to NEAR
+    projects.forEach(({ id, amount, ft, referrerId }) => {
+      cart[id] = { amount, ft: ft ?? "NEAR", referrerId }; // default to NEAR
     });
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
@@ -95,12 +95,13 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: (projectId, amount, ft) => {
+  updateCartItem: (projectId, amount, ft, referrerId) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";
     if (amount || amount === "") updated.amount = amount;
     if (ft) updated.ft = ft;
+    if (referrerId) updated.referrerId = referrerId;
     cart[projectId] = updated;
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));

@@ -75,7 +75,6 @@ const shareSvg = (
 const projectLink = `https://near.social/potlock.near/widget/Index?tab=project&projectId=${
   props.projectId
 }${context.accountId && `&referrerId=${context.accountId}`}`;
-console.log("projectLink: ", projectLink);
 
 const Actions = () => (
   <Widget

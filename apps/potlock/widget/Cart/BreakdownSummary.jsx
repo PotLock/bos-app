@@ -148,13 +148,15 @@ const handleDonate = () => {
   //     }
   //   }
   const transactions = [];
-  Object.entries(props.cart).forEach(([projectId, { ft, amount }]) => {
+  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId }]) => {
     const amountFloat = parseFloat(amount || 0);
     const amountIndivisible = SUPPORTED_FTS[ft].toIndivisible(amountFloat);
+    const args = { recipient_id: projectId };
+    if (referrerId) args.referrer_id = referrerId;
     transactions.push({
       contractName: donationContractId,
       methodName: "donate",
-      args: { recipient_id: projectId },
+      args,
       deposit: amountIndivisible.toString(),
     });
   });
