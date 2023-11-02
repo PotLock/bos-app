@@ -12,6 +12,25 @@ const Container = styled.div`
   min-height: 100vh;
 `;
 
+const SuccessContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  //   justify-content: center;
+  width: 100%;
+  padding: 24px;
+  gap: 24px;
+`;
+
+// const ButtonsContainer = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   gap: 24px;
+//   width: 50%;
+//   align-items: center;
+//   justify-content: center;
+// `;
+
 const ColumnLeft = styled.div`
   display: flex;
   flex-direction: column;
@@ -117,106 +136,138 @@ const allSelected =
   state.selectedProjectIds.length !== 0 &&
   state.selectedProjectIds.length === Object.keys(props.cart).length;
 
-// console.log("cart: ", props.cart);
-
 return (
   <div>
     <Container>
-      <ColumnLeft>
-        <Title>Donation Cart</Title>
-        <ActionsContainer>
-          <InnerContainer>
-            <Widget
-              src={`${ownerId}/widget/Inputs.Checkbox`}
-              props={{
-                id: "masterSelector",
-                disabled: Object.keys(props.cart).length === 0,
-                checked: state.masterSelectorSelected,
-                onClick: (e) => {
-                  // if allSelected, then deselect all
-                  // if not allSelected, then select all
-                  const selectedProjectIds = Object.keys(props.cart).filter((_) => {
-                    if (allSelected) {
-                      return false;
-                    }
-                    return true;
-                  });
-                  State.update({
-                    selectedProjectIds,
-                    masterSelectorSelected: !allSelected,
-                  });
-                },
-              }}
-            />
-            <SubTitle>Select all</SubTitle>
-          </InnerContainer>
-          <InnerContainer
-            style={{ cursor: "pointer" }}
-            onClick={() => {
-              // doesn't do anything if nothing selected
-              if (state.selectedProjectIds.length === 0) return;
-              // delete selected projects
-              props.removeProjectsFromCart(state.selectedProjectIds);
-              // uncheck box
-              State.update({ selectedProjectIds: [], masterSelectorSelected: false });
+      {props.checkoutSuccess ? (
+        <SuccessContainer>
+          <Title>Thanks for donating!</Title>
+          {/* <ButtonsContainer> */}
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
+              target: "_blank",
+              type: "secondary",
+              text: "View transaction",
+              disabled: !props.checkoutSuccessTxHash,
+              style: {
+                width: "300px",
+              },
             }}
-          >
-            <Icon
-              src={TRASH_ICON_URL}
-              //   onClick={() => {
-              //     // doesn't do anything if nothing selected
-              //     if (state.selectedProjectIds.length === 0) return;
-              //     // delete selected projects
-              //     props.removeProjectsFromCart(state.selectedProjectIds);
-              //     // uncheck box
-              //     State.update({ selectedProjectIds: [], masterSelectorSelected: false });
-              //   }}
-            />
-            <SubTitle>Delete</SubTitle>
-          </InnerContainer>
-        </ActionsContainer>
-        {Object.keys(props.cart).map((projectId) => {
-          const checked = state.selectedProjectIds.includes(projectId);
-          return (
+          />
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              href: `?tab=projects`,
+              type: "primary",
+              text: "Explore projects",
+              style: {
+                width: "300px",
+              },
+            }}
+          />
+          {/* </ButtonsContainer> */}
+        </SuccessContainer>
+      ) : (
+        <>
+          <ColumnLeft>
+            <Title>Donation Cart</Title>
+            <ActionsContainer>
+              <InnerContainer>
+                <Widget
+                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  props={{
+                    id: "masterSelector",
+                    disabled: Object.keys(props.cart).length === 0,
+                    checked: state.masterSelectorSelected,
+                    onClick: (e) => {
+                      // if allSelected, then deselect all
+                      // if not allSelected, then select all
+                      const selectedProjectIds = Object.keys(props.cart).filter((_) => {
+                        if (allSelected) {
+                          return false;
+                        }
+                        return true;
+                      });
+                      State.update({
+                        selectedProjectIds,
+                        masterSelectorSelected: !allSelected,
+                      });
+                    },
+                  }}
+                />
+                <SubTitle>Select all</SubTitle>
+              </InnerContainer>
+              <InnerContainer
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  // doesn't do anything if nothing selected
+                  if (state.selectedProjectIds.length === 0) return;
+                  // delete selected projects
+                  props.removeProjectsFromCart(state.selectedProjectIds);
+                  // uncheck box
+                  State.update({ selectedProjectIds: [], masterSelectorSelected: false });
+                }}
+              >
+                <Icon
+                  src={TRASH_ICON_URL}
+                  //   onClick={() => {
+                  //     // doesn't do anything if nothing selected
+                  //     if (state.selectedProjectIds.length === 0) return;
+                  //     // delete selected projects
+                  //     props.removeProjectsFromCart(state.selectedProjectIds);
+                  //     // uncheck box
+                  //     State.update({ selectedProjectIds: [], masterSelectorSelected: false });
+                  //   }}
+                />
+                <SubTitle>Delete</SubTitle>
+              </InnerContainer>
+            </ActionsContainer>
+            {Object.keys(props.cart).map((projectId) => {
+              const checked = state.selectedProjectIds.includes(projectId);
+              return (
+                <Widget
+                  src={`${ownerId}/widget/Cart.CheckoutItem`}
+                  props={{
+                    ...props,
+                    projectId,
+                    checked,
+                    handleCheckboxClick: (e) => {
+                      // if selected, then deselect
+                      // else, select
+                      let selectedProjectIds = state.selectedProjectIds;
+                      if (checked) {
+                        selectedProjectIds = selectedProjectIds.filter((id) => id !== projectId);
+                      } else {
+                        selectedProjectIds.push(projectId);
+                      }
+                      const updatedState = {
+                        selectedProjectIds,
+                      };
+                      if (
+                        selectedProjectIds.length !== 0 &&
+                        selectedProjectIds.length !== Object.keys(props.cart).length
+                      ) {
+                        updatedState.masterSelectorSelected = false;
+                      }
+                      State.update(updatedState);
+                    },
+                  }}
+                />
+              );
+            })}
+          </ColumnLeft>
+          <ColumnRight>
             <Widget
-              src={`${ownerId}/widget/Cart.CheckoutItem`}
+              src={`${ownerId}/widget/Cart.BreakdownSummary`}
               props={{
                 ...props,
-                projectId,
-                checked,
-                handleCheckboxClick: (e) => {
-                  // if selected, then deselect
-                  // else, select
-                  let selectedProjectIds = state.selectedProjectIds;
-                  if (checked) {
-                    selectedProjectIds = selectedProjectIds.filter((id) => id !== projectId);
-                  } else {
-                    selectedProjectIds.push(projectId);
-                  }
-                  const updatedState = {
-                    selectedProjectIds,
-                  };
-                  if (
-                    selectedProjectIds.length !== 0 &&
-                    selectedProjectIds.length !== Object.keys(props.cart).length
-                  ) {
-                    updatedState.masterSelectorSelected = false;
-                  }
-                  State.update(updatedState);
-                },
               }}
             />
-          );
-        })}
-      </ColumnLeft>
-      <ColumnRight>
-        <Widget
-          src={`${ownerId}/widget/Cart.BreakdownSummary`}
-          props={{
-            ...props,
-          }}
-        />
-      </ColumnRight>
+          </ColumnRight>
+        </>
+      )}
     </Container>
   </div>
 );

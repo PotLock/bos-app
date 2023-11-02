@@ -105,20 +105,29 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
+  checkoutSuccess: props.tab === CART_TAB && props.transactionHashes,
+  checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
 };
 
 const CART_KEY = "cart";
 const storageCart = Storage.get(CART_KEY);
+const DEFAULT_CART = {};
 
 if (state.cart === null && storageCart !== null) {
   // cart hasn't been set on state yet, and storageCart has been fetched
   // if storageCart isn't undefined, set it on state
   // otherwise, set default cart on state
-  let cart = {};
+  let cart = DEFAULT_CART;
   if (storageCart) {
     cart = JSON.parse(storageCart);
   }
   State.update({ cart });
+}
+
+if (props.checkoutSuccess && state.cart && Object.keys(state.cart).length > 0) {
+  // if checkout was successful, clear cart
+  State.update({ cart: {} });
+  Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
 }
 
 if (props.tab === EDIT_PROJECT_TAB) {

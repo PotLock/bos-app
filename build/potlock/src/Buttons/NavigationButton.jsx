@@ -48,13 +48,16 @@ const Button = styled.a`
 
 return (
   <Button
+    target={props.target}
     href={props.href}
     onClick={(e) => {
       if (props.disabled) {
         e.preventDefault();
         return;
       }
-      props.onClick(e);
+      if (props.onClick) {
+        props.onClick(e);
+      }
     }}
     disabled={props.disabled}
     style={{ ...props.style }}

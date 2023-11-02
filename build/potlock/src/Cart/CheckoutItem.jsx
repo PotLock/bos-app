@@ -72,7 +72,6 @@ const FtIcon = styled.img`
 const { projectId, checked, handleCheckboxClick } = props;
 
 const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") || {};
-// console.log("profile: ", profile);
 
 // TODO: move this to state to handle selected FT once we support multiple FTs
 // TODO: also note this is duplicated in Cart.BreakdownSummary
@@ -83,14 +82,6 @@ const SUPPORTED_FTS = {
     fromIndivisible: (amount) => amount / 10 ** 24,
   },
 };
-
-// console.log("props.cart: ", props.cart);
-// console.log("props.cart[projectId]?.ft: ", props.cart[projectId]?.ft);
-// console.log("SUPPORTED_FTS[props.cart[projectId].ft]: ", SUPPORTED_FTS[props.cart[projectId].ft]);
-// console.log(
-//   "SUPPORTED_FTS[props.cart[projectId].ft].iconUrl: ",
-//   SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
-// );
 
 return (
   <ItemContainer>
