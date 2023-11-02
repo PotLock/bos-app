@@ -359,7 +359,8 @@ if (context.accountId && !state.socialDataFetched) {
       const profileData = socialData[context.accountId].profile;
       if (!profileData) return;
       // description
-      let description = profileData.description || "";
+      const description = profileData.description || "";
+      const category = typeof profileData.category == "string" ? profileData.category : "";
       // linktree
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
@@ -372,15 +373,18 @@ if (context.accountId && !state.socialDataFetched) {
       State.update({
         name: profileData?.name || "",
         description,
+        category,
         twitter,
         telegram,
         github,
         website,
         socialDataFetched: true,
-        teamMembers: Object.keys(team).map((accountId) => ({
-          accountId,
-          imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
-        })),
+        teamMembers: Object.entries(team)
+          .filter(([accountId, value]) => value !== null)
+          .map(([accountId, _]) => ({
+            accountId,
+            imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
+          })),
       });
     })
     .catch((e) => {
@@ -423,7 +427,10 @@ const handleCreateProject = (e) => {
             telegram: state.telegram,
             github: state.github,
           },
-          team: state.teamMembers.reduce((acc, tm) => ({ ...acc, [tm.accountId]: "" }), {}),
+          team: state.teamMembers.reduce(
+            (acc, tm) => ({ ...acc, [tm.accountId]: tm.remove ? null : "" }),
+            {}
+          ),
         },
       },
     },
@@ -630,6 +637,7 @@ return (
                       </MoreTeamMembersContainer>
                     )}
                     {state.teamMembers
+                      .filter((teamMember) => !teamMember.remove)
                       .slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT)
                       .map((teamMember, idx) => {
                         return (
@@ -748,7 +756,7 @@ return (
                   // { text: "Community", value: "community" },
                   // { text: "Education", value: "education" },
                   // ],
-                  value: state.category,
+                  value: { text: CATEGORY_MAPPINGS[state.category] || "", value: state.category },
                   onChange: (category) => {
                     State.update({
                       category: category.value,
@@ -876,45 +884,53 @@ return (
           />
           <Space height={24} />
           <MembersText>
-            <MembersCount>{state.teamMembers.length} </MembersCount>
-            {state.teamMembers.length == 1 ? "member" : "members"}
+            <MembersCount>
+              {state.teamMembers.filter((teamMember) => !teamMember.remove).length}{" "}
+            </MembersCount>
+            {state.teamMembers.filter((teamMember) => !teamMember.remove).length == 1
+              ? "member"
+              : "members"}
           </MembersText>
-          {state.teamMembers.map((teamMember) => {
-            return (
-              <MembersListItem>
-                <MembersListItemLeft>
-                  <Widget
-                    src="mob.near/widget/ProfileImage"
-                    props={{
-                      accountId: teamMember.accountId,
-                      style: {
-                        width: "40px",
-                        height: "40px",
-                        margin: "0 -8px 0 0",
-                        borderRadius: "50%",
-                        background: "white",
-                      },
-                      imageClassName: "rounded-circle w-100 h-100 d-block",
-                      thumbnail: false,
-                      tooltip: true,
+          {state.teamMembers
+            .filter((teamMember) => !teamMember.remove)
+            .map((teamMember) => {
+              return (
+                <MembersListItem>
+                  <MembersListItemLeft>
+                    <Widget
+                      src="mob.near/widget/ProfileImage"
+                      props={{
+                        accountId: teamMember.accountId,
+                        style: {
+                          width: "40px",
+                          height: "40px",
+                          margin: "0 -8px 0 0",
+                          borderRadius: "50%",
+                          background: "white",
+                        },
+                        imageClassName: "rounded-circle w-100 h-100 d-block",
+                        thumbnail: false,
+                        tooltip: true,
+                      }}
+                    />
+                    <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
+                  </MembersListItemLeft>
+                  <RemoveMember
+                    onClick={() => {
+                      const teamMembers = state.teamMembers.map((tm) => {
+                        if (tm.accountId == teamMember.accountId) {
+                          return { ...tm, remove: true };
+                        }
+                        return tm;
+                      });
+                      State.update({ teamMembers });
                     }}
-                  />
-                  <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
-                </MembersListItemLeft>
-                <RemoveMember
-                  onClick={() => {
-                    State.update({
-                      teamMembers: state.teamMembers.filter(
-                        (member) => member.accountId != teamMember.accountId
-                      ),
-                    });
-                  }}
-                >
-                  Remove
-                </RemoveMember>
-              </MembersListItem>
-            );
-          })}
+                  >
+                    Remove
+                  </RemoveMember>
+                </MembersListItem>
+              );
+            })}
         </Modal>
       </>
     )}
