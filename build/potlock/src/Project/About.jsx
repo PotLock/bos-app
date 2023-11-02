@@ -6,6 +6,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 48px;
+  width: 100%;
 `;
 
 const Header = styled.div`
