@@ -21,7 +21,6 @@ const InfoCard = styled.div`
   //   background: yellow;
   background: #fef6ee;
   box-shadow: 0px -2px 0px rgba(219, 82, 27, 0.36) inset;
-  width: 100%;
   gap: 8px;
 `;
 
@@ -30,7 +29,7 @@ const InfoTextPrimary = styled.div`
   font-size: 24px;
   font-weight: 600;
   line-height: 32px;
-  word-wrap: break-word;
+  // word-wrap: break-word;
   text-align: flex-end;
 `;
 
