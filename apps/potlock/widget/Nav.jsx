@@ -183,10 +183,6 @@ const tabOptions = [
   { text: "Feed", link: "feed", disabled: true },
 ];
 
-State.init({
-  isModalOpen: false,
-});
-
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
@@ -221,7 +217,7 @@ return (
           })}
           <NavTab
             onClick={(e) => {
-              State.update({ isModalOpen: !state.isModalOpen });
+              props.setIsCartModalOpen(!props.isCartModalOpen);
             }}
             selected={props.tab === "cart"}
           >
@@ -231,7 +227,7 @@ return (
         </NavTabs>
       </NavRight>
     </Nav>
-    <Modal isOpen={state.isModalOpen} onClose={() => State.update({ isModalOpen: false })}>
+    <Modal isOpen={props.isCartModalOpen} onClose={() => props.setIsCartModalOpen(false)}>
       {/* <div>hi</div> */}
       <ModalHeader>
         <ModalHeaderText>Donation cart</ModalHeaderText>
@@ -257,7 +253,7 @@ return (
                 removeProjectsFromCart: (projectIds) => {
                   props.removeProjectsFromCart(projectIds);
                   if (Object.keys(props.cart).length === 1) {
-                    State.update({ isModalOpen: false });
+                    props.setIsCartModalOpen(false);
                   }
                 },
               }}
@@ -284,7 +280,7 @@ return (
           props={{
             type: Object.keys(props.cart).length === 0 ? "primary" : "secondary",
             text: "Continue shopping",
-            onClick: () => State.update({ isModalOpen: false }),
+            onClick: () => props.setIsCartModalOpen(false),
             style: {
               width: "100%",
             },

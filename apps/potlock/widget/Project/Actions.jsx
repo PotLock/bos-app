@@ -26,11 +26,14 @@ return (
           type: "secondary",
           text: existsInCart ? "Remove from cart" : "Add to cart",
           onClick: () => {
-            existsInCart
-              ? props.removeProjectsFromCart([props.projectId])
-              : props.addProjectsToCart([
-                  { id: props.projectId, amount: "1", ft: "NEAR", referrerId: props.referrerId },
-                ]);
+            if (existsInCart) {
+              props.removeProjectsFromCart([props.projectId]);
+            } else {
+              props.addProjectsToCart([
+                { id: props.projectId, amount: "1", ft: "NEAR", referrerId: props.referrerId },
+              ]);
+              props.setIsCartModalOpen(true);
+            }
           },
         }}
       />

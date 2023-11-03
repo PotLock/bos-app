@@ -45,11 +45,12 @@ const Theme = styled.div`
 State.init({
   cart: null,
   nearToUsd: null,
+  isCartModalOpen: false,
 });
 
 if (state.nearToUsd === null) {
   const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
-  console.log("coingecko res: ", res.body);
+  console.log("coingecko res: ", res);
   State.update({ nearToUsd: res.body.near.usd });
 }
 
@@ -109,6 +110,9 @@ const props = {
   },
   checkoutSuccess: props.tab === CART_TAB && props.transactionHashes,
   checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
+  setIsCartModalOpen: (isOpen) => {
+    State.update({ isCartModalOpen: isOpen });
+  },
 };
 
 const CART_KEY = "cart";

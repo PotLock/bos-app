@@ -224,39 +224,43 @@ return (
                 <SubTitle>Delete</SubTitle>
               </InnerContainer>
             </ActionsContainer>
-            {Object.keys(props.cart).map((projectId) => {
-              const checked = state.selectedProjectIds.includes(projectId);
-              return (
-                <Widget
-                  src={`${ownerId}/widget/Cart.CheckoutItem`}
-                  props={{
-                    ...props,
-                    projectId,
-                    checked,
-                    handleCheckboxClick: (e) => {
-                      // if selected, then deselect
-                      // else, select
-                      let selectedProjectIds = state.selectedProjectIds;
-                      if (checked) {
-                        selectedProjectIds = selectedProjectIds.filter((id) => id !== projectId);
-                      } else {
-                        selectedProjectIds.push(projectId);
-                      }
-                      const updatedState = {
-                        selectedProjectIds,
-                      };
-                      if (
-                        selectedProjectIds.length !== 0 &&
-                        selectedProjectIds.length !== Object.keys(props.cart).length
-                      ) {
-                        updatedState.masterSelectorSelected = false;
-                      }
-                      State.update(updatedState);
-                    },
-                  }}
-                />
-              );
-            })}
+            {Object.keys(props.cart).length === 0 ? (
+              <div>No items in cart</div>
+            ) : (
+              Object.keys(props.cart).map((projectId) => {
+                const checked = state.selectedProjectIds.includes(projectId);
+                return (
+                  <Widget
+                    src={`${ownerId}/widget/Cart.CheckoutItem`}
+                    props={{
+                      ...props,
+                      projectId,
+                      checked,
+                      handleCheckboxClick: (e) => {
+                        // if selected, then deselect
+                        // else, select
+                        let selectedProjectIds = state.selectedProjectIds;
+                        if (checked) {
+                          selectedProjectIds = selectedProjectIds.filter((id) => id !== projectId);
+                        } else {
+                          selectedProjectIds.push(projectId);
+                        }
+                        const updatedState = {
+                          selectedProjectIds,
+                        };
+                        if (
+                          selectedProjectIds.length !== 0 &&
+                          selectedProjectIds.length !== Object.keys(props.cart).length
+                        ) {
+                          updatedState.masterSelectorSelected = false;
+                        }
+                        State.update(updatedState);
+                      },
+                    }}
+                  />
+                );
+              })
+            )}
           </ColumnLeft>
           <ColumnRight>
             <Widget
