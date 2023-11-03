@@ -101,7 +101,7 @@ const donationsForProject = Near.view(donationContractId, "get_donations_for_rec
 });
 
 const [totalAmount, totalDonors] = useMemo(() => {
-  if (!donationsForProject) {
+  if (!donationsForProject || !props.nearToUsd) {
     return ["-", "-"];
   }
   const donors = [];
