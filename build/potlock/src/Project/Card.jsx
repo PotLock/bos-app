@@ -1,5 +1,5 @@
 const ownerId = "potlock.near";
-const donationContractId = "donation.tests.potlock.near"; // TODO: update to donate.potlock.near after testing
+const donationContractId = "donate.potlock.near";
 const registryContractId = "registry.potlock.near";
 
 const Card = styled.a`

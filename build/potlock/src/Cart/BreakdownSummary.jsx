@@ -1,5 +1,5 @@
 const ownerId = "potlock.near";
-const donationContractId = "donation.tests.potlock.near"; // TODO: update to donate.potlock.near after testing
+const donationContractId = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;

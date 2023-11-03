@@ -1,4 +1,4 @@
-const donationContractId = "donation.tests.potlock.near"; // TODO: change this after testing
+const donationContractId = "donate.potlock.near";
 
 const Container = styled.div`
   display: flex;
