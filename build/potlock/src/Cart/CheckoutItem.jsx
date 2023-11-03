@@ -123,6 +123,7 @@ return (
             placeholder: "0",
             value: props.cart[projectId]?.amount,
             onChange: (amount) => {
+              if (amount === ".") amount = "0.";
               props.updateCartItem(
                 projectId,
                 amount,
