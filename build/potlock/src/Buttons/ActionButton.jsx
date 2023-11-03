@@ -29,7 +29,7 @@ const Button = styled.button`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 8px 24px;
+  padding: 16px 24px;
   background: ${getButtonBackground()};
   overflow: hidden;
   box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;

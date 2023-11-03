@@ -48,7 +48,7 @@ const Input = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.5em 0.75em;
-  gap: 0.5em;
+  gap: 10px;
   background: #ffffff;
   border: 1px solid #d0d5dd;
   // box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
@@ -130,18 +130,22 @@ const Item = styled.button`
 `;
 
 return (
-  <Container>
+  <Container style={props.containerStyles || {}}>
     {noLabel ? <></> : <Label>{label}</Label>}
     <Select.Root
       value={value?.value}
       onValueChange={(value) => onChange(options.find((option) => option.value === value))}
     >
       <Select.Trigger asChild={true}>
-        <Input>
+        <Input style={props.inputStyles || {}}>
+          {props.iconLeft && props.iconLeft}
           <Select.Value
             aria-label={value.value}
             placeholder={<Placeholder>{placeholder}</Placeholder>}
           />
+          {/* {props.iconRight ? (
+            <Select.Icon>{props.iconRight}</Select.Icon>
+          ) : ( */}
           <Select.Icon>
             <svg
               width="12"
@@ -159,6 +163,7 @@ return (
               />
             </svg>
           </Select.Icon>
+          {/* )} */}
         </Input>
       </Select.Trigger>
 

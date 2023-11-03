@@ -15,9 +15,26 @@ const SubRow = styled.div`
   gap: 40px;
 `;
 
+const existsInCart = props.cart && !!props.cart[props.projectId];
+
 return (
   <Container className="gx-0">
-    <SubRow className="col-4"></SubRow>
+    <SubRow className="col-4">
+      <Widget
+        src={`${ownerId}/widget/Buttons.ActionButton`}
+        props={{
+          type: "secondary",
+          text: existsInCart ? "Remove from cart" : "Add to cart",
+          onClick: () => {
+            existsInCart
+              ? props.removeProjectsFromCart([props.projectId])
+              : props.addProjectsToCart([
+                  { id: props.projectId, amount: "1", ft: "NEAR", referrerId: props.referrerId },
+                ]);
+          },
+        }}
+      />
+    </SubRow>
     <SubRow className="col-8" style={{ justifyContent: "flex-end" }}>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}

@@ -786,7 +786,7 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "Twitter",
-                  prefix: "twitter.com/",
+                  prefixText: "twitter.com/",
                   // placeholder: "your-twitter-username",
                   value: state.twitter,
                   onChange: (twitter) => State.update({ twitter }),
@@ -807,7 +807,7 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "Telegram",
-                  prefix: "t.me/",
+                  prefixText: "t.me/",
                   // placeholder: "your-telegram-id",
                   value: state.telegram,
                   onChange: (telegram) => State.update({ telegram }),
@@ -822,7 +822,7 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "GitHub",
-                  prefix: "github.com/",
+                  prefixText: "github.com/",
                   // placeholder: "your-github-",
                   value: state.github,
                   onChange: (github) => State.update({ github }),
