@@ -101,9 +101,7 @@ const donationsForProject = Near.view(donationContractId, "get_donations_for_rec
 });
 
 const [totalAmount, totalDonors] = useMemo(() => {
-  if (!donationsForProject || !props.nearToUsd) {
-    return ["-", "-"];
-  }
+  if (!donationsForProject) return [null, null];
   const donors = [];
   let totalDonationAmount = new Big(0);
   for (const donation of donationsForProject) {
@@ -112,7 +110,10 @@ const [totalAmount, totalDonors] = useMemo(() => {
     }
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
-  return [(props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2), donors.length];
+  return [
+    props.nearToUsd ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2) : "-",
+    donors.length,
+  ];
 }, [donationsForProject]);
 
 return (
@@ -160,11 +161,11 @@ return (
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>
-        <Title>{totalDonors}</Title>
+        <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
         <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
       </DonationsInfoItem>
       <DonationsInfoItem>
-        <Title>${totalAmount}</Title>
+        <Title>${totalAmount || "-"}</Title>
         <SubTitle>Raised</SubTitle>
       </DonationsInfoItem>
     </DonationsInfoContainer>
