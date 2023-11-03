@@ -59,7 +59,7 @@ return (
           {
             contractName: "social.near",
             methodName: "set",
-            deposit: Big(JSON.stringify(socialArgs).length * 16).mul(Big(10).pow(20)),
+            deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
             args: socialArgs,
           },
         ];
