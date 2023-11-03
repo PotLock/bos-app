@@ -132,6 +132,7 @@ if (!state.registeredProjects) {
             description: profileData.description ?? "",
             bannerImageUrl,
             profileImageUrl,
+            status: project.status,
             tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: change this to get tags from horizon/social
           };
           return formatted;

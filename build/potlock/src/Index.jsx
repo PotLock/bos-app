@@ -1,4 +1,5 @@
 const ownerId = "potlock.near";
+const registryContractId = "registry.potlock.near";
 
 const CREATE_PROJECT_TAB = "createproject";
 const EDIT_PROJECT_TAB = "editproject";
@@ -46,12 +47,18 @@ State.init({
   cart: null,
   nearToUsd: null,
   isCartModalOpen: false,
+  registryAdmins: null,
 });
 
 if (state.nearToUsd === null) {
   const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
   console.log("coingecko res: ", res);
   State.update({ nearToUsd: res.body.near.usd });
+}
+
+if (state.registryAdmins === null) {
+  const registryAdmins = Near.view(registryContractId, "get_admins", {});
+  State.update({ registryAdmins });
 }
 
 const tabContentWidget = {

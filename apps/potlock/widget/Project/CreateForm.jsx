@@ -745,17 +745,6 @@ return (
                     value,
                     text,
                   })),
-                  // options: [
-                  // Social Impact, NonProfit, Climate, Public Good
-                  // { text: "Social Impact", value: "social-impact" },
-                  // { text: "NonProfit", value: "non-profit" },
-                  // { text: "Climate", value: "climate" },
-                  // { text: "Public Good", value: "public-good" },
-                  // { text: "DeSci", value: "de-sci" },
-                  // { text: "Open Source", value: "open-source" },
-                  // { text: "Community", value: "community" },
-                  // { text: "Education", value: "education" },
-                  // ],
                   value: { text: CATEGORY_MAPPINGS[state.category] || "", value: state.category },
                   onChange: (category) => {
                     State.update({
