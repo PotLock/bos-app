@@ -1,4 +1,5 @@
 const ownerId = "potlock.near";
+const donationContractId = "donation.tests.potlock.near"; // TODO: update to donate.potlock.near after testing
 
 const Card = styled.a`
   display: flex;
@@ -45,16 +46,16 @@ const Info = styled.div`
   margin-top: 160px;
   padding: 16px 24px;
   gap: 16px;
+  flex: 1;
 `;
 
-const ProjectName = styled.h2`
+const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
-  font-family: mona-sans;
   color: #2e2e2e;
 `;
 
-const ProjectDescription = styled.p`
+const SubTitle = styled.div`
   font-size: 16px;
   font-weight: 400;
   color: #2e2e2e;
@@ -74,9 +75,45 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
+const DonationsInfoContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  width: 100%;
+  border-top: 1px #f0f0f0 solid;
+`;
+
+const DonationsInfoItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+`;
+
 const MAX_DESCRIPTION_LENGTH = 120;
 
 const { id, bannerImageUrl, profileImageUrl, name, description, tags } = props.project;
+
+const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
+  recipient_id: id,
+});
+
+const [totalAmount, totalDonors] = useMemo(() => {
+  if (!donationsForProject) {
+    return ["-", "-"];
+  }
+  const donors = [];
+  let totalDonationAmount = new Big(0);
+  for (const donation of donationsForProject) {
+    if (!donors.includes(donation.donor_id)) {
+      donors.push(donation.donor_id);
+    }
+    totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+  }
+  return [(props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2), donors.length];
+}, [donationsForProject]);
 
 return (
   <Card href={`?tab=project&projectId=${id}`} key={id}>
@@ -107,12 +144,12 @@ return (
       }}
     />
     <Info>
-      <ProjectName>{name}</ProjectName>
-      <ProjectDescription>
+      <Title>{name}</Title>
+      <SubTitle>
         {description.length > MAX_DESCRIPTION_LENGTH
           ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
           : description}
-      </ProjectDescription>
+      </SubTitle>
       <Widget
         src={`${ownerId}/widget/Project.Tags`}
         props={{
@@ -121,5 +158,15 @@ return (
         }}
       />
     </Info>
+    <DonationsInfoContainer>
+      <DonationsInfoItem>
+        <Title>{totalDonors}</Title>
+        <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
+      </DonationsInfoItem>
+      <DonationsInfoItem>
+        <Title>${totalAmount}</Title>
+        <SubTitle>Raised</SubTitle>
+      </DonationsInfoItem>
+    </DonationsInfoContainer>
   </Card>
 );

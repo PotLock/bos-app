@@ -49,6 +49,7 @@ State.init({
 
 if (state.nearToUsd === null) {
   const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
+  console.log("coingecko res: ", res.body);
   State.update({ nearToUsd: res.body.near.usd });
 }
 

@@ -22,6 +22,7 @@ const InfoCard = styled.div`
   background: #fef6ee;
   box-shadow: 0px -2px 0px rgba(219, 82, 27, 0.36) inset;
   gap: 8px;
+  min-width: 260px;
 `;
 
 const InfoTextPrimary = styled.div`
@@ -57,13 +58,13 @@ const [totalDonations, totalDonors] = useMemo(() => {
     }
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
-  return [totalDonationAmount.div(1e24).toString(), donors.length];
+  return [totalDonationAmount.div(1e24).toNumber().toFixed(2), donors.length];
 }, [donationsForProject]);
 
 return (
   <Container>
     <InfoCard>
-      <InfoTextPrimary>{totalDonations} NEAR</InfoTextPrimary>
+      <InfoTextPrimary>${totalDonations}</InfoTextPrimary>
       <InfoTextSecondary>Contributed</InfoTextSecondary>
     </InfoCard>
     <InfoCard>

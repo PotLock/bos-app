@@ -210,6 +210,7 @@ return (
               src={`${ownerId}/widget/Project.Card`}
               props={{
                 project,
+                ...props,
               }}
             />
           ),
