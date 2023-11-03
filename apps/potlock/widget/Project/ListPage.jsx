@@ -102,7 +102,6 @@ const CATEGORY_MAPPINGS = {
 if (!state.registeredProjects) {
   Near.asyncView(registryId, "get_projects", {})
     .then((projects) => {
-      projects = projects.filter((project) => project.status === "Approved");
       // get social data for each project
       // name
       // description
@@ -149,6 +148,8 @@ if (!state.registeredProjects) {
 }
 
 if (!state.registeredProjects) return "";
+
+const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
 
 return (
   <>
@@ -204,7 +205,9 @@ return (
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
-          projects: state.registeredProjects,
+          projects: userIsAdmin
+            ? state.registeredProjects
+            : state.registeredProjects.filter((project) => project.status === "Approved"),
           renderItem: (project) => (
             <Widget
               src={`${ownerId}/widget/Project.Card`}
