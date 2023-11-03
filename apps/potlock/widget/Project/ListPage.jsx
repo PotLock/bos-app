@@ -97,11 +97,12 @@ const CATEGORY_MAPPINGS = {
   education: "Education",
 };
 
-const HIDDEN_PROJECT_IDS = ["roshaan.near"];
+// const HIDDEN_PROJECT_IDS = ["roshaan.near"];
 
 if (!state.registeredProjects) {
   Near.asyncView(registryId, "get_projects", {})
     .then((projects) => {
+      projects = projects.filter((project) => project.status === "Approved");
       // get social data for each project
       // name
       // description
@@ -136,9 +137,7 @@ if (!state.registeredProjects) {
           return formatted;
         });
         State.update({
-          registeredProjects: formattedProjects.filter(
-            (project) => !HIDDEN_PROJECT_IDS.includes(project.id)
-          ),
+          registeredProjects: formattedProjects,
         });
       });
     })
