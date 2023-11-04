@@ -151,6 +151,10 @@ if (!state.registeredProjects) return "";
 
 const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
 
+const projects = userIsAdmin
+  ? state.registeredProjects
+  : state.registeredProjects.filter((project) => project.status === "Approved");
+
 return (
   <>
     <HeroContainer>
@@ -200,14 +204,12 @@ return (
     <ProjectsContainer>
       <SectionHeader>
         <SectionTitle>All projects</SectionTitle>
-        <ProjectsCount>{state.registeredProjects.length}</ProjectsCount>
+        <ProjectsCount>{projects.length}</ProjectsCount>
       </SectionHeader>
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
-          projects: userIsAdmin
-            ? state.registeredProjects
-            : state.registeredProjects.filter((project) => project.status === "Approved"),
+          projects,
           renderItem: (project) => (
             <Widget
               src={`${ownerId}/widget/Project.Card`}
