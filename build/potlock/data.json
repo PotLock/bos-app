@@ -1,0 +1,30 @@
+{
+  "widget": {
+    "Index": {
+      "metadata": {
+        "name": "PotLock",
+        "description": "PotLock is transforming the way public goods are funded. Create your project, donate to your favroite project, or earn automatic on-chain referrals from funding for your favorite public goods.\n\nLearn more at https://docs.potlock.io ",
+        "linktree": {
+          "website": "potlock.io/app"
+        },
+        "image": {
+          "ipfs_cid": "bafkreicwzq6dlcynhceovrtslsjja2d76b7ysnjih4qmqlk7atre3w2nay"
+        },
+        "tags": {
+          "potlock": "",
+          "qf": "",
+          "quadratic-funding": "",
+          "gitcoin": "",
+          "giveth": "",
+          "public-goods": "",
+          "funding": "",
+          "refi": "",
+          "impact": "",
+          "near-impact": "",
+          "open-source": "",
+          "app": ""
+        }
+      }
+    }
+  }
+}
