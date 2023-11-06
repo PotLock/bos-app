@@ -1,10 +1,20 @@
 const Container = styled.div`
-  margin-top: 48px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-top: 1px #c7c7c7 solid;
+  background: pink;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const Column = styled.div`
   padding-top: 16px;
-  border-top: 1px #c7c7c7 solid;
+  // border-top: 1px #c7c7c7 solid;
 `;
 
 const Title = styled.div`
@@ -20,6 +30,12 @@ const TeamMembersContainer = styled.div`
   align-items: center;
   justify-content: flex-start;
   gap: 40px;
+  flex-wrap: wrap;
+
+  @media screen and (max-width: 768px) {
+    overflow-x: auto;
+    flex-wrap: nowrap; // Prevent wrapping on mobile, enable scrolling instead
+  }
 `;
 
 const TeamMemberItem = styled.a`
@@ -42,8 +58,6 @@ const TeamMemberAccountId = styled.div`
   // font-family: Mona-Sans;
 `;
 
-const team = props.team ?? {};
-
 const imageWidthPx = 129;
 
 const ImageContainer = styled.div`
@@ -53,10 +67,46 @@ const ImageContainer = styled.div`
   border: 4px #dd3345 solid;
 `;
 
+const Col1 = styled.div`
+  display: flex;
+  width: 25%;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const Col2 = styled.div`
+  display: flex;
+  // width: 75%;
+`;
+
+// double team members for testing
+// for (const teamMember of team) {
+//   console.log("team member: ", teamMember);
+//   team[teamMember + "1"] = teamMember;
+// }
+// props.team.push("lachlan.near", "root.near");
+// console.log("team: ", props.team);
+
+// const team = useM
+props.team = [
+  "plugrel.near",
+  "kurodenjiro.near",
+  "lachlan.near",
+  "root.near",
+  "plugrel.near",
+  "kurodenjiro.near",
+  "lachlan.near",
+  "root.near",
+];
+
 return (
-  <Container className="row gx-0 align-items-start w-100">
+  <Container>
     <Column className="col-3">
+      {/* <Col1> */}
       <Title>Team members</Title>
+      {/* </Col1> */}
     </Column>
     <Column className="col-9">
       <TeamMembersContainer>

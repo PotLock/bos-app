@@ -6,14 +6,14 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 48px;
-  width: 100%;
+  // width: 100%;
 `;
 
 const Header = styled.div`
   color: #2e2e2e;
-  font-size: 32px;
-  font-weight: 600;
-  // font-family: Lora;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
 `;
 
 const DonationsInfo = () => (

@@ -43,30 +43,58 @@ const socialArgs = {
 
 const buttonText = loading ? "Loading" : follow ? "Following" : inverse ? "Follow back" : "Follow";
 
+const FollowContainer = styled.div`
+  padding: 10px 16px;
+  cursor: pointer;
+`;
+
+const FollowText = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #dd3345;
+  word-wrap: break-word;
+`;
+
 return (
-  <Widget
-    src={`${ownerId}/widget/Buttons.ActionButton`}
-    props={{
-      type: "tertiary",
-      text: buttonText,
-      disabled: loading,
-      style: {
-        border: "1px solid rgba(123, 123, 123, 0.36)",
-        boxShadow: "0px -2.700000047683716px 0px rgba(123, 123, 123, 0.36) inset",
-      },
-      onClick: () => {
-        const transactions = [
-          {
-            contractName: "social.near",
-            methodName: "set",
-            deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
-            args: socialArgs,
-          },
-        ];
-        Near.call(transactions);
-      },
+  <FollowContainer
+    onClick={() => {
+      const transactions = [
+        {
+          contractName: "social.near",
+          methodName: "set",
+          deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
+          args: socialArgs,
+        },
+      ];
+      Near.call(transactions);
     }}
-  />
+  >
+    <FollowText>Follow</FollowText>
+  </FollowContainer>
+  // <Widget
+  //   src={`${ownerId}/widget/Buttons.ActionButton`}
+  //   props={{
+  //     type: "tertiary",
+  //     text: buttonText,
+  //     disabled: loading,
+  //     style: {
+  //       border: "1px solid rgba(123, 123, 123, 0.36)",
+  //       boxShadow: "0px -2.700000047683716px 0px rgba(123, 123, 123, 0.36) inset",
+  //     },
+  //     onClick: () => {
+  //       const transactions = [
+  //         {
+  //           contractName: "social.near",
+  //           methodName: "set",
+  //           deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
+  //           args: socialArgs,
+  //         },
+  //       ];
+  //       Near.call(transactions);
+  //     },
+  //   }}
+  // />
   //   <CommitButton
   //     disabled={loading}
   //     className={`btn ${loading || follow ? "btn-outline-dark" : "btn-primary"} rounded-5`}

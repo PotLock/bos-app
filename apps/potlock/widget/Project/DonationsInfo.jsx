@@ -5,9 +5,14 @@ const Container = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
+  // width: 100%;
   // background: green;
   gap: 40px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+  }
 `;
 
 const InfoCard = styled.div`
@@ -23,6 +28,10 @@ const InfoCard = styled.div`
   box-shadow: 0px -2px 0px rgba(219, 82, 27, 0.36) inset;
   gap: 8px;
   min-width: 260px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const InfoTextPrimary = styled.div`

@@ -1,10 +1,18 @@
 const Container = styled.div`
-  margin-top: 48px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-top: 1px #c7c7c7 solid;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const Column = styled.div`
   padding-top: 16px;
-  border-top: 1px #c7c7c7 solid;
 `;
 
 const Title = styled.div`
@@ -15,7 +23,7 @@ const Title = styled.div`
 `;
 
 return (
-  <Container className="row gx-0 align-items-start w-100">
+  <Container>
     <Column className="col-3">
       <Title>{props.title}</Title>
     </Column>

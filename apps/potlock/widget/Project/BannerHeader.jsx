@@ -23,13 +23,32 @@ const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};
 
-const Wrapper = styled.div`
-  overflow: hidden;
-  margin: 0 -12px;
+// const Wrapper = styled.div`
+//   overflow: hidden;
+//   margin: 0 -12px;
+// `;
+
+const Container = styled.div`
+  padding-left: 64px;
+  @media screen and (max-width: 768px) {
+    padding-left: 16px;
+  }
+`;
+
+const ImageContainer = styled.div`
+  transform: translateY(240px);
+  width: 80px;
+  height: 80px;
+
+  @media screen and (max-width: 768px) {
+    transform: translateY(248px);
+    width: 64px;
+    height: 64px;
+  }
 `;
 
 return (
-  <div className="pt-0 position-relative" style={{ ...containerStyle }}>
+  <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
     {backgroundImage && (
       <Widget
         src="mob.near/widget/Image"
@@ -43,9 +62,10 @@ return (
         }}
       />
     )}
-    <div
+    <ImageContainer
       className="profile-picture d-inline-block"
-      style={{ transform: `translateY(${props.profileImageTranslateYPx ?? 160}px)` }}
+      profileImageTranslateYPx={props.profileImageTranslateYPx}
+      // style={{ transform: `translateY(${props.profileImageTranslateYPx ?? 160}px)` }}
     >
       <Widget
         src="mob.near/widget/ProfileImage"
@@ -58,7 +78,7 @@ return (
           thumbnail: false,
         }}
       />
-    </div>
+    </ImageContainer>
     {props.children && props.children}
-  </div>
+  </Container>
 );
