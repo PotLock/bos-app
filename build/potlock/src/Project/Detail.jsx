@@ -53,6 +53,7 @@ const Container = styled.div`
 const BodyContainer = styled.div`
   // display: flex;
   // flex: 1;
+  // background: pink;
 
   // @media screen and (min-width: 768px) {
   //   // display: flex;

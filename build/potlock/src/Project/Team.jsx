@@ -88,16 +88,16 @@ const Col2 = styled.div`
   }
 `;
 
-props.team = [
-  "plugrel.near",
-  "kurodenjiro.near",
-  "lachlan.near",
-  "root.near",
-  "plugrel.near",
-  "kurodenjiro.near",
-  "lachlan.near",
-  "root.near",
-];
+// props.team = [
+//   "plugrel.near",
+//   "kurodenjiro.near",
+//   "lachlan.near",
+//   "root.near",
+//   "plugrel.near",
+//   "kurodenjiro.near",
+//   "lachlan.near",
+//   "root.near",
+// ];
 
 return (
   <Container>

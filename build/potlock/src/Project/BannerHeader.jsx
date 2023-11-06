@@ -43,7 +43,7 @@ const ImageContainer = styled.div`
 
   @media screen and (max-width: 768px) {
     // transform: translateY(248px);
-    transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 248}px);`}
+    transform: ${(props) => `translateY(${props.profileImageTranslateYPxMobile || 248}px);`}
 
     width: 64px;
     height: 64px;
@@ -68,6 +68,7 @@ return (
     <ImageContainer
       className="profile-picture d-inline-block"
       profileImageTranslateYPx={props.profileImageTranslateYPx}
+      profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
     >
       <Widget
         src="mob.near/widget/ProfileImage"

@@ -15,6 +15,7 @@ const BodyContainer = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   gap: 48px;
+  // background: red;
 
   // @media screen and (max-width: 768px) {
   //   width: 100%;

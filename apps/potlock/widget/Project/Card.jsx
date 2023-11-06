@@ -21,7 +21,7 @@ const Card = styled.a`
 const Info = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 160px;
+  margin-top: 110px;
   padding: 16px 24px;
   gap: 16px;
   flex: 1;
@@ -115,6 +115,7 @@ return (
           projectId: id,
           profile,
           profileImageTranslateYPx: 106,
+          profileImageTranslateYPxMobile: 122,
           containerStyle: {
             paddingLeft: "16px",
           },
