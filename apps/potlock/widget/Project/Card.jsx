@@ -89,7 +89,9 @@ const [totalAmount, totalDonors] = useMemo(() => {
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
   return [
-    props.nearToUsd ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2) : "-",
+    props.nearToUsd
+      ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
+      : totalDonationAmount.div(1e24).toNumber().toFixed(2),
     donors.length,
   ];
 }, [donationsForProject]);
@@ -153,7 +155,7 @@ return (
           <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
         </DonationsInfoItem>
         <DonationsInfoItem>
-          <Title>${totalAmount || "-"}</Title>
+          <Title>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Title>
           <SubTitle>Raised</SubTitle>
         </DonationsInfoItem>
       </DonationsInfoContainer>

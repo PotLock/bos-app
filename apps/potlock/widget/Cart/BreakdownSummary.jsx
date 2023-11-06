@@ -182,7 +182,7 @@ return (
     <Title>Breakdown summary</Title>
     <CurrencyHeader>
       <CurrencyHeaderText>Currency</CurrencyHeaderText>
-      <CurrencyHeaderText>USD</CurrencyHeaderText>
+      <CurrencyHeaderText>{props.nearToUsd ? "USD" : "NEAR"}</CurrencyHeaderText>
     </CurrencyHeader>
     {Object.entries(amountsByFt).map(([ft, amount]) => {
       const amountFloat = parseFloat(amount || 0);
@@ -194,7 +194,9 @@ return (
           </BreakdownItemLeft>
           <BreakdownItemRight>
             <BreakdownItemText>
-              ${!props.nearToUsd ? "-" : (amountFloat * props.nearToUsd).toFixed(2)}
+              {props.nearToUsd
+                ? `$${(amountFloat * props.nearToUsd).toFixed(2)}`
+                : `${amountFloat.toFixed(2)} N`}
             </BreakdownItemText>
           </BreakdownItemRight>
         </BreakdownItemContainer>
@@ -202,13 +204,22 @@ return (
     })}
     <TotalContainer>
       <TotalText>Total</TotalText>
-      <TotalText>${!props.nearToUsd ? "-" : (totalAmount * props.nearToUsd).toFixed(2)}</TotalText>
+      <TotalText>
+        {props.nearToUsd
+          ? `$${(totalAmount * props.nearToUsd).toFixed(2)}`
+          : `${totalAmount.toFixed(2)} N`}
+      </TotalText>
     </TotalContainer>
     <Widget
       src={`${ownerId}/widget/Buttons.ActionButton`}
       props={{
         type: "primary",
-        text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
+        // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
+        text: `Donate ${
+          props.nearToUsd
+            ? `$${(totalAmount * props.nearToUsd).toFixed(2)}`
+            : `${totalAmount.toFixed(2)} N`
+        }`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
         style: {
