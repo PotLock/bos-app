@@ -36,12 +36,15 @@ const Container = styled.div`
 `;
 
 const ImageContainer = styled.div`
-  transform: translateY(240px);
+  transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 240}px);`}
+    // translateY(240px);
   width: 80px;
   height: 80px;
 
   @media screen and (max-width: 768px) {
-    transform: translateY(248px);
+    // transform: translateY(248px);
+    transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 248}px);`}
+
     width: 64px;
     height: 64px;
   }
@@ -65,7 +68,6 @@ return (
     <ImageContainer
       className="profile-picture d-inline-block"
       profileImageTranslateYPx={props.profileImageTranslateYPx}
-      // style={{ transform: `translateY(${props.profileImageTranslateYPx ?? 160}px)` }}
     >
       <Widget
         src="mob.near/widget/ProfileImage"

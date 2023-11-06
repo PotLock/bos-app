@@ -114,7 +114,7 @@ return (
           ...props,
           projectId: id,
           profile,
-          profileImageTranslateYPx: 168,
+          profileImageTranslateYPx: 106,
           containerStyle: {
             paddingLeft: "16px",
           },
