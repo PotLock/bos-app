@@ -1,6 +1,7 @@
 const ownerId = "potlock.near";
 
 const navHeightPx = 110;
+const navHeightPxMobile = 96;
 
 const Nav = styled.div`
   // commenting out stickiness for now
@@ -16,9 +17,12 @@ const Nav = styled.div`
   height: ${navHeightPx}px;
   background: #ffffff;
   z-index: 1000;
+  // background: pink;
 
   @media screen and (max-width: 768px) {
-    display: none;
+    // display: none;
+    padding: 24px 8px 24px 16px;
+    height: ${navHeightPxMobile}px;
   }
 
   & > a {
@@ -31,6 +35,7 @@ const NavLeft = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  // background: green;
 `;
 
 const NavRight = styled.div`
@@ -38,6 +43,18 @@ const NavRight = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+`;
+
+const NavRightMobile = styled.div`
+  display: none;
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    padding-right: 16px;
+  }
 `;
 
 const NavLogo = styled.a`
@@ -60,6 +77,9 @@ const NavTabs = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const NavTab = styled.a`
@@ -79,6 +99,21 @@ const NavTab = styled.a`
   :hover {
     text-decoration: none;
   }
+`;
+
+const CartButton = styled.div`
+  padding: 6px 16px;
+  background: #2e2e2e;
+  border-radius: 6px;
+  cursor: pointer;
+`;
+
+const CartButtonText = styled.div`
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  word-wrap: break-word;
 `;
 
 const CartCount = styled.div`
@@ -110,12 +145,15 @@ const CartModal = styled.div`
   padding-right: 64px;
   // padding-right: 500px;
   z-index: 1000;
+
+  @media screen and (max-width: 768px) {
+    padding-right: 8px;
+  }
 `;
 
 const CartModalContent = styled.div`
   width: 383px;
   padding: 24px 0px;
-  // background: yellow;
   background: white;
   border-radius: 10px;
   box-shadow: 20px 20px 32px -4px rgba(93, 93, 93, 0.06);
@@ -226,6 +264,20 @@ return (
           </NavTab>
         </NavTabs>
       </NavRight>
+      <NavRightMobile>
+        {/* <CartButton>
+          <CartButtonText>Cart</CartButtonText>
+        </CartButton> */}
+        <NavTab
+          onClick={(e) => {
+            props.setIsCartModalOpen(!props.isCartModalOpen);
+          }}
+          selected={props.tab === "cart"}
+        >
+          Cart
+          <CartCount>{Object.keys(props.cart).length}</CartCount>
+        </NavTab>
+      </NavRightMobile>
     </Nav>
     <Modal isOpen={props.isCartModalOpen} onClose={() => props.setIsCartModalOpen(false)}>
       {/* <div>hi</div> */}
