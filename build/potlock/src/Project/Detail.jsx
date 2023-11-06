@@ -32,7 +32,6 @@ const Wrapper = styled.div`
 const SidebarContainer = styled.div`
   width: 25%;
   // width: 500px;
-  background: green;
   @media screen and (max-width: 768px) {
     display: none;
   }
@@ -44,7 +43,6 @@ const Container = styled.div`
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  background: red;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
@@ -53,7 +51,6 @@ const Container = styled.div`
 `;
 
 const BodyContainer = styled.div`
-  background: yellow;
   // display: flex;
   // flex: 1;
 

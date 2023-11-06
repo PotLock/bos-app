@@ -6,7 +6,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between';
   // background: green;
-  // width: 100%;
+  width: 100%;
   // flex: 1;
 
   @media screen and (max-width: 768px) {

@@ -4,11 +4,12 @@ const Container = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   border-top: 1px #c7c7c7 solid;
-  background: pink;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    align-items: flex-start;
+    // align-items: flex-start;
+    // overflow-x: auto;
+    // max-width: 100vw;
   }
 `;
 
@@ -34,7 +35,7 @@ const TeamMembersContainer = styled.div`
 
   @media screen and (max-width: 768px) {
     overflow-x: auto;
-    flex-wrap: nowrap; // Prevent wrapping on mobile, enable scrolling instead
+    // flex-wrap: nowrap; // Prevent wrapping on mobile, enable scrolling instead
   }
 `;
 
@@ -70,6 +71,7 @@ const ImageContainer = styled.div`
 const Col1 = styled.div`
   display: flex;
   width: 25%;
+  padding-top: 16px;
 
   @media screen and (max-width: 768px) {
     width: 100%;
@@ -78,18 +80,14 @@ const Col1 = styled.div`
 
 const Col2 = styled.div`
   display: flex;
-  // width: 75%;
+  width: 75%;
+  padding-top: 16px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
-// double team members for testing
-// for (const teamMember of team) {
-//   console.log("team member: ", teamMember);
-//   team[teamMember + "1"] = teamMember;
-// }
-// props.team.push("lachlan.near", "root.near");
-// console.log("team: ", props.team);
-
-// const team = useM
 props.team = [
   "plugrel.near",
   "kurodenjiro.near",
@@ -103,12 +101,15 @@ props.team = [
 
 return (
   <Container>
-    <Column className="col-3">
-      {/* <Col1> */}
+    {/* <Column className="col-3"> */}
+    {/* <Column> */}
+    <Col1>
       <Title>Team members</Title>
-      {/* </Col1> */}
-    </Column>
-    <Column className="col-9">
+    </Col1>
+    {/* </Column> */}
+    {/* <Column className="col-9"> */}
+    {/* <Column> */}
+    <Col2>
       <TeamMembersContainer>
         {props.team.map((teamMember) => {
           return (
@@ -137,6 +138,7 @@ return (
           );
         })}
       </TeamMembersContainer>
-    </Column>
+      {/* </Column> */}
+    </Col2>
   </Container>
 );
