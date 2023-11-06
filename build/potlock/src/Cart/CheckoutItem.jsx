@@ -1,6 +1,13 @@
 const ownerId = "potlock.near";
+const donationContractId = "donate.potlock.near";
+
+const donationContractConfig = Near.view(donationContractId, "get_config", {});
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const CHEVRON_DOWN_URL =
+  IPFS_BASE_URL + "bafkreiabkwyfxq6pcc2db7u4ldweld5xcjesylfuhocnfz7y3n6jw7dptm";
+const CHEVRON_UP_URL =
+  IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
 const ItemContainer = styled.div`
   display: flex;
@@ -61,13 +68,82 @@ const FtIcon = styled.img`
   height: 20px;
 `;
 
-// const Title = styled(Text)`
-//   font-weight: 600;
-// `;
+const BreakdownSummary = styled.div`
+  display: flex;
+  flex-direction: column;
+  // justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-top: 16px;
+  cursor: pointer;
+`;
 
-// const Description = styled(Text)`
-//   font-weight: 400;
-// `;
+const BreakdownSummaryRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  // background: pink;
+  width: 100%;
+`;
+
+const BreakdownTitle = styled.div`
+  color: #2e2e2e;
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 600;
+  word-wrap: break-word;
+`;
+
+const ChevronIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+`;
+
+const BreakdownDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 8px;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px #dbdbdb solid;
+  background: #fafafa;
+`;
+
+const BreakdownItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+`;
+
+const BreakdownItemLeft = styled.div`
+  color: #7b7b7b;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  word-wrap: break-word;
+`;
+
+const BreakdownItemRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  // justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+`;
+
+const BreakdownAmount = styled.div`
+  color: #2e2e2e;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  word-wrap: break-word;
+`;
 
 const { projectId, checked, handleCheckboxClick } = props;
 
@@ -82,6 +158,36 @@ const SUPPORTED_FTS = {
     fromIndivisible: (amount) => amount / 10 ** 24,
   },
 };
+
+State.init({
+  showBreakdown: false,
+});
+
+const basisPointsToPercent = (basisPoints) => {
+  return basisPoints / 100;
+};
+
+if (!donationContractConfig) return "";
+
+const {
+  protocol_fee_basis_points: protocolFeeBasisPoints,
+  referral_fee_basis_points: referralFeeBasisPoints,
+  protocol_fee_recipient_account: protocolFeeRecipientAccount,
+} = donationContractConfig;
+const TOTAL_BASIS_POINTS = 10_000;
+let projectAllocationBasisPoints = TOTAL_BASIS_POINTS - protocolFeeBasisPoints;
+if (props.cart[projectId]?.referrerId) {
+  projectAllocationBasisPoints -= referralFeeBasisPoints;
+}
+const projectAllocationPercent = basisPointsToPercent(projectAllocationBasisPoints);
+const projectAllocationAmount =
+  (parseFloat(props.cart[projectId]?.amount) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
+const protocolFeePercent = basisPointsToPercent(protocolFeeBasisPoints);
+const protocolFeeAmount =
+  (parseFloat(props.cart[projectId]?.amount) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
+const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
+const referrerFeeAmount =
+  (parseFloat(props.cart[projectId]?.amount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
 return (
   <ItemContainer>
@@ -167,6 +273,60 @@ return (
             ),
           }}
         />
+        <BreakdownSummary onClick={() => State.update({ showBreakdown: !state.showBreakdown })}>
+          <BreakdownSummaryRight>
+            <BreakdownTitle style={{ fontSize: "14px", lineHeight: "16px" }}>
+              {state.showBreakdown ? "Hide" : "Show"} breakdown
+            </BreakdownTitle>
+            <ChevronIcon src={state.showBreakdown ? CHEVRON_UP_URL : CHEVRON_DOWN_URL} />
+          </BreakdownSummaryRight>
+          {state.showBreakdown && (
+            <BreakdownDetails>
+              <BreakdownItem>
+                <BreakdownItemLeft>
+                  Protocol fee ({protocolFeePercent}% to {protocolFeeRecipientAccount})
+                </BreakdownItemLeft>
+                <BreakdownItemRight>
+                  <BreakdownAmount>
+                    {protocolFeeAmount ? protocolFeeAmount.toFixed(3) : "-"}
+                  </BreakdownAmount>
+                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                </BreakdownItemRight>
+              </BreakdownItem>
+              {props.cart[projectId]?.referrerId && (
+                <BreakdownItem>
+                  <BreakdownItemLeft>
+                    Referrer fee ({referrerFeePercent}% to {props.cart[projectId]?.referrerId})
+                  </BreakdownItemLeft>
+                  <BreakdownItemRight>
+                    <BreakdownAmount>
+                      {referrerFeeAmount ? referrerFeeAmount.toFixed(3) : "-"}
+                    </BreakdownAmount>
+                    <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  </BreakdownItemRight>
+                </BreakdownItem>
+              )}
+              <BreakdownItem>
+                <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
+                <BreakdownItemRight>
+                  <BreakdownAmount>{"<0.010"}</BreakdownAmount>
+                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                </BreakdownItemRight>
+              </BreakdownItem>
+              <BreakdownItem>
+                <BreakdownItemLeft>
+                  Project allocation (~{projectAllocationPercent}% to {projectId})
+                </BreakdownItemLeft>
+                <BreakdownItemRight>
+                  <BreakdownAmount>
+                    ~{projectAllocationAmount ? projectAllocationAmount.toFixed(3) : "-"}
+                  </BreakdownAmount>
+                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                </BreakdownItemRight>
+              </BreakdownItem>
+            </BreakdownDetails>
+          )}
+        </BreakdownSummary>
       </DetailsContainer>
     </ItemRight>
   </ItemContainer>
