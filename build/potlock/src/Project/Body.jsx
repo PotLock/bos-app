@@ -15,6 +15,10 @@ const BodyContainer = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   gap: 48px;
+
+  @media screen and (max-width: 768px) {
+    max-width: 90vw;
+  }
 `;
 
 const NameContainer = styled.div`
@@ -143,6 +147,12 @@ return (
       />
     </div>
     <Actions />
+    <Widget
+      src={`${ownerId}/widget/Project.NavOptionsMobile`}
+      props={{
+        ...props,
+      }}
+    />
     <div style={{ width: "100%" }}>
       <Widget
         src={props.navOptions.find((option) => option.id == props.nav).source}
