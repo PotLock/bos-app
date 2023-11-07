@@ -46,7 +46,7 @@ const Container = styled.div`
 
 const LowerBannerContainer = styled.div`
   position: absolute;
-  bottom: -210px;
+  bottom: -250px;
   left: 0px;
   display: flex;
   align-items: stretch; /* Ensuring child elements stretch to full height */

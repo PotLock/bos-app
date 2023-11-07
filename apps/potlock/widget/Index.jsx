@@ -45,21 +45,34 @@ const Theme = styled.div`
 
 State.init({
   cart: null,
-  nearToUsd: null,
+  // nearToUsd: null,
+  nearToUsd: useCache(
+    () =>
+      asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
+        (res) => {
+          console.log("congecko res body: ", res.body);
+          return res.body.near.usd;
+        }
+      ),
+    "nearToUsd",
+    { subscribe: false }
+  ),
   isCartModalOpen: false,
   registryAdmins: null,
 });
 
-if (state.nearToUsd === null) {
-  const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
-  console.log("coingecko res: ", res);
-  State.update({ nearToUsd: res.body.near.usd });
-}
+// if (state.nearToUsd === null) {
+//   const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
+//   console.log("coingecko res: ", res);
+//   State.update({ nearToUsd: res.body.near.usd });
+// }
 
 if (state.registryAdmins === null) {
   const registryAdmins = Near.view(registryContractId, "get_admins", {});
   State.update({ registryAdmins });
 }
+
+console.log("state: ", state);
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
