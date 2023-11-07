@@ -17,6 +17,14 @@ const Header = styled.div`
   font-weight: 400;
 `;
 
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+`;
+
 const DonationsInfo = () => (
   <Widget
     src={`${ownerId}/widget/Project.DonationsInfo`}
@@ -49,8 +57,10 @@ const Team = () => (
 
 return (
   <Container>
-    <Header>About {name}</Header>
-    <DonationsInfo />
+    <HeaderContainer>
+      <Header>About {name}</Header>
+      <DonationsInfo />
+    </HeaderContainer>
     <About />
     <Team />
   </Container>

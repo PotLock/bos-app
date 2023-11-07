@@ -14,7 +14,7 @@ const BodyContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 48px;
+  gap: 16px;
 
   @media screen and (max-width: 768px) {
     max-width: 90vw;
@@ -48,7 +48,7 @@ const AccountInfoContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 `;
 
 const AccountId = styled.div`
@@ -78,6 +78,13 @@ const ShareIconContainer = styled.svg`
     width: 16px;
     height: 16px;
   }
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  // gap: 16px;
+  width: 100%;
 `;
 
 const ShareIcon = (
@@ -112,7 +119,7 @@ const Actions = () => (
 
 return (
   <BodyContainer>
-    <div>
+    <Header>
       <NameContainer>
         <Name>{profile.name}</Name>
         {props.projectId === context.accountId && (
@@ -145,7 +152,7 @@ return (
           tags,
         }}
       />
-    </div>
+    </Header>
     <Actions />
     <Widget
       src={`${ownerId}/widget/Project.NavOptionsMobile`}

@@ -12,6 +12,8 @@ const NavOptionsContainer = styled.div`
   overflow-x: auto;
   white-space: nowrap;
   -webkit-overflow-scrolling: touch; // For momentum scroll on iOS devices
+  border-bottom: 1px #dbdbdb solid;
+  margin-bottom: 16px;
 
   @media screen and (max-width: 768px) {
     display: flex;
