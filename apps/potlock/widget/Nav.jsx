@@ -142,7 +142,7 @@ const CartModal = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   padding-top: ${navHeightPx * 0.8}px;
-  padding-right: 64px;
+  padding-right: 32px;
   // padding-right: 500px;
   z-index: 1000;
 
@@ -162,6 +162,9 @@ const CartModalContent = styled.div`
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;
+  max-height: 80vh;
+  max-width: 90vw;
+  overflow-y: scroll;
   // z-index: 1000;
 `;
 
