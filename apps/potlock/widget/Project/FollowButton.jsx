@@ -70,7 +70,9 @@ return (
       Near.call(transactions);
     }}
   >
-    <FollowText>Follow</FollowText>
+    <FollowText>
+      {loading ? "Loading" : follow ? "Following" : inverse ? "Follow back" : "Follow"}
+    </FollowText>
   </FollowContainer>
   // <Widget
   //   src={`${ownerId}/widget/Buttons.ActionButton`}
