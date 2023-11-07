@@ -111,32 +111,36 @@ return (
     {/* <Column> */}
     <Col2>
       <TeamMembersContainer>
-        {props.team.map((teamMember) => {
-          return (
-            <TeamMemberItem
-              href={`https://near.social/mob.near/widget/ProfilePage?accountId=${teamMember}`}
-              target="_blank"
-            >
-              <Widget
-                src="mob.near/widget/ProfileImage"
-                props={{
-                  accountId: teamMember,
-                  style: {
-                    width: `${imageWidthPx}px`,
-                    height: `${imageWidthPx}px`,
-                    border: `4px #dd3345 solid`,
-                    borderRadius: "50%",
-                  },
-                  className: "mb-2",
-                  imageClassName: "rounded-circle w-100 h-100 d-block",
-                  thumbnail: false,
-                  tooltip: true,
-                }}
-              />
-              <TeamMemberAccountId>@{teamMember}</TeamMemberAccountId>
-            </TeamMemberItem>
-          );
-        })}
+        {!props.team.length ? (
+          <div>No team members to display</div>
+        ) : (
+          props.team.map((teamMember) => {
+            return (
+              <TeamMemberItem
+                href={`https://near.social/mob.near/widget/ProfilePage?accountId=${teamMember}`}
+                target="_blank"
+              >
+                <Widget
+                  src="mob.near/widget/ProfileImage"
+                  props={{
+                    accountId: teamMember,
+                    style: {
+                      width: `${imageWidthPx}px`,
+                      height: `${imageWidthPx}px`,
+                      border: `4px #dd3345 solid`,
+                      borderRadius: "50%",
+                    },
+                    className: "mb-2",
+                    imageClassName: "rounded-circle w-100 h-100 d-block",
+                    thumbnail: false,
+                    tooltip: true,
+                  }}
+                />
+                <TeamMemberAccountId>@{teamMember}</TeamMemberAccountId>
+              </TeamMemberItem>
+            );
+          })
+        )}
       </TeamMembersContainer>
       {/* </Column> */}
     </Col2>

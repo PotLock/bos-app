@@ -14,6 +14,7 @@ const ItemContainer = styled.div`
   flex-direction: row;
   max-width: 800px;
   background: white;
+  // background: pink;
   border: 1px solid #dbdbdb;
   box-shadow: 0px -2px 0px #dbdbdb inset;
   border-radius: 6px;
@@ -24,7 +25,7 @@ const ItemContainer = styled.div`
 const ItemLeft = styled.div`
   height: 100%;
   padding: 24px 16px;
-  border-right: 1px solid #dbdbdb;
+  // background: green;
 `;
 
 const ItemRight = styled.div`
@@ -32,6 +33,8 @@ const ItemRight = styled.div`
   flex-direction: row;
   padding: 24px 24px 24px 16px;
   width: 100%;
+  // background: yellow;
+  border-left: 1px solid #dbdbdb;
 `;
 
 const ImageContainer = styled.div`
@@ -44,6 +47,7 @@ const DetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow: hidden;
 `;
 
 const Title = styled.a`
@@ -60,6 +64,7 @@ const Description = styled.div`
   line-height: 24px;
   font-weight: 400;
   word-wrap: break-word;
+  overflow-wrap: break-word;
   margin-bottom: 24px;
 `;
 
