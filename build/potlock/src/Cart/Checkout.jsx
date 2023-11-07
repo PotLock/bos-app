@@ -127,7 +127,7 @@ const allSelected =
 return (
   // <div>
   <Container>
-    {!props.checkoutSuccess ? (
+    {props.checkoutSuccess ? (
       <SuccessContainer>
         <Title>Thanks for donating!</Title>
         {/* <ButtonsContainer> */}
