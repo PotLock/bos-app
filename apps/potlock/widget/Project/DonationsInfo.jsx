@@ -1,5 +1,7 @@
 const donationContractId = "donate.potlock.near";
 
+const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -36,11 +38,13 @@ const InfoCard = styled.div`
 
 const InfoTextPrimary = styled.div`
   color: #2e2e2e;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 40px;
   // word-wrap: break-word;
   text-align: flex-end;
+  font-family: "Lora";
+  ${loraCss}
 `;
 
 const InfoTextSecondary = styled.div`

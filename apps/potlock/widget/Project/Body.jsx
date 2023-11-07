@@ -15,12 +15,6 @@ const BodyContainer = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   gap: 48px;
-  // background: red;
-
-  // @media screen and (max-width: 768px) {
-  //   width: 100%;
-  // }
-  // width: 100%;
 `;
 
 const NameContainer = styled.div`
@@ -149,11 +143,13 @@ return (
       />
     </div>
     <Actions />
-    <Widget
-      src={`${ownerId}/widget/Project.About`}
-      props={{
-        ...props,
-      }}
-    />
+    <div style={{ width: "100%" }}>
+      <Widget
+        src={props.navOptions.find((option) => option.id == props.nav).source}
+        props={{
+          ...props,
+        }}
+      />
+    </div>
   </BodyContainer>
 );

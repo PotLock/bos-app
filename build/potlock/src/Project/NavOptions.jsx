@@ -1,28 +1,7 @@
-const navOptions = [
-  {
-    label: "Home",
-    disabled: false,
-  },
-  {
-    label: "Social Feed",
-    disabled: true,
-  },
-  {
-    label: "Pots",
-    disabled: true,
-  },
-  {
-    label: "Attestations",
-    disabled: true,
-  },
-  {
-    label: "Funding Raised",
-    disabled: true,
-  },
-];
+const { navOptions } = props;
 
 const getSelectedNavOption = () => {
-  const navOption = navOptions.find((option) => option.label == props.nav);
+  const navOption = navOptions.find((option) => option.id == props.nav);
   return navOption ?? navOptions[0];
 };
 
@@ -47,7 +26,7 @@ const NavOption = styled.a`
   padding: 8px 16px;
   font-weight: ${(props) => (props.selected ? 600 : 400)};
   color: ${(props) => (props.selected ? "#DD3345" : "#7B7B7B")};
-  cursor: ${(props) => (props.disabled ? "not-allowed" : props.selected ? "pointer" : "default")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 
   &:hover {
     text-decoration: none;
@@ -57,22 +36,20 @@ const NavOption = styled.a`
 return (
   <NavOptionsContainer>
     {navOptions.map((option) => {
+      const selected = option.id == getSelectedNavOption().id;
       return option.disabled ? (
-        <NavOption
-          selected={option.label == getSelectedNavOption().label}
-          disabled={option.disabled}
-        >
+        <NavOption selected={selected} disabled={option.disabled}>
           {option.label}
         </NavOption>
       ) : (
         <NavOptionContainer>
-          {option.label == getSelectedNavOption().label && (
+          {selected && (
             <div style={{ width: 2, height: 16, background: "#DD3345", borderRadius: 2 }} />
           )}
           <NavOption
-            selected={option.label == getSelectedNavOption().label}
+            selected={selected}
             disabled={option.disabled}
-            href={`?tab=project&projectId=${props.projectId}&nav=${option.label}`}
+            href={`?tab=project&projectId=${props.projectId}&nav=${option.id}`}
           >
             {option.label}
           </NavOption>

@@ -51,25 +51,41 @@ const Container = styled.div`
 `;
 
 const BodyContainer = styled.div`
-  // display: flex;
-  // flex: 1;
-  // background: pink;
-
-  // @media screen and (min-width: 768px) {
-  //   // display: flex;
-  //   // flex: 1;
-  // }
+  flex: 1;
 `;
 
-// const BodyContainerMobile = styled.div`
-//   padding: 240px 16px;
-//   display: none;
+// these will be passed down to child components
+props.navOptions = [
+  {
+    label: "Home",
+    id: "home",
+    disabled: false,
+    source: `${ownerId}/widget/Project.About`,
+  },
+  {
+    label: "Social Feed",
+    id: "feed",
+    disabled: false,
+    source: `${ownerId}/widget/Project.Feed`,
+  },
+  {
+    label: "Pots",
+    id: "pots",
+    disabled: true,
+  },
+  {
+    label: "Attestations",
+    id: "attestations",
+    disabled: true,
+  },
+  {
+    label: "Funding Raised",
+    id: "funding",
+    disabled: true,
+  },
+];
 
-//   @media screen and (max-width: 768px) {
-//     display: block;
-//     padding: ;
-//   }
-// `;
+if (!props.nav) props.nav = "home"; // default to home tab
 
 const imageHeightPx = 120;
 const profileImageTranslateYPx = 220;
