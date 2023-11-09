@@ -43,7 +43,7 @@ const SectionHeader = styled.div`
   width: 100%;
   align-items: center;
   margin-bottom: 24px;
-  padding: 96px 64px 24px 64px;
+  padding: 24px 64px 24px 64px;
 `;
 
 const SectionTitle = styled.div`

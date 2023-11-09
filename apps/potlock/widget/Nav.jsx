@@ -220,8 +220,8 @@ const Ear = styled.div`
 
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
+  { text: "Feed", link: "feed", disabled: false },
   { text: "Pots", link: "pots", disabled: true },
-  { text: "Feed", link: "feed", disabled: true },
 ];
 
 const Modal = ({ isOpen, onClose, children }) => {

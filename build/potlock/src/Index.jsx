@@ -6,6 +6,7 @@ const EDIT_PROJECT_TAB = "editproject";
 const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
 const CART_TAB = "cart";
+const FEED_TAB = "feed";
 
 const Theme = styled.div`
   * {
@@ -79,6 +80,7 @@ const tabContentWidget = {
   [PROJECTS_LIST_TAB]: "Project.ListPage",
   [PROJECT_DETAIL_TAB]: "Project.Detail",
   [CART_TAB]: "Cart.Checkout",
+  [FEED_TAB]: "Feed",
 };
 
 const getWidget = (props) => {
