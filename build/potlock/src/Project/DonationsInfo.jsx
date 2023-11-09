@@ -59,30 +59,54 @@ const donationsForProject = Near.view(donationContractId, "get_donations_for_rec
   recipient_id: props.projectId,
 });
 
-const [totalDonations, totalDonors] = useMemo(() => {
+const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
   if (!donationsForProject) {
     return ["", ""];
   }
   const donors = [];
   let totalDonationAmount = new Big(0);
+  let totalReferralFees = new Big(0);
   for (const donation of donationsForProject) {
     if (!donors.includes(donation.donor_id)) {
       donors.push(donation.donor_id);
     }
-    totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+    const totalAmount = new Big(donation.total_amount);
+    const referralAmount = new Big(donation.referrer_fee || "0");
+    const protocolAmount = new Big(donation.protocol_fee || "0");
+    totalDonationAmount = totalDonationAmount.plus(
+      totalAmount.minus(referralAmount).minus(protocolAmount)
+    );
+    totalReferralFees = totalReferralFees.plus(referralAmount);
   }
-  return [totalDonationAmount.div(1e24).toNumber().toFixed(2), donors.length];
+  return [
+    totalDonationAmount.div(1e24).toNumber().toFixed(2),
+    donors.length,
+    totalReferralFees.div(1e24).toNumber().toFixed(2),
+  ];
 }, [donationsForProject]);
 
 return (
   <Container>
     <InfoCard>
-      <InfoTextPrimary>${totalDonations}</InfoTextPrimary>
+      <InfoTextPrimary>
+        {props.nearToUsd
+          ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
+          : `${totalDonations} N`}
+      </InfoTextPrimary>
       <InfoTextSecondary>Contributed</InfoTextSecondary>
     </InfoCard>
     <InfoCard>
       <InfoTextPrimary>{totalDonors}</InfoTextPrimary>
       <InfoTextSecondary>{totalDonors === 1 ? "Donor" : "Donors"}</InfoTextSecondary>
+    </InfoCard>
+    <InfoCard>
+      <InfoTextPrimary>
+        {" "}
+        {props.nearToUsd
+          ? `$${(totalReferralFees * props.nearToUsd).toFixed(2)}`
+          : `${totalReferralFees} N`}
+      </InfoTextPrimary>
+      <InfoTextSecondary>Referral Fees</InfoTextSecondary>
     </InfoCard>
   </Container>
 );

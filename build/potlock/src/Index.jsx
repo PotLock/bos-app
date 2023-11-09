@@ -72,8 +72,6 @@ if (state.registryAdmins === null) {
   State.update({ registryAdmins });
 }
 
-console.log("state: ", state);
-
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
   [EDIT_PROJECT_TAB]: "Project.Create",
