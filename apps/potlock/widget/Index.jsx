@@ -59,13 +59,14 @@ State.init({
   ),
   isCartModalOpen: false,
   registryAdmins: null,
+  registeredProjects: null,
 });
 
-// if (state.nearToUsd === null) {
-//   const res = fetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd");
-//   console.log("coingecko res: ", res);
-//   State.update({ nearToUsd: res.body.near.usd });
-// }
+if (!state.registeredProjects) {
+  State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
+}
+
+if (!state.registeredProjects) return "";
 
 if (state.registryAdmins === null) {
   const registryAdmins = Near.view(registryContractId, "get_admins", {});
@@ -131,6 +132,16 @@ const props = {
   setIsCartModalOpen: (isOpen) => {
     State.update({ isCartModalOpen: isOpen });
   },
+  CATEGORY_MAPPINGS: {
+    "social-impact": "Social Impact",
+    "non-profit": "NonProfit",
+    climate: "Climate",
+    "public-good": "Public Good",
+    "de-sci": "DeSci",
+    "open-source": "Open Source",
+    community: "Community",
+    education: "Education",
+  },
 };
 
 const CART_KEY = "cart";
@@ -177,7 +188,7 @@ const Content = styled.div`
 
 const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
-if (!state.cart) {
+if (!state.cart || !state.registeredProjects) {
   return "";
 }
 

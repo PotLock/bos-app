@@ -70,12 +70,19 @@ const DonationsInfoItem = styled.div`
   align-items: center;
 `;
 
+const projectId = props.project.id || context.accountId;
+const projectProfile = Social.getr(`${projectId}/profile`);
+
+if (!projectProfile) return "";
+
 const MAX_DESCRIPTION_LENGTH = 120;
 
-const { id, bannerImageUrl, profileImageUrl, name, description, tags } = props.project;
+const { name, description, category } = projectProfile;
+
+const tags = [category.text ?? props.CATEGORY_MAPPINGS[category] ?? ""];
 
 const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
-  recipient_id: id,
+  recipient_id: projectId,
 });
 
 const [totalAmount, totalDonors] = useMemo(() => {
@@ -107,12 +114,12 @@ const PROJECT_STATUSES = [
 
 return (
   <>
-    <Card href={`?tab=project&projectId=${id}`} key={id}>
+    <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
       <Widget
         src={`${ownerId}/widget/Project.BannerHeader`}
         props={{
           ...props,
-          projectId: id,
+          projectId,
           profile,
           profileImageTranslateYPx: 106,
           profileImageTranslateYPxMobile: 122,

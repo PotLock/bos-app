@@ -80,80 +80,15 @@ const Hero = styled.img`
   display: block;
 `;
 
-State.init({
-  registeredProjects: null, // TODO: change this back to null
-  // registeredProjects: sampleProjects,
-  getRegisteredProjectsError: "",
-});
-
-const CATEGORY_MAPPINGS = {
-  "social-impact": "Social Impact",
-  "non-profit": "NonProfit",
-  climate: "Climate",
-  "public-good": "Public Good",
-  "de-sci": "DeSci",
-  "open-source": "Open Source",
-  community: "Community",
-  education: "Education",
-};
-
-// const HIDDEN_PROJECT_IDS = ["roshaan.near"];
-
-if (!state.registeredProjects) {
-  Near.asyncView(registryId, "get_projects", {})
-    .then((projects) => {
-      // get social data for each project
-      // name
-      // description
-      // bannerImage
-      // profileImage
-      // category
-      // horizon stuff, e.g. tags
-      Near.asyncView("social.near", "get", {
-        keys: projects.map((project) => `${project.id}/profile/**`),
-      }).then((socialData) => {
-        const formattedProjects = projects.map((project) => {
-          const profileData = socialData[project.id]?.profile;
-          let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
-          if (profileData.image) {
-            const imageUrl = getImageUrlFromSocialImage(profileData.image);
-            if (imageUrl) profileImageUrl = imageUrl;
-          }
-          // get banner image URL
-          let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
-          if (profileData.backgroundImage) {
-            const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
-            if (imageUrl) bannerImageUrl = imageUrl;
-          }
-          const formatted = {
-            id: project.id,
-            name: profileData.name ?? "",
-            description: profileData.description ?? "",
-            bannerImageUrl,
-            profileImageUrl,
-            status: project.status,
-            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: change this to get tags from horizon/social
-          };
-          return formatted;
-        });
-        State.update({
-          registeredProjects: formattedProjects,
-        });
-      });
-    })
-    .catch((e) => {
-      console.log("error getting projects: ", e);
-      State.update({ getRegisteredProjectsError: e });
-    });
-}
-
-if (!state.registeredProjects) return "";
-
 const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
 
-const projects = userIsAdmin
-  ? state.registeredProjects
-  : state.registeredProjects.filter((project) => project.status === "Approved");
+const projects = useMemo(
+  () =>
+    userIsAdmin
+      ? props.registeredProjects
+      : props.registeredProjects.filter((project) => project.status === "Approved"),
+  [props.registeredProjects, userIsAdmin]
+);
 
 return (
   <>
