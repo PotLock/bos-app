@@ -1,21 +1,9 @@
 const ownerId = "potlock.near";
-const registryId = "registry.potlock.near"; // TODO: update when registry is deployed
+const registryId = "registry.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const DEFAULT_BANNER_IMAGE_URL =
-  IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
-const DEFAULT_PROFILE_IMAGE_URL =
-  IPFS_BASE_URL + "bafkreibwq2ucyui3wmkyowtzau6txgbsp6zizy4l2s5hkymsyv6tc75j3u";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
-
-const getImageUrlFromSocialImage = (image) => {
-  if (image.url) {
-    return image.url;
-  } else if (image.ipfs_cid) {
-    return IPFS_BASE_URL + image.ipfs_cid;
-  }
-};
 
 const Container = styled.div`
   display: flex;

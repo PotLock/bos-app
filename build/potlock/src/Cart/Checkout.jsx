@@ -1,8 +1,12 @@
 const ownerId = "potlock.near";
+const donationContractId = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const TRASH_ICON_URL =
   IPFS_BASE_URL + "bafkreicwtubzlywmtvoxc4tqjfturyi5oqxtbpezceosiw3juv2d4uf7om";
+
+const DEFAULT_GATEWAY = "https://near.social/potlock.near";
+const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
 // const Wrapper = styled.div`
 //   display: flex;
@@ -115,14 +119,87 @@ const SubTitle = styled.div`
   font-size: 14px;
 `;
 
+const TxLink = styled.a`
+  color: #2e2e2e;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none;
+  }
+`;
+
 State.init({
   selectedProjectIds: [],
   masterSelectorSelected: false,
+  successfulDonationRecipientId: null,
+  successfulDonationRecipientProfile: null,
 });
 
 const allSelected =
   state.selectedProjectIds.length !== 0 &&
   state.selectedProjectIds.length === Object.keys(props.cart).length;
+// const twitterSuccessText = `I just donated to this project on @potlock_!`;
+
+// console.log("props in Checkout: ", props);
+
+const txInfo = useMemo(() => {
+  if (props.transactionHashes && props.registeredProjects) {
+    const body = JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "tx",
+      params: [props.transactionHashes, context.accountId],
+    });
+    const res = fetch("https://rpc.mainnet.near.org", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+    if (res.ok) {
+      const successVal = res.body.result.status?.SuccessValue;
+      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
+      decoded = JSON.parse(decoded);
+      const recipientId = decoded.recipient_id;
+      if (recipientId) {
+        State.update({ successfulDonationRecipientId: recipientId });
+      }
+    }
+  }
+}, [props.transactionHashes]);
+
+if (state.successfulDonationRecipientId && !state.successfulDonationRecipientProfile) {
+  const profile = Social.getr(`${state.successfulDonationRecipientId}/profile`);
+  if (profile) {
+    State.update({ successfulDonationRecipientProfile: profile });
+  }
+}
+
+const twitterIntent = useMemo(() => {
+  if (!state.successfulDonationRecipientId) return;
+  const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
+  let url =
+    DEFAULT_GATEWAY +
+    `${ownerId}/widget/Index?tab=project&projectId=${state.successfulDonationRecipientId}&referrerId=${context.accountId}`;
+  let text = `I just donated to ${
+    state.successfulDonationRecipientProfile
+      ? state.successfulDonationRecipientProfile.name
+      : state.successfulDonationRecipientId
+  } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
+  text = encodeURIComponent(text);
+  url = encodeURIComponent(url);
+  return twitterIntentBase + text + `&url=${url}`;
+}, [state.successfulDonationRecipientId, state.successfulDonationRecipientProfile]);
+
+// console.log(encodeURIComponent("https://twitter.com/intent/tweet?text=Hello%20world"));
+
+// const donationsForDonor = useMemo(() => {
+//   const donations = Near.view(donationContractId, "get_donations_for_donor", {
+//     donor_id: context.accountId,
+//   });
+//   console.log("donations: ", donations);
+// }, []);
 
 return (
   // <div>
@@ -130,15 +207,14 @@ return (
     {props.checkoutSuccess ? (
       <SuccessContainer>
         <Title>Thanks for donating!</Title>
-        {/* <ButtonsContainer> */}
         <Widget
           src={`${ownerId}/widget/Buttons.NavigationButton`}
           props={{
-            href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
+            href: twitterIntent,
             target: "_blank",
-            type: "secondary",
-            text: "View transaction",
-            disabled: !props.checkoutSuccessTxHash,
+            type: "primary",
+            text: "Share to Twitter",
+            disabled: !twitterIntent,
             style: {
               width: "300px",
             },
@@ -148,14 +224,14 @@ return (
           src={`${ownerId}/widget/Buttons.NavigationButton`}
           props={{
             href: `?tab=projects`,
-            type: "primary",
+            type: "secondary",
             text: "Explore projects",
             style: {
               width: "300px",
             },
           }}
         />
-        {/* </ButtonsContainer> */}
+        <TxLink>View transaction</TxLink>
       </SuccessContainer>
     ) : (
       <>

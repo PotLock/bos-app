@@ -45,7 +45,9 @@ const Theme = styled.div`
 `;
 
 State.init({
+  registeredProjects: null,
   cart: null,
+  // previousCart: null,
   // nearToUsd: null,
   nearToUsd: useCache(
     () =>
@@ -69,6 +71,64 @@ if (!state.registeredProjects) {
 }
 
 if (!state.registeredProjects) return "";
+
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+};
+
+if (!state.registeredProjects) {
+  Near.asyncView(registryContractId, "get_projects", {})
+    .then((projects) => {
+      // get social data for each project
+      // name
+      // description
+      // bannerImage
+      // profileImage
+      // category
+      // horizon stuff, e.g. tags
+      Near.asyncView("social.near", "get", {
+        keys: projects.map((project) => `${project.id}/profile/**`),
+      }).then((socialData) => {
+        const formattedProjects = projects.map((project) => {
+          const profileData = socialData[project.id]?.profile;
+          let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+          if (profileData.image) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.image);
+            if (imageUrl) profileImageUrl = imageUrl;
+          }
+          // get banner image URL
+          let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+          if (profileData.backgroundImage) {
+            const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
+            if (imageUrl) bannerImageUrl = imageUrl;
+          }
+          const formatted = {
+            id: project.id,
+            name: profileData.name ?? "",
+            description: profileData.description ?? "",
+            bannerImageUrl,
+            profileImageUrl,
+            status: project.status,
+            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: change this to get tags from horizon/social
+          };
+          return formatted;
+        });
+        State.update({
+          registeredProjects: formattedProjects,
+        });
+      });
+    })
+    .catch((e) => {
+      console.log("error getting projects: ", e);
+      State.update({ getRegisteredProjectsError: e });
+    });
+}
 
 if (state.registryAdmins === null) {
   const registryAdmins = Near.view(registryContractId, "get_admins", {});
@@ -151,7 +211,9 @@ const props = {
 };
 
 const CART_KEY = "cart";
+// const PREVIOUS_CART_KEY = "previousCart";
 const storageCart = Storage.get(CART_KEY);
+// const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
 const DEFAULT_CART = {};
 
 if (state.cart === null && storageCart !== null) {
@@ -165,10 +227,24 @@ if (state.cart === null && storageCart !== null) {
   State.update({ cart });
 }
 
+// if (state.previousCart === null && storagePreviousCart !== null) {
+//   // previousCart hasn't been set on state yet, and storagePreviousCart has been fetched
+//   // if storagePreviousCart isn't undefined, set it on state
+//   if (storagePreviousCart && Object.keys(JSON.parse(storagePreviousCart)).length > 0) {
+//     console.log("updating previous cart");
+//     State.update({ previousCart: JSON.parse(storagePreviousCart) });
+//   }
+// }
+
+// console.log("state in Index: ", state);
+
 if (props.checkoutSuccess && state.cart && Object.keys(state.cart).length > 0) {
   // if checkout was successful, clear cart
+  // store previous cart in local storage to show success message
+  // console.log("previous cart: ", state.cart);
   State.update({ cart: {} });
   Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
+  // Storage.set(PREVIOUS_CART_KEY, JSON.stringify(state.cart));
 }
 
 if (props.tab === EDIT_PROJECT_TAB) {
