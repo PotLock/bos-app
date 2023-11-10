@@ -49,17 +49,6 @@ State.init({
   cart: null,
   // previousCart: null,
   nearToUsd: null,
-  // nearToUsd: useCache(
-  //   () =>
-  //     asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
-  //       (res) => {
-  //         console.log("congecko res: ", res);
-  //         return res.body.near.usd;
-  //       }
-  //     ),
-  //   "nearToUsd",
-  //   { subscribe: false }
-  // ),
   isCartModalOpen: false,
   isNavMenuOpen: false,
   registryAdmins: null,
@@ -69,13 +58,14 @@ State.init({
 if (!state.nearToUsd) {
   asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
     (res) => {
-      console.log("congecko res: ", res);
-      State.update({ nearToUsd: res.body.near.usd });
+      if (res.ok) {
+        State.update({ nearToUsd: res.body.near.usd });
+      }
     }
   );
 }
 
-console.log("state in Index: ", state);
+// console.log("state in Index: ", state);
 
 if (!state.registeredProjects) {
   State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
