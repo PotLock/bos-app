@@ -102,32 +102,50 @@ const NavTab = styled.a`
 `;
 
 const CartButton = styled.div`
-  padding: 6px 16px;
+  padding: ${(props) => (props.containsItems ? "8px 8px 8px 16px" : "8px 16px")};
   background: #2e2e2e;
   border-radius: 6px;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
-const CartButtonText = styled.div`
+const CartText = styled.div`
   color: white;
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
   word-wrap: break-word;
+  text-align: center;
 `;
 
-const CartCount = styled.div`
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  // top: 20px;
-  // right: 20px;
-  text-align: center;
-  color: #dd3345;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 14px;
-  word-wrap: break-word;
+// const CartCount = styled.div`
+//   position: absolute;
+//   top: -5px;
+//   right: -10px;
+//   // top: 20px;
+//   // right: 20px;
+//   text-align: center;
+//   color: #dd3345;
+//   font-size: 12px;
+//   font-weight: 500;
+//   line-height: 14px;
+//   word-wrap: break-word;
+// `;
+
+const CartCountContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background: #f86b3f;
+  border-radius: 50%;
+  // padding: 0 4px;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
 `;
 
 const CartModal = styled.div`
@@ -141,7 +159,7 @@ const CartModal = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-end;
-  padding-top: ${navHeightPx * 0.8}px;
+  padding-top: ${navHeightPx * 0.8 + 50}px;
   padding-right: 32px;
   // padding-right: 500px;
   z-index: 1000;
@@ -385,7 +403,7 @@ return (
               </NavTab>
             );
           })}
-          <NavTab
+          {/* <NavTab
             onClick={(e) => {
               props.setIsCartModalOpen(!props.isCartModalOpen);
             }}
@@ -393,14 +411,36 @@ return (
           >
             Cart
             <CartCount>{Object.keys(props.cart).length}</CartCount>
-          </NavTab>
+          </NavTab> */}
+          <CartButton
+            onClick={(e) => {
+              props.setIsCartModalOpen(!props.isCartModalOpen);
+            }}
+          >
+            <CartText>Cart</CartText>
+            {Object.keys(props.cart).length > 0 && (
+              <CartCountContainer>
+                <CartText style={{ fontSize: "12px" }}>{Object.keys(props.cart).length}</CartText>
+              </CartCountContainer>
+            )}
+          </CartButton>
         </NavTabs>
       </NavRight>
       <NavRightMobile>
-        {/* <CartButton>
-          <CartButtonText>Cart</CartButtonText>
-        </CartButton> */}
-        <NavTab
+        <CartButton
+          onClick={(e) => {
+            props.setIsCartModalOpen(!props.isCartModalOpen);
+          }}
+          containsItems={Object.keys(props.cart).length > 0}
+        >
+          <CartText>Cart</CartText>
+          {Object.keys(props.cart).length > 0 && (
+            <CartCountContainer>
+              <CartText style={{ fontSize: "12px" }}>{Object.keys(props.cart).length}</CartText>
+            </CartCountContainer>
+          )}
+        </CartButton>
+        {/* <NavTab
           onClick={(e) => {
             props.setIsCartModalOpen(!props.isCartModalOpen);
           }}
@@ -408,7 +448,7 @@ return (
         >
           Cart
           <CartCount>{Object.keys(props.cart).length}</CartCount>
-        </NavTab>
+        </NavTab> */}
         <NavTab onClick={() => props.setIsNavMenuOpen(!props.isNavMenuOpen)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
