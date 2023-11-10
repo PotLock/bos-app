@@ -157,6 +157,7 @@ const txInfo = useMemo(() => {
       },
       body,
     });
+    console.log("tx res: ", res);
     if (res.ok) {
       const successVal = res.body.result.status?.SuccessValue;
       let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
