@@ -184,7 +184,7 @@ if (props.transactionHashes && props.registeredProjects && !state.successfulDona
     },
     body,
   });
-  console.log("tx res: ", res);
+  // console.log("tx res: ", res);
   if (res.ok) {
     const successVal = res.body.result.status?.SuccessValue;
     let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
@@ -198,6 +198,7 @@ if (props.transactionHashes && props.registeredProjects && !state.successfulDona
 
 if (state.successfulDonationRecipientId && !state.successfulDonationRecipientProfile) {
   const profile = Social.getr(`${state.successfulDonationRecipientId}/profile`);
+  console.log("profile: ", profile);
   if (profile) {
     State.update({ successfulDonationRecipientProfile: profile });
   }
@@ -211,7 +212,9 @@ const twitterIntent = useMemo(() => {
     `${ownerId}/widget/Index?tab=project&projectId=${state.successfulDonationRecipientId}&referrerId=${context.accountId}`;
   let text = `I just donated to ${
     state.successfulDonationRecipientProfile
-      ? state.successfulDonationRecipientProfile.name
+      ? state.successfulDonationRecipientProfile.linktree?.twitter
+        ? `@${state.successfulDonationRecipientProfile.linktree.twitter}`
+        : state.successfulDonationRecipientProfile.name
       : state.successfulDonationRecipientId
   } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);

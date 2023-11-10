@@ -53,7 +53,7 @@ State.init({
     () =>
       asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
         (res) => {
-          console.log("congecko res body: ", res.body);
+          // console.log("congecko res body: ", res.body);
           return res.body.near.usd;
         }
       ),
@@ -66,7 +66,7 @@ State.init({
   registeredProjects: null,
 });
 
-console.log("state in Index: ", state);
+// console.log("state in Index: ", state);
 
 if (!state.registeredProjects) {
   State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
