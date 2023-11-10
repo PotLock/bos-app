@@ -288,6 +288,30 @@ const BannerAlertSvg = styled.svg`
   }
 `;
 
+const NavMenu = styled.div`
+  display: none;
+  background: white;
+  padding: 24px;
+  width: 100%;
+  gap: 16px;
+
+  @media screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+}`;
+
+const NavMenuItem = styled.a`
+  color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
+  font-size: 14px;
+  font-weight: ${(props) => (props.selected ? 500 : 400)};
+  line-height: 20px;
+  word-wrap: break-word;
+  cursor: pointer;
+`;
+
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
   { text: "Feed", link: "feed", disabled: false },
@@ -385,8 +409,38 @@ return (
           Cart
           <CartCount>{Object.keys(props.cart).length}</CartCount>
         </NavTab>
+        <NavTab onClick={() => props.setIsNavMenuOpen(!props.isNavMenuOpen)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="#7B7B7B" />
+          </svg>
+        </NavTab>
       </NavRightMobile>
     </Nav>
+    {props.isNavMenuOpen && (
+      <NavMenu>
+        {tabOptions.map((tab) => {
+          return (
+            <NavMenuItem
+              href={`?tab=${tab.link}`}
+              disabled={tab.disabled}
+              onClick={(e) => {
+                if (tab.disabled) e.preventDefault();
+              }}
+              selected={props.tab === tab.link}
+            >
+              {tab.text}
+              {tab.disabled && " (Coming Soon)"}
+            </NavMenuItem>
+          );
+        })}
+      </NavMenu>
+    )}
     <Modal isOpen={props.isCartModalOpen} onClose={() => props.setIsCartModalOpen(false)}>
       {/* <div>hi</div> */}
       <ModalHeader>

@@ -59,6 +59,7 @@ State.init({
     { subscribe: false }
   ),
   isCartModalOpen: false,
+  isNavMenuOpen: false,
   registryAdmins: null,
   registeredProjects: null,
 });
@@ -133,6 +134,9 @@ const props = {
   checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
   setIsCartModalOpen: (isOpen) => {
     State.update({ isCartModalOpen: isOpen });
+  },
+  setIsNavMenuOpen: (isOpen) => {
+    State.update({ isNavMenuOpen: isOpen });
   },
   CATEGORY_MAPPINGS: {
     "social-impact": "Social Impact",
