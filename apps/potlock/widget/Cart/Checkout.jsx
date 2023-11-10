@@ -207,31 +207,49 @@ return (
     {props.checkoutSuccess ? (
       <SuccessContainer>
         <Title>Thanks for donating!</Title>
-        <Widget
-          src={`${ownerId}/widget/Buttons.NavigationButton`}
-          props={{
-            href: twitterIntent,
-            target: "_blank",
-            type: "primary",
-            text: "Share to Twitter",
-            disabled: !twitterIntent,
-            style: {
-              width: "300px",
-            },
-          }}
-        />
+        {twitterIntent && (
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              href: twitterIntent,
+              target: "_blank",
+              type: "primary",
+              text: "Share to Twitter",
+              disabled: !twitterIntent,
+              style: {
+                width: "300px",
+              },
+            }}
+          />
+        )}
         <Widget
           src={`${ownerId}/widget/Buttons.NavigationButton`}
           props={{
             href: `?tab=projects`,
-            type: "secondary",
+            type: twitterIntent ? "secondary" : "primary",
             text: "Explore projects",
             style: {
               width: "300px",
             },
           }}
         />
-        <TxLink>View transaction</TxLink>
+        {twitterIntent ? (
+          <TxLink>View transaction</TxLink>
+        ) : (
+          <Widget
+            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            props={{
+              href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
+              target: "_blank",
+              type: "secondary",
+              text: "View transaction",
+              disabled: !props.checkoutSuccessTxHash,
+              style: {
+                width: "300px",
+              },
+            }}
+          />
+        )}
       </SuccessContainer>
     ) : (
       <>
