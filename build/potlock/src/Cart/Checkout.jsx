@@ -142,33 +142,59 @@ const allSelected =
 
 // console.log("props in Checkout: ", props);
 
-const txInfo = useMemo(() => {
-  if (props.transactionHashes && props.registeredProjects) {
-    const body = JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "tx",
-      params: [props.transactionHashes, context.accountId],
-    });
-    const res = fetch("https://rpc.mainnet.near.org", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
-    console.log("tx res: ", res);
-    if (res.ok) {
-      const successVal = res.body.result.status?.SuccessValue;
-      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-      decoded = JSON.parse(decoded);
-      const recipientId = decoded.recipient_id;
-      if (recipientId) {
-        State.update({ successfulDonationRecipientId: recipientId });
-      }
+// const txInfo = useMemo(() => {
+//   if (props.transactionHashes && props.registeredProjects) {
+//     const body = JSON.stringify({
+//       jsonrpc: "2.0",
+//       id: "dontcare",
+//       method: "tx",
+//       params: [props.transactionHashes, context.accountId],
+//     });
+//     const res = fetch("https://rpc.mainnet.near.org", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body,
+//     });
+//     console.log("tx res: ", res);
+//     if (res.ok) {
+//       const successVal = res.body.result.status?.SuccessValue;
+//       let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
+//       decoded = JSON.parse(decoded);
+//       const recipientId = decoded.recipient_id;
+//       if (recipientId) {
+//         State.update({ successfulDonationRecipientId: recipientId });
+//       }
+//     }
+//   }
+// }, [props.transactionHashes]);
+
+if (props.transactionHashes && props.registeredProjects && !state.successfulDonationRecipientId) {
+  const body = JSON.stringify({
+    jsonrpc: "2.0",
+    id: "dontcare",
+    method: "tx",
+    params: [props.transactionHashes, context.accountId],
+  });
+  const res = fetch("https://rpc.mainnet.near.org", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body,
+  });
+  console.log("tx res: ", res);
+  if (res.ok) {
+    const successVal = res.body.result.status?.SuccessValue;
+    let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
+    decoded = JSON.parse(decoded);
+    const recipientId = decoded.recipient_id;
+    if (recipientId) {
+      State.update({ successfulDonationRecipientId: recipientId });
     }
   }
-}, [props.transactionHashes]);
+}
 
 if (state.successfulDonationRecipientId && !state.successfulDonationRecipientProfile) {
   const profile = Social.getr(`${state.successfulDonationRecipientId}/profile`);
