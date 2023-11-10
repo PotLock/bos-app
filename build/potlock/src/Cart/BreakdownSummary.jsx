@@ -181,6 +181,8 @@ const handleDonate = () => {
   Near.call(transactions);
 };
 
+console.log("props in breakdown: ", props);
+
 return (
   <Container>
     <Title>Breakdown summary</Title>

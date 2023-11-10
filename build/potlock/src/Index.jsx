@@ -66,6 +66,8 @@ State.init({
   registeredProjects: null,
 });
 
+console.log("state in Index: ", state);
+
 if (!state.registeredProjects) {
   State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
 }
