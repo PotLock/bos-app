@@ -221,8 +221,7 @@ const twitterIntent = useMemo(() => {
   } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
-  hashtags = DEFAULT_SHARE_HASHTAGS.join(",");
-  return twitterIntentBase + text + `&url=${url}` + `&hashtags=${hashtags}`;
+  return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
 }, [state.successfulDonationRecipientId, state.successfulDonationRecipientProfile]);
 
 // console.log(encodeURIComponent("https://twitter.com/intent/tweet?text=Hello%20world"));
