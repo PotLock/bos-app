@@ -8,6 +8,8 @@ const TRASH_ICON_URL =
 const DEFAULT_GATEWAY = "https://near.social/potlock.near";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
+const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
+
 // const Wrapper = styled.div`
 //   display: flex;
 //   flex-direction: row;
@@ -219,7 +221,8 @@ const twitterIntent = useMemo(() => {
   } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
-  return twitterIntentBase + text + `&url=${url}`;
+  hashtags = DEFAULT_SHARE_HASHTAGS.join(",");
+  return twitterIntentBase + text + `&url=${url}` + `&hashtags=${hashtags}`;
 }, [state.successfulDonationRecipientId, state.successfulDonationRecipientProfile]);
 
 // console.log(encodeURIComponent("https://twitter.com/intent/tweet?text=Hello%20world"));
