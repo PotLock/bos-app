@@ -218,6 +218,31 @@ const Ear = styled.div`
   z-index: 1000;
 `;
 
+const Banner = styled.div`
+  width: 100%;
+  // max-height: 50px;
+  // background: #2e2e2e;
+  background: rgb(6 10 15);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 2px rgb(96, 100, 102) solid;
+`;
+
+const BannerText = styled.div`
+  text-align: center;
+  color: rgb(145 150 153);
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 8px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
   { text: "Feed", link: "feed", disabled: false },
@@ -236,6 +261,24 @@ const Modal = ({ isOpen, onClose, children }) => {
 
 return (
   <>
+    <Banner>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="rgb(145 150 153)"
+        aria-hidden="true"
+        width="18px"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+        ></path>
+      </svg>
+      <BannerText>This app is in beta. It has not been audited.</BannerText>
+    </Banner>
     <Nav>
       <NavLeft>
         <NavLogo href={`?tab=projects`}>🫕 Potlock</NavLogo>
