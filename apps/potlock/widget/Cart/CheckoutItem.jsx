@@ -234,6 +234,7 @@ return (
             placeholder: "0",
             value: props.cart[projectId]?.amount,
             onChange: (amount) => {
+              amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
               if (amount === ".") amount = "0.";
               props.updateCartItem(
                 projectId,
