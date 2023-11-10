@@ -268,7 +268,7 @@ const BannerLinkSvg = styled.svg`
   width: 20px;
   height: 20px;
   fill: none;
-  transition: all;
+  transition: transform 0.2s ease;
 
   &:hover {
     transform: rotate(45deg);
