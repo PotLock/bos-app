@@ -1,4 +1,5 @@
 const donationContractId = "donate.potlock.near";
+const ownerId = "potlock.near";
 
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
@@ -15,44 +16,6 @@ const Container = styled.div`
     flex-direction: column;
     gap: 24px;
   }
-`;
-
-const InfoCard = styled.div`
-  display: inline-flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: flex-start;
-  padding: 24px;
-  border-radius: 6px;
-  border: 1px solid rgba(219, 82, 27, 0.36);
-  //   background: yellow;
-  background: #fef6ee;
-  box-shadow: 0px -2px 0px rgba(219, 82, 27, 0.36) inset;
-  gap: 8px;
-  min-width: 260px;
-
-  @media screen and (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-const InfoTextPrimary = styled.div`
-  color: #2e2e2e;
-  font-size: 32px;
-  font-weight: 400;
-  line-height: 40px;
-  // word-wrap: break-word;
-  text-align: flex-end;
-  font-family: "Lora";
-  ${loraCss}
-`;
-
-const InfoTextSecondary = styled.div`
-  color: #ea6a25;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  word-wrap: break-word;
 `;
 
 const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
@@ -87,26 +50,23 @@ const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
 
 return (
   <Container>
-    <InfoCard>
-      <InfoTextPrimary>
-        {props.nearToUsd
+    <Widget
+      src={`${ownerId}/widget/Components.InfoCard`}
+      props={{
+        infoTextPrimary: props.nearToUsd
           ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
-          : `${totalDonations} N`}
-      </InfoTextPrimary>
-      <InfoTextSecondary>Contributed</InfoTextSecondary>
-    </InfoCard>
-    <InfoCard>
-      <InfoTextPrimary>{totalDonors}</InfoTextPrimary>
-      <InfoTextSecondary>{totalDonors === 1 ? "Donor" : "Donors"}</InfoTextSecondary>
-    </InfoCard>
-    <InfoCard>
-      <InfoTextPrimary>
-        {" "}
-        {props.nearToUsd
+          : `${totalDonations} N`,
+        infoTextSecondary: "Contributed",
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Components.InfoCard`}
+      props={{
+        infoTextPrimary: props.nearToUsd
           ? `$${(totalReferralFees * props.nearToUsd).toFixed(2)}`
-          : `${totalReferralFees} N`}
-      </InfoTextPrimary>
-      <InfoTextSecondary>Referral Fees</InfoTextSecondary>
-    </InfoCard>
+          : `${totalReferralFees} N`,
+        infoTextSecondary: "Referral Fees",
+      }}
+    />
   </Container>
 );

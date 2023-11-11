@@ -1,5 +1,6 @@
 const ownerId = "potlock.near";
 const registryContractId = "registry.potlock.near";
+const donationContractId = "donate.potlock.near";
 
 const CREATE_PROJECT_TAB = "createproject";
 const EDIT_PROJECT_TAB = "editproject";
@@ -47,6 +48,7 @@ const Theme = styled.div`
 State.init({
   registeredProjects: null,
   cart: null,
+  donations: null,
   // previousCart: null,
   nearToUsd: null,
   isCartModalOpen: false,
@@ -72,6 +74,12 @@ if (!state.registeredProjects) {
 }
 
 if (!state.registeredProjects) return "";
+
+if (!state.donations) {
+  State.update({
+    donations: Near.view(donationContractId, "get_donations", {}), // TODO: ADD PAGINATION
+  });
+}
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 

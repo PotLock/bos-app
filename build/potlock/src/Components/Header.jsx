@@ -9,6 +9,10 @@ const HeaderContainer = styled.div`
   // background: #fffaf4;
   // background: white;
   padding: 80px 64px;
+
+  @media (max-width: 768px) {
+    padding: 36px 24px;
+  }
 `;
 
 const HeaderContent = styled.div`
@@ -101,6 +105,7 @@ return (
       {props.title2 && <HeaderTitle>{props.title2}</HeaderTitle>}
       <HeaderDescription>{props.description}</HeaderDescription>
     </HeaderContent>
+    {props.children && props.children}
     <ButtonsContainer>
       {props.buttonPrimary && props.buttonPrimary}
       {props.buttonSecondary && props.buttonSecondary}

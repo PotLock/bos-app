@@ -32,6 +32,10 @@ const SectionHeader = styled.div`
   align-items: center;
   margin-bottom: 24px;
   padding: 24px 64px 24px 64px;
+
+  @media screen and (max-width: 768px) {
+    padding: 16px 24px;
+  }
 `;
 
 const SectionTitle = styled.div`
@@ -54,6 +58,10 @@ const ProjectsContainer = styled.div`
   align-items: center;
   // padding: 0px 64px 96px 64px;
   // background: #fafafa;
+
+  @media screen and (max-width: 768px) {
+    margin-top: 180px;
+  }
 `;
 
 const HeroContainer = styled.div`
@@ -66,6 +74,26 @@ const Hero = styled.img`
   width: 100%;
   height: 100%;
   display: block;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const InfoCardsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  margin: 28px 0;
+  gap: 40px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+    // justify-content: center;
+  }
 `;
 
 const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
@@ -77,6 +105,22 @@ const projects = useMemo(
       : props.registeredProjects.filter((project) => project.status === "Approved"),
   [props.registeredProjects, userIsAdmin]
 );
+
+const [totalDonations, totalDonors] = useMemo(() => {
+  if (!props.donations) {
+    return ["", "", ""];
+  }
+  let totalDonations = new Big("0");
+  let donors = {};
+  props.donations.forEach((donation) => {
+    const totalAmount = new Big(donation.total_amount);
+    const referralAmount = new Big(donation.referrer_fee || "0");
+    const protocolAmount = new Big(donation.protocol_fee || "0");
+    totalDonations = totalDonations.plus(totalAmount.minus(referralAmount).minus(protocolAmount));
+    donors[donation.donor_id] = true;
+  });
+  return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
+}, [props.donations]);
 
 return (
   <>
@@ -120,6 +164,34 @@ return (
                 style: { padding: "16px 24px" },
               }}
             />
+          ),
+          // TODO: refactor this
+          children: totalDonations && (
+            <InfoCardsContainer>
+              <Widget
+                src={`${ownerId}/widget/Components.InfoCard`}
+                props={{
+                  infoTextPrimary: props.nearToUsd
+                    ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
+                    : `${totalDonations} N`,
+                  infoTextSecondary: "Total Contributed",
+                }}
+              />
+              <Widget
+                src={`${ownerId}/widget/Components.InfoCard`}
+                props={{
+                  infoTextPrimary: totalDonors,
+                  infoTextSecondary: "Unique Donors",
+                }}
+              />
+              <Widget
+                src={`${ownerId}/widget/Components.InfoCard`}
+                props={{
+                  infoTextPrimary: props.donations ? props.donations.length : "-",
+                  infoTextSecondary: "Donations",
+                }}
+              />
+            </InfoCardsContainer>
           ),
         }}
       />
