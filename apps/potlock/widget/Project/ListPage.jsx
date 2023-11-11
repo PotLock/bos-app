@@ -50,6 +50,10 @@ const ProjectsCount = styled.div`
   font-size: 24px;
   font-weight: 400;
   margin-left: 32px;
+
+  @media screen and (max-width: 768px) {
+    margin-left: 16px;
+  }
 `;
 
 const ProjectsContainer = styled.div`
@@ -60,7 +64,7 @@ const ProjectsContainer = styled.div`
   // background: #fafafa;
 
   @media screen and (max-width: 768px) {
-    margin-top: 180px;
+    margin-top: 200px;
   }
 `;
 
@@ -86,7 +90,7 @@ const InfoCardsContainer = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  margin: 28px 0;
+  margin: 40px 0;
   gap: 40px;
 
   @media screen and (max-width: 768px) {
@@ -139,6 +143,7 @@ return (
             height: "100%",
             top: 0,
             left: 0,
+            marginBottom: "24px",
             background:
               "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
           },
