@@ -48,6 +48,8 @@ const Theme = styled.div`
 State.init({
   registeredProjects: null,
   cart: null,
+  checkoutSuccess: false,
+  checkoutSuccessTxHash: null,
   donations: null,
   // previousCart: null,
   nearToUsd: null,
@@ -169,6 +171,12 @@ const getTabWidget = (tab) => {
   return tabContentWidget[PROJECTS_LIST_TAB];
 };
 
+const CART_KEY = "cart";
+// const PREVIOUS_CART_KEY = "previousCart";
+const storageCart = Storage.get(CART_KEY);
+// const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
+const DEFAULT_CART = {};
+
 const props = {
   ...props,
   ...state,
@@ -199,8 +207,15 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  checkoutSuccess: props.tab === CART_TAB && props.transactionHashes,
-  checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
+  clearCart: () => {
+    State.update({ cart: {} });
+    Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
+  },
+  // checkoutSuccess: (props.tab === CART_TAB && props.transactionHashes),
+  // checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
+  setCheckoutSuccess: (checkoutSuccess) => {
+    State.update({ checkoutSuccess });
+  },
   setIsCartModalOpen: (isOpen) => {
     State.update({ isCartModalOpen: isOpen });
   },
@@ -219,11 +234,11 @@ const props = {
   },
 };
 
-const CART_KEY = "cart";
-// const PREVIOUS_CART_KEY = "previousCart";
-const storageCart = Storage.get(CART_KEY);
-// const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
-const DEFAULT_CART = {};
+if (props.transactionHashes && props.tab === CART_TAB) {
+  // if transaction hashes are in URL but haven't been added to props, override state:
+  props.checkoutSuccessTxHash = props.transactionHashes;
+  props.checkoutSuccess = true;
+}
 
 if (state.cart === null && storageCart !== null) {
   // cart hasn't been set on state yet, and storageCart has been fetched
@@ -247,13 +262,11 @@ if (state.cart === null && storageCart !== null) {
 
 // console.log("state in Index: ", state);
 
-if (props.checkoutSuccess && state.cart && Object.keys(state.cart).length > 0) {
-  // if checkout was successful, clear cart
+if (state.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
+  // if checkout was successful after wallet redirect, clear cart
   // store previous cart in local storage to show success message
   // console.log("previous cart: ", state.cart);
-  State.update({ cart: {} });
-  Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
-  // Storage.set(PREVIOUS_CART_KEY, JSON.stringify(state.cart));
+  props.clearCart();
 }
 
 if (props.tab === EDIT_PROJECT_TAB) {

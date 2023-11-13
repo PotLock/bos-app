@@ -131,8 +131,9 @@ const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   return [amountsByFt, totalAmount, donationTooSmall];
 }, [props]);
 
-// TODO: handle successful transaction
-// https://everything.dev/potlock.near/widget/Index?tab=cart&transactionHashes=8pgCqfpsFe2PZsTeugM3BnqhtpUmmrPXy6v4XgJcQ6TW
+State.init({
+  success: false, // used to handle extension wallet success
+});
 
 const handleDonate = () => {
   // const transactions = [
@@ -178,7 +179,42 @@ const handleDonate = () => {
       deposit: amountIndivisible.toString(),
     });
   });
+  const now = Date.now();
   Near.call(transactions);
+  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // poll for updates
+  const pollIntervalMs = 1000;
+  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
+  const pollId = setInterval(() => {
+    Near.asyncView(donationContractId, "get_donations_for_donor", {
+      donor_id: context.accountId,
+      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
+    }).then((donations) => {
+      // for each project, there should be a matching donation that occurred since now()
+      const foundDonations = [];
+      // go through donations, add to foundDonations list
+      for (const donation of donations) {
+        const { recipient_id: projectId, donated_at_ms, total_amount } = donation;
+        const matchingCartItem = props.cart[projectId];
+        const ft_id = "NEAR"; // TODO: remove hardcoding to support other FTs
+        if (
+          matchingCartItem &&
+          donated_at_ms > now &&
+          SUPPORTED_FTS[ft_id].toIndivisible(matchingCartItem.amount).toString() == total_amount
+        ) {
+          foundDonations.push(donation);
+        }
+      }
+      if (foundDonations.length === Object.keys(props.cart).length) {
+        // all donations found
+        // display success message & clear cart
+        clearInterval(pollId);
+        props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
+        props.setCheckoutSuccess(true);
+        props.clearCart();
+      }
+    });
+  }, pollIntervalMs);
 };
 
 // console.log("props in breakdown: ", props);

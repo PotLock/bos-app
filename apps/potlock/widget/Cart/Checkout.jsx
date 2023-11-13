@@ -233,6 +233,8 @@ const twitterIntent = useMemo(() => {
 //   console.log("donations: ", donations);
 // }, []);
 
+// console.log("props in Checkout: ", props);
+
 return (
   // <div>
   <Container>
@@ -265,22 +267,29 @@ return (
             },
           }}
         />
-        {twitterIntent ? (
-          <TxLink>View transaction</TxLink>
+        {twitterIntent && props.checkoutSuccessTxHash ? (
+          <TxLink
+            target="_blank"
+            href={`https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`}
+          >
+            View transaction
+          </TxLink>
         ) : (
-          <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
-            props={{
-              href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
-              target: "_blank",
-              type: "secondary",
-              text: "View transaction",
-              disabled: !props.checkoutSuccessTxHash,
-              style: {
-                width: "300px",
-              },
-            }}
-          />
+          props.checkoutSuccessTxHash && (
+            <Widget
+              src={`${ownerId}/widget/Buttons.NavigationButton`}
+              props={{
+                href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
+                target: "_blank",
+                type: "secondary",
+                text: "View transaction",
+                disabled: !props.checkoutSuccessTxHash,
+                style: {
+                  width: "300px",
+                },
+              }}
+            />
+          )
         )}
       </SuccessContainer>
     ) : (
@@ -371,6 +380,8 @@ return (
             src={`${ownerId}/widget/Cart.BreakdownSummary`}
             props={{
               ...props,
+              updateSuccessfulDonationRecipientId: (recipientId) =>
+                State.update({ successfulDonationRecipientId: recipientId }),
             }}
           />
         </ColumnRight>
