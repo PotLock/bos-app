@@ -19,7 +19,7 @@ const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 if (!context.accountId) {
   return (
     <Widget
-      src={`${ownerId}/widget/InfoSegment`}
+      src={`${ownerId}/widget/Components.InfoSegment`}
       props={{
         title: "Not logged in!",
         description: "You must log in to create a new project!",

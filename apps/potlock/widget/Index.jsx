@@ -152,7 +152,7 @@ const tabContentWidget = {
   [PROJECTS_LIST_TAB]: "Project.ListPage",
   [PROJECT_DETAIL_TAB]: "Project.Detail",
   [CART_TAB]: "Cart.Checkout",
-  [FEED_TAB]: "Feed",
+  [FEED_TAB]: "Components.Feed",
 };
 
 const getWidget = (props) => {
@@ -298,7 +298,7 @@ if (!state.cart || !state.registeredProjects) {
 
 return (
   <Theme>
-    <Widget src={`${ownerId}/widget/Nav`} props={props} />
+    <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
   </Theme>
 );

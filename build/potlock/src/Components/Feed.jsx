@@ -1,5 +1,7 @@
 const ownerId = "potlock.near";
 
+console.log("props: ", props);
+
 const projects = props.registeredProjects || [];
 
 const projectIds = useMemo(() => projects.map((project) => project.id), [projects]);
