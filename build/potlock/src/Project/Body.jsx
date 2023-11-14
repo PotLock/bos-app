@@ -124,7 +124,7 @@ return (
         <Name>{profile.name}</Name>
         {props.projectId === context.accountId && (
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "secondary",
               text: "Edit profile",

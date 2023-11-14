@@ -243,7 +243,7 @@ return (
         <Title>Thanks for donating!</Title>
         {twitterIntent && (
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               href: twitterIntent,
               target: "_blank",
@@ -257,7 +257,7 @@ return (
           />
         )}
         <Widget
-          src={`${ownerId}/widget/Buttons.NavigationButton`}
+          src={`${ownerId}/widget/Components.Button`}
           props={{
             href: `?tab=projects`,
             type: twitterIntent ? "secondary" : "primary",
@@ -277,7 +277,7 @@ return (
         ) : (
           props.checkoutSuccessTxHash && (
             <Widget
-              src={`${ownerId}/widget/Buttons.NavigationButton`}
+              src={`${ownerId}/widget/Components.Button`}
               props={{
                 href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
                 target: "_blank",

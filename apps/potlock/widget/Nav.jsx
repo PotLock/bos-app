@@ -517,7 +517,7 @@ return (
       )}
       <ButtonContainer>
         <Widget
-          src={`${ownerId}/widget/Buttons.NavigationButton`}
+          src={`${ownerId}/widget/Components.Button`}
           props={{
             type: "primary",
             text: "Proceed to donate",
@@ -530,7 +530,7 @@ return (
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Buttons.ActionButton`}
+          src={`${ownerId}/widget/Components.Button`}
           props={{
             type: Object.keys(props.cart).length === 0 ? "primary" : "secondary",
             text: "Continue shopping",

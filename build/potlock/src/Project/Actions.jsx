@@ -82,7 +82,7 @@ return (
     </SubRow1>
     <SubRow2>
       <Widget
-        src={`${ownerId}/widget/Buttons.ActionButton`}
+        src={`${ownerId}/widget/Components.Button`}
         props={{
           type: "primary",
           text: existsInCart ? "Remove from cart" : "Add to cart",

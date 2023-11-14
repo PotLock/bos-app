@@ -253,7 +253,7 @@ return (
       </TotalText>
     </TotalContainer>
     <Widget
-      src={`${ownerId}/widget/Buttons.ActionButton`}
+      src={`${ownerId}/widget/Components.Button`}
       props={{
         type: "primary",
         // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,

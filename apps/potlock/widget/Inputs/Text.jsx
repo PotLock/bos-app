@@ -106,8 +106,9 @@ return (
         style={props.inputStyles || {}}
       />
       {props.buttonText && (
+        // TODO: refactor this; move to props.children
         <Widget
-          src={`${ownerId}/widget/Buttons.ActionButton`}
+          src={`${ownerId}/widget/Components.Button`}
           props={{
             type: "primary",
             text: "Add",

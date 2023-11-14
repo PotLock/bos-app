@@ -579,7 +579,7 @@ return (
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
         <ButtonsContainer>
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
               text: "View your project",
@@ -588,7 +588,7 @@ return (
             }}
           />
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "secondary",
               text: "View all projects",
@@ -823,7 +823,7 @@ return (
               />
               <Space height={24} />
               <Widget
-                src={`${ownerId}/widget/Buttons.ActionButton`}
+                src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
                   prefix: "https://",
