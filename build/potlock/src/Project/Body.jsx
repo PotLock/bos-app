@@ -7,7 +7,8 @@ if (!profile) return "Loading...";
 
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
-const tags = Object.keys(profile.tags ?? {});
+// const tags = Object.keys(profile.tags ?? {});
+const tags = [profile.category.text ?? props.CATEGORY_MAPPINGS[profile.category] ?? ""];
 
 const BodyContainer = styled.div`
   display: flex;
