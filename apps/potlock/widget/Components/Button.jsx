@@ -7,22 +7,25 @@ const getButtonBackground = () => {
   } else if (props.type === "secondary") {
     // TODO: handle disabled
     return "#FCE9D5";
+  } else if (props.type === "tertiary") {
+    return "white";
   }
 };
 
-const getButtonColor = () => {
+const getButtonTextColor = () => {
   if (props.type === "primary") {
     if (props.disabled) {
       return "darkgrey";
     }
     return "white";
+  } else if (props.type === "secondary") {
+    return "#2E2E2E";
   }
-  return "#2E2E2E";
 };
 
-const Button = styled.a`
-  // width: 100%;
-  // height: 100%;
+const tag = props.href ? "a" : "button";
+
+const Button = styled[tag]`
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -35,7 +38,7 @@ const Button = styled.a`
   gap: 8px;
   display: inline-flex;
   text-align: center;
-  color: ${getButtonColor()};
+  color: ${getButtonTextColor()};
   font-size: 14px;
   line-height: 16px;
   font-weight: 600;
@@ -48,18 +51,12 @@ const Button = styled.a`
 
 return (
   <Button
-    target={props.target}
-    href={props.href}
     onClick={(e) => {
-      if (props.disabled) {
-        e.preventDefault();
-        return;
-      }
-      if (props.onClick) {
-        props.onClick(e);
-      }
+      if (props.disabled || !props.onClick) return;
+      e.preventDefault();
+      props.onClick(e);
     }}
-    disabled={props.disabled}
+    href={props.href}
     style={{ ...props.style }}
   >
     {props.text}

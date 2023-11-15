@@ -19,7 +19,7 @@ const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 if (!context.accountId) {
   return (
     <Widget
-      src={`${ownerId}/widget/InfoSegment`}
+      src={`${ownerId}/widget/Components.InfoSegment`}
       props={{
         title: "Not logged in!",
         description: "You must log in to create a new project!",
@@ -309,6 +309,20 @@ const MoreTeamMembersText = styled.div`
   text-align: center;
 `;
 
+const InputPrefix = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  padding: 14px 16px;
+  border-right: 1px #f0f0f0 solid;
+  color: #7b7b7b;
+  font-size: 16px;
+  font-weight: 400;
+  box-shadow: 0px -2px 0px rgba(93, 93, 93, 0.24) inset;
+`;
+
 State.init({
   name: "",
   nameError: "",
@@ -579,7 +593,7 @@ return (
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
         <ButtonsContainer>
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
               text: "View your project",
@@ -588,7 +602,7 @@ return (
             }}
           />
           <Widget
-            src={`${ownerId}/widget/Buttons.NavigationButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "secondary",
               text: "View all projects",
@@ -775,8 +789,8 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "Twitter",
-                  prefixText: "twitter.com/",
-                  // placeholder: "your-twitter-username",
+                  preInputChildren: <InputPrefix>twitter.com/</InputPrefix>,
+                  inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.twitter,
                   onChange: (twitter) => State.update({ twitter }),
                   validate: () => {
@@ -796,12 +810,12 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "Telegram",
-                  prefixText: "t.me/",
-                  // placeholder: "your-telegram-id",
+                  preInputChildren: <InputPrefix>t.me/</InputPrefix>,
+                  inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.telegram,
                   onChange: (telegram) => State.update({ telegram }),
                   validate: () => {
-                    // TODO: add validation
+                    // TODO: add validation?
                   },
                   error: state.telegramError,
                 }}
@@ -811,8 +825,8 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: "GitHub",
-                  prefixText: "github.com/",
-                  // placeholder: "your-github-",
+                  preInputChildren: <InputPrefix>github.com/</InputPrefix>,
+                  inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.github,
                   onChange: (github) => State.update({ github }),
                   validate: () => {
@@ -823,7 +837,7 @@ return (
               />
               <Space height={24} />
               <Widget
-                src={`${ownerId}/widget/Buttons.ActionButton`}
+                src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
                   prefix: "https://",
@@ -854,15 +868,23 @@ return (
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
-              // label: "Project name *",
               placeholder: "NEAR account ID",
               value: state.teamMember,
               onChange: (teamMember) => {
                 State.update({ teamMember, nearAccountIdError: "" });
               },
-              buttonText: "Add",
-              submit: true,
-              onClick: handleAddTeamMember,
+              postInputChildren: (
+                <Widget
+                  src={`${ownerId}/widget/Components.Button`}
+                  props={{
+                    type: "primary",
+                    text: "Add",
+                    onClick: handleAddTeamMember,
+                    style: { borderRadius: `0px 4px 4px 0px` },
+                    submit: true,
+                  }}
+                />
+              ),
               handleKeyPress: (e) => {
                 if (e.key === "Enter") {
                   handleAddTeamMember();

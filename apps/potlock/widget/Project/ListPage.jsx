@@ -149,7 +149,7 @@ return (
           },
           buttonPrimary: (
             <Widget
-              src={`${ownerId}/widget/Buttons.ActionButton`}
+              src={`${ownerId}/widget/Components.Button`}
               props={{
                 type: "primary",
                 text: "Explore projects",
@@ -160,7 +160,7 @@ return (
           ),
           buttonSecondary: (
             <Widget
-              src={`${ownerId}/widget/Buttons.NavigationButton`}
+              src={`${ownerId}/widget/Components.Button`}
               props={{
                 type: "secondary",
                 text: "Create project",

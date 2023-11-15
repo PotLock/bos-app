@@ -154,16 +154,6 @@ const { projectId, checked, handleCheckboxClick } = props;
 
 const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") || {};
 
-// TODO: move this to state to handle selected FT once we support multiple FTs
-// TODO: also note this is duplicated in Cart.BreakdownSummary
-const SUPPORTED_FTS = {
-  NEAR: {
-    iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
-    toIndivisible: (amount) => amount * 10 ** 24,
-    fromIndivisible: (amount) => amount / 10 ** 24,
-  },
-};
-
 State.init({
   showBreakdown: false,
 });
@@ -247,7 +237,7 @@ return (
               textAlign: "right",
               borderRadius: "0px 4px 4px 0px",
             },
-            prefixElement: (
+            preInputChildren: (
               <Widget
                 src={`${ownerId}/widget/Inputs.Select`}
                 props={{
@@ -273,7 +263,7 @@ return (
                     padding: "12px 16px",
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
-                  iconLeft: <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />,
+                  iconLeft: <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />,
                 }}
               />
             ),
@@ -296,7 +286,7 @@ return (
                   <BreakdownAmount>
                     {protocolFeeAmount ? protocolFeeAmount.toFixed(3) : "-"}
                   </BreakdownAmount>
-                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
                 </BreakdownItemRight>
               </BreakdownItem>
               {props.cart[projectId]?.referrerId && (
@@ -308,7 +298,7 @@ return (
                     <BreakdownAmount>
                       {referrerFeeAmount ? referrerFeeAmount.toFixed(3) : "-"}
                     </BreakdownAmount>
-                    <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
                   </BreakdownItemRight>
                 </BreakdownItem>
               )}
@@ -316,7 +306,7 @@ return (
                 <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
                 <BreakdownItemRight>
                   <BreakdownAmount>{"<0.010"}</BreakdownAmount>
-                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
                 </BreakdownItemRight>
               </BreakdownItem>
               <BreakdownItem>
@@ -327,7 +317,7 @@ return (
                   <BreakdownAmount>
                     ~{projectAllocationAmount ? projectAllocationAmount.toFixed(3) : "-"}
                   </BreakdownAmount>
-                  <FtIcon src={SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
                 </BreakdownItemRight>
               </BreakdownItem>
             </BreakdownDetails>

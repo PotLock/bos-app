@@ -97,12 +97,6 @@ if (!state.registeredProjects) {
   Near.asyncView(registryContractId, "get_projects", {})
     .then((projects) => {
       // get social data for each project
-      // name
-      // description
-      // bannerImage
-      // profileImage
-      // category
-      // horizon stuff, e.g. tags
       Near.asyncView("social.near", "get", {
         keys: projects.map((project) => `${project.id}/profile/**`),
       }).then((socialData) => {
@@ -126,7 +120,7 @@ if (!state.registeredProjects) {
             bannerImageUrl,
             profileImageUrl,
             status: project.status,
-            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""], // TODO: change this to get tags from horizon/social
+            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""],
           };
           return formatted;
         });
@@ -152,14 +146,14 @@ const tabContentWidget = {
   [PROJECTS_LIST_TAB]: "Project.ListPage",
   [PROJECT_DETAIL_TAB]: "Project.Detail",
   [CART_TAB]: "Cart.Checkout",
-  [FEED_TAB]: "Feed",
+  [FEED_TAB]: "Components.Feed",
 };
 
 const getWidget = (props) => {
   if (props.tab in tabContentWidget) {
     return tabContentWidget[props.tab];
   }
-  // backup (TODO: review)
+  // default tab is projects list
   return tabContentWidget[PROJECTS_LIST_TAB];
 };
 
@@ -211,8 +205,6 @@ const props = {
     State.update({ cart: {} });
     Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
   },
-  // checkoutSuccess: (props.tab === CART_TAB && props.transactionHashes),
-  // checkoutSuccessTxHash: props.tab === CART_TAB ? props.transactionHashes : "",
   setCheckoutSuccess: (checkoutSuccess) => {
     State.update({ checkoutSuccess });
   },
@@ -231,6 +223,14 @@ const props = {
     "open-source": "Open Source",
     community: "Community",
     education: "Education",
+  },
+  SUPPORTED_FTS: {
+    // TODO: move this to state to handle selected FT once we support multiple FTs
+    NEAR: {
+      iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
+      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
+      fromIndivisible: (amount) => amount / 10e24,
+    },
   },
 };
 
@@ -298,7 +298,7 @@ if (!state.cart || !state.registeredProjects) {
 
 return (
   <Theme>
-    <Widget src={`${ownerId}/widget/Nav`} props={props} />
+    <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
   </Theme>
 );
