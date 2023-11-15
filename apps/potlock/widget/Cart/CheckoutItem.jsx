@@ -237,7 +237,7 @@ return (
               textAlign: "right",
               borderRadius: "0px 4px 4px 0px",
             },
-            prefixElement: (
+            preInputChildren: (
               <Widget
                 src={`${ownerId}/widget/Inputs.Select`}
                 props={{
