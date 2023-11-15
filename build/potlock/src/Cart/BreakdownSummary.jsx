@@ -107,16 +107,6 @@ const ErrorText = styled.div`
   text-align: center;
 `;
 
-// TODO: move this to state to handle selected FT once we support multiple FTs
-// TODO: note this is duplicated in Cart.CheckoutItem
-const SUPPORTED_FTS = {
-  NEAR: {
-    iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
-    toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-    fromIndivisible: (amount) => amount / 10e24,
-  },
-};
-
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 
 const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
@@ -169,7 +159,7 @@ const handleDonate = () => {
   const transactions = [];
   Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId }]) => {
     const amountFloat = parseFloat(amount || 0);
-    const amountIndivisible = SUPPORTED_FTS[ft].toIndivisible(amountFloat);
+    const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
     const args = { recipient_id: projectId };
     if (referrerId) args.referrer_id = referrerId;
     transactions.push({
@@ -200,7 +190,8 @@ const handleDonate = () => {
         if (
           matchingCartItem &&
           donated_at_ms > now &&
-          SUPPORTED_FTS[ft_id].toIndivisible(matchingCartItem.amount).toString() == total_amount
+          props.SUPPORTED_FTS[ft_id].toIndivisible(matchingCartItem.amount).toString() ==
+            total_amount
         ) {
           foundDonations.push(donation);
         }
@@ -231,7 +222,7 @@ return (
       return (
         <BreakdownItemContainer>
           <BreakdownItemLeft>
-            <CurrencyIcon src={SUPPORTED_FTS[ft].iconUrl} />
+            <CurrencyIcon src={props.SUPPORTED_FTS[ft].iconUrl} />
             <BreakdownItemText>{amountFloat.toFixed(2)}</BreakdownItemText>
           </BreakdownItemLeft>
           <BreakdownItemRight>
