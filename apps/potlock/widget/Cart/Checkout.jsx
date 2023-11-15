@@ -200,7 +200,7 @@ if (props.transactionHashes && props.registeredProjects && !state.successfulDona
 
 if (state.successfulDonationRecipientId && !state.successfulDonationRecipientProfile) {
   const profile = Social.getr(`${state.successfulDonationRecipientId}/profile`);
-  console.log("profile: ", profile);
+  // console.log("profile: ", profile);
   if (profile) {
     State.update({ successfulDonationRecipientProfile: profile });
   }
