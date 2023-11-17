@@ -30,8 +30,11 @@ const containerStyle = props.containerStyle ?? {};
 
 const Container = styled.div`
   padding-left: 64px;
+  // display: flex;
+  // flex-direction: column;
   @media screen and (max-width: 768px) {
     padding-left: 16px;
+    border-radius: 0;
   }
 `;
 

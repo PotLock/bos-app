@@ -42,6 +42,10 @@ const Container = styled.div`
   flex-direction: column;
   width: 100%;
   padding: 72px 64px 72px 64px;
+
+  @media screen and (max-width: 768px) {
+    padding: 0px;
+  }
 `;
 
 const LowerBannerContainer = styled.div`
@@ -52,6 +56,12 @@ const LowerBannerContainer = styled.div`
   align-items: stretch; /* Ensuring child elements stretch to full height */
   justify-content: space-between;
   width: 100%;
+
+  // background: green;
+
+  @media screen and (max-width: 768px) {
+    bottom: -310px;
+  }
 `;
 
 const LowerBannerContainerLeft = styled.div`
@@ -59,6 +69,11 @@ const LowerBannerContainerLeft = styled.div`
   flex-direction: row;
   align-items: flex-end;
   margin-left: 190px;
+  // background: yellow;
+
+  @media screen and (max-width: 768px) {
+    margin-left: 0px;
+  }
 `;
 
 const LowerBannerContainerRight = styled.div`
@@ -67,7 +82,7 @@ const LowerBannerContainerRight = styled.div`
   align-items: flex-end;
   justify-content: flex-end; /* Pushes TeamContainer to the bottom */
   flex: 1;
-  // background: yellow;
+  // background: pink;
 `;
 
 const TeamContainer = styled.div`
@@ -95,8 +110,12 @@ const AddTeamMembers = styled.a`
 const FormBody = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0 148px 0 148px;
+  padding: 260px 68px 32px 68px;
   width: 100%;
+
+  @media screen and (max-width: 768px) {
+    padding: 320px 32px 32px 32px;
+  }
 `;
 
 const FormDivider = styled.div`
@@ -110,6 +129,11 @@ const FormSectionContainer = styled.div`
   flex-direction: row;
   gap: 160px;
   margin: 48px 0 48px 0;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 32px;
+  }
 `;
 
 const FormSectionLeftDiv = styled.div`
@@ -619,21 +643,21 @@ return (
           props={{
             ...props,
             projectId: context.accountId,
-            profileImageTranslateYPx,
-            containerStyle: {
-              paddingLeft: "64px",
-            },
+            // profileImageTranslateYPx,
+            // containerStyle: {
+            //   paddingLeft: "64px",
+            // },
             backgroundStyle: {
               objectFit: "cover",
               left: 0,
               top: 0,
               height: "280px",
-              borderRadius: "6px",
             },
-            imageStyle: {
-              width: `${imageHeightPx}px`,
-              height: `${imageHeightPx}px`,
-            },
+            // imageStyle: {
+            //   width: `${imageHeightPx}px`,
+            //   height: `${imageHeightPx}px`,
+            // },
+            // TODO: ADD BACK IN
             children: (
               <LowerBannerContainer>
                 <LowerBannerContainerLeft>
@@ -682,7 +706,7 @@ return (
             ),
           }}
         />
-        <FormBody style={{ padding: `${profileImageTranslateYPx + 40}px 68px` }}>
+        <FormBody>
           <FormDivider />
           <FormSectionContainer>
             {FormSectionLeft(

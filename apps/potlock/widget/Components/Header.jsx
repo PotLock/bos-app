@@ -49,6 +49,7 @@ const HeaderDescription = styled.div`
 
   @media (max-width: 768px) {
     font-size: 24px;
+    text-align: center;
   }
 `;
 
