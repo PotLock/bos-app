@@ -44,7 +44,7 @@ const Container = styled.div`
   padding: 72px 64px 72px 64px;
 
   @media screen and (max-width: 768px) {
-    padding: 0px;
+    padding: 32px 0px 0px 0px;
   }
 `;
 
@@ -506,6 +506,21 @@ const handleCreateProject = (e) => {
     }
   }
   Near.call(transactions);
+  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // <---- EXTENSION WALLET HANDLING ---->
+  // poll for updates
+  const pollIntervalMs = 1000;
+  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
+  const pollId = setInterval(() => {
+    Near.asyncView(registryId, "get_project_by_id", {
+      project_id: context.accountId,
+      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
+    }).then((_project) => {
+      // won't get here unless project exists
+      clearInterval(pollId);
+      State.update({ registrationSuccess: true });
+    });
+  }, pollIntervalMs);
 };
 
 const registeredProject = state.registeredProjects
@@ -526,7 +541,6 @@ const handleAddTeamMember = () => {
     });
     return;
   }
-  // TODO:
   if (!state.teamMembers.find((tm) => tm.accountId == state.teamMember)) {
     // get data from social.near
     const profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
@@ -608,12 +622,18 @@ if (props.edit && !registeredProject) {
   return <div style={{ textAlign: "center", paddingTop: "12px" }}>Unauthorized</div>;
 }
 
+State.init({
+  registrationSuccess: false,
+});
+
+console.log("registered project: ", registeredProject);
+
 return (
   <Container>
     {!state.socialDataFetched || !projects ? (
       <div class="spinner-border text-secondary" role="status" />
-    ) : !props.edit && registeredProject ? (
-      <Container>
+    ) : !props.edit && (registeredProject || state.registrationSuccess) ? (
+      <>
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
         <ButtonsContainer>
           <Widget
@@ -622,7 +642,7 @@ return (
               type: "primary",
               text: "View your project",
               disabled: false,
-              href: `?tab=project&projectId=${registeredProject.id}`,
+              href: `?tab=project&projectId=${registeredProject?.id || context.accountId}`,
             }}
           />
           <Widget
@@ -635,7 +655,7 @@ return (
             }}
           />
         </ButtonsContainer>
-      </Container>
+      </>
     ) : (
       <>
         <Widget

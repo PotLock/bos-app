@@ -121,10 +121,6 @@ const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   return [amountsByFt, totalAmount, donationTooSmall];
 }, [props]);
 
-State.init({
-  success: false, // used to handle extension wallet success
-});
-
 const handleDonate = () => {
   // const transactions = [
   //     // set data on social.near
