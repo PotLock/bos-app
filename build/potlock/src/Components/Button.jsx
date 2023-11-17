@@ -53,6 +53,7 @@ return (
   <Button
     onClick={(e) => {
       if (props.disabled || !props.onClick) return;
+      if (props.stopPropagation) e.stopPropagation();
       e.preventDefault();
       props.onClick(e);
     }}

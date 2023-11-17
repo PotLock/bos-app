@@ -167,6 +167,20 @@ return (
           <SubTitle>Raised</SubTitle>
         </DonationsInfoItem>
       </DonationsInfoContainer>
+      <Widget
+        src={`${ownerId}/widget/Cart.AddToCart`}
+        props={{
+          ...props,
+          projectId,
+          style: {
+            borderRadius: "0px 0px 6px 6px",
+            boxShadow: "0px",
+            border: "0px",
+          },
+          stopPropagation: true,
+          showModal: false,
+        }}
+      />
     </Card>
     {props.registryAdmins && props.registryAdmins.includes(context.accountId) && (
       <Widget

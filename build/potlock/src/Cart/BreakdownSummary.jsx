@@ -112,7 +112,7 @@ const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   const amountsByFt = {};
   let donationTooSmall = false;
-  Object.entries(props.cart).forEach(([projectId, { ft, amount }]) => {
+  Object.entries(props.cart || {}).forEach(([projectId, { ft, amount }]) => {
     if (!amountsByFt[ft]) amountsByFt[ft] = 0;
     amountsByFt[ft] += parseFloat(amount || 0);
     if (amountsByFt[ft] < MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT) donationTooSmall = true;

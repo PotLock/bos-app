@@ -56,7 +56,7 @@ const SubRow2 = styled.div`
 //   }
 // `;
 
-const existsInCart = props.cart && !!props.cart[props.projectId];
+// const existsInCart = props.cart && !!props.cart[props.projectId];
 
 return (
   <Container>
@@ -81,23 +81,7 @@ return (
       />
     </SubRow1>
     <SubRow2>
-      <Widget
-        src={`${ownerId}/widget/Components.Button`}
-        props={{
-          type: "primary",
-          text: existsInCart ? "Remove from cart" : "Add to cart",
-          onClick: () => {
-            if (existsInCart) {
-              props.removeProjectsFromCart([props.projectId]);
-            } else {
-              props.addProjectsToCart([
-                { id: props.projectId, amount: "1", ft: "NEAR", referrerId: props.referrerId },
-              ]);
-              props.setIsCartModalOpen(true);
-            }
-          },
-        }}
-      />
+      <Widget src={`${ownerId}/widget/Cart.AddToCart`} props={{ ...props, showModal: true }} />
     </SubRow2>
   </Container>
 );
