@@ -44,7 +44,7 @@ const Container = styled.div`
   padding: 72px 64px 72px 64px;
 
   @media screen and (max-width: 768px) {
-    padding: 32px 0px 0px 0px;
+    padding: 0px;
   }
 `;
 
@@ -82,7 +82,6 @@ const LowerBannerContainerRight = styled.div`
   align-items: flex-end;
   justify-content: flex-end; /* Pushes TeamContainer to the bottom */
   flex: 1;
-  // background: pink;
 `;
 
 const TeamContainer = styled.div`
@@ -211,7 +210,6 @@ const ModalContent = styled.div`
   background: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  // z-index: 1000;
 `;
 
 const ModalHeader = styled.div`
@@ -370,6 +368,7 @@ State.init({
   teamMember: "",
   teamMembers: [],
   nearAccountIdError: "",
+  registrationSuccess: false,
 });
 
 const getImageUrlFromSocialImage = (image) => {
@@ -622,12 +621,6 @@ if (props.edit && !registeredProject) {
   return <div style={{ textAlign: "center", paddingTop: "12px" }}>Unauthorized</div>;
 }
 
-State.init({
-  registrationSuccess: false,
-});
-
-console.log("registered project: ", registeredProject);
-
 return (
   <Container>
     {!state.socialDataFetched || !projects ? (
@@ -706,7 +699,7 @@ return (
                               style: {
                                 width: "28px",
                                 height: "28px",
-                                zIndex: state.teamMembers.length - idx,
+                                zIndex: state.isModalOpen ? 0 : state.teamMembers.length - idx,
                                 margin: "0 -8px 0 0",
                                 border: "2px solid white",
                                 borderRadius: "50%",
