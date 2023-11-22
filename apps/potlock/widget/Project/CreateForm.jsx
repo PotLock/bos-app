@@ -469,6 +469,50 @@ const handleCreateProject = (e) => {
             {}
           ),
         },
+        index: {
+          // star: `{"key":{"type":"social","path":"${ownerId}/widget/Index"},"value":{"type":"star"}}`,
+          // notify: `{"key":"${ownerId}","value":{"type":"star","item":{"type":"social","path":"${ownerId}/widget/Index"}}}`,
+          star: {
+            key: {
+              type: "social",
+              path: `${ownerId}/widget/Index`,
+            },
+            value: {
+              type: "star",
+            },
+          },
+          notify: {
+            key: ownerId,
+            value: {
+              type: "star",
+              item: {
+                type: "social",
+                path: `${ownerId}/widget/Index`,
+              },
+            },
+          },
+        },
+        graph: {
+          star: {
+            [ownerId]: {
+              widget: {
+                Index: "",
+              },
+            },
+          },
+          follow: {
+            [ownerId]: "",
+          },
+        },
+        // "graph": {
+        //   "follow": {
+        //     "proofofvibes.near": ""
+        //   }
+        // },
+        // "index": {
+        //   "graph": "{\"key\":\"follow\",\"value\":{\"type\":\"follow\",\"accountId\":\"proofofvibes.near\"}}",
+        //   "notify": "{\"key\":\"proofofvibes.near\",\"value\":{\"type\":\"follow\"}}"
+        // }
       },
     },
   };
