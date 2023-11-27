@@ -392,9 +392,10 @@ const Modal = ({ isOpen, onClose, children }) => {
 if (context.accountId && !state.socialDataFetched) {
   Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
     .then((socialData) => {
-      if (!socialData) return;
-      const profileData = socialData[context.accountId].profile;
-      if (!profileData) return;
+      if (!socialData || !socialData[context.accountId].profile) {
+        State.update({ socialDataFetched: true });
+        return;
+      }
       // description
       const description = profileData.description || "";
       const category = typeof profileData.category == "string" ? profileData.category : "";
