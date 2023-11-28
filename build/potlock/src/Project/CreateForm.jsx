@@ -376,16 +376,9 @@ State.init({
   teamMembers: [],
   nearAccountIdError: "",
   registrationSuccess: false,
+  showAlert: false,
+  alertMessage: "",
 });
-
-const roles = Near.view("lachlan-dao.sputnik-dao.near", "get_policy");
-console.log("roles: ", roles);
-
-const proposals = Near.view("lachlan-dao.sputnik-dao.near", "get_proposals", {
-  from_index: 0,
-  limit: 10,
-});
-console.log("proposals: ", proposals);
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
@@ -639,11 +632,31 @@ const handleCreateProject = (e) => {
   });
 };
 
-const registeredProject = state.registeredProjects
-  ? state.registeredProjects?.find(
-      (project) => project.id == (state.isDao ? state.daoAddress : context.accountId)
-    )
-  : null;
+const registeredProject = useMemo(() => {
+  return state.registeredProjects
+    ? state.registeredProjects?.find(
+        (project) =>
+          project.id == (state.isDao ? state.daoAddress : context.accountId) &&
+          project.status == "Approved" // TODO: REMOVE THIS AT END BEFORE DEPLOYING
+      )
+    : null;
+}, [state.registeredProjects, state.isDao, state.daoAddress]);
+
+const proposals = Near.view(state.daoAddress, "get_proposals", {
+  from_index: 0,
+  limit: 1000,
+});
+
+const proposalInProgress = useMemo(() => {
+  if (!state.isDao || !state.daoAddress || !proposals) return false;
+  return proposals?.find((proposal) => {
+    return (
+      proposal.status == "InProgress" &&
+      proposal.kind.FunctionCall?.receiver_id == REGISTRY_CONTRACT_ID &&
+      proposal.kind.FunctionCall?.actions[0]?.method_name == "register"
+    );
+  });
+}, [state]);
 
 const handleAddTeamMember = () => {
   let isValid = props.validateNearAddress(state.teamMember);
@@ -738,6 +751,38 @@ return (
   <Container>
     {!state.socialDataFetched || !projects ? (
       <div class="spinner-border text-secondary" role="status" />
+    ) : proposalInProgress ? (
+      <Container
+        style={{
+          padding: "32px 16px",
+          justifyContent: "center",
+          alignItems: "center",
+          wordWrap: "break-word",
+        }}
+      >
+        <h1 style={{ textAlign: "center" }}>You have a DAO proposal in progress.</h1>
+        <h5 style={{ wordWrap: "break-word", textAlign: "center" }}>
+          Please come back once voting on your proposal has been completed.
+        </h5>
+        <div
+          style={{
+            fontStyle: "italic",
+            fontFamily: "sans-serif",
+            wordWrap: "break-word",
+            textAlign: "center",
+          }}
+        >
+          NB: This proposal consists of 3 steps (individual proposals): Register information on NEAR
+          Social, register on Potlock, and register on NEAR Horizon.
+        </div>
+        <a
+          target="_blank"
+          href={`https://near.org/sking.near/widget/DAO.Page?daoId=${state.daoAddress}&tab=proposal&proposalId=${proposalInProgress.id}`}
+          style={{ marginTop: "16px" }}
+        >
+          View DAO Proposal
+        </a>
+      </Container>
     ) : !props.edit && (registeredProject || state.registrationSuccess) ? (
       <>
         <h1 style={{ textAlign: "center" }}>You've successfully registered!</h1>
@@ -882,7 +927,6 @@ return (
                       const NO_PERMISSIONS_ERROR = "You do not have required roles for this DAO";
                       Near.asyncView(state.daoAddress, "get_policy", {})
                         .then((policy) => {
-                          console.log("policy: ", policy);
                           // State.update({ registeredProjects: projects });
                           // Filter the user roles
                           // TODO: break this out
