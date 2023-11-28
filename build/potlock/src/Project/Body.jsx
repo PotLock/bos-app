@@ -118,7 +118,7 @@ const Actions = () => (
   />
 );
 
-const policy = Near.view(props.projectId, "get_policy", {});
+const policy = Near.view("lachlan-dao.sputnik-dao.near", "get_policy", {}); // TODO: CHANGE BACK TO PROPS.PROJECT ID
 const isDao = !!policy;
 
 const userHasPermissions = useMemo(() => {
