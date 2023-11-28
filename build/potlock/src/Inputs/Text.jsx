@@ -72,7 +72,6 @@ const Input = styled.input`
   align-items: center;
   padding: 0.5em 0.75em;
   gap: 0.5em;
-  box-shadow: 0px -2px 0px rgba(93, 93, 93, 0.24) inset;
   color: #101828;
   width: 100%;
   border-radius: 4px;
