@@ -635,9 +635,7 @@ const handleCreateProject = (e) => {
 const registeredProject = useMemo(() => {
   return state.registeredProjects
     ? state.registeredProjects?.find(
-        (project) =>
-          project.id == (state.isDao ? state.daoAddress : context.accountId) &&
-          project.status == "Approved" // TODO: REMOVE THIS AT END BEFORE DEPLOYING
+        (project) => project.id == (state.isDao ? state.daoAddress : context.accountId)
       )
     : null;
 }, [state.registeredProjects, state.isDao, state.daoAddress]);
@@ -929,7 +927,7 @@ return (
                         .then((policy) => {
                           // State.update({ registeredProjects: projects });
                           // Filter the user roles
-                          // TODO: break this out
+                          // TODO: break this out (duplicated in Project.Body)
                           const userRoles = policy.roles.filter((role) => {
                             if (role.kind === "Everyone") return true;
                             return role.kind.Group && role.kind.Group.includes(context.accountId);
