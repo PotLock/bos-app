@@ -45,6 +45,8 @@ const Theme = styled.div`
   }
 `;
 
+const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
+
 State.init({
   registeredProjects: null,
   cart: null,
@@ -213,6 +215,14 @@ const props = {
   },
   setIsNavMenuOpen: (isOpen) => {
     State.update({ isNavMenuOpen: isOpen });
+  },
+  validateNearAddress: (address) => {
+    let isValid = NEAR_ACCOUNT_ID_REGEX.test(address);
+    // Additional ".near" check for IDs less than 64 characters
+    if (address.length < 64 && !address.endsWith(".near")) {
+      isValid = false;
+    }
+    return isValid;
   },
   CATEGORY_MAPPINGS: {
     "social-impact": "Social Impact",

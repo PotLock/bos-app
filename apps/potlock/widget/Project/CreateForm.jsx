@@ -1,6 +1,12 @@
 const ownerId = "potlock.near";
-const registryId = "registry.potlock.near";
-const horizonId = "nearhorizon.near";
+const REGISTRY_CONTRACT_ID = "registry.potlock.near";
+const HORIZON_CONTRACT_ID = "nearhorizon.near";
+const SOCIAL_CONTRACT_ID = "social.near";
+
+Big.PE = 100;
+const FIFTY_TGAS = "50000000000000";
+const THREE_HUNDRED_TGAS = "300000000000000";
+const MIN_PROPOSAL_DEPOSIT = "100000000000000000000000"; // 0.1N
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const DEFAULT_BANNER_IMAGE_URL =
@@ -11,8 +17,6 @@ const ADD_TEAM_MEMBERS_ICON_URL =
   IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
 const CLOSE_ICON_URL =
   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
-
-const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -28,11 +32,11 @@ if (!context.accountId) {
   );
 }
 
-const existingHorizonProject = Near.view(horizonId, "get_project", {
+const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const projects = Near.view(registryId, "get_projects", {});
+const projects = Near.view(REGISTRY_CONTRACT_ID, "get_projects", {});
 
 const imageHeightPx = 120;
 const profileImageTranslateYPx = 220;
@@ -346,6 +350,9 @@ const InputPrefix = styled.div`
 `;
 
 State.init({
+  isDao: false,
+  daoAddress: "",
+  daoAddressError: "",
   name: "",
   nameError: "",
   category: "",
@@ -371,6 +378,15 @@ State.init({
   registrationSuccess: false,
 });
 
+const roles = Near.view("lachlan-dao.sputnik-dao.near", "get_policy");
+console.log("roles: ", roles);
+
+const proposals = Near.view("lachlan-dao.sputnik-dao.near", "get_proposals", {
+  from_index: 0,
+  limit: 10,
+});
+console.log("proposals: ", proposals);
+
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
     return image.url;
@@ -389,22 +405,32 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
-if (context.accountId && !state.socialDataFetched) {
-  Near.asyncView("social.near", "get", { keys: [`${context.accountId}/profile/**`] })
+const setSocialData = (accountId) => {
+  Near.asyncView("social.near", "get", { keys: [`${accountId}/profile/**`] })
     .then((socialData) => {
-      if (!socialData) return;
-      const profileData = socialData[context.accountId].profile;
-      if (!profileData) return;
-      // description
+      // console.log("socialData: ", socialData);
+      if (!socialData || !socialData[accountId].profile) {
+        State.update({
+          socialDataFetched: true,
+          name: "",
+          category: "",
+          description: "",
+          website: "",
+          twitter: "",
+          telegram: "",
+          github: "",
+          teamMembers: [],
+        });
+        return;
+      }
+      const profileData = socialData[accountId].profile;
       const description = profileData.description || "";
       const category = typeof profileData.category == "string" ? profileData.category : "";
-      // linktree
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
       const telegram = linktree.telegram || "";
       const github = linktree.github || "";
       const website = linktree.website || "";
-      // team
       const team = profileData.team || {};
       // update state
       State.update({
@@ -417,9 +443,9 @@ if (context.accountId && !state.socialDataFetched) {
         website,
         socialDataFetched: true,
         teamMembers: Object.entries(team)
-          .filter(([accountId, value]) => value !== null)
-          .map(([accountId, _]) => ({
-            accountId,
+          .filter(([_address, value]) => value !== null)
+          .map(([address, _]) => ({
+            address,
             imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
           })),
       });
@@ -428,10 +454,14 @@ if (context.accountId && !state.socialDataFetched) {
       console.log("error getting social data: ", e);
       State.update({ socialDataFetched: true });
     });
+};
+
+if (context.accountId && !state.socialDataFetched) {
+  setSocialData(context.accountId);
 }
 
 if (context.accountId && !state.registeredProjects) {
-  Near.asyncView(registryId, "get_projects", {})
+  Near.asyncView(REGISTRY_CONTRACT_ID, "get_projects", {})
     .then((projects) => {
       State.update({ registeredProjects: projects });
     })
@@ -442,6 +472,7 @@ if (context.accountId && !state.registeredProjects) {
 }
 
 const isCreateProjectDisabled =
+  state.daoAddressError ||
   !state.name ||
   state.nameError ||
   !state.description ||
@@ -451,9 +482,17 @@ const isCreateProjectDisabled =
 
 const handleCreateProject = (e) => {
   if (isCreateProjectDisabled) return;
+  const daoAddressValid = props.validateNearAddress(state.daoAddress);
+  if (!daoAddressValid) {
+    State.update({
+      daoAddressError: "Invalid NEAR account ID",
+    });
+    return;
+  }
   const socialArgs = {
     data: {
-      [context.accountId]: {
+      [state.isDao ? state.daoAddress : context.accountId]: {
+        // basic profile details
         profile: {
           name: state.name,
           category: state.category,
@@ -469,9 +508,8 @@ const handleCreateProject = (e) => {
             {}
           ),
         },
+        // follow & star Potlock
         index: {
-          // star: `{"key":{"type":"social","path":"${ownerId}/widget/Index"},"value":{"type":"star"}}`,
-          // notify: `{"key":"${ownerId}","value":{"type":"star","item":{"type":"social","path":"${ownerId}/widget/Index"}}}`,
           star: {
             key: {
               type: "social",
@@ -504,80 +542,111 @@ const handleCreateProject = (e) => {
             [ownerId]: "",
           },
         },
-        // "graph": {
-        //   "follow": {
-        //     "proofofvibes.near": ""
-        //   }
-        // },
-        // "index": {
-        //   "graph": "{\"key\":\"follow\",\"value\":{\"type\":\"follow\",\"accountId\":\"proofofvibes.near\"}}",
-        //   "notify": "{\"key\":\"proofofvibes.near\",\"value\":{\"type\":\"follow\"}}"
-        // }
       },
     },
   };
   const potlockRegistryArgs = {};
-  const horizonArgs = { account_id: context.accountId };
-  const transactions = [
-    // set data on social.near
-    {
-      contractName: "social.near",
+  const horizonArgs = { account_id: state.isDao ? state.daoAddress : context.accountId };
+
+  // first, we have to get the account from social.near to see if it exists. If it doesn't, we need to add 0.1N to the deposit
+  Near.asyncView(SOCIAL_CONTRACT_ID, "get_account", {
+    account_id: state.isDao ? state.daoAddress : context.accountId,
+  }).then((account) => {
+    const socialTransaction = {
+      contractName: SOCIAL_CONTRACT_ID,
       methodName: "set",
-      deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
       args: socialArgs,
-    },
-  ];
-  if (!props.edit) {
-    transactions.push(
-      // register project on potlock
-      {
-        contractName: registryId,
-        methodName: "register",
-        deposit: Big(0.05).mul(Big(10).pow(24)),
-        args: potlockRegistryArgs,
-      }
-    );
-    if (!existingHorizonProject) {
+    };
+    let depositFloat = JSON.stringify(socialArgs).length * 0.00003;
+    if (!account) {
+      depositFloat += 0.1;
+    }
+    socialTransaction.deposit = Big(depositFloat).mul(Big(10).pow(24));
+
+    // instantiate transactions array that we will be passing to Near.call()
+    let transactions = [socialTransaction];
+
+    // if this is a creation action, we need to add the registry and horizon transactions
+    if (!props.edit) {
       transactions.push(
-        // register on NEAR Horizon
+        // register project on potlock
         {
-          contractName: horizonId,
-          methodName: "add_project",
-          args: horizonArgs,
+          contractName: REGISTRY_CONTRACT_ID,
+          methodName: "register",
+          deposit: Big(0.05).mul(Big(10).pow(24)),
+          args: potlockRegistryArgs,
         }
       );
+      if (!existingHorizonProject) {
+        transactions.push(
+          // register on NEAR Horizon
+          {
+            contractName: HORIZON_CONTRACT_ID,
+            methodName: "add_project",
+            args: horizonArgs,
+          }
+        );
+      }
     }
-  }
-  Near.call(transactions);
-  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
-  // <---- EXTENSION WALLET HANDLING ---->
-  // poll for updates
-  const pollIntervalMs = 1000;
-  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
-  const pollId = setInterval(() => {
-    Near.asyncView(registryId, "get_project_by_id", {
-      project_id: context.accountId,
-      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
-    }).then((_project) => {
-      // won't get here unless project exists
-      clearInterval(pollId);
-      State.update({ registrationSuccess: true });
-    });
-  }, pollIntervalMs);
+
+    // if it is a DAO, we need to convert transactions to DAO function call proposals
+    if (state.isDao) {
+      const clonedTransactions = JSON.parse(JSON.stringify(transactions));
+      transactions = clonedTransactions.map((tx) => {
+        const action = {
+          method_name: tx.methodName,
+          gas: FIFTY_TGAS,
+          deposit: tx.deposit ? tx.deposit.toString() : "0",
+          args: Buffer.from(JSON.stringify(tx.args), "utf-8").toString("base64"),
+        };
+        return {
+          ...tx,
+          contractName: state.daoAddress,
+          methodName: "add_proposal",
+          args: {
+            proposal: {
+              description:
+                "Create project on Potlock (3 steps: Register information on NEAR Social, register on Potlock, and register on NEAR Horizon)",
+              kind: {
+                FunctionCall: {
+                  receiver_id: tx.contractName,
+                  actions: [action],
+                },
+              },
+            },
+          },
+          deposit: MIN_PROPOSAL_DEPOSIT,
+          gas: THREE_HUNDRED_TGAS,
+        };
+      });
+    }
+    Near.call(transactions);
+    // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+    // <---- EXTENSION WALLET HANDLING ---->
+    // poll for updates
+    const pollIntervalMs = 1000;
+    // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
+    const pollId = setInterval(() => {
+      Near.asyncView(REGISTRY_CONTRACT_ID, "get_project_by_id", {
+        project_id: context.accountId,
+        // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
+      }).then((_project) => {
+        // won't get here unless project exists
+        clearInterval(pollId);
+        State.update({ registrationSuccess: true });
+      });
+    }, pollIntervalMs);
+  });
 };
 
 const registeredProject = state.registeredProjects
   ? state.registeredProjects?.find(
-      (project) => project.id == context.accountId && project.status == "Approved"
+      (project) => project.id == (state.isDao ? state.daoAddress : context.accountId)
     )
   : null;
 
 const handleAddTeamMember = () => {
-  let isValid = NEAR_ACCOUNT_ID_REGEX.test(state.teamMember);
-  // Additional ".near" check for IDs less than 64 characters
-  if (state.teamMember.length < 64 && !state.teamMember.endsWith(".near")) {
-    isValid = false;
-  }
+  let isValid = props.validateNearAddress(state.teamMember);
   if (!isValid) {
     State.update({
       nearAccountIdError: "Invalid NEAR account ID",
@@ -699,7 +768,7 @@ return (
           src={`${ownerId}/widget/Project.BannerHeader`}
           props={{
             ...props,
-            projectId: context.accountId,
+            projectId: context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social
             // profileImageTranslateYPx,
             // containerStyle: {
             //   paddingLeft: "64px",
@@ -773,11 +842,82 @@ return (
             )}
             <FormSectionRightDiv>
               <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "masterSelector",
+                  checked: state.isDao,
+                  onClick: (e) => {
+                    State.update({ isDao: e.target.checked });
+                    if (!e.target.checked) {
+                      setSocialData(context.accountId);
+                    } else {
+                      if (state.daoAddress) {
+                        setSocialData(state.daoAddress);
+                      }
+                    }
+                  },
+                  label: "Register as DAO",
+                  containerStyle: {
+                    marginBottom: "24px",
+                  },
+                }}
+              />
+              <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
-                  label: "Project ID *",
-                  value: context.accountId,
-                  disabled: true,
+                  label: state.isDao ? "DAO address *" : "Project ID *",
+                  value: state.isDao ? state.daoAddress : context.accountId,
+                  disabled: !state.isDao,
+                  onChange: (daoAddress) => State.update({ daoAddress, daoAddressError: "" }),
+                  validate: () => {
+                    // **CALLED ON BLUR**
+                    if (state.isDao) {
+                      const isValid = props.validateNearAddress(state.daoAddress);
+                      if (!isValid) {
+                        State.update({
+                          daoAddressError: "Invalid NEAR account ID",
+                        });
+                        return;
+                      }
+                      const NO_PERMISSIONS_ERROR = "You do not have required roles for this DAO";
+                      Near.asyncView(state.daoAddress, "get_policy", {})
+                        .then((policy) => {
+                          console.log("policy: ", policy);
+                          // State.update({ registeredProjects: projects });
+                          // Filter the user roles
+                          // TODO: break this out
+                          const userRoles = policy.roles.filter((role) => {
+                            if (role.kind === "Everyone") return true;
+                            return role.kind.Group && role.kind.Group.includes(context.accountId);
+                          });
+                          const kind = "call";
+                          const action = "AddProposal";
+                          // Check if the user is allowed to perform the action
+                          const allowed = userRoles.some(({ permissions }) => {
+                            return (
+                              permissions.includes(`${kind}:${action}`) ||
+                              permissions.includes(`${kind}:*`) ||
+                              permissions.includes(`*:${action}`) ||
+                              permissions.includes("*:*")
+                            );
+                          });
+                          if (!allowed) {
+                            State.update({
+                              daoAddressError: NO_PERMISSIONS_ERROR,
+                            });
+                          }
+                        })
+                        .catch((e) => {
+                          console.log("error getting DAO policy: ", e);
+                          State.update({
+                            daoAddressError: NO_PERMISSIONS_ERROR,
+                          });
+                        });
+                      setSocialData(state.daoAddress);
+                    }
+                    State.update({ daoAddressError: "" });
+                  },
+                  error: state.isDao ? state.daoAddressError : "",
                 }}
               />
               <Space height={24} />
@@ -922,7 +1062,13 @@ return (
                 props={{
                   type: "primary",
                   prefix: "https://",
-                  text: props.edit ? "Update your project" : "Create new project",
+                  text: props.edit
+                    ? state.isDao
+                      ? "Add proposal to update project"
+                      : "Update your project"
+                    : state.isDao
+                    ? "Add proposal to create project"
+                    : "Create new project",
                   disabled: isCreateProjectDisabled,
                   onClick: handleCreateProject,
                 }}
