@@ -118,22 +118,47 @@ const Actions = () => (
   />
 );
 
+const policy = Near.view("lachlan-dao.sputnik-dao.near", "get_policy", {}); // TODO: CHANGE BACK TO PROPS.PROJECT ID
+const isDao = !!policy;
+
+const userHasPermissions = useMemo(() => {
+  if (!policy) return false;
+  // TODO: break this out (NB: duplicated in Project.CreateForm)
+  const userRoles = policy.roles.filter((role) => {
+    if (role.kind === "Everyone") return true;
+    return role.kind.Group && role.kind.Group.includes(context.accountId);
+  });
+  const kind = "call";
+  const action = "AddProposal";
+  // Check if the user is allowed to perform the action
+  const allowed = userRoles.some(({ permissions }) => {
+    return (
+      permissions.includes(`${kind}:${action}`) ||
+      permissions.includes(`${kind}:*`) ||
+      permissions.includes(`*:${action}`) ||
+      permissions.includes("*:*")
+    );
+  });
+  return allowed;
+}, [policy]);
+
 return (
   <BodyContainer>
     <Header>
       <NameContainer>
         <Name>{profile.name}</Name>
-        {props.projectId === context.accountId && (
-          <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: "secondary",
-              text: "Edit profile",
-              disabled: false,
-              href: `?tab=editproject&projectId=${props.projectId}`,
-            }}
-          />
-        )}
+        {props.projectId === context.accountId ||
+          (isDao && userHasPermissions && (
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: "secondary",
+                text: "Edit profile",
+                disabled: false,
+                href: `?tab=editproject&projectId=${props.projectId}`,
+              }}
+            />
+          ))}
       </NameContainer>
       <AccountInfoContainer>
         <AccountId>@{props.projectId}</AccountId>

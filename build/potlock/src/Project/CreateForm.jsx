@@ -632,15 +632,23 @@ const handleCreateProject = (e) => {
   });
 };
 
+if (props.projectId) {
+  Near.asyncView(props.projectId, "get_policy", {}).then((policy) => {
+    if (policy) {
+      State.update({ isDao: true, daoAddress: props.projectId });
+    }
+  });
+}
+
 const registeredProject = useMemo(() => {
   return state.registeredProjects
     ? state.registeredProjects?.find(
-        (project) =>
-          project.id == (state.isDao ? state.daoAddress : context.accountId) &&
-          project.status == "Approved" // TODO: REMOVE THIS AT END BEFORE DEPLOYING
+        (project) => project.id == (state.isDao ? state.daoAddress : context.accountId)
       )
     : null;
 }, [state.registeredProjects, state.isDao, state.daoAddress]);
+
+// console.log("registeredProject: ", registeredProject);
 
 const proposals = Near.view(state.daoAddress, "get_proposals", {
   from_index: 0,
@@ -709,6 +717,30 @@ const CATEGORY_MAPPINGS = {
   education: "Education",
 };
 
+const policy = Near.view(props.projectId, "get_policy", {});
+const isDao = !!policy;
+
+const userHasPermissions = useMemo(() => {
+  if (!policy) return false;
+  // TODO: break this out (NB: duplicated in Project.CreateForm)
+  const userRoles = policy.roles.filter((role) => {
+    if (role.kind === "Everyone") return true;
+    return role.kind.Group && role.kind.Group.includes(context.accountId);
+  });
+  const kind = "call";
+  const action = "AddProposal";
+  // Check if the user is allowed to perform the action
+  const allowed = userRoles.some(({ permissions }) => {
+    return (
+      permissions.includes(`${kind}:${action}`) ||
+      permissions.includes(`${kind}:*`) ||
+      permissions.includes(`*:${action}`) ||
+      permissions.includes("*:*")
+    );
+  });
+  return allowed;
+}, [policy]);
+
 const FormSectionLeft = (title, description, isRequired) => {
   return (
     <FormSectionLeftDiv>
@@ -743,8 +775,8 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
-if (props.edit && !registeredProject) {
-  return <div style={{ textAlign: "center", paddingTop: "12px" }}>Unauthorized</div>;
+if (props.edit && (!registeredProject || !userHasPermissions)) {
+  return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
 }
 
 return (
@@ -929,7 +961,7 @@ return (
                         .then((policy) => {
                           // State.update({ registeredProjects: projects });
                           // Filter the user roles
-                          // TODO: break this out
+                          // TODO: break this out (duplicated in Project.Body)
                           const userRoles = policy.roles.filter((role) => {
                             if (role.kind === "Everyone") return true;
                             return role.kind.Group && role.kind.Group.includes(context.accountId);
