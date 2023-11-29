@@ -167,6 +167,33 @@ return (
           <SubTitle>Raised</SubTitle>
         </DonationsInfoItem>
       </DonationsInfoContainer>
+      {props.registryAdmins && props.registryAdmins.includes(context.accountId) && (
+        <Widget
+          src={`${ownerId}/widget/Inputs.Select`}
+          props={{
+            noLabel: true,
+            options: PROJECT_STATUSES.map((status) => ({
+              value: status,
+              text: status,
+            })),
+            value: { text: props.project.status, value: props.project.status },
+            onChange: (status) => {
+              if (status.value != project.status) {
+                Near.call([
+                  {
+                    contractName: registryContractId,
+                    methodName: "admin_set_project_status",
+                    args: { project_id: id, status: status.value },
+                  },
+                ]);
+              }
+            },
+            containerStyles: {
+              padding: "16px 24px",
+            },
+          }}
+        />
+      )}
       <Widget
         src={`${ownerId}/widget/Cart.AddToCart`}
         props={{
@@ -182,32 +209,5 @@ return (
         }}
       />
     </Card>
-    {props.registryAdmins && props.registryAdmins.includes(context.accountId) && (
-      <Widget
-        src={`${ownerId}/widget/Inputs.Select`}
-        props={{
-          noLabel: true,
-          options: PROJECT_STATUSES.map((status) => ({
-            value: status,
-            text: status,
-          })),
-          value: { text: props.project.status, value: props.project.status },
-          onChange: (status) => {
-            if (status.value != project.status) {
-              Near.call([
-                {
-                  contractName: registryContractId,
-                  methodName: "admin_set_project_status",
-                  args: { project_id: id, status: status.value },
-                },
-              ]);
-            }
-          },
-          containerStyles: {
-            padding: "16px 24px",
-          },
-        }}
-      />
-    )}
   </>
 );
