@@ -623,8 +623,9 @@ const handleCreateOrUpdateProject = (e) => {
           methodName: "add_proposal",
           args: {
             proposal: {
-              description:
-                "Create project on Potlock (3 steps: Register information on NEAR Social, register on Potlock, and register on NEAR Horizon)",
+              description: props.edit
+                ? "Update project on Potlock (via NEAR Social)"
+                : "Create project on Potlock (3 steps: Register information on NEAR Social, register on Potlock, and register on NEAR Horizon)",
               kind: {
                 FunctionCall: {
                   receiver_id: tx.contractName,
