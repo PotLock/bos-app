@@ -118,7 +118,7 @@ const Actions = () => (
   />
 );
 
-const policy = Near.view("lachlan-dao.sputnik-dao.near", "get_policy", {}); // TODO: CHANGE BACK TO PROPS.PROJECT ID
+const policy = Near.view(props.projectId, "get_policy", {}); // TODO: CHANGE BACK TO PROPS.PROJECT ID
 const isDao = !!policy;
 
 const userHasPermissions = useMemo(() => {
@@ -142,13 +142,16 @@ const userHasPermissions = useMemo(() => {
   return allowed;
 }, [policy]);
 
+const isOwner = props.projectId === context.accountId;
+const isPermissionedMember = isDao && userHasPermissions;
+
 return (
   <BodyContainer>
     <Header>
       <NameContainer>
         <Name>{profile.name}</Name>
-        {props.projectId === context.accountId ||
-          (isDao && userHasPermissions && (
+        {isOwner ||
+          (isPermissionedMember && (
             <Widget
               src={`${ownerId}/widget/Components.Button`}
               props={{

@@ -9,6 +9,7 @@ const THREE_HUNDRED_TGAS = "300000000000000";
 const MIN_PROPOSAL_DEPOSIT = "100000000000000000000000"; // 0.1N
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 // const DEFAULT_BANNER_IMAGE_URL =
 //   IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 // const DEFAULT_PROFILE_IMAGE_URL =
@@ -351,8 +352,11 @@ const InputPrefix = styled.div`
 
 State.init({
   isDao: false,
-  daoAddress: "",
+  daoAddressTemp: "", // used while input is focused
+  daoAddress: "", // set on input blur
   daoAddressError: "",
+  backgroundImage: "",
+  profileImage: "",
   name: "",
   nameError: "",
   category: "",
@@ -398,7 +402,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
-const setSocialData = (accountId) => {
+const setSocialData = (accountId, shouldSetTeamMembers) => {
   Near.asyncView("social.near", "get", { keys: [`${accountId}/profile/**`] })
     .then((socialData) => {
       // console.log("socialData: ", socialData);
@@ -417,6 +421,10 @@ const setSocialData = (accountId) => {
         return;
       }
       const profileData = socialData[accountId].profile;
+      const backgroundImage = profileData.backgroundImage || {
+        ipfs_cid: DEFAULT_BANNER_IMAGE_CID,
+      };
+      const profileImage = profileData.image || "";
       const description = profileData.description || "";
       const category = typeof profileData.category == "string" ? profileData.category : "";
       const linktree = profileData.linktree || {};
@@ -426,7 +434,9 @@ const setSocialData = (accountId) => {
       const website = linktree.website || "";
       const team = profileData.team || {};
       // update state
-      State.update({
+      const stateUpdates = {
+        backgroundImage,
+        profileImage,
         name: profileData?.name || "",
         description,
         category,
@@ -435,13 +445,16 @@ const setSocialData = (accountId) => {
         github,
         website,
         socialDataFetched: true,
-        teamMembers: Object.entries(team)
+      };
+      if (shouldSetTeamMembers) {
+        stateUpdates.teamMembers = Object.entries(team)
           .filter(([_address, value]) => value !== null)
           .map(([address, _]) => ({
             address,
             imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
-          })),
-      });
+          }));
+      }
+      State.update(stateUpdates);
     })
     .catch((e) => {
       console.log("error getting social data: ", e);
@@ -473,18 +486,24 @@ const isCreateProjectDisabled =
   !state.category ||
   state.categoryError;
 
-const handleCreateProject = (e) => {
+// console.log("isCreateProjectDisabled: ", isCreateProjectDisabled);
+// console.log("state: ", state);
+
+const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
-  const daoAddressValid = props.validateNearAddress(state.daoAddress);
+  const daoAddressValid = state.isDao ? props.validateNearAddress(state.daoAddress) : true;
   if (!daoAddressValid) {
     State.update({
       daoAddressError: "Invalid NEAR account ID",
     });
     return;
   }
+
+  const accountId = state.isDao ? state.daoAddress : context.accountId;
+
   const socialArgs = {
     data: {
-      [state.isDao ? state.daoAddress : context.accountId]: {
+      [accountId]: {
         // basic profile details
         profile: {
           name: state.name,
@@ -538,6 +557,12 @@ const handleCreateProject = (e) => {
       },
     },
   };
+  if (state.backgroundImage) {
+    socialArgs.data[accountId].profile.backgroundImage = state.backgroundImage;
+  }
+  if (state.profileImage) {
+    socialArgs.data[accountId].profile.image = state.profileImage;
+  }
   const potlockRegistryArgs = {};
   const horizonArgs = { account_id: state.isDao ? state.daoAddress : context.accountId };
 
@@ -664,7 +689,7 @@ const proposalInProgress = useMemo(() => {
       proposal.kind.FunctionCall?.actions[0]?.method_name == "register"
     );
   });
-}, [state]);
+}, [state, proposals]);
 
 const handleAddTeamMember = () => {
   let isValid = props.validateNearAddress(state.teamMember);
@@ -779,6 +804,14 @@ if (props.edit && (!registeredProject || !userHasPermissions)) {
   return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
 }
 
+const uploadFileUpdateState = (body, callback) => {
+  asyncFetch("https://ipfs.near.social/add", {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body,
+  }).then(callback);
+};
+
 return (
   <Container>
     {!state.socialDataFetched || !projects ? (
@@ -845,22 +878,32 @@ return (
           src={`${ownerId}/widget/Project.BannerHeader`}
           props={{
             ...props,
-            projectId: context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social
-            // profileImageTranslateYPx,
-            // containerStyle: {
-            //   paddingLeft: "64px",
-            // },
+            projectId: state.isDao && state.daoAddress ? state.daoAddress : context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social
             backgroundStyle: {
               objectFit: "cover",
               left: 0,
               top: 0,
               height: "280px",
             },
-            // imageStyle: {
-            //   width: `${imageHeightPx}px`,
-            //   height: `${imageHeightPx}px`,
-            // },
-            // TODO: ADD BACK IN
+            // allowEdit: true,
+            backgroundImage: state.backgroundImage,
+            profileImage: state.profileImage,
+            bgImageOnChange: (files) => {
+              if (files) {
+                uploadFileUpdateState(files[0], (res) => {
+                  const ipfs_cid = res.body.cid;
+                  State.update({ backgroundImage: { ipfs_cid } });
+                });
+              }
+            },
+            profileImageOnChange: (files) => {
+              if (files) {
+                uploadFileUpdateState(files[0], (res) => {
+                  const ipfs_cid = res.body.cid;
+                  State.update({ profileImage: { ipfs_cid } });
+                });
+              }
+            },
             children: (
               <LowerBannerContainer>
                 <LowerBannerContainerLeft>
@@ -943,13 +986,14 @@ return (
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
                   label: state.isDao ? "DAO address *" : "Project ID *",
-                  value: state.isDao ? state.daoAddress : context.accountId,
+                  value: state.isDao ? state.daoAddressTemp : context.accountId,
                   disabled: !state.isDao,
-                  onChange: (daoAddress) => State.update({ daoAddress, daoAddressError: "" }),
+                  onChange: (daoAddress) =>
+                    State.update({ daoAddressTemp: daoAddress, daoAddressError: "" }),
                   validate: () => {
                     // **CALLED ON BLUR**
                     if (state.isDao) {
-                      const isValid = props.validateNearAddress(state.daoAddress);
+                      const isValid = props.validateNearAddress(state.daoAddressTemp);
                       if (!isValid) {
                         State.update({
                           daoAddressError: "Invalid NEAR account ID",
@@ -957,8 +1001,9 @@ return (
                         return;
                       }
                       const NO_PERMISSIONS_ERROR = "You do not have required roles for this DAO";
-                      Near.asyncView(state.daoAddress, "get_policy", {})
+                      Near.asyncView(state.daoAddressTemp, "get_policy", {})
                         .then((policy) => {
+                          // console.log("policy: ", policy);
                           // State.update({ registeredProjects: projects });
                           // Filter the user roles
                           // TODO: break this out (duplicated in Project.Body)
@@ -981,6 +1026,18 @@ return (
                             State.update({
                               daoAddressError: NO_PERMISSIONS_ERROR,
                             });
+                          } else {
+                            // add all council roles to team (but not current user)
+                            const councilRole = policy.roles.find(
+                              (role) => role.name === "council"
+                            );
+                            const councilTeamMembers = (councilRole?.kind?.Group || []).map(
+                              (tm) => ({ accountId: tm })
+                            );
+                            State.update({
+                              daoAddress: state.daoAddressTemp,
+                              teamMembers: councilTeamMembers,
+                            });
                           }
                         })
                         .catch((e) => {
@@ -989,7 +1046,7 @@ return (
                             daoAddressError: NO_PERMISSIONS_ERROR,
                           });
                         });
-                      setSocialData(state.daoAddress);
+                      setSocialData(state.daoAddressTemp, false);
                     }
                     State.update({ daoAddressError: "" });
                   },
@@ -1146,7 +1203,7 @@ return (
                     ? "Add proposal to create project"
                     : "Create new project",
                   disabled: isCreateProjectDisabled,
-                  onClick: handleCreateProject,
+                  onClick: handleCreateOrUpdateProject,
                 }}
               />
               <Space height={24} />

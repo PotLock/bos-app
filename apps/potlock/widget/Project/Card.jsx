@@ -21,10 +21,14 @@ const Card = styled.a`
 const Info = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 110px;
+  margin-top: 145px;
   padding: 16px 24px;
   gap: 16px;
   flex: 1;
+
+  @media screen and (max-width: 768px) {
+    margin-top: 122px;
+  }
 `;
 
 const Title = styled.div`
@@ -121,7 +125,7 @@ return (
           ...props,
           projectId,
           profile,
-          profileImageTranslateYPx: 106,
+          profileImageTranslateYPx: 145,
           profileImageTranslateYPxMobile: 122,
           containerStyle: {
             paddingLeft: "16px",
