@@ -18,9 +18,6 @@ if (profile === null) {
   return "Loading";
 }
 
-// console.log("props.backgroundImage: ", props.backgroundImage);
-// console.log("profile.backgroundImage: ", profile.backgroundImage);
-
 const name = profile.name || "No-name profile";
 const image = profile.image;
 const backgroundImage = props.backgroundImage || profile.backgroundImage;
@@ -29,11 +26,6 @@ const tags = Object.keys(profile.tags ?? {});
 const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};
-
-// const Wrapper = styled.div`
-//   overflow: hidden;
-//   margin: 0 -12px;
-// `;
 
 const Container = styled.div`
   padding-left: 64px;

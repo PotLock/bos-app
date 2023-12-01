@@ -355,7 +355,9 @@ State.init({
   daoAddressTemp: "", // used while input is focused
   daoAddress: "", // set on input blur
   daoAddressError: "",
-  backgroundImage: "",
+  backgroundImage: {
+    ipfs_cid: DEFAULT_BANNER_IMAGE_CID,
+  },
   profileImage: "",
   name: "",
   nameError: "",
@@ -421,9 +423,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         return;
       }
       const profileData = socialData[accountId].profile;
-      const backgroundImage = profileData.backgroundImage || {
-        ipfs_cid: DEFAULT_BANNER_IMAGE_CID,
-      };
+      const backgroundImage = profileData.backgroundImage;
       const profileImage = profileData.image || "";
       const description = profileData.description || "";
       const category = typeof profileData.category == "string" ? profileData.category : "";
@@ -446,6 +446,9 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         website,
         socialDataFetched: true,
       };
+      if (backgroundImage) {
+        stateUpdates.backgroundImage = backgroundImage;
+      }
       if (shouldSetTeamMembers) {
         stateUpdates.teamMembers = Object.entries(team)
           .filter(([_address, value]) => value !== null)
@@ -812,6 +815,8 @@ const uploadFileUpdateState = (body, callback) => {
     body,
   }).then(callback);
 };
+
+console.log("state: ", state);
 
 return (
   <Container>
