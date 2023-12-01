@@ -465,9 +465,13 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
     });
 };
 
-if (context.accountId && !state.socialDataFetched) {
-  setSocialData(context.accountId);
-}
+useEffect(() => {
+  if (state.isDao && state.daoAddress) {
+    setSocialData(state.daoAddress, true);
+  } else if (!state.isDao && context.accountId && !state.socialDataFetched) {
+    setSocialData(context.accountId, true);
+  }
+}, [state.socialDataFetched, state.isDao, state.daoAddress, context.accountId]);
 
 if (context.accountId && !state.registeredProjects) {
   Near.asyncView(REGISTRY_CONTRACT_ID, "get_projects", {})
@@ -664,7 +668,7 @@ const handleCreateOrUpdateProject = (e) => {
 if (props.projectId) {
   Near.asyncView(props.projectId, "get_policy", {}).then((policy) => {
     if (policy) {
-      State.update({ isDao: true, daoAddress: props.projectId });
+      State.update({ isDao: true, daoAddress: props.projectId, daoAddressTemp: props.projectId });
     }
   });
 }
@@ -750,7 +754,7 @@ const policy = Near.view(props.projectId, "get_policy", {});
 const isDao = !!policy;
 
 const userHasPermissions = useMemo(() => {
-  if (!policy) return false;
+  if (!policy) return true;
   // TODO: break this out (NB: duplicated in Project.CreateForm)
   const userRoles = policy.roles.filter((role) => {
     if (role.kind === "Everyone") return true;
@@ -983,6 +987,7 @@ return (
                     }
                   },
                   label: "Register as DAO",
+                  disabled: props.edit,
                   containerStyle: {
                     marginBottom: "24px",
                   },
