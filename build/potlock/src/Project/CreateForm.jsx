@@ -386,6 +386,34 @@ State.init({
   alertMessage: "",
 });
 
+const accountId = props.projectId
+  ? props.projectId
+  : state.isDao
+  ? state.daoAddress
+  : context.accountId;
+const policy = Near.view(accountId, "get_policy", {});
+
+const userHasPermissions = useMemo(() => {
+  if (!policy) return true;
+  // TODO: break this out (NB: duplicated in Project.CreateForm)
+  const userRoles = policy.roles.filter((role) => {
+    if (role.kind === "Everyone") return true;
+    return role.kind.Group && role.kind.Group.includes(context.accountId);
+  });
+  const kind = "call";
+  const action = "AddProposal";
+  // Check if the user is allowed to perform the action
+  const allowed = userRoles.some(({ permissions }) => {
+    return (
+      permissions.includes(`${kind}:${action}`) ||
+      permissions.includes(`${kind}:*`) ||
+      permissions.includes(`*:${action}`) ||
+      permissions.includes("*:*")
+    );
+  });
+  return allowed;
+}, [policy]);
+
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
     return image.url;
@@ -495,6 +523,7 @@ const isCreateProjectDisabled =
 
 // console.log("isCreateProjectDisabled: ", isCreateProjectDisabled);
 // console.log("state: ", state);
+// console.log("policy: ", policy);
 
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
@@ -505,8 +534,6 @@ const handleCreateOrUpdateProject = (e) => {
     });
     return;
   }
-
-  const accountId = state.isDao ? state.daoAddress : context.accountId;
 
   const socialArgs = {
     data: {
@@ -641,7 +668,7 @@ const handleCreateOrUpdateProject = (e) => {
               },
             },
           },
-          deposit: MIN_PROPOSAL_DEPOSIT,
+          deposit: policy.proposal_bond || MIN_PROPOSAL_DEPOSIT,
           gas: THREE_HUNDRED_TGAS,
         };
       });
@@ -668,7 +695,11 @@ const handleCreateOrUpdateProject = (e) => {
 if (props.projectId) {
   Near.asyncView(props.projectId, "get_policy", {}).then((policy) => {
     if (policy) {
-      State.update({ isDao: true, daoAddress: props.projectId, daoAddressTemp: props.projectId });
+      State.update({
+        isDao: true,
+        daoAddress: props.projectId,
+        daoAddressTemp: props.projectId,
+      });
     }
   });
 }
@@ -749,30 +780,6 @@ const CATEGORY_MAPPINGS = {
   community: "Community",
   education: "Education",
 };
-
-const policy = Near.view(props.projectId, "get_policy", {});
-const isDao = !!policy;
-
-const userHasPermissions = useMemo(() => {
-  if (!policy) return true;
-  // TODO: break this out (NB: duplicated in Project.CreateForm)
-  const userRoles = policy.roles.filter((role) => {
-    if (role.kind === "Everyone") return true;
-    return role.kind.Group && role.kind.Group.includes(context.accountId);
-  });
-  const kind = "call";
-  const action = "AddProposal";
-  // Check if the user is allowed to perform the action
-  const allowed = userRoles.some(({ permissions }) => {
-    return (
-      permissions.includes(`${kind}:${action}`) ||
-      permissions.includes(`${kind}:*`) ||
-      permissions.includes(`*:${action}`) ||
-      permissions.includes("*:*")
-    );
-  });
-  return allowed;
-}, [policy]);
 
 const FormSectionLeft = (title, description, isRequired) => {
   return (
@@ -1000,7 +1007,7 @@ return (
                   value: state.isDao ? state.daoAddressTemp : context.accountId,
                   disabled: !state.isDao,
                   onChange: (daoAddress) =>
-                    State.update({ daoAddressTemp: daoAddress, daoAddressError: "" }),
+                    State.update({ daoAddressTemp: daoAddress.toLowerCase(), daoAddressError: "" }),
                   validate: () => {
                     // **CALLED ON BLUR**
                     if (state.isDao) {
