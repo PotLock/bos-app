@@ -1,6 +1,5 @@
 const ownerId = "potlock.near";
 const donationContractId = "donate.potlock.near";
-const registryContractId = "registry.potlock.near";
 
 const Card = styled.a`
   display: flex;
@@ -107,111 +106,73 @@ const [totalAmount, totalDonors] = useMemo(() => {
   ];
 }, [donationsForProject]);
 
-const PROJECT_STATUSES = [
-  "Submitted",
-  "InReview",
-  "Approved",
-  "Rejected",
-  "Graylisted",
-  "Blacklisted",
-];
-
 return (
-  <>
-    <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
+  <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
+    <Widget
+      src={`${ownerId}/widget/Project.BannerHeader`}
+      props={{
+        ...props,
+        projectId,
+        profile,
+        profileImageTranslateYPx: 145,
+        profileImageTranslateYPxMobile: 122,
+        containerStyle: {
+          paddingLeft: "16px",
+        },
+        backgroundStyle: {
+          objectFit: "cover",
+          left: 0,
+          top: 0,
+          height: "168px",
+          borderRadius: "6px 6px 0px 0px",
+        },
+        imageStyle: {
+          width: "40px",
+          height: "40px",
+          position: "absolute",
+          bottom: "-10px",
+          left: "14px",
+        },
+      }}
+    />
+    <Info>
+      <Title>{name}</Title>
+      <SubTitle>
+        {description.length > MAX_DESCRIPTION_LENGTH
+          ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
+          : description}
+      </SubTitle>
       <Widget
-        src={`${ownerId}/widget/Project.BannerHeader`}
+        src={`${ownerId}/widget/Project.Tags`}
         props={{
           ...props,
-          projectId,
-          profile,
-          profileImageTranslateYPx: 145,
-          profileImageTranslateYPxMobile: 122,
-          containerStyle: {
-            paddingLeft: "16px",
-          },
-          backgroundStyle: {
-            objectFit: "cover",
-            left: 0,
-            top: 0,
-            height: "168px",
-            borderRadius: "6px 6px 0px 0px",
-          },
-          imageStyle: {
-            width: "40px",
-            height: "40px",
-            position: "absolute",
-            bottom: "-10px",
-            left: "14px",
-          },
+          tags,
         }}
       />
-      <Info>
-        <Title>{name}</Title>
-        <SubTitle>
-          {description.length > MAX_DESCRIPTION_LENGTH
-            ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
-            : description}
-        </SubTitle>
-        <Widget
-          src={`${ownerId}/widget/Project.Tags`}
-          props={{
-            ...props,
-            tags,
-          }}
-        />
-      </Info>
-      <DonationsInfoContainer>
-        <DonationsInfoItem>
-          <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
-          <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
-        </DonationsInfoItem>
-        <DonationsInfoItem>
-          <Title>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Title>
-          <SubTitle>Raised</SubTitle>
-        </DonationsInfoItem>
-      </DonationsInfoContainer>
-      {props.registryAdmins && props.registryAdmins.includes(context.accountId) && (
-        <Widget
-          src={`${ownerId}/widget/Inputs.Select`}
-          props={{
-            noLabel: true,
-            options: PROJECT_STATUSES.map((status) => ({
-              value: status,
-              text: status,
-            })),
-            value: { text: props.project.status, value: props.project.status },
-            onChange: (status) => {
-              if (status.value != project.status) {
-                Near.call([
-                  {
-                    contractName: registryContractId,
-                    methodName: "admin_set_project_status",
-                    args: { project_id: id, status: status.value },
-                  },
-                ]);
-              }
-            },
-            containerStyles: {
-              padding: "16px 24px",
-            },
-          }}
-        />
-      )}
-      <Widget
-        src={`${ownerId}/widget/Cart.AddToCart`}
-        props={{
-          ...props,
-          projectId,
-          style: {
-            borderRadius: "0px 0px 6px 6px",
-            boxShadow: "0px",
-            border: "0px",
-          },
-          stopPropagation: true,
-          showModal: false,
-        }}
-      />
-    </Card>
-  </>
+    </Info>
+    <DonationsInfoContainer>
+      <DonationsInfoItem>
+        <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
+        <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
+      </DonationsInfoItem>
+      <DonationsInfoItem>
+        <Title>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Title>
+        <SubTitle>Raised</SubTitle>
+      </DonationsInfoItem>
+    </DonationsInfoContainer>
+    <Widget
+      src={`${ownerId}/widget/Cart.AddToCart`}
+      props={{
+        ...props,
+        projectId,
+        style: {
+          borderRadius: "0px 0px 6px 6px",
+          boxShadow: "0px",
+          border: "0px",
+        },
+        stopPropagation: true,
+        showModal: false,
+      }}
+    />
+  </Card>
 );
