@@ -201,7 +201,7 @@ return (
                 {
                   contractName: registryContractId,
                   methodName: "admin_set_project_status",
-                  args: { project_id: id, status: status.value },
+                  args: { project_id: props.projectId, status: status.value },
                 },
               ]);
             }
