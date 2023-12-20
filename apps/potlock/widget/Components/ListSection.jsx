@@ -45,7 +45,7 @@ const List = styled.div`
 `;
 
 return (
-  <Container>
-    <List>{props.projects.map((project) => renderItem(project))}</List>
+  <Container style={props.containerStyle || {}}>
+    <List style={props.listStyle || {}}>{props.items.map((item) => renderItem(item))}</List>
   </Container>
 );

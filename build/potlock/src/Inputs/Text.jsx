@@ -77,10 +77,6 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-const InputButton = styled.button`
-  background: ;
-`;
-
 return (
   <Container>
     {label && <Label>{label}</Label>}

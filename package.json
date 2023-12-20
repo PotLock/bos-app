@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
-    "bos-workspace": "^0.0.1-alpha.0",
+    "bos-workspace": "github:NEARBuilders/bos-workspace",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
     "prettier": "^2.8.8"

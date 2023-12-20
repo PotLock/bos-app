@@ -8,6 +8,8 @@ const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
 const CART_TAB = "cart";
 const FEED_TAB = "feed";
+const POTS_TAB = "pots";
+const DEPLOY_POT_TAB = "deploypot";
 
 const Theme = styled.div`
   * {
@@ -149,6 +151,8 @@ const tabContentWidget = {
   [PROJECT_DETAIL_TAB]: "Project.Detail",
   [CART_TAB]: "Cart.Checkout",
   [FEED_TAB]: "Components.Feed",
+  [POTS_TAB]: "Pots.Home",
+  [DEPLOY_POT_TAB]: "Pots.Deploy",
 };
 
 const getWidget = (props) => {
@@ -240,15 +244,38 @@ const props = {
     NEAR: {
       iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount) => amount / 10e24,
+      fromIndivisible: (amount, decimals) =>
+        Big(amount)
+          .div(Big(10).pow(24))
+          .toFixed(decimals || 2),
     },
   },
+  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near"],
+  ToDo: styled.div`
+    position: relative;
+
+    &::before {
+      content: "TODO: ";
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-110%, 0);
+      background-color: yellow;
+    }
+  `,
+  ONE_TGAS: Big(1_000_000_000_000),
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
   // if transaction hashes are in URL but haven't been added to props, override state:
   props.checkoutSuccessTxHash = props.transactionHashes;
   props.checkoutSuccess = true;
+}
+
+if (props.transactionHashes && props.tab === DEPLOY_POT_TAB) {
+  // if transaction hashes are in URL but haven't been added to props, override state:
+  props.deploymentSuccessTxHash = props.transactionHashes;
+  props.deploymentSuccess = true;
 }
 
 if (state.cart === null && storageCart !== null) {

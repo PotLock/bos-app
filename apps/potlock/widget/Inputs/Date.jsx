@@ -85,7 +85,7 @@ return (
       {/* {props.prefixElement && props.prefixElement} */}
       {props.preInputChildren && props.preInputChildren}
       <Input
-        type="text"
+        type={props.selectTime ? "datetime-local" : "date"}
         placeholder={placeholder}
         value={value}
         onChange={({ target: { value } }) => onChange(value)}

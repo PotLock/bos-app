@@ -207,9 +207,9 @@ return (
         <ProjectsCount>{projects.length}</ProjectsCount>
       </SectionHeader>
       <Widget
-        src={`${ownerId}/widget/Project.ListSection`}
+        src={`${ownerId}/widget/Components.ListSection`}
         props={{
-          projects,
+          items: projects,
           renderItem: (project) => (
             <Widget
               src={`${ownerId}/widget/Project.Card`}

@@ -333,7 +333,11 @@ const NavMenuItem = styled.a`
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
   { text: "Feed", link: "feed", disabled: false },
-  { text: "Pots", link: "pots", disabled: true },
+  {
+    text: "Pots",
+    link: "pots",
+    disabled: !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId),
+  },
 ];
 
 const Modal = ({ isOpen, onClose, children }) => {
