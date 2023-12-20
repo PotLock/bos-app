@@ -39,7 +39,7 @@ const Title = styled.div`
 
 const Description = styled.div`
   color: #292929;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 24px;
   word-wrap: break-word;
@@ -76,7 +76,7 @@ const title = !pot_name
   : pot_name;
 
 return (
-  <Card>
+  <Card href={`?tab=pot&potId=${potId}`}>
     <CardSection style={{ borderBottom: "1px #C7C7C7 solid" }}>
       <Title>{title}</Title>
       <Description>{description}</Description>

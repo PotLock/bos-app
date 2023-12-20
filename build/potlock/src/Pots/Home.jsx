@@ -24,6 +24,7 @@ const HeaderTitle = styled.div`
   line-height: 72px;
   word-wrap: break-word;
   font-family: Lora;
+  text-align: center;
 `;
 
 const HeaderDescription = styled.div`
@@ -32,6 +33,7 @@ const HeaderDescription = styled.div`
   font-weight: 400;
   line-height: 24px;
   word-wrap: break-word;
+  text-align: center;
 `;
 
 const Divider = styled.div`
@@ -60,10 +62,6 @@ if (!state.pots) {
   });
 }
 
-console.log("state: ", state);
-
-// const pots = Array(5).fill(state.pots[0]);
-
 return (
   <Container>
     <HeaderContent>
@@ -86,51 +84,29 @@ return (
         </>
       )}
     </HeaderContent>
-    {/* <Divider /> */}
-    {
-      state.pots && (
-        <Widget
-          src={`${ownerId}/widget/Components.ListSection`}
-          props={{
-            items: state.pots,
-            renderItem: (pot) => (
-              <Widget
-                src={`${ownerId}/widget/Pots.Card`}
-                props={{
-                  ...props,
-                  potId: pot.id,
-                  potConfig: state.potConfigs[pot.id],
-                }}
-              />
-            ),
-            containerStyle: {
-              background: "white",
-            },
-            listStyle: {
-              justifyContent: "center",
-            },
-          }}
-        />
-      )
-      // Array(5)
-      //   .fill(state.pots[0])
-      //     .map((pot) => {
-      //       console.log("pot: ", pot);
-      //       const potConfig = state.potConfigs[pot.id];
-      //       console.log("potConfig: ", potConfig);
-      //       if (!potConfig) return null;
-      //       return (
-      //         <Widget
-      //           src={`${ownerId}/widget/Pots.Card`}
-      //           props={{
-      //             potId: pot.id,
-      //             potConfig: state.potConfigs[pot.id],
-      //             ...props,
-      //             //   style: props.style || {},
-      //           }}
-      //         />
-      //       );
-      //     })
-    }
+    {state.pots && (
+      <Widget
+        src={`${ownerId}/widget/Components.ListSection`}
+        props={{
+          items: state.pots,
+          renderItem: (pot) => (
+            <Widget
+              src={`${ownerId}/widget/Pots.Card`}
+              props={{
+                ...props,
+                potId: pot.id,
+                potConfig: state.potConfigs[pot.id],
+              }}
+            />
+          ),
+          containerStyle: {
+            background: "white",
+          },
+          listStyle: {
+            justifyContent: "center",
+          },
+        }}
+      />
+    )}
   </Container>
 );

@@ -10,6 +10,7 @@ const CART_TAB = "cart";
 const FEED_TAB = "feed";
 const POTS_TAB = "pots";
 const DEPLOY_POT_TAB = "deploypot";
+const POT_DETAIL_TAB = "pot";
 
 const Theme = styled.div`
   * {
@@ -153,6 +154,7 @@ const tabContentWidget = {
   [FEED_TAB]: "Components.Feed",
   [POTS_TAB]: "Pots.Home",
   [DEPLOY_POT_TAB]: "Pots.Deploy",
+  [POT_DETAIL_TAB]: "Pots.Detail",
 };
 
 const getWidget = (props) => {
@@ -180,6 +182,7 @@ const DEFAULT_CART = {};
 const props = {
   ...props,
   ...state,
+  ownerId: "potlock.near",
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
     projects.forEach(({ id, amount, ft, referrerId }) => {
