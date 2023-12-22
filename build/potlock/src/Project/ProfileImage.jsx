@@ -4,6 +4,7 @@ const accountId = props.accountId ?? context.accountId;
 const className = props.className ?? "profile-image d-inline-block";
 const style = props.style ?? { width: "3em", height: "3em" };
 const imageStyle = props.imageStyle ?? { objectFit: "cover" };
+const imageWrapperStyle = props.imageWrapperStyle ?? { width: "100%", height: "100%" };
 const imageClassName = props.imageClassName ?? "rounded-circle w-100 h-100";
 const thumbnail = props.thumbnail ?? "thumbnail";
 
@@ -47,7 +48,7 @@ const inner = fast ? (
 ) : (
   <div className={className} style={style} key={JSON.stringify(image)}>
     <Widget
-      loading={<div className={`d-inline-block ${imageClassName}`} style={imgWrapperStyle} />}
+      loading={<div className={`d-inline-block ${imageClassName}`} style={imageWrapperStyle} />}
       src="mob.near/widget/Image"
       props={{
         image,

@@ -267,47 +267,60 @@ return (
       </Container>
     </>
     {/* )} */}
-    <Modal
+    {/* <Modal
       isOpen={state.isApplicationModalOpen}
       onClose={() => State.update({ isApplicationModalOpen: false })}
-    >
-      <ModalTitle>
-        Application message <span style={{ color: "#DD3345" }}>*</span>
-      </ModalTitle>
-      <Widget
-        src={`${ownerId}/widget/Inputs.TextArea`}
-        props={{
-          noLabel: true,
-          inputRows: 5,
-          inputStyle: {
-            background: "#FAFAFA",
-          },
-          placeholder: "Your application message here...",
-          value: state.applicationMessage,
-          onChange: (applicationMessage) => State.update({ applicationMessage }),
-          validate: () => {
-            if (state.applicationMessage.length > MAX_APPLICATION_MESSAGE_LENGTH) {
-              State.update({
-                applicationMessageError: `Application message must be less than ${MAX_APPLICATION_MESSAGE_LENGTH} characters`,
-              });
-              return;
-            }
+    > */}
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        ...props,
+        isModalOpen: state.isApplicationModalOpen,
+        onClose: () => State.update({ isApplicationModalOpen: false }),
+        children: (
+          <>
+            <ModalTitle>
+              Application message <span style={{ color: "#DD3345" }}>*</span>
+            </ModalTitle>
+            <Widget
+              src={`${ownerId}/widget/Inputs.TextArea`}
+              props={{
+                noLabel: true,
+                inputRows: 5,
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Your application message here...",
+                value: state.applicationMessage,
+                onChange: (applicationMessage) => State.update({ applicationMessage }),
+                validate: () => {
+                  if (state.applicationMessage.length > MAX_APPLICATION_MESSAGE_LENGTH) {
+                    State.update({
+                      applicationMessageError: `Application message must be less than ${MAX_APPLICATION_MESSAGE_LENGTH} characters`,
+                    });
+                    return;
+                  }
 
-            State.update({ applicationMessageError: "" });
-          },
-          error: state.applicationMessageError,
-        }}
-      />
-      <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "primary",
-            text: "Send application",
-            onClick: handleSendApplication,
-          }}
-        />
-      </Row>
-    </Modal>
+                  State.update({ applicationMessageError: "" });
+                },
+                error: state.applicationMessageError,
+              }}
+            />
+            <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "primary",
+                  text: "Send application",
+                  onClick: handleSendApplication,
+                }}
+              />
+            </Row>
+          </>
+        ),
+      }}
+    />
+
+    {/* </Modal> */}
   </Wrapper>
 );

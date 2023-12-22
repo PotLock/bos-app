@@ -1,4 +1,4 @@
-const { ownerId, potId, potDetail } = props;
+const { ownerId, potId } = props;
 // console.log("props in header: ", props);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
@@ -10,6 +10,9 @@ if (!potConfig) return "";
 // console.log("pot config: ", potConfig);
 
 const {
+  owner,
+  admins,
+  chef,
   pot_name,
   pot_description,
   application_start_ms,
@@ -20,6 +23,21 @@ const {
   matching_pool_balance,
   registry_provider,
 } = potConfig;
+
+const now = Date.now();
+const applicationOpen = now >= application_start_ms && now < application_end_ms;
+const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+
+const existingApplication = Near.view(potId, "get_application_by_project_id", {
+  project_id: context.accountId,
+});
+
+const canApply =
+  applicationOpen &&
+  !existingApplication &&
+  owner !== context.accountId &&
+  !admins.includes(context.accountId) &&
+  chef !== context.accountId;
 
 const Container = styled.div`
   display: flex;
@@ -106,9 +124,6 @@ const StatusText = styled.div`
   margin-left: 12px;
 `;
 
-const now = Date.now();
-const applicationOpen = now >= application_start_ms && now < application_end_ms;
-const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 // const publicRoundOpen = true;
 
 const formatDate = (timestamp) => {
@@ -261,18 +276,28 @@ return (
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
-            type: "primary",
+            type: publicRoundOpen ? "secondary" : "primary",
             text: "Fund matching pool",
             onClick: handleFundMatchingPool,
           }}
         />
-        {applicationOpen && (
+        {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "tertiary",
               text: "Apply to pot",
               onClick: handleApplyToPot,
+            }}
+          />
+        )}
+        {publicRoundOpen && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "primary",
+              text: "Donate to projects",
+              href: `?tab=pot&potId=${potId}&nav=projects`,
             }}
           />
         )}
