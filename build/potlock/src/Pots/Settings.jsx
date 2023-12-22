@@ -1,8 +1,33 @@
 // get settings
-const { potId } = props;
+const { ownerId, potId, potDetail } = props;
 
-const config = Near.view(potId, "get_config", {});
+const isUpdate = !!potDetail;
 
-if (!config) return "Loading...";
+const userIsAdminOrGreater =
+  (isUpdate && potDetail.owner === context.accountId) ||
+  potDetail.admins.includes(context.accountId);
 
-return <div style={{ maxWidth: "80vw", wordWrap: "break-word" }}>{JSON.stringify(config)}</div>;
+if (isUpdate && !userIsAdminOrGreater) {
+  return (
+    <>
+      {Object.entries(potDetail).map(([k, v], index) => {
+        return (
+          <div key={index}>
+            {k}: {v}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
+return (
+  <>
+    <Widget
+      src={`${ownerId}/widget/Pots.ConfigForm`}
+      props={{
+        ...props,
+      }}
+    />
+  </>
+);

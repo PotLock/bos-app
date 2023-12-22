@@ -1,10 +1,13 @@
-const { ownerId, potId } = props;
+const { ownerId, potId, potDetail } = props;
+// console.log("props in header: ", props);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 const potConfig = Near.view(potId, "get_config", {});
 
 if (!potConfig) return "";
+
+// console.log("pot config: ", potConfig);
 
 const {
   pot_name,
@@ -15,6 +18,7 @@ const {
   public_round_end_ms,
   base_currency,
   matching_pool_balance,
+  registry_provider,
 } = potConfig;
 
 const Container = styled.div`
@@ -149,7 +153,7 @@ const daysUntil = (timestamp) => {
   // Convert time difference from milliseconds to days
   const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-  return differenceInDays;
+  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} to go`;
 };
 
 const handleFundMatchingPool = () => {
@@ -157,7 +161,7 @@ const handleFundMatchingPool = () => {
 };
 
 const handleApplyToPot = () => {
-  // TODO: Implement
+  props.setApplicationModalOpen(true);
 };
 
 const totalMatchingPoolAmount =
@@ -216,9 +220,7 @@ return (
                 />
                 <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
               </Row>
-              <StatusText style={{ color: "#292929" }}>
-                {daysUntil(application_end_ms)} days to go
-              </StatusText>
+              <StatusText style={{ color: "#292929" }}>{daysUntil(application_end_ms)}</StatusText>
             </Row>
             <H3>
               Application starts on <Time>{formatDate(application_start_ms)}</Time> and ends on{" "}
@@ -246,9 +248,7 @@ return (
                 />
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
               </Row>
-              <StatusText style={{ color: "#292929" }}>
-                {daysUntil(public_round_end_ms)} days to go
-              </StatusText>
+              <StatusText style={{ color: "#292929" }}>{daysUntil(public_round_end_ms)}</StatusText>
             </Row>
             <H3>
               Round starts on <Time>{formatDate(public_round_start_ms)}</Time> and ends on{" "}

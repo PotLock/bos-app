@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-const potFactoryContractId = "potfactory1.tests.potlock.near"; // TODO: update to production address when contract is deployed to prod
+const { ownerId, POT_FACTORY_CONTRACT_ID } = props;
 
 const Container = styled.div`
   display: flex;
@@ -51,7 +50,7 @@ State.init({
 });
 
 if (!state.pots) {
-  Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
+  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
     State.update({ pots });
     for (let i = 0; i < pots.length; i++) {
       const potId = pots[i].id;

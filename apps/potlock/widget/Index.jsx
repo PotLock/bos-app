@@ -253,6 +253,7 @@ const props = {
           .toFixed(decimals || 2),
     },
   },
+  POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
   QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near"],
   ToDo: styled.div`
     position: relative;

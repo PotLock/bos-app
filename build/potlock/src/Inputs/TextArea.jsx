@@ -54,15 +54,18 @@ const Input = styled.textarea`
 `;
 
 return (
-  <Container>
-    <Label>{label}</Label>
+  <Container style={props.containerStyle ?? {}}>
+    {!props.noLabel && <Label style={props.labelStyle ?? {}}>{label}</Label>}
     <Input
       placeholder={placeholder}
       value={value}
       onChange={({ target: { value } }) => onChange(value)}
       onBlur={() => validate()}
-      rows={5}
+      rows={props.inputRows ?? 5}
+      style={props.inputStyle ?? {}}
     />
-    <Error className={error ? "show" : ""}>{error}</Error>
+    <Error style={props.errorStyle ?? {}} className={error ? "show" : ""}>
+      {error}
+    </Error>
   </Container>
 );
