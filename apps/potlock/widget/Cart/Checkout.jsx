@@ -233,7 +233,7 @@ const twitterIntent = useMemo(() => {
 //   console.log("donations: ", donations);
 // }, []);
 
-// console.log("props in Checkout: ", props);
+console.log("props in Checkout: ", props);
 
 return (
   // <div>

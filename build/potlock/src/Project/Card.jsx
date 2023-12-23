@@ -73,7 +73,7 @@ const DonationsInfoItem = styled.div`
   align-items: center;
 `;
 
-const projectId = props.project.id || context.accountId;
+const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
@@ -105,6 +105,8 @@ const [totalAmount, totalDonors] = useMemo(() => {
     donors.length,
   ];
 }, [donationsForProject]);
+
+console.log("projectId: ", projectId);
 
 return (
   <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
@@ -160,19 +162,21 @@ return (
         <SubTitle>Raised</SubTitle>
       </DonationsInfoItem>
     </DonationsInfoContainer>
-    <Widget
-      src={`${ownerId}/widget/Cart.AddToCart`}
-      props={{
-        ...props,
-        projectId,
-        style: {
-          borderRadius: "0px 0px 6px 6px",
-          boxShadow: "0px",
-          border: "0px",
-        },
-        stopPropagation: true,
-        showModal: false,
-      }}
-    />
+    {props.button ?? (
+      <Widget
+        src={`${ownerId}/widget/Cart.AddToCart`}
+        props={{
+          ...props,
+          projectId,
+          style: {
+            borderRadius: "0px 0px 6px 6px",
+            boxShadow: "0px",
+            border: "0px",
+          },
+          stopPropagation: true,
+          showModal: false,
+        }}
+      />
+    )}
   </Card>
 );
