@@ -271,6 +271,17 @@ const props = {
     }
   `,
   ONE_TGAS: Big(1_000_000_000_000),
+  MAX_DONATION_MESSAGE_LENGTH: 100,
+  daysAgo: (timestamp) => {
+    const now = new Date();
+    const pastDate = new Date(timestamp);
+    const differenceInTime = now - pastDate;
+
+    // Convert time difference from milliseconds to days
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+
+    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {

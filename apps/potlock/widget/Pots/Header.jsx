@@ -1,43 +1,8 @@
-const { ownerId, potId } = props;
-// console.log("props in header: ", props);
+const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH } = props;
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
-const potConfig = Near.view(potId, "get_config", {});
-
-if (!potConfig) return "";
-
-// console.log("pot config: ", potConfig);
-
-const {
-  owner,
-  admins,
-  chef,
-  pot_name,
-  pot_description,
-  application_start_ms,
-  application_end_ms,
-  public_round_start_ms,
-  public_round_end_ms,
-  base_currency,
-  matching_pool_balance,
-  registry_provider,
-} = potConfig;
-
-const now = Date.now();
-const applicationOpen = now >= application_start_ms && now < application_end_ms;
-const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
-
-const existingApplication = Near.view(potId, "get_application_by_project_id", {
-  project_id: context.accountId,
-});
-
-const canApply =
-  applicationOpen &&
-  !existingApplication &&
-  owner !== context.accountId &&
-  !admins.includes(context.accountId) &&
-  chef !== context.accountId;
+Big.PE = 100;
 
 const Container = styled.div`
   display: flex;
@@ -124,6 +89,65 @@ const StatusText = styled.div`
   margin-left: 12px;
 `;
 
+const ModalTitle = styled.div`
+  color: #525252;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word;
+  margin-bottom: 8px;
+`;
+
+State.init({
+  isMatchingPoolModalOpen: false,
+  matchingPoolDonationAmountNear: "",
+  matchingPoolDonationAmountNearError: "",
+  matchingPoolDonationMessage: "",
+  matchingPoolDonationMessageError: "",
+});
+
+// console.log("props in header: ", props);
+const potConfig = Near.view(potId, "get_config", {});
+
+if (!potConfig) return "";
+
+console.log("pot config: ", potConfig);
+
+const {
+  owner,
+  admins,
+  chef,
+  pot_name,
+  pot_description,
+  application_start_ms,
+  application_end_ms,
+  public_round_start_ms,
+  public_round_end_ms,
+  min_matching_pool_donation_amount,
+  base_currency,
+  matching_pool_balance,
+  registry_provider,
+} = potConfig;
+
+const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
+  base_currency.toUpperCase()
+].fromIndivisible(min_matching_pool_donation_amount);
+
+const now = Date.now();
+const applicationOpen = now >= application_start_ms && now < application_end_ms;
+const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+
+const existingApplication = Near.view(potId, "get_application_by_project_id", {
+  project_id: context.accountId,
+});
+
+const canApply =
+  applicationOpen &&
+  !existingApplication &&
+  owner !== context.accountId &&
+  !admins.includes(context.accountId) &&
+  chef !== context.accountId;
+
 // const publicRoundOpen = true;
 
 const formatDate = (timestamp) => {
@@ -172,7 +196,7 @@ const daysUntil = (timestamp) => {
 };
 
 const handleFundMatchingPool = () => {
-  // TODO: Implement
+  State.update({ isMatchingPoolModalOpen: true });
 };
 
 const handleApplyToPot = () => {
@@ -181,6 +205,37 @@ const handleApplyToPot = () => {
 
 const totalMatchingPoolAmount =
   props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(matching_pool_balance);
+
+const handleMatchingPoolDonation = () => {
+  const { matchingPoolDonationAmountNear } = state;
+  // TODO: implement
+  const args = {
+    message: state.matchingPoolDonationMessage,
+    matching_pool: true,
+    // TODO: ADD REFERRER ID
+  };
+  // const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
+  const amountFloat = parseFloat(matchingPoolDonationAmountNear || 0);
+  if (!amountFloat) {
+    State.update({ matchingPoolDonationAmountNearError: "Invalid amount" });
+    return;
+  }
+  const amountIndivisible =
+    props.SUPPORTED_FTS[base_currency.toUpperCase()].toIndivisible(amountFloat);
+  const transactions = [
+    {
+      contractName: potId,
+      methodName: "donate",
+      deposit: amountIndivisible,
+      args,
+      gas: props.ONE_TGAS.mul(100),
+    },
+  ];
+  Near.call(transactions);
+  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // <---- EXTENSION WALLET HANDLING ---->
+  // TODO: COMPLETE
+};
 
 const Status = () => {
   if (applicationOpen) {
@@ -198,6 +253,8 @@ const Status = () => {
     );
   }
 };
+
+console.log("state in header: ", state);
 
 return (
   <Container>
@@ -303,5 +360,85 @@ return (
         )}
       </Row>
     </Column>
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        ...props,
+        isModalOpen: state.isMatchingPoolModalOpen,
+        onClose: () => State.update({ isMatchingPoolModalOpen: false }),
+        children: (
+          <>
+            <ModalTitle>
+              Enter matching pool contribution amount
+              {min_matching_pool_donation_amount === "1"
+                ? "(no minimum)"
+                : `(Min. ${totalMatchingPoolAmount} ${base_currency.toUpperCase()})`}
+            </ModalTitle>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Enter amount here in NEAR",
+                value: state.matchingPoolDonationAmountNear,
+                onChange: (matchingPoolDonationAmountNear) =>
+                  State.update({ matchingPoolDonationAmountNear }),
+                validate: () => {
+                  // TODO: add validation logic here
+                  State.update({ matchingPoolDonationAmountNearError: "" });
+                },
+                error: state.matchingPoolDonationAmountNearError,
+              }}
+            />
+            <Widget
+              src={`${ownerId}/widget/Inputs.TextArea`}
+              props={{
+                noLabel: true,
+                inputRows: 5,
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Enter an optional message",
+                value: state.matchingPoolDonationMessage,
+                onChange: (matchingPoolDonationMessage) =>
+                  State.update({ matchingPoolDonationMessage }),
+                validate: () => {
+                  if (state.matchingPoolDonationMessage.length > MAX_DONATION_MESSAGE_LENGTH) {
+                    State.update({
+                      matchingPoolDonationMessageError: `Message must be less than ${MAX_DONATION_MESSAGE_LENGTH} characters`,
+                    });
+                    return;
+                  }
+
+                  State.update({ matchingPoolDonationMessageError: "" });
+                },
+                error: state.matchingPoolDonationMessageError,
+              }}
+            />
+            <props.ToDo>NB: No referrals yet</props.ToDo>
+            <props.ToDo>Display fees breakdown and amount after fees</props.ToDo>
+            <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "primary",
+                  disabled:
+                    !state.matchingPoolDonationAmountNear ||
+                    !!state.matchingPoolDonationAmountNearError ||
+                    !parseFloat(state.matchingPoolDonationAmountNear),
+                  text: `Contribute${
+                    state.matchingPoolDonationAmountNear
+                      ? ` ${state.matchingPoolDonationAmountNear} ${base_currency.toUpperCase()}`
+                      : ""
+                  } to matching pool`,
+                  onClick: handleMatchingPoolDonation,
+                }}
+              />
+            </Row>
+          </>
+        ),
+      }}
+    />
   </Container>
 );

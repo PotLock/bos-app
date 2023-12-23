@@ -140,7 +140,7 @@ return (
           <Column style={{ flex: 1 }}>
             <Row style={{ borderBottom: "none", padding: "0px" }}>
               <div style={{ fontWeight: "bold" }}>{project_id}</div>
-              <div style={{ fontSize: "12px" }}>{daysAgo(submitted_at)}</div>
+              <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
             </Row>
             <div>{message}</div>
             <div style={{ fontSize: "12px", marginTop: "8px" }}>Admin notes: {review_notes}</div>

@@ -58,31 +58,6 @@ const Divider = styled.div`
   background-color: #292929;
 `;
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  // background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(5px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  // padding-top: 30vh;
-`;
-
-const ModalContent = styled.div`
-  border-radius: 6px;
-  width: 100%;
-  max-width: 600px;
-  padding: 24px 24px 18px 24px;
-  background: white;
-  border: 1px rgba(41, 41, 41, 0.4) solid;
-  display: flex;
-  flex-direction: column;
-`;
-
 const ModalTitle = styled.div`
   color: #525252;
   font-size: 16px;
@@ -141,16 +116,6 @@ if (state.potDetail === null) {
 const noPot = state.potDetail === undefined;
 const loading = state.potDetail === null;
 
-const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>{children}</ModalContent>
-    </ModalOverlay>
-  );
-};
-
 // these will be passed down to child components
 props.navOptions = [
   {
@@ -173,6 +138,13 @@ props.navOptions = [
     disabled: false,
     source: `${ownerId}/widget/Pots.Donations`,
     href: `?tab=pot&potId=${potId}&nav=donations`,
+  },
+  {
+    label: "Sponsors",
+    id: "sponsors",
+    disabled: false,
+    source: `${ownerId}/widget/Pots.Sponsors`,
+    href: `?tab=pot&potId=${potId}&nav=sponsors`,
   },
   {
     label: "Settings",
@@ -266,11 +238,6 @@ return (
         </ContainerInner>
       </Container>
     </>
-    {/* )} */}
-    {/* <Modal
-      isOpen={state.isApplicationModalOpen}
-      onClose={() => State.update({ isApplicationModalOpen: false })}
-    > */}
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
       props={{
@@ -320,7 +287,5 @@ return (
         ),
       }}
     />
-
-    {/* </Modal> */}
   </Wrapper>
 );
