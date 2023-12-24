@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const registryId = "registry.potlock.near";
 
 const profile = props.profile ?? Social.getr(`${props.projectId}/profile`);
@@ -61,12 +61,14 @@ props.navOptions = [
     id: "home",
     disabled: false,
     source: `${ownerId}/widget/Project.About`,
+    href: `?tab=project&projectId=${props.projectId}&nav=home`,
   },
   {
     label: "Social Feed",
     id: "feed",
     disabled: false,
     source: `${ownerId}/widget/Project.Feed`,
+    href: `?tab=project&projectId=${props.projectId}&nav=feed`,
   },
   {
     label: "Pots",
@@ -124,7 +126,7 @@ return (
           // class="col-3"
           >
             <Widget
-              src={`${ownerId}/widget/Project.NavOptions`}
+              src={`${ownerId}/widget/Components.NavOptions`}
               props={{
                 ...props,
               }}

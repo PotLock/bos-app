@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -153,22 +153,31 @@ const handleDonate = () => {
   //     }
   //   }
   const transactions = [];
-  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId }]) => {
+  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, potId }]) => {
     const amountFloat = parseFloat(amount || 0);
     const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
-    const args = { recipient_id: projectId };
-    if (referrerId) args.referrer_id = referrerId;
+    const donateContractArgs = {};
+    const potContractArgs = {};
+    if (potId) {
+      potContractArgs.project_id = projectId;
+      potContractArgs.referrer_id = referrerId;
+    } else {
+      donateContractArgs.recipient_id = projectId;
+      donateContractArgs.referrer_id = referrerId;
+    }
     transactions.push({
-      contractName: donationContractId,
+      contractName: potId ?? donationContractId,
       methodName: "donate",
-      args,
+      args: potId ? potContractArgs : donateContractArgs,
       deposit: amountIndivisible.toString(),
     });
   });
   const now = Date.now();
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // <-------- EXTENSION WALLET HANDLING -------->
   // poll for updates
+  // TODO: update this to also poll Pot contract
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {

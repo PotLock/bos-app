@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const renderItem = props.renderItem ?? ((item) => <div>{item}</div>);
 
 const Container = styled.div`
@@ -45,7 +45,7 @@ const List = styled.div`
 `;
 
 return (
-  <Container>
-    <List>{props.projects.map((project) => renderItem(project))}</List>
+  <Container style={props.containerStyle || {}}>
+    <List style={props.listStyle || {}}>{props.items.map((item) => renderItem(item))}</List>
   </Container>
 );

@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const accountId = props.projectId;
 if (!accountId) {
   return "No account ID";

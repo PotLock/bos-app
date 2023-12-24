@@ -46,11 +46,7 @@ return (
           {selected && (
             <div style={{ width: 2, height: 16, background: "#DD3345", borderRadius: 2 }} />
           )}
-          <NavOption
-            selected={selected}
-            disabled={option.disabled}
-            href={`?tab=project&projectId=${props.projectId}&nav=${option.id}`}
-          >
+          <NavOption selected={selected} disabled={option.disabled} href={option.href}>
             {option.label}
           </NavOption>
         </NavOptionContainer>

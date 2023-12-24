@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const existsInCart = props.cart && !!props.cart[props.projectId];
 
 return (
@@ -14,7 +13,13 @@ return (
           props.removeProjectsFromCart([props.projectId]);
         } else {
           props.addProjectsToCart([
-            { id: props.projectId, amount: "1", ft: "NEAR", referrerId: props.referrerId },
+            {
+              id: props.projectId,
+              amount: "1",
+              ft: "NEAR",
+              referrerId: props.referrerId,
+              potId: props.potId,
+            },
           ]);
           if (props.showModal) {
             props.setIsCartModalOpen(true);

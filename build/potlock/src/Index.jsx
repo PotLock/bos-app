@@ -8,8 +8,12 @@ const PROJECTS_LIST_TAB = "projects";
 const PROJECT_DETAIL_TAB = "project";
 const CART_TAB = "cart";
 const FEED_TAB = "feed";
+const POTS_TAB = "pots";
+const DEPLOY_POT_TAB = "deploypot";
+const POT_DETAIL_TAB = "pot";
 
 const Theme = styled.div`
+  position: relative;
   * {
     font-family: "Mona-Sans";
     font-style: normal;
@@ -149,22 +153,24 @@ const tabContentWidget = {
   [PROJECT_DETAIL_TAB]: "Project.Detail",
   [CART_TAB]: "Cart.Checkout",
   [FEED_TAB]: "Components.Feed",
-};
-
-const getWidget = (props) => {
-  if (props.tab in tabContentWidget) {
-    return tabContentWidget[props.tab];
-  }
-  // default tab is projects list
-  return tabContentWidget[PROJECTS_LIST_TAB];
+  [POTS_TAB]: "Pots.Home",
+  [DEPLOY_POT_TAB]: "Pots.Deploy",
+  [POT_DETAIL_TAB]: "Pots.Detail",
 };
 
 const getTabWidget = (tab) => {
-  if (tab in tabContentWidget) {
-    return tabContentWidget[tab];
+  const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
+  if (
+    [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
+    !props.QF_WHITELISTED_ACCOUNTS.includes(props.accountId)
+  ) {
+    // if user requests a QF-related tab but is not whitelisted, redirect to projects list
+    return defaultTabWidget;
   }
-
-  return tabContentWidget[PROJECTS_LIST_TAB];
+  if (tab in tabContentWidget) {
+    return tabContentWidget[props.tab];
+  }
+  return defaultTabWidget;
 };
 
 const CART_KEY = "cart";
@@ -176,10 +182,12 @@ const DEFAULT_CART = {};
 const props = {
   ...props,
   ...state,
+  ownerId: "potlock.near",
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
-    projects.forEach(({ id, amount, ft, referrerId }) => {
-      cart[id] = { amount, ft: ft ?? "NEAR", referrerId }; // default to NEAR
+    projects.forEach((item) => {
+      if (!item.ft) item.ft = "NEAR"; // default to NEAR
+      cart[item.id] = item; // default to NEAR
     });
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
@@ -192,13 +200,14 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: (projectId, amount, ft, referrerId) => {
+  updateCartItem: (projectId, amount, ft, referrerId, potId) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";
     if (amount || amount === "") updated.amount = amount;
     if (ft) updated.ft = ft;
     if (referrerId) updated.referrerId = referrerId;
+    if (potId) updated.potId = potId;
     cart[projectId] = updated;
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
@@ -240,8 +249,71 @@ const props = {
     NEAR: {
       iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount) => amount / 10e24,
+      fromIndivisible: (amount, decimals) =>
+        Big(amount)
+          .div(Big(10).pow(24))
+          .toFixed(decimals || 2),
     },
+  },
+  POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
+  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near", "lachlanglen2.near"],
+  ToDo: styled.div`
+    position: relative;
+
+    &::before {
+      content: "TODO: ";
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-110%, 0);
+      background-color: yellow;
+    }
+  `,
+  ONE_TGAS: Big(1_000_000_000_000),
+  MAX_DONATION_MESSAGE_LENGTH: 100,
+  formatDate: (timestamp) => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const date = new Date(timestamp);
+
+    const year = date.getFullYear();
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    let hour = date.getHours();
+    const minute = date.getMinutes();
+    const ampm = hour >= 12 ? "pm" : "am";
+
+    // Convert hour to 12-hour format
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+
+    // Minutes should be two digits
+    const minuteFormatted = minute < 10 ? "0" + minute : minute;
+
+    return `${month} ${day}, ${year} ${hour}:${minuteFormatted}${ampm}`;
+  },
+  daysAgo: (timestamp) => {
+    const now = new Date();
+    const pastDate = new Date(timestamp);
+    const differenceInTime = now - pastDate;
+
+    // Convert time difference from milliseconds to days
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays === 0
+      ? "Just now"
+      : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
 };
 
@@ -249,6 +321,12 @@ if (props.transactionHashes && props.tab === CART_TAB) {
   // if transaction hashes are in URL but haven't been added to props, override state:
   props.checkoutSuccessTxHash = props.transactionHashes;
   props.checkoutSuccess = true;
+}
+
+if (props.transactionHashes && props.tab === DEPLOY_POT_TAB) {
+  // if transaction hashes are in URL but haven't been added to props, override state:
+  props.deploymentSuccessTxHash = props.transactionHashes;
+  props.deploymentSuccess = true;
 }
 
 if (state.cart === null && storageCart !== null) {

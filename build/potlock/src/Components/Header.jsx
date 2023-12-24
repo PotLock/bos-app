@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 const headerTitleFontSizePx = 88;

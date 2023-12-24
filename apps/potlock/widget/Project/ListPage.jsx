@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const registryId = "registry.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -207,15 +207,16 @@ return (
         <ProjectsCount>{projects.length}</ProjectsCount>
       </SectionHeader>
       <Widget
-        src={`${ownerId}/widget/Project.ListSection`}
+        src={`${ownerId}/widget/Components.ListSection`}
         props={{
-          projects,
+          items: projects,
           renderItem: (project) => (
             <Widget
               src={`${ownerId}/widget/Project.Card`}
               props={{
-                project,
                 ...props,
+                project,
+                allowDonate: true,
               }}
             />
           ),

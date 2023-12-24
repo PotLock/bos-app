@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const Card = styled.a`
@@ -73,7 +73,7 @@ const DonationsInfoItem = styled.div`
   align-items: center;
 `;
 
-const projectId = props.project.id || context.accountId;
+const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
@@ -81,6 +81,9 @@ if (!projectProfile) return "";
 const MAX_DESCRIPTION_LENGTH = 120;
 
 const { name, description, category } = projectProfile;
+// const name = projectProfile?.name || "No name";
+// const description = projectProfile?.description || "No description";
+// const category = projectProfile?.category || "No category";
 
 const tags = [category.text ?? props.CATEGORY_MAPPINGS[category] ?? ""];
 
@@ -160,19 +163,21 @@ return (
         <SubTitle>Raised</SubTitle>
       </DonationsInfoItem>
     </DonationsInfoContainer>
-    <Widget
-      src={`${ownerId}/widget/Cart.AddToCart`}
-      props={{
-        ...props,
-        projectId,
-        style: {
-          borderRadius: "0px 0px 6px 6px",
-          boxShadow: "0px",
-          border: "0px",
-        },
-        stopPropagation: true,
-        showModal: false,
-      }}
-    />
+    {props.allowDonate && (
+      <Widget
+        src={`${ownerId}/widget/Cart.AddToCart`}
+        props={{
+          ...props,
+          projectId,
+          style: {
+            borderRadius: "0px 0px 6px 6px",
+            boxShadow: "0px",
+            border: "0px",
+          },
+          stopPropagation: true,
+          showModal: false,
+        }}
+      />
+    )}
   </Card>
 );

@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const label = props.label ?? "";
 const placeholder = props.placeholder ?? "";
 const value = props.value ?? "";
@@ -75,10 +74,6 @@ const Input = styled.input`
   color: #101828;
   width: 100%;
   border-radius: 4px;
-`;
-
-const InputButton = styled.button`
-  background: ;
 `;
 
 return (

@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -333,7 +332,12 @@ const NavMenuItem = styled.a`
 const tabOptions = [
   { text: "Projects", link: "projects", disabled: false },
   { text: "Feed", link: "feed", disabled: false },
-  { text: "Pots", link: "pots", disabled: true },
+  {
+    text: "Pots",
+    link: "pots",
+    disabled: !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId),
+  },
+  { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
 ];
 
 const Modal = ({ isOpen, onClose, children }) => {
@@ -392,8 +396,9 @@ return (
           {tabOptions.map((tab) => {
             return (
               <NavTab
-                href={`?tab=${tab.link}`}
+                href={tab.href ?? `?tab=${tab.link}`}
                 disabled={tab.disabled}
+                target={tab.newTab ? "_blank" : ""}
                 onClick={(e) => {
                   if (tab.disabled) e.preventDefault();
                 }}
