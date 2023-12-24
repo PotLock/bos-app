@@ -1,11 +1,8 @@
 // get donations
-const { ownerId, potId, potDetail } = props;
+const { ownerId, potId, potDetail, formatDate } = props;
 
-const donations = Near.view(potId, "get_public_round_donations", {});
+console.log("payouts: ", payouts);
 
-if (!donations) return "Loading...";
-
-console.log("donations: ", donations);
 const TitleText = styled.div`
   color: #3d3d3d;
   font-size: 24px;
@@ -53,25 +50,29 @@ const daysAgo = (timestamp) => {
   return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
 };
 
-const { base_currency } = potDetail;
+const { payouts, base_currency, all_paid_out, cooldown_end_ms } = potDetail;
 
-const columns = ["Project", "Donor", "Amount", "Date"];
+const columns = ["Project", "Amount"];
 
 return (
   <>
-    <props.ToDo>Add totals</props.ToDo>
-    <props.ToDo>Add filters</props.ToDo>
-    <props.ToDo>Order reverse chronologically</props.ToDo>
-    <props.ToDo>Add messages from donations?</props.ToDo>
+    {all_paid_out ? (
+      <div style={{ fontWeight: "500" }}>All projects have been paid out</div>
+    ) : cooldown_end_ms ? (
+      <div>
+        Projects will be paid out after cooldown period completes on {formatDate(cooldown_end_ms)}
+      </div>
+    ) : null}
+    <props.ToDo>Add total donations & total unique donor count for each row</props.ToDo>
     <RowOuter>
       {columns.map((column, index) => (
         <TitleText key={index}>{column}</TitleText>
       ))}
     </RowOuter>
-    {donations.map((donation, index) => {
-      const { project_id, message, donor_id, total_amount, donated_at } = donation;
-      const totalDonationAmount =
-        props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+    {payouts.map((payout, index) => {
+      const { amount, id, paid_at, project_id } = payout;
+      const totalPayoutAmount =
+        props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(amount);
 
       return (
         <RowOuter key={index}>
@@ -90,26 +91,9 @@ return (
             <RowText>{project_id}</RowText>
           </RowInner>
           <RowInner>
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
-                accountId: donor_id,
-                imageWrapperStyle: {
-                  height: "32px",
-                  width: "32px",
-                },
-              }}
-            />
-            <RowText>{donor_id}</RowText>
-          </RowInner>
-          <RowInner>
             <RowText>
-              {totalDonationAmount} {base_currency.toUpperCase()}
+              {totalPayoutAmount} {base_currency.toUpperCase()}
             </RowText>
-          </RowInner>
-          <RowInner>
-            <RowText>{props.daysAgo(donated_at)}</RowText>
           </RowInner>
         </RowOuter>
       );

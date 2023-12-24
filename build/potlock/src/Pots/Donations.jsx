@@ -59,8 +59,10 @@ const columns = ["Project", "Donor", "Amount", "Date"];
 
 return (
   <>
-    <props.ToDo>Add messages from donations?</props.ToDo>
+    <props.ToDo>Add totals</props.ToDo>
+    <props.ToDo>Add filters</props.ToDo>
     <props.ToDo>Order reverse chronologically</props.ToDo>
+    <props.ToDo>Add messages from donations?</props.ToDo>
     <RowOuter>
       {columns.map((column, index) => (
         <TitleText key={index}>{column}</TitleText>

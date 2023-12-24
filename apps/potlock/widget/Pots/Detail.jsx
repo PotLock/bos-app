@@ -147,6 +147,13 @@ props.navOptions = [
     href: `?tab=pot&potId=${potId}&nav=sponsors`,
   },
   {
+    label: "Payouts",
+    id: "payouts",
+    disabled: false,
+    source: `${ownerId}/widget/Pots.Payouts`,
+    href: `?tab=pot&potId=${potId}&nav=payouts`,
+  },
+  {
     label: "Settings",
     id: "settings",
     disabled: false,

@@ -1,4 +1,4 @@
-const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH } = props;
+const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH, formatDate } = props;
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
@@ -128,6 +128,7 @@ const {
   matching_pool_balance,
   registry_provider,
   cooldown_end_ms,
+  all_paid_out,
 } = potDetail;
 
 const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
@@ -141,7 +142,11 @@ const publicRoundClosed = now >= public_round_end_ms;
 const userIsAdminOrGreater = admins.includes(context.accountId) || owner === context.accountId;
 const userIsChefOrGreater = userIsAdminOrGreater || chef === context.accountId;
 
-const canPayoutsBeSet = publicRoundClosed && userIsChefOrGreater;
+const canPayoutsBeSet = publicRoundClosed && userIsChefOrGreater && !cooldown_end_ms;
+const canPayoutsBeProcessed =
+  publicRoundClosed && userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
+const cooldownPeriodInProgress = publicRoundClosed && now < cooldown_end_ms;
+const potComplete = all_paid_out;
 
 const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
@@ -150,40 +155,6 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
 const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
 
 // const publicRoundOpen = true;
-
-const formatDate = (timestamp) => {
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const date = new Date(timestamp);
-
-  const year = date.getFullYear();
-  const month = months[date.getMonth()];
-  const day = date.getDate();
-  let hour = date.getHours();
-  const minute = date.getMinutes();
-  const ampm = hour >= 12 ? "pm" : "am";
-
-  // Convert hour to 12-hour format
-  hour = hour % 12;
-  hour = hour ? hour : 12; // the hour '0' should be '12'
-
-  // Minutes should be two digits
-  const minuteFormatted = minute < 10 ? "0" + minute : minute;
-
-  return `${month} ${day}, ${year} ${hour}:${minuteFormatted}${ampm}`;
-};
 
 const daysUntil = (timestamp) => {
   const now = new Date();
@@ -234,13 +205,25 @@ const handleMatchingPoolDonation = () => {
   ];
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
-  // <---- EXTENSION WALLET HANDLING ---->
-  // TODO: COMPLETE
+  // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
 };
 
-// const handleCalculateAndSetPayouts = () => {
-//   // TODO: IMPLEMENT
-// };
+const handleProcessPayouts = () => {
+  // TODO: implement admin_process_payouts
+  const args = {};
+  const transactions = [
+    {
+      contractName: potId,
+      methodName: "admin_process_payouts",
+      deposit: "0",
+      args,
+      gas: props.ONE_TGAS.mul(100),
+    },
+  ];
+  Near.call(transactions);
+  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
+};
 
 return (
   <Container>
@@ -356,6 +339,21 @@ return (
             }}
           />
         )}
+        {canPayoutsBeProcessed && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              ...props,
+              type: "primary",
+              text: "Process Payouts",
+              onClick: handleProcessPayouts,
+            }}
+          />
+        )}
+        {cooldownPeriodInProgress && (
+          <div>Cooldown period ends on {formatDate(cooldown_end_ms)}</div>
+        )}
+        {potComplete && <div style={{ color: "red" }}>Pot complete</div>}
       </Row>
     </Column>
     <Widget

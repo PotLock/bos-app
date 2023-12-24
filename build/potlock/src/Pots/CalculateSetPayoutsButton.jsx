@@ -1,4 +1,4 @@
-// QF/CLR logic taken from https://github.com/gitcoinco/quadratic-funding/blob/master/quadratic-funding/clr.py
+// * QF/CLR logic taken from https://github.com/gitcoinco/quadratic-funding/blob/master/quadratic-funding/clr.py *
 
 const { ownerId, potId, potDetail } = props;
 

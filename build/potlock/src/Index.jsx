@@ -272,6 +272,39 @@ const props = {
   `,
   ONE_TGAS: Big(1_000_000_000_000),
   MAX_DONATION_MESSAGE_LENGTH: 100,
+  formatDate: (timestamp) => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const date = new Date(timestamp);
+
+    const year = date.getFullYear();
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    let hour = date.getHours();
+    const minute = date.getMinutes();
+    const ampm = hour >= 12 ? "pm" : "am";
+
+    // Convert hour to 12-hour format
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+
+    // Minutes should be two digits
+    const minuteFormatted = minute < 10 ? "0" + minute : minute;
+
+    return `${month} ${day}, ${year} ${hour}:${minuteFormatted}${ampm}`;
+  },
   daysAgo: (timestamp) => {
     const now = new Date();
     const pastDate = new Date(timestamp);
