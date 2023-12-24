@@ -213,7 +213,7 @@ return (
       />
     )}
     <Widget
-      src={`${ownerId}/widget/Components.NavOptionsMobile`}
+      src={`${ownerId}/widget/Project.NavOptionsMobile`}
       props={{
         ...props,
       }}
