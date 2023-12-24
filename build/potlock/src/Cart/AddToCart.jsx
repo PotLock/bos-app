@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const existsInCart = props.cart && !!props.cart[props.projectId];
 
 return (

@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const { name, description } = props.profile;
 
 const Container = styled.div`

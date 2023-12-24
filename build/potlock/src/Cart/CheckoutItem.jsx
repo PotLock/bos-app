@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const donationContractConfig = Near.view(donationContractId, "get_config", {});

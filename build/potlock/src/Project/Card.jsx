@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const Card = styled.a`

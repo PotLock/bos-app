@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 // const potFactoryContractId = "potfactory1.tests.potlock.near"; // TODO: update to production address when contract is deployed to prod
 
 // const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near";

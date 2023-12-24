@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 return (
   <>
     <Widget

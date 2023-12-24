@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const projects = props.registeredProjects || [];
 
 const projectIds = useMemo(

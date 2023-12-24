@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const renderItem = props.renderItem ?? ((item) => <div>{item}</div>);
 
 const Container = styled.div`

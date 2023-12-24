@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 

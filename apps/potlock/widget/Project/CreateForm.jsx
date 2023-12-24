@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const REGISTRY_CONTRACT_ID = "registry.potlock.near";
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";

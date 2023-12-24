@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const registryId = "registry.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";

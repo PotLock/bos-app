@@ -1,4 +1,4 @@
-const ownerId = "potlock.near";
+const { ownerId } = props;
 const registryId = "registry.potlock.near";
 
 const profile = props.profile ?? Social.getr(`${props.projectId}/profile`);

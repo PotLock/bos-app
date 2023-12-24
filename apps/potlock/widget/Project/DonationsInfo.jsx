@@ -1,6 +1,5 @@
 const donationContractId = "donate.potlock.near";
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
 const Container = styled.div`

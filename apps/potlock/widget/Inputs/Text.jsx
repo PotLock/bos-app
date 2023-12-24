@@ -1,5 +1,4 @@
-const ownerId = "potlock.near";
-
+const { ownerId } = props;
 const label = props.label ?? "";
 const placeholder = props.placeholder ?? "";
 const value = props.value ?? "";

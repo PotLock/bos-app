@@ -1,5 +1,3 @@
-const ownerId = "potlock.near";
-
 const MAX_DESCRIPTION_LENGTH = 208;
 const MAX_TITLE_LENGTH = 36;
 
@@ -53,7 +51,7 @@ const Subtitle = styled.span`
   word-wrap: break-word;
 `;
 
-const { potId, potConfig } = props;
+const { ownerId, potId, potConfig } = props;
 
 if (!potConfig) return "Loading...";
 
