@@ -256,7 +256,7 @@ const props = {
     },
   },
   POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
-  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near", "lachlanglen2.near"],
+  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near", "lachlanglen2.near", "plugrel.near"],
   ToDo: styled.div`
     position: relative;
 
