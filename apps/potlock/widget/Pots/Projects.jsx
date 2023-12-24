@@ -2,8 +2,6 @@
 const { ownerId, potId, potDetail } = props;
 
 const projects = Near.view(potId, "get_approved_applications", {});
-console.log("projects: ", projects);
-console.log("potDetail: ", potDetail);
 
 if (!projects) return "Loading...";
 
@@ -18,7 +16,6 @@ return (
     props={{
       items: projects,
       renderItem: (project) => {
-        console.log("project: ", project);
         return (
           <Widget
             src={`${ownerId}/widget/Project.Card`}

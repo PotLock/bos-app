@@ -109,8 +109,6 @@ const [totalAmount, totalDonors] = useMemo(() => {
   ];
 }, [donationsForProject]);
 
-console.log("projectId: ", projectId);
-
 return (
   <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
     <Widget

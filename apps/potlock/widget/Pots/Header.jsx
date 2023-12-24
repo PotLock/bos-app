@@ -111,7 +111,7 @@ const potDetail = Near.view(potId, "get_config", {});
 
 if (!potDetail) return "";
 
-console.log("pot config: ", potDetail);
+// console.log("pot config: ", potDetail);
 
 const {
   owner,

@@ -157,20 +157,19 @@ const tabContentWidget = {
   [POT_DETAIL_TAB]: "Pots.Detail",
 };
 
-const getWidget = (props) => {
-  if (props.tab in tabContentWidget) {
+const getTabWidget = (tab) => {
+  const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
+  if (
+    [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
+    !props.QF_WHITELISTED_ACCOUNTS.includes(props.accountId)
+  ) {
+    // if user requests a QF-related tab but is not whitelisted, redirect to projects list
+    return defaultTabWidget;
+  }
+  if (tab in tabContentWidget) {
     return tabContentWidget[props.tab];
   }
-  // default tab is projects list
-  return tabContentWidget[PROJECTS_LIST_TAB];
-};
-
-const getTabWidget = (tab) => {
-  if (tab in tabContentWidget) {
-    return tabContentWidget[tab];
-  }
-
-  return tabContentWidget[PROJECTS_LIST_TAB];
+  return defaultTabWidget;
 };
 
 const CART_KEY = "cart";
@@ -186,7 +185,6 @@ const props = {
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
     projects.forEach((item) => {
-      console.log("item: ", item);
       if (!item.ft) item.ft = "NEAR"; // default to NEAR
       cart[item.id] = item; // default to NEAR
     });

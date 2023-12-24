@@ -1,8 +1,6 @@
 // get donations
 const { ownerId, potId, potDetail, formatDate } = props;
 
-console.log("payouts: ", payouts);
-
 const TitleText = styled.div`
   color: #3d3d3d;
   font-size: 24px;

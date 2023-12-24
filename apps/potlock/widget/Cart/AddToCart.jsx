@@ -1,7 +1,5 @@
 const ownerId = "potlock.near";
 
-console.log("props.cart in AddToCart: ", props);
-
 const existsInCart = props.cart && !!props.cart[props.projectId];
 
 return (

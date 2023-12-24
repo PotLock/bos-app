@@ -64,9 +64,6 @@ State.init({
 
 const applications = Near.view(potId, "get_applications", {});
 
-console.log("applications: ", applications);
-console.log("props in Applications: ", props);
-
 if (!applications) return "Loading...";
 
 const daysAgo = (timestamp) => {
@@ -81,8 +78,6 @@ const daysAgo = (timestamp) => {
 };
 
 const { owner, admins, chef } = potDetail;
-
-console.log("pot detail: ", potDetail);
 
 const isChefOrGreater =
   context.accountId === chef || admins.includes(context.accountId) || context.accountId === owner;
