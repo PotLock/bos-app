@@ -5,6 +5,7 @@ const donations = Near.view(potId, "get_public_round_donations", {});
 
 if (!donations) return "Loading...";
 
+console.log("donations: ", donations);
 const TitleText = styled.div`
   color: #3d3d3d;
   font-size: 24px;
@@ -54,11 +55,12 @@ const daysAgo = (timestamp) => {
 
 const { base_currency } = potDetail;
 
-const columns = ["Project", "Donor", "Amount", "Message", "Date"];
+const columns = ["Project", "Donor", "Amount", "Date"];
 
 return (
   <>
     <props.ToDo>Add messages from donations?</props.ToDo>
+    <props.ToDo>Order reverse chronologically</props.ToDo>
     <RowOuter>
       {columns.map((column, index) => (
         <TitleText key={index}>{column}</TitleText>
@@ -76,20 +78,6 @@ return (
               src={`${ownerId}/widget/Project.ProfileImage`}
               props={{
                 ...props,
-                accountId: donor_id,
-                imageWrapperStyle: {
-                  height: "32px",
-                  width: "32px",
-                },
-              }}
-            />
-            <RowText>{donor_id}</RowText>
-          </RowInner>
-          <RowInner>
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
                 accountId: project_id,
                 imageWrapperStyle: {
                   height: "32px",
@@ -98,6 +86,20 @@ return (
               }}
             />
             <RowText>{project_id}</RowText>
+          </RowInner>
+          <RowInner>
+            <Widget
+              src={`${ownerId}/widget/Project.ProfileImage`}
+              props={{
+                ...props,
+                accountId: donor_id,
+                imageWrapperStyle: {
+                  height: "32px",
+                  width: "32px",
+                },
+              }}
+            />
+            <RowText>{donor_id}</RowText>
           </RowInner>
           <RowInner>
             <RowText>
@@ -110,5 +112,6 @@ return (
         </RowOuter>
       );
     })}
+    <props.ToDo>Add pagination</props.ToDo>
   </>
 );

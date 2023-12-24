@@ -214,8 +214,9 @@ return (
             <Widget
               src={`${ownerId}/widget/Project.Card`}
               props={{
-                project,
                 ...props,
+                project,
+                allowDonate: true,
               }}
             />
           ),

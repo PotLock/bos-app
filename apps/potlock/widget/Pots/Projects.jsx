@@ -1,10 +1,16 @@
 // get projects
-const { ownerId, potId } = props;
+const { ownerId, potId, potDetail } = props;
 
 const projects = Near.view(potId, "get_approved_applications", {});
 console.log("projects: ", projects);
+console.log("potDetail: ", potDetail);
 
 if (!projects) return "Loading...";
+
+const { public_round_start_ms, public_round_end_ms } = potDetail;
+
+const now = Date.now();
+const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 
 return (
   <Widget
@@ -20,6 +26,7 @@ return (
               ...props,
               potId,
               projectId: project.project_id,
+              allowDonate: publicRoundOpen && project.project_id !== context.accountId,
               // button: (
               //   <Widget
               //     src={`${ownerId}/widget/Components.Button`}

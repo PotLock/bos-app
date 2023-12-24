@@ -257,7 +257,7 @@ const props = {
     },
   },
   POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
-  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near"],
+  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near", "lachlanglen2.near"],
   ToDo: styled.div`
     position: relative;
 
@@ -279,8 +279,9 @@ const props = {
 
     // Convert time difference from milliseconds to days
     const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-
-    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
+    return differenceInDays === 0
+      ? "Just now"
+      : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
 };
 

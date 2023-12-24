@@ -107,11 +107,11 @@ State.init({
 });
 
 // console.log("props in header: ", props);
-const potConfig = Near.view(potId, "get_config", {});
+const potDetail = Near.view(potId, "get_config", {});
 
-if (!potConfig) return "";
+if (!potDetail) return "";
 
-console.log("pot config: ", potConfig);
+console.log("pot config: ", potDetail);
 
 const {
   owner,
@@ -127,7 +127,8 @@ const {
   base_currency,
   matching_pool_balance,
   registry_provider,
-} = potConfig;
+  cooldown_end_ms,
+} = potDetail;
 
 const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
   base_currency.toUpperCase()
@@ -136,17 +137,17 @@ const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
 const now = Date.now();
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+const publicRoundClosed = now >= public_round_end_ms;
+const userIsAdminOrGreater = admins.includes(context.accountId) || owner === context.accountId;
+const userIsChefOrGreater = userIsAdminOrGreater || chef === context.accountId;
+
+const canPayoutsBeSet = publicRoundClosed && userIsChefOrGreater;
 
 const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
 
-const canApply =
-  applicationOpen &&
-  !existingApplication &&
-  owner !== context.accountId &&
-  !admins.includes(context.accountId) &&
-  chef !== context.accountId;
+const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
 
 // const publicRoundOpen = true;
 
@@ -237,24 +238,9 @@ const handleMatchingPoolDonation = () => {
   // TODO: COMPLETE
 };
 
-const Status = () => {
-  if (applicationOpen) {
-    return (
-      <Row style={{ marginBottom: "8px" }}>
-        <Widget
-          src={`${ownerId}/widget/Components.Indicator`}
-          props={{
-            colorOuter: "#CAFDF3",
-            colorInner: "#33DDCB",
-          }}
-        />
-        <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
-      </Row>
-    );
-  }
-};
-
-console.log("state in header: ", state);
+// const handleCalculateAndSetPayouts = () => {
+//   // TODO: IMPLEMENT
+// };
 
 return (
   <Container>
@@ -328,16 +314,19 @@ return (
             </H3>
           </>
         )}
+        {publicRoundClosed && <props.ToDo>Add round closed indicator</props.ToDo>}
       </ColumnRightSegment>
       <Row style={{ gap: "24px" }}>
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: publicRoundOpen ? "secondary" : "primary",
-            text: "Fund matching pool",
-            onClick: handleFundMatchingPool,
-          }}
-        />
+        {now < public_round_end_ms && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: publicRoundOpen ? "secondary" : "primary",
+              text: "Fund matching pool",
+              onClick: handleFundMatchingPool,
+            }}
+          />
+        )}
         {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
@@ -355,6 +344,15 @@ return (
               type: "primary",
               text: "Donate to projects",
               href: `?tab=pot&potId=${potId}&nav=projects`,
+            }}
+          />
+        )}
+        {canPayoutsBeSet && (
+          <Widget
+            src={`${ownerId}/widget/Pots.CalculateSetPayoutsButton`}
+            props={{
+              ...props,
+              potDetail,
             }}
           />
         )}
