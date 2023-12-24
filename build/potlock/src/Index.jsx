@@ -13,6 +13,7 @@ const DEPLOY_POT_TAB = "deploypot";
 const POT_DETAIL_TAB = "pot";
 
 const Theme = styled.div`
+  position: relative;
   * {
     font-family: "Mona-Sans";
     font-style: normal;
