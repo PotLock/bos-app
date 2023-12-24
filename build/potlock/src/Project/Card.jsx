@@ -76,14 +76,14 @@ const DonationsInfoItem = styled.div`
 const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
-// if (!projectProfile) return "";
+if (!projectProfile) return "";
 
 const MAX_DESCRIPTION_LENGTH = 120;
 
-// const { name, description, category } = projectProfile;
-const name = projectProfile?.name || "No name";
-const description = projectProfile?.description || "No description";
-const category = projectProfile?.category || "No category";
+const { name, description, category } = projectProfile;
+// const name = projectProfile?.name || "No name";
+// const description = projectProfile?.description || "No description";
+// const category = projectProfile?.category || "No category";
 
 const tags = [category.text ?? props.CATEGORY_MAPPINGS[category] ?? ""];
 
