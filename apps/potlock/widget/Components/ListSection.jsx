@@ -9,18 +9,13 @@ const Container = styled.div`
 
   background: #fafafa;
 
-  // For mobile devices
-  @media screen and (max-width: 739px) {
+  // For mobile devices and tablets
+  @media screen and (max-width: 1023px) {
     padding: 48px 16px;
   }
 
-  // For tablet devices
-  @media screen and (min-width: 740px) and (max-width: 1199px) {
-    padding: 48px 0px;
-  }
-
   // For desktop devices
-  @media screen and (min-width: 1200px) {
+  @media screen and (min-width: 1024px) {
     padding: 48px 64px;
   }
 `;
@@ -35,13 +30,12 @@ const List = styled.div`
   }
 
   // For tablet devices (2 columns)
-  @media screen and (min-width: 740px) and (max-width: 1199px) {
+  @media screen and (min-width: 740px) and (max-width: 1023px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
   }
 
   // For desktop devices (3 columns)
-  @media screen and (min-width: 1200px) {
+  @media screen and (min-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
   }
 `;

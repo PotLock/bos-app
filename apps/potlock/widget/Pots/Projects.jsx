@@ -23,7 +23,7 @@ return (
               <div
                 style={{
                   width: "320px",
-                  height: "200px",
+                  height: "500px",
                   borderRadius: "12px",
                   background: "white",
                   boxShadow: "0px -2px 0px #464646 inset",
