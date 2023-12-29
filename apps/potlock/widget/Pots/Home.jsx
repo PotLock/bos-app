@@ -86,6 +86,18 @@ return (
     {state.pots && (
       <Widget
         src={`${ownerId}/widget/Components.ListSection`}
+        loading={
+          <div
+            style={{
+              width: "320px",
+              height: "200px",
+              borderRadius: "12px",
+              background: "white",
+              boxShadow: "0px -2px 0px #464646 inset",
+              border: "1px solid #292929",
+            }}
+          />
+        }
         props={{
           items: state.pots,
           renderItem: (pot) => (

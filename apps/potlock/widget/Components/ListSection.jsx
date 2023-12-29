@@ -4,48 +4,54 @@ const renderItem = props.renderItem ?? ((item) => <div>{item}</div>);
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 48px 64px;
-  gap: 40px;
   width: 100%;
   border-top: 2px #dbdbdb solid;
 
   background: #fafafa;
+
+  // For mobile devices
+  @media screen and (max-width: 739px) {
+    padding: 48px 16px;
+  }
+
+  // For tablet devices
+  @media screen and (min-width: 740px) and (max-width: 1199px) {
+    padding: 48px 0px;
+  }
+
+  // For desktop devices
+  @media screen and (min-width: 1200px) {
+    padding: 48px 64px;
+  }
 `;
 
 const List = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: 40px;
-  margin: -12px; /* Half of the margin you're giving to the children */
+  display: grid;
+  gap: 20px;
 
-  & > div {
-    margin: 12px; /* Add horizontal and vertical margins */
-
-    @media screen and (max-width: 768px) {
-      width: calc(100% - 24px); /* Subtract double the margin */
-    }
-
-    @media screen and (min-width: 768px) and (max-width: 1424px) {
-      width: calc(49% - 24px); /* Subtract double the margin */
-    }
-
-    @media screen and (min-width: 1424px) {
-      width: calc(32% - 24px); /* Subtract double the margin */
-    }
+  // For mobile devices (1 column)
+  @media screen and (max-width: 739px) {
+    grid-template-columns: repeat(1, 1fr);
   }
 
-  @media screen and (max-width: 768px) {
-    justify-content: center;
+  // For tablet devices (2 columns)
+  @media screen and (min-width: 740px) and (max-width: 1199px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  // For desktop devices (3 columns)
+  @media screen and (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
   }
 `;
 
 return (
   <Container style={props.containerStyle || {}}>
-    <List style={props.listStyle || {}}>{props.items.map((item) => renderItem(item))}</List>
+    <Widget
+      src="efiz.near/widget/ItemFeed"
+      props={{ items: props.items, perPage: 9, renderItem, renderLayout: (p) => <List>{p}</List> }}
+    />
+    {/* <List style={props.listStyle || {}}>{props.items.map((item) => renderItem(item))}</List> */}
   </Container>
 );
