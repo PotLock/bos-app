@@ -162,7 +162,7 @@ const getTabWidget = (tab) => {
   const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
   if (
     [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
-    !props.QF_WHITELISTED_ACCOUNTS.includes(props.accountId)
+    !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId)
   ) {
     // if user requests a QF-related tab but is not whitelisted, redirect to projects list
     return defaultTabWidget;
@@ -256,7 +256,14 @@ const props = {
     },
   },
   POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
-  QF_WHITELISTED_ACCOUNTS: ["lachlan.near", "potlock.near", "lachlanglen2.near", "plugrel.near", "efiz.near", "ntare.near"],
+  QF_WHITELISTED_ACCOUNTS: [
+    "lachlan.near",
+    "potlock.near",
+    "lachlanglen2.near",
+    "plugrel.near",
+    "efiz.near",
+    "ntare.near",
+  ],
   ToDo: styled.div`
     position: relative;
 
