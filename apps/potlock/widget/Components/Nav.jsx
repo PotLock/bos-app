@@ -337,7 +337,7 @@ const tabOptions = [
     link: "pots",
     disabled: !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId),
   },
-  { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
+  // { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
 ];
 
 const Modal = ({ isOpen, onClose, children }) => {
