@@ -352,7 +352,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 
 return (
   <>
-    <Banner>
+    {false && <Banner>
       <BannerAlertSvg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -386,7 +386,7 @@ return (
           ></path>
         </BannerLinkSvg>
       </BannerLinkContainer>
-    </Banner>
+    </Banner>}
     <Nav>
       <NavLeft>
         <NavLogo href={`?tab=projects`}>🫕 Potlock</NavLogo>
