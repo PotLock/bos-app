@@ -263,8 +263,10 @@ const props = {
     "plugrel.near",
     "efiz.near",
     "ntare.near",
-    "ndcplug.near".
-    "cameron.near".
+    "wendersonpires.near",
+    "superposition.near",
+    "jiyuan.near",
+    "ndcplug.near","cameron.near",
     "magicbuild.near",
   "nadabot.near",
   "ndcdev.near",
