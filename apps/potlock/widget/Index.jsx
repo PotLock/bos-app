@@ -263,6 +263,27 @@ const props = {
     "plugrel.near",
     "efiz.near",
     "ntare.near",
+    "ndcplug.near".
+    "cameron.near".
+    "magicbuild.near",
+  "nadabot.near",
+  "ndcdev.near",
+  "flowscience.near",
+  "ogruss.near",
+  "james.near",
+  "kurodenjiro.near",
+  "dkritik007.near",
+  "proofofvibes.near",
+  "genadrop.near",
+  "evrything.near",
+  "baam25.near",
+  "sharddog.near",
+  "grift.near",
+  "publicgoodspodcast.near",
+  "agwaze.near",
+  "jgodwill.near",
+  "0xprometheus.near",
+  "minorityprogrammers.near",
   ],
   ToDo: styled.div`
     position: relative;
