@@ -1,5 +1,6 @@
 const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
+const daoId = (props.daoId = "build.sputnik-dao.near");
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;
@@ -213,6 +214,57 @@ const handleDonate = () => {
   }, pollIntervalMs);
 };
 
+const policy = Near.view(daoId, "get_policy");
+
+const daoposit = policy.proposal_bond;
+
+const handleDaonate = () => {
+  const transactions = [];
+  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, potId }]) => {
+    const amountFloat = parseFloat(amount || 0);
+    const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
+    const donateContractArgs = {};
+    const potContractArgs = {};
+    if (potId) {
+      potContractArgs.project_id = projectId;
+      potContractArgs.referrer_id = referrerId;
+    } else {
+      donateContractArgs.recipient_id = projectId;
+      donateContractArgs.referrer_id = referrerId;
+    }
+    const donation_args = potId
+      ? JSON.stringify(potContractArgs)
+      : JSON.stringify(donateContractArgs);
+    const proposal_args = Buffer.from(donation_args, "utf-8").toString("base64");
+    transactions.push({
+      contractName: daoId,
+      methodName: "add_proposal",
+      args: {
+        proposal: {
+          description: `donate ${amount} NEAR to ${projectId} via PotLock`,
+          kind: {
+            FunctionCall: {
+              receiver_id: donationContractId,
+              actions: [
+                {
+                  method_name: "donate",
+                  args: proposal_args,
+                  deposit: amountIndivisible.toString(),
+                  gas: "219000000000000",
+                },
+              ],
+            },
+          },
+        },
+      },
+      deposit: daoposit,
+      gas: "219000000000000",
+    });
+  });
+  const now = Date.now();
+  Near.call(transactions);
+};
+
 // console.log("props in breakdown: ", props);
 
 return (
@@ -260,6 +312,22 @@ return (
         }`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
+        style: {
+          width: "100%",
+        },
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Components.Button`}
+      props={{
+        type: "secondary",
+        text: `Propose to DAOnate ${
+          props.nearToUsd
+            ? `$${(totalAmount * props.nearToUsd).toFixed(2)}`
+            : `${totalAmount.toFixed(2)} N`
+        }`,
+        disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
+        onClick: handleDaonate,
         style: {
           width: "100%",
         },
