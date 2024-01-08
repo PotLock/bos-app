@@ -5,9 +5,7 @@ const Card = styled.a`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 30%;
-  min-width: 320px;
-  border-radius: 7px;
+  border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
   border: 1px solid #dbdbdb;
@@ -15,6 +13,9 @@ const Card = styled.a`
     text-decoration: none;
     cursor: pointer;
   }
+  margin-left: auto;
+  margin-right: auto;
+  height: 500px;
 `;
 
 const Info = styled.div`
@@ -34,6 +35,10 @@ const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
   color: #2e2e2e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 `;
 
 const SubTitle = styled.div`
@@ -78,7 +83,7 @@ const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
 
-const MAX_DESCRIPTION_LENGTH = 120;
+const MAX_DESCRIPTION_LENGTH = 80;
 
 const { name, description, category } = projectProfile;
 // const name = projectProfile?.name || "No name";

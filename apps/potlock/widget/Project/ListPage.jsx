@@ -216,12 +216,12 @@ return (
               loading={
                 <div
                   style={{
-                    width: "320px",
+                    width: "100%",
                     height: "500px",
                     borderRadius: "12px",
                     background: "white",
-                    boxShadow: "0px -2px 0px #464646 inset",
-                    border: "1px solid #292929",
+                    boxShadow: "0px -2px 0px #dbdbdb inset",
+                    border: "1px solid #dbdbdb",
                   }}
                 />
               }
