@@ -264,6 +264,7 @@ const props = {
     "efiz.near",
     "orasci-contributor.near",
     "ntare.near",
+    "chrestomanci.near",
     "wendersonpires.near",
     "superposition.near",
     "jiyuan.near",
