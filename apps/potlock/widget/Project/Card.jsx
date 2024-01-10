@@ -96,6 +96,8 @@ const donationsForProject = Near.view(donationContractId, "get_donations_for_rec
   recipient_id: projectId,
 });
 
+console.log(donationsForProject);
+
 const [totalAmount, totalDonors] = useMemo(() => {
   if (!donationsForProject) return [null, null];
   const donors = [];

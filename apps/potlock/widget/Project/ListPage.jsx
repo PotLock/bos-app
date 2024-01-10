@@ -5,6 +5,8 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
 
+console.log(Social.getr(`${id}/profile`));
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -202,10 +204,6 @@ return (
       />
     </HeroContainer>
     <ProjectsContainer>
-      <SectionHeader>
-        <SectionTitle>All projects</SectionTitle>
-        <ProjectsCount>{projects.length}</ProjectsCount>
-      </SectionHeader>
       <Widget
         src={`${ownerId}/widget/Components.ListSection`}
         props={{
