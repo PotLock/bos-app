@@ -11,11 +11,9 @@ const donationContractId = "donate.potlock.near";
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
-const [filterType, setFilterType] = useState(null);
+const [searchTerm, setSearchTerm] = useState(null);
 
 if (!totalProjects) return "loading";
-
-console.log(totalProjects);
 
 const loadProjects = () => {
   setLastNumberOfProject(lastNumberOfProject + 9);
@@ -121,6 +119,9 @@ const sortOldToNew = (projects) => {
 
 useEffect(() => {
   const newTotalProjects = [];
+  for (const project of totalProjects) {
+    console.log(Social.getr(`${project.id}/profile`));
+  }
   const promises = totalProjects.map((project) => {
     return Near.asyncView(donationContractId, "get_donations_for_recipient", {
       recipient_id: project.id,
@@ -129,12 +130,12 @@ useEffect(() => {
       newTotalProjects.push({ ...project, total });
     });
   });
-  Promise.all(promises).then((allProjects) => {
+  Promise.all(promises).then(() => {
     setTotalProjects(newTotalProjects);
   });
 }, []);
 
-useEffect(() => {
+const handleFilterChange = (filterType) => {
   switch (filterType) {
     case "Newest to Oldest":
       sortNewToOld(totalProjects);
@@ -149,7 +150,7 @@ useEffect(() => {
       sortLowestToHighest(totalProjects);
       break;
   }
-}, [filterType]);
+};
 
 const Container = styled.div`
   display: flex;
@@ -223,6 +224,14 @@ const Tag = styled.div`
   }
 `;
 
+const OnBottom = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`;
+
 return (
   <Container>
     <Header>
@@ -232,12 +241,12 @@ return (
       <Widget
         src={"orasci-contributor.near/widget/Potlock.Home.SearchBar"}
         props={{
-          sortNewToOld: (project) => sortNewToOld(project),
-          sortOldToNew: (project) => sortOldToNew(project),
           projectLength: totalProjects.length,
-          filterList: filterList,
-          setFilterType: (filter) => {
-            setFilterType(filter);
+          setSearchTerm: (value) => {
+            setSearchTerm(value);
+          },
+          handleFilterChange: (filter) => {
+            handleFilterChange(filter);
           },
         }}
       />
@@ -251,5 +260,6 @@ return (
     <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
       <ProjectList>{displayProject}</ProjectList>
     </InfiniteScroll>
+    {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
   </Container>
 );
