@@ -224,6 +224,14 @@ const Tag = styled.div`
   }
 `;
 
+const OnBottom = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`;
+
 return (
   <Container>
     <Header>
@@ -252,5 +260,6 @@ return (
     <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
       <ProjectList>{displayProject}</ProjectList>
     </InfiniteScroll>
+    {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
   </Container>
 );
