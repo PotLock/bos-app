@@ -827,8 +827,6 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-// console.log("state: ", state);
-
 return (
   <Container>
     {!state.socialDataFetched || !projects ? (

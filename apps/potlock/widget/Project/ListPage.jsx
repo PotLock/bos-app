@@ -5,8 +5,6 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
 
-console.log(Social.getr(`${id}/profile`));
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -208,28 +206,7 @@ return (
         src={`${ownerId}/widget/Components.ListSection`}
         props={{
           items: projects,
-          renderItem: (project) => (
-            <Widget
-              src={`${ownerId}/widget/Project.Card`}
-              loading={
-                <div
-                  style={{
-                    width: "100%",
-                    height: "500px",
-                    borderRadius: "12px",
-                    background: "white",
-                    boxShadow: "0px -2px 0px #dbdbdb inset",
-                    border: "1px solid #dbdbdb",
-                  }}
-                />
-              }
-              props={{
-                ...props,
-                project,
-                allowDonate: true,
-              }}
-            />
-          ),
+          ...props,
         }}
       />
     </ProjectsContainer>
