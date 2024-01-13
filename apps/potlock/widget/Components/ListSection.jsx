@@ -1,28 +1,166 @@
 const { ownerId } = props;
-const renderItem = props.renderItem ?? ((item) => <div>{item}</div>);
+const filterList = [
+  "Newest to Oldest",
+  "Oldest to Newest",
+  "Most to Least Donations",
+  "Least to Most Donations",
+];
+const tagsList = ["DeFi", "Open source", "Non profit"];
+const donationContractId = "donate.potlock.near";
+
+const [totalProjects, setTotalProjects] = useState(props.items);
+const [displayProject, setDisplayProject] = useState([]);
+const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
+const [filterType, setFilterType] = useState(null);
+
+if (!totalProjects) return "loading";
+
+console.log(totalProjects);
+
+const loadProjects = () => {
+  setLastNumberOfProject(lastNumberOfProject + 9);
+  setDisplayProject(
+    totalProjects
+      .slice(0, lastNumberOfProject + 9)
+      .map((item) => (
+        <Widget
+          src={"orasci-contributor.near/widget/Potlock.Components.ProjectCard"}
+          props={{ ...item, totalAmount: (donations) => totalAmount(donations) }}
+          key={key}
+        />
+      ))
+  );
+};
+
+const totalAmount = (donations) => {
+  if (!donations) return 0;
+  let totalDonationAmount = new Big(0);
+  for (const donation of donations) {
+    totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+  }
+  return props.nearToUsd
+    ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
+    : totalDonationAmount.div(1e24).toNumber().toFixed(2);
+};
+
+const sortHighestToLowest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) > 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+
+  setTotalProjects(projects);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
+
+const sortLowestToHighest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) < 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+
+  setTotalProjects(projects);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
+
+const sortNewToOld = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms < projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setTotalProjects(projects);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
+
+const sortOldToNew = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms > projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setTotalProjects(projects);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
+
+useEffect(() => {
+  const newTotalProjects = [];
+  const promises = totalProjects.map((project) => {
+    return Near.asyncView(donationContractId, "get_donations_for_recipient", {
+      recipient_id: project.id,
+    }).then((res) => {
+      const total = totalAmount(res);
+      newTotalProjects.push({ ...project, total });
+    });
+  });
+  Promise.all(promises).then((allProjects) => {
+    setTotalProjects(newTotalProjects);
+  });
+}, []);
+
+useEffect(() => {
+  switch (filterType) {
+    case "Newest to Oldest":
+      sortNewToOld(totalProjects);
+      break;
+    case "Oldest to Newest":
+      sortOldToNew(totalProjects);
+      break;
+    case "Most to Least Donations":
+      sortHighestToLowest(totalProjects);
+      break;
+    case "Least to Most Donations":
+      sortLowestToHighest(totalProjects);
+      break;
+  }
+}, [filterType]);
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-top: 2px #dbdbdb solid;
-
-  background: #fafafa;
-
-  // For mobile devices and tablets
-  @media screen and (max-width: 1023px) {
-    padding: 48px 16px;
-  }
-
-  // For desktop devices
-  @media screen and (min-width: 1024px) {
-    padding: 48px 64px;
-  }
+  gap: 48px;
 `;
 
-const List = styled.div`
+const ProjectList = styled.div`
   display: grid;
-  gap: 20px;
+  gap: 31px;
 
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
@@ -40,12 +178,78 @@ const List = styled.div`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+`;
+
+const Title = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 1.12px;
+  text-transform: uppercase;
+`;
+
+const TagsWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+  color: #292929;
+`;
+
+const Tag = styled.div`
+  display: flex;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0px -1px 0px 0px #c7c7c7 inset, 0px 0px 0px 0.5px #c7c7c7;
+  border: 1px solid #c7c7c7;
+  &:hover {
+    background: #fef6ee;
+  }
+`;
+
 return (
-  <Container style={props.containerStyle || {}}>
-    <Widget
-      src="efiz.near/widget/ItemFeed"
-      props={{ items: props.items, perPage: 9, renderItem, renderLayout: (p) => <List>{p}</List> }}
-    />
-    {/* <List style={props.listStyle || {}}>{props.items.map((item) => renderItem(item))}</List> */}
+  <Container>
+    <Header>
+      <Title>all projects {totalProjects.length}</Title>
+
+      {/* Search bar */}
+      <Widget
+        src={"orasci-contributor.near/widget/Potlock.Home.SearchBar"}
+        props={{
+          sortNewToOld: (project) => sortNewToOld(project),
+          sortOldToNew: (project) => sortOldToNew(project),
+          projectLength: totalProjects.length,
+          filterList: filterList,
+          setFilterType: (filter) => {
+            setFilterType(filter);
+          },
+        }}
+      />
+      <TagsWrapper>
+        Tags:
+        {tagsList.map((tag, key) => (
+          <Tag key={key}>{tag}</Tag>
+        ))}
+      </TagsWrapper>
+    </Header>
+    <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
+      <ProjectList>{displayProject}</ProjectList>
+    </InfiniteScroll>
   </Container>
 );
