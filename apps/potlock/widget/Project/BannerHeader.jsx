@@ -6,6 +6,8 @@ if (!accountId) {
 
 const editable = props.bgImageOnChange && props.profileImageOnChange;
 
+console.log(props);
+
 // const link =
 //   props.link &&
 //   (props.link === true
@@ -39,8 +41,6 @@ const ProfileImageContainer = styled.div`
   transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 240}px);`}
   width: ${props.imageStyle?.width ?? "80px"};
   height: ${props.imageStyle?.height ?? "80px"};
-  z-index: 7;
-  position: relative;
 
   img {
     width: ${props.imageStyle?.width ?? "80px"};
@@ -87,7 +87,6 @@ const ProfileImageContainer = styled.div`
     border-radius: 50%;
     background-color: rgba(45.9, 45.9, 45.9, 0); // Start with transparent overlay
     transition: background-color 0.3s; // Smooth transition for the overlay
-    z-index: 1;
     pointer-events: none;
 
     @media screen and (max-width: 768px) {
@@ -137,7 +136,6 @@ const BackgroundImageContainer = styled.div`
     height: ${backgroundStyle.height ?? "100%"};
     background-color: rgba(45.9, 45.9, 45.9, 0); // Start with transparent overlay
     transition: background-color 0.3s; // Smooth transition for the overlay
-    z-index: 1;
     pointer-events: none;
   }
 
@@ -193,17 +191,6 @@ return (
   <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
     {backgroundImage && (
       <BackgroundImageContainer>
-        <Widget
-          src="mob.near/widget/Image"
-          props={{
-            image: backgroundImage,
-            alt: "profile background",
-            className: "position-absolute w-100",
-            style: { ...backgroundStyle, pointerEvents: "none" },
-            fallbackUrl:
-              "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-          }}
-        />
         <CameraSvg height={48} />
         {editable && (
           <Files
@@ -211,53 +198,74 @@ return (
             accepts={["image/*"]}
             minFileSize={1}
             style={{
-              zIndex: 4,
               width: "100%",
               height: backgroundStyle.height ?? "100%",
-              position: "absolute",
             }}
             clickable
             onChange={props.bgImageOnChange}
-          />
+          >
+            <Widget
+              src="mob.near/widget/Image"
+              props={{
+                image: backgroundImage,
+                alt: "profile background",
+                className: "position-absolute w-100",
+                style: { ...backgroundStyle },
+                fallbackUrl:
+                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+              }}
+            />
+          </Files>
         )}
       </BackgroundImageContainer>
     )}
+    {/* "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm"; */}
     <ProfileImageContainer
-      className="profile-picture d-inline-block"
+      class="profile-picture d-inline-block"
       profileImageTranslateYPx={props.profileImageTranslateYPx}
       profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
     >
-      <Widget
-        src={`${ownerId}/widget/Project.ProfileImage`}
-        // image={profileImage}
-        props={{
-          profile,
-          accountId,
-          style: { ...imageStyle },
-          // imageStyle: { ...imageStyle },
-          className: "mb-2",
-          imageClassName: "rounded-circle w-100 img-thumbnail d-block",
-          thumbnail: false,
-          image: profileImage,
-        }}
-      />
       <CameraSvg height={24} />
-      {editable && (
-        // TODO: FIGURE OUT WHY THIS ISN'T DISPLAYING ON TOP OF THE PROFILE IMAGE (currently displaying below despite absolute positioning 🤨)
-        <Files
-          multiple={false}
-          accepts={["image/*"]}
-          minFileSize={1}
-          style={{
-            zIndex: 6,
-            width: "100%",
-            height: "80px",
-            position: "absolute",
+      <Files
+        multiple={false}
+        accepts={["image/*"]}
+        minFileSize={1}
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "100%",
+          overflow: "hidden",
+        }}
+        clickable
+        onChange={props.profileImageOnChange}
+      >
+        <Widget
+          src="mob.near/widget/Image"
+          props={{
+            image: profileImage,
+            alt: "profile avatar",
+            className:
+              "position-absolute w-100 rounded-circle w-100 img-thumbnail d-block overflow-hidden mb-2",
+            style: { ...imageStyle },
+            fallbackUrl:
+              "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm",
           }}
-          clickable
-          onChange={props.profileImageOnChange}
         />
-      )}
+        {/* <Widget
+          src={`${ownerId}/widget/Project.ProfileImage`}
+          // image={profileImage}
+          props={{
+            profile,
+            accountId,
+            style: { ...imageStyle },
+            // imageStyle: { ...imageStyle },
+            className: "mb-2",
+            imageClassName: "rounded-circle w-100 img-thumbnail d-block",
+            thumbnail: false,
+            image: profileImage,
+          }}
+        /> */}
+      </Files>
     </ProfileImageContainer>
     {props.children && props.children}
   </Container>
