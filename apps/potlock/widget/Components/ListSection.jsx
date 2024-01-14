@@ -1,13 +1,12 @@
-const { ownerId } = props;
+const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen } = props;
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
   "Most to Least Donations",
   "Least to Most Donations",
 ];
-const tagsList = ["DeFi", "Open source", "Non profit"];
+const tagsList = ["DeFi", "Open Source", "Non Profit", "Social Impact", "Climate", "Public Good", "Community", "Education"];
 const donationContractId = "donate.potlock.near";
-
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
@@ -15,18 +14,31 @@ const [searchTerm, setSearchTerm] = useState(null);
 
 if (!totalProjects) return "loading";
 
+console.log(props);
+
 const loadProjects = () => {
   setLastNumberOfProject(lastNumberOfProject + 9);
   setDisplayProject(
-    totalProjects
-      .slice(0, lastNumberOfProject + 9)
-      .map((item) => (
-        <Widget
-          src={"orasci-contributor.near/widget/Potlock.Components.ProjectCard"}
-          props={{ ...item, totalAmount: (donations) => totalAmount(donations) }}
-          key={key}
-        />
-      ))
+    totalProjects.slice(0, lastNumberOfProject + 9).map((item) => (
+      <Widget
+        src={"orasci-contributor.near/widget/Potlock.Components.ProjectCard"}
+        props={{
+          ...item,
+          isExistedInCart: props.cart && !!props.cart[item.id],
+          removeProjectsFromCart: (projectId) => {
+            removeProjectsFromCart(projectId);
+          },
+          addProjectsToCart: (project) => {
+            addProjectsToCart(project);
+          },
+          setIsCartModalOpen: (isOpen) => {
+            setIsCartModalOpen(isOpen);
+          },
+          totalAmount: (donations) => totalAmount(donations),
+        }}
+        key={key}
+      />
+    ))
   );
 };
 
@@ -119,9 +131,6 @@ const sortOldToNew = (projects) => {
 
 useEffect(() => {
   const newTotalProjects = [];
-  for (const project of totalProjects) {
-    console.log(Social.getr(`${project.id}/profile`));
-  }
   const promises = totalProjects.map((project) => {
     return Near.asyncView(donationContractId, "get_donations_for_recipient", {
       recipient_id: project.id,

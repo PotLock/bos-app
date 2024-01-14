@@ -827,8 +827,6 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-// console.log("state: ", state);
-
 return (
   <Container>
     {!state.socialDataFetched || !projects ? (
@@ -1205,6 +1203,21 @@ return (
                     // TODO: add validation
                   },
                   error: state.githubError,
+                }}
+              />
+              <Space height={24} />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "Website",
+                  preInputChildren: <InputPrefix>https://</InputPrefix>,
+                  inputStyles: { borderRadius: "0px 4px 4px 0px" },
+                  value: state.website,
+                  onChange: (website) => State.update({ website }),
+                  validate: () => {
+                    // TODO: add validation
+                  },
+                  error: state.websiteError,
                 }}
               />
               <Space height={24} />
