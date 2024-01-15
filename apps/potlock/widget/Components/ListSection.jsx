@@ -58,7 +58,6 @@ const handleTag = (key) => {
   console.log(tagsList[key].value);
   const tags = tagsList
   tags[key].selected = !tagsList[key].selected
-  let findId = []
   const dataArr = props.items;
   let tagSelected = []
   tagsList.forEach(tag=>{
@@ -69,7 +68,6 @@ const handleTag = (key) => {
   let projectFilterBySearch = []
   dataArr.forEach(item=>{
    const data = Social.getr(`${item.id}/profile`);
-   //console.log("social",data)
    tagSelected.forEach(tag=>{
       
     if(data.category== tag ) {
@@ -77,8 +75,13 @@ const handleTag = (key) => {
     }
   })
    });
-   console.log("projectFilterBySearch",projectFilterBySearch)
-   setTotalProjects(projectFilterBySearch);
+   if(tagSelected.length == 0){
+    setTotalProjects(dataArr);
+   }else{
+    setTotalProjects(projectFilterBySearch);
+   }
+   console.log("tagsList",tagSelected)
+   
    setDisplayProject([]);
    setLastNumberOfProject(0);
 
