@@ -283,7 +283,7 @@ return (
 
       {/* Search bar */}
       <Widget
-        src={`${ownerId}/widget/Potlock.Home.SearchBar`}
+        src={`${ownerId}/widget/Project.SearchBar`}
         props={{
           projectLength: totalProjects.length,
           setSearchTerm: (value) => {
