@@ -24,6 +24,7 @@ const [searchTerm, setSearchTerm] = useState(null);
 if (!totalProjects) return "loading";
 
 const loadProjects = () => {
+  
   setLastNumberOfProject(lastNumberOfProject + 9);
   setDisplayProject(
     totalProjects.slice(0, lastNumberOfProject + 9).map((item) => (
@@ -135,6 +136,32 @@ const sortOldToNew = (projects) => {
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
+const searchByWords = (projects,searchTerm) => {
+ let findId = []
+ const dataArr = props.items;
+ dataArr.forEach(item=>{
+  const data = Social.getr(`${item.id}/profile`);
+
+  if(data){
+    if( data.description.toLowerCase().includes(searchTerm.toLowerCase()) || data.name.toLowerCase().includes(searchTerm.toLowerCase()) ){
+      findId.push(item.id)
+    }
+  }
+
+ })
+  let projectFilterBySearch = []
+  projects.forEach(project=>{
+    console.log(project);
+    findId.forEach(id=>{
+      if(project.id  == id ){
+        projectFilterBySearch.push(project)
+      }
+    })
+  })
+  setTotalProjects(projectFilterBySearch);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
 
 useEffect(() => {
   const newTotalProjects = [];
@@ -165,6 +192,7 @@ const handleFilterChange = (filterType) => {
     case "Least to Most Donations":
       sortLowestToHighest(totalProjects);
       break;
+
   }
 };
 
@@ -255,10 +283,11 @@ return (
 
       {/* Search bar */}
       <Widget
-        src={`${ownerId}/widget/Project.SearchBar`}
+        src={`${ownerId}/widget/Potlock.Home.SearchBar`}
         props={{
           projectLength: totalProjects.length,
           setSearchTerm: (value) => {
+            searchByWords(totalProjects,value)
             setSearchTerm(value);
           },
           handleFilterChange: (filter) => {
