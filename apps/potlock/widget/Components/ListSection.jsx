@@ -150,8 +150,7 @@ const searchByWords = (projects,searchTerm) => {
 
  })
   let projectFilterBySearch = []
-  projects.forEach(project=>{
-    console.log(project);
+  dataArr.forEach(project=>{
     findId.forEach(id=>{
       if(project.id  == id ){
         projectFilterBySearch.push(project)
