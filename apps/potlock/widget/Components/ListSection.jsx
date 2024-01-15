@@ -5,7 +5,16 @@ const filterList = [
   "Most to Least Donations",
   "Least to Most Donations",
 ];
-const tagsList = ["DeFi", "Open Source", "Non Profit", "Social Impact", "Climate", "Public Good", "Community", "Education"];
+const tagsList = [
+  "DeFi",
+  "Open Source",
+  "Non Profit",
+  "Social Impact",
+  "Climate",
+  "Public Good",
+  "Community",
+  "Education",
+];
 const donationContractId = "donate.potlock.near";
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
@@ -14,14 +23,12 @@ const [searchTerm, setSearchTerm] = useState(null);
 
 if (!totalProjects) return "loading";
 
-console.log(props);
-
 const loadProjects = () => {
   setLastNumberOfProject(lastNumberOfProject + 9);
   setDisplayProject(
     totalProjects.slice(0, lastNumberOfProject + 9).map((item) => (
       <Widget
-        src={"orasci-contributor.near/widget/Potlock.Components.ProjectCard"}
+        src={`${ownerId}/widget/Components.ProjectCard`}
         props={{
           ...item,
           isExistedInCart: props.cart && !!props.cart[item.id],
@@ -248,7 +255,7 @@ return (
 
       {/* Search bar */}
       <Widget
-        src={"orasci-contributor.near/widget/Potlock.Home.SearchBar"}
+        src={`${ownerId}/widget/Project.SearchBar`}
         props={{
           projectLength: totalProjects.length,
           setSearchTerm: (value) => {
