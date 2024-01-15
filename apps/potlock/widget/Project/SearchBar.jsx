@@ -1,12 +1,11 @@
-const {
-  sortNewToOld,
-  sortOldToNew,
-  projectLength,
-  filterList,
-  setFilterType,
-  isHasSearchingWord,
-  setSearchTerm,
-} = props;
+const { projectLength, handleFilterChange, setSearchTerm } = props;
+
+const filterList = [
+  "Newest to Oldest",
+  "Oldest to Newest",
+  "Most to Least Donations",
+  "Least to Most Donations",
+];
 
 const [openFilter, setOpenFilter] = useState(false);
 
@@ -58,7 +57,7 @@ const FilterIcon = styled.div`
 
 const FilterMenu = styled.div`
   position: absolute;
-  background: #fff;
+  background: #FFF;
   top: 100%;
   right: 0;
   padding: 8px;
@@ -66,9 +65,8 @@ const FilterMenu = styled.div`
   flex-direction: column;
   gap: 8px;
   border-radius: 6px;
-  border: 1px solid rgba(41, 41, 41, 0.36);
-  box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
-    0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
+  border: 1px solid rgba(41, 41, 41, 0.36); 
+  box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32), 0px 4px 8px -3px rgba(123, 123, 123, 0.20), 0px 0px 2px 0px rgba(123, 123, 123, 0.36); 
 `;
 
 const FilterItem = styled.div`
@@ -78,9 +76,9 @@ const FilterItem = styled.div`
   gap: 12px;
   white-space: nowrap;
   &:hover {
-    background: #dd3345;
-    color: #fff;
-    border-radius: 6px;
+      background: #dd3345;
+      color: #FFF;
+      border-radius: 6px;
   }
 `;
 
@@ -102,11 +100,13 @@ return (
         />
       </svg>
     </SearchIcon>
-    <SearchBar placeholder={`Search (${projectLength}) projects`} onChange={onSearchChange} />
+    <SearchBar
+      placeholder={`Search (${projectLength}) projects`}
+      onChange={onSearchChange}
+    />
     <div
       style={{ position: "relative" }}
-      onMouseOver={() => setOpenFilter(true)}
-      onMouseOut={() => setOpenFilter(false)}
+      onClick={() => setOpenFilter(!openFilter)}
     >
       <FilterButton>
         Sort
@@ -126,9 +126,9 @@ return (
         </FilterIcon>
       </FilterButton>
       {openFilter && (
-        <FilterMenu>
+        <FilterMenu onClick={(e) => e.stopPropagation()}>
           {filterList.map((filter, key) => (
-            <FilterItem key={key} onClick={() => setFilterType(filter)}>
+            <FilterItem key={key} onClick={() => handleFilterChange(filter)}>
               {filter}
             </FilterItem>
           ))}
