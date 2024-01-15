@@ -5,22 +5,86 @@ const filterList = [
   "Most to Least Donations",
   "Least to Most Donations",
 ];
-const tagsList = [
-  "DeFi",
-  "Open Source",
-  "Non Profit",
-  "Social Impact",
-  "Climate",
-  "Public Good",
-  "Community",
-  "Education",
-];
+
 const donationContractId = "donate.potlock.near";
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
 const [searchTerm, setSearchTerm] = useState(null);
+const [tab, setTab] = useState("DeFi");
+const [tagsList, setTagsList] = useState([
+  {
+    label :"DeFi",
+    value :"defi",
+    selected:false
+  },
+  {
+    label :"Open Source",
+    value :"open-source",
+    selected:false
+  },
+  {
+    label :"Non Profit",
+    value :"non-profit",
+    selected:false
+  },
+  {
+    label :"Social Impact",
+    value :"social-impact",
+    selected:false
+  },
+  {
+    label :"Climate",
+    value :"climate",
+    selected:false
+  },
+  {
+    label :"Public Good",
+    value :"public-good",
+    selected:false
+  },
+  {
+    label :"Community",
+    value :"community",
+    selected:false
+  },
+  {
+    label :"Education",
+    value :"education",
+    selected:false
+  },
+]);
+const handleTag = (key) => {
+  console.log(tagsList[key].value);
+  const tags = tagsList
+  tags[key].selected = !tagsList[key].selected
+  let findId = []
+  const dataArr = props.items;
+  let tagSelected = []
+  tagsList.forEach(tag=>{
+    if(tag.selected){
+      tagSelected.push(tag.value)
+    }
+  })
+  let projectFilterBySearch = []
+  dataArr.forEach(item=>{
+   const data = Social.getr(`${item.id}/profile`);
+   //console.log("social",data)
+   tagSelected.forEach(tag=>{
+      
+    if(data.category== tag ) {
+      projectFilterBySearch.push(item)
+    }
+  })
+   });
+   console.log("projectFilterBySearch",projectFilterBySearch)
+   setTotalProjects(projectFilterBySearch);
+   setDisplayProject([]);
+   setLastNumberOfProject(0);
 
+
+  setTagsList(tags)
+};
 if (!totalProjects) return "loading";
 
 const loadProjects = () => {
@@ -141,7 +205,6 @@ const searchByWords = (projects,searchTerm) => {
  const dataArr = props.items;
  dataArr.forEach(item=>{
   const data = Social.getr(`${item.id}/profile`);
-
   if(data){
     if( data.description.toLowerCase().includes(searchTerm.toLowerCase()) || data.name.toLowerCase().includes(searchTerm.toLowerCase()) ){
       findId.push(item.id)
@@ -296,8 +359,18 @@ return (
       />
       <TagsWrapper>
         Tags:
-        {tagsList.map((tag, key) => (
-          <Tag key={key}>{tag}</Tag>
+        { tagsList.map((tag, key) => (
+          <Tag
+          key={key}
+          onClick={() => handleTag(key)}
+          className={`${
+            tag.selected && "gap-2 bg-[#FEF6EE]" 
+          } p-2 rounded border text-sm flex items-center  cursor-pointer`}>
+          {tag.selected && (
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z" fill="#F4B37D"></path></svg>
+          ) }
+          {tag.label}
+          </Tag>
         ))}
       </TagsWrapper>
     </Header>
