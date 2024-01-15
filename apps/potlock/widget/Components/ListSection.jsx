@@ -12,6 +12,29 @@ const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
 const [searchTerm, setSearchTerm] = useState(null);
 const [tab, setTab] = useState("DeFi");
+const [featuredProjects, setFeaturedProjects] = useState([
+  {
+      "id": "magicbuild.near",
+      "status": "Approved",
+      "submitted_ms": 1698226284754,
+      "updated_ms": 1698226284754,
+      "review_notes": null
+  },
+  {
+      "id": "potlock.near",
+      "status": "Approved",
+      "submitted_ms": 1698437495305,
+      "updated_ms": 1698437495305,
+      "review_notes": null
+  },
+  {
+    "id": "nadabot.near",
+    "status": "Approved",
+    "submitted_ms": 1703055390614,
+    "updated_ms": 1703055390614,
+    "review_notes": null
+}
+]);
 const [tagsList, setTagsList] = useState([
   {
     label :"DeFi",
@@ -206,8 +229,10 @@ const sortOldToNew = (projects) => {
 const searchByWords = (projects,searchTerm) => {
  let findId = []
  const dataArr = props.items;
+ let alldata=[];
  dataArr.forEach(item=>{
   const data = Social.getr(`${item.id}/profile`);
+  alldata.push(data);
   if(data){
     if( data.description.toLowerCase().includes(searchTerm.toLowerCase()) || data.name.toLowerCase().includes(searchTerm.toLowerCase()) ){
       findId.push(item.id)
@@ -215,6 +240,7 @@ const searchByWords = (projects,searchTerm) => {
   }
 
  })
+ 
   let projectFilterBySearch = []
   dataArr.forEach(project=>{
     findId.forEach(id=>{
@@ -224,6 +250,7 @@ const searchByWords = (projects,searchTerm) => {
     })
   })
   setTotalProjects(projectFilterBySearch);
+  console.log("projectFilterBySearch",projectFilterBySearch)
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
@@ -342,6 +369,37 @@ const OnBottom = styled.div`
 `;
 
 return (
+  <>
+  <Container>
+  <Header>
+    <Title>Featured projects</Title>
+
+  </Header>
+ 
+    <ProjectList>
+      {featuredProjects.map(item=>(
+      <Widget
+      src={`${ownerId}/widget/Components.ProjectCard`}
+      props={{
+        ...item,
+        isExistedInCart: props.cart && !!props.cart[item.id],
+        removeProjectsFromCart: (projectId) => {
+          removeProjectsFromCart(projectId);
+        },
+        addProjectsToCart: (project) => {
+          addProjectsToCart(project);
+        },
+        setIsCartModalOpen: (isOpen) => {
+          setIsCartModalOpen(isOpen);
+        },
+        totalAmount: (donations) => totalAmount(donations),
+      }}
+      key={key}
+    />
+      ))}
+</ProjectList>
+  <OnBottom></OnBottom>
+</Container>
   <Container>
     <Header>
       <Title>all projects {totalProjects.length}</Title>
@@ -382,4 +440,5 @@ return (
     </InfiniteScroll>
     {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
   </Container>
+  </>
 );
