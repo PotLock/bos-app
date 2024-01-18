@@ -87,7 +87,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Components.ListSection`}
         props={{
-          ..props
+          ...props,
           items: state.pots,
           renderItem: (pot) => (
             <Widget
