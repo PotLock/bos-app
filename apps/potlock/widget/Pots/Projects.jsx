@@ -14,6 +14,7 @@ return (
   <Widget
     src={`${ownerId}/widget/Components.ListSection`}
     props={{
+      ...props,
       items: projects,
       renderItem: (project) => {
         return (
