@@ -11,110 +11,111 @@ const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
 const [searchTerm, setSearchTerm] = useState(null);
+const [tagSelected, setTagSelected] = useState([]);
 const [tab, setTab] = useState("DeFi");
 const [featuredProjects, setFeaturedProjects] = useState([
   {
-      "id": "magicbuild.near",
-      "status": "Approved",
-      "submitted_ms": 1698226284754,
-      "updated_ms": 1698226284754,
-      "review_notes": null
+    id: "magicbuild.near",
+    status: "Approved",
+    submitted_ms: 1698226284754,
+    updated_ms: 1698226284754,
+    review_notes: null,
   },
   {
-      "id": "potlock.near",
-      "status": "Approved",
-      "submitted_ms": 1698437495305,
-      "updated_ms": 1698437495305,
-      "review_notes": null
+    id: "potlock.near",
+    status: "Approved",
+    submitted_ms: 1698437495305,
+    updated_ms: 1698437495305,
+    review_notes: null,
   },
   {
-    "id": "nadabot.near",
-    "status": "Approved",
-    "submitted_ms": 1703055390614,
-    "updated_ms": 1703055390614,
-    "review_notes": null
-}
+    id: "nadabot.near",
+    status: "Approved",
+    submitted_ms: 1703055390614,
+    updated_ms: 1703055390614,
+    review_notes: null,
+  },
 ]);
 const [tagsList, setTagsList] = useState([
   {
-    label :"DeFi",
-    value :"defi",
-    selected:false
+    label: "DeFi",
+    value: "defi",
+    selected: false,
   },
   {
-    label :"Open Source",
-    value :"open-source",
-    selected:false
+    label: "Open Source",
+    value: "open-source",
+    selected: false,
   },
   {
-    label :"Non Profit",
-    value :"non-profit",
-    selected:false
+    label: "Non Profit",
+    value: "non-profit",
+    selected: false,
   },
   {
-    label :"Social Impact",
-    value :"social-impact",
-    selected:false
+    label: "Social Impact",
+    value: "social-impact",
+    selected: false,
   },
   {
-    label :"Climate",
-    value :"climate",
-    selected:false
+    label: "Climate",
+    value: "climate",
+    selected: false,
   },
   {
-    label :"Public Good",
-    value :"public-good",
-    selected:false
+    label: "Public Good",
+    value: "public-good",
+    selected: false,
   },
   {
-    label :"Community",
-    value :"community",
-    selected:false
+    label: "Community",
+    value: "community",
+    selected: false,
   },
   {
-    label :"Education",
-    value :"education",
-    selected:false
+    label: "Education",
+    value: "education",
+    selected: false,
   },
 ]);
 const handleTag = (key) => {
   console.log(tagsList[key].value);
-  const tags = tagsList
-  tags[key].selected = !tagsList[key].selected
+  const tags = tagsList;
+  tags[key].selected = !tagsList[key].selected;
   const dataArr = props.items;
-  let tagSelected = []
-  tagsList.forEach(tag=>{
-    if(tag.selected){
-      tagSelected.push(tag.value)
+  console.log("dataArr", dataArr);
+  let tagSelected = [];
+  tagsList.forEach((tag) => {
+    if (tag.selected) {
+      tagSelected.push(tag.value);
     }
-  })
-  let projectFilterBySearch = []
-  dataArr.forEach(item=>{
-   const data = Social.getr(`${item.id}/profile`);
-   tagSelected.forEach(tag=>{
-      
-    if(data.category== tag ) {
-      projectFilterBySearch.push(item)
-    }
-  })
-   });
-   if(tagSelected.length == 0){
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.id}/profile`);
+    console.log("data", data.category);
+    tagSelected.forEach((tag) => {
+      if (data.category == tag) {
+        projectFilterBySearch.push(item);
+      }
+    });
+  });
+  if (tagSelected.length == 0) {
     setTotalProjects(dataArr);
-   }else{
+  } else {
     setTotalProjects(projectFilterBySearch);
-   }
-   console.log("tagsList",tagSelected)
-   
-   setDisplayProject([]);
-   setLastNumberOfProject(0);
+  }
+  console.log("tagsList", tagSelected);
+  setTagSelected(tagSelected);
 
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
 
-  setTagsList(tags)
+  setTagsList(tags);
 };
 if (!totalProjects) return "loading";
 
 const loadProjects = () => {
-  
   setLastNumberOfProject(lastNumberOfProject + 9);
   setDisplayProject(
     totalProjects.slice(0, lastNumberOfProject + 9).map((item) => (
@@ -226,31 +227,43 @@ const sortOldToNew = (projects) => {
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
-const searchByWords = (projects,searchTerm) => {
- let findId = []
- const dataArr = props.items;
- let alldata=[];
- dataArr.forEach(item=>{
-  const data = Social.getr(`${item.id}/profile`);
-  alldata.push(data);
-  if(data){
-    if( data.description.toLowerCase().includes(searchTerm.toLowerCase()) || data.name.toLowerCase().includes(searchTerm.toLowerCase()) ){
-      findId.push(item.id)
-    }
-  }
-
- })
- 
-  let projectFilterBySearch = []
-  dataArr.forEach(project=>{
-    findId.forEach(id=>{
-      if(project.id  == id ){
-        projectFilterBySearch.push(project)
+const searchByWords = (projects, searchTerm) => {
+  let findId = [];
+  const dataArr = props.items;
+  let alldata = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.id}/profile`);
+    alldata.push(data);
+    if (data) {
+      if (
+        data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        data.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        findId.push(item.id);
       }
-    })
-  })
+    }
+  });
+
+  let projectFilterBySearch = [];
+  dataArr.forEach((project) => {
+    const data = Social.getr(`${project.id}/profile`);
+    findId.forEach((id) => {
+      if (tagSelected.length > 0) {
+        if (data.category == tagSelected[0]) {
+          if (project.id == id) {
+            projectFilterBySearch.push(project);
+          }
+        }
+      } else {
+        if (project.id == id) {
+          projectFilterBySearch.push(project);
+        }
+      }
+    });
+  });
+
   setTotalProjects(projectFilterBySearch);
-  console.log("projectFilterBySearch",projectFilterBySearch)
+  console.log("projectFilterBySearch", projectFilterBySearch);
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
@@ -284,7 +297,6 @@ const handleFilterChange = (filterType) => {
     case "Least to Most Donations":
       sortLowestToHighest(totalProjects);
       break;
-
   }
 };
 
@@ -370,75 +382,86 @@ const OnBottom = styled.div`
 
 return (
   <>
-  <Container>
-  <Header>
-    <Title>Featured projects</Title>
+    <Container>
+      <Header>
+        <Title>Featured projects</Title>
+      </Header>
 
-  </Header>
- 
-    <ProjectList>
-      {featuredProjects.map(item=>(
-      <Widget
-      src={`${ownerId}/widget/Components.ProjectCard`}
-      props={{
-        ...item,
-        isExistedInCart: props.cart && !!props.cart[item.id],
-        removeProjectsFromCart: (projectId) => {
-          removeProjectsFromCart(projectId);
-        },
-        addProjectsToCart: (project) => {
-          addProjectsToCart(project);
-        },
-        setIsCartModalOpen: (isOpen) => {
-          setIsCartModalOpen(isOpen);
-        },
-        totalAmount: (donations) => totalAmount(donations),
-      }}
-      key={key}
-    />
-      ))}
-</ProjectList>
-  <OnBottom></OnBottom>
-</Container>
-  <Container>
-    <Header>
-      <Title>all projects {totalProjects.length}</Title>
-
-      {/* Search bar */}
-      <Widget
-        src={`${ownerId}/widget/Project.SearchBar`}
-        props={{
-          projectLength: totalProjects.length,
-          setSearchTerm: (value) => {
-            searchByWords(totalProjects,value)
-            setSearchTerm(value);
-          },
-          handleFilterChange: (filter) => {
-            handleFilterChange(filter);
-          },
-        }}
-      />
-      <TagsWrapper>
-        Tags:
-        { tagsList.map((tag, key) => (
-          <Tag
-          key={key}
-          onClick={() => handleTag(key)}
-          className={`${
-            tag.selected && "gap-2 bg-[#FEF6EE]" 
-          } p-2 rounded border text-sm flex items-center  cursor-pointer`}>
-          {tag.selected && (
-            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z" fill="#F4B37D"></path></svg>
-          ) }
-          {tag.label}
-          </Tag>
+      <ProjectList>
+        {featuredProjects.map((item) => (
+          <Widget
+            src={`${ownerId}/widget/Components.ProjectCard`}
+            props={{
+              ...item,
+              isExistedInCart: props.cart && !!props.cart[item.id],
+              removeProjectsFromCart: (projectId) => {
+                removeProjectsFromCart(projectId);
+              },
+              addProjectsToCart: (project) => {
+                addProjectsToCart(project);
+              },
+              setIsCartModalOpen: (isOpen) => {
+                setIsCartModalOpen(isOpen);
+              },
+              totalAmount: (donations) => totalAmount(donations),
+            }}
+            key={key}
+          />
         ))}
-      </TagsWrapper>
-    </Header>
-    <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
-      <ProjectList>{displayProject}</ProjectList>
-    </InfiniteScroll>
-    {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
-  </Container>
+      </ProjectList>
+      <OnBottom></OnBottom>
+    </Container>
+    <Container>
+      <Header>
+        <Title>all projects {totalProjects.length}</Title>
+
+        {/* Search bar */}
+        <Widget
+          src={`${ownerId}/widget/Project.SearchBar`}
+          props={{
+            projectLength: totalProjects.length,
+            setSearchTerm: (value) => {
+              searchByWords(totalProjects, value);
+              setSearchTerm(value);
+            },
+            handleFilterChange: (filter) => {
+              handleFilterChange(filter);
+            },
+          }}
+        />
+        <TagsWrapper>
+          Tags:
+          {tagsList.map((tag, key) => (
+            <Tag
+              key={key}
+              onClick={() => handleTag(key)}
+              className={`${
+                tag.selected && "gap-2 bg-[#FEF6EE]"
+              } p-2 rounded border text-sm flex items-center  cursor-pointer`}
+            >
+              {tag.selected && (
+                <svg
+                  width="12"
+                  height="10"
+                  viewBox="0 0 12 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
+                    fill="#F4B37D"
+                  ></path>
+                </svg>
+              )}
+              {tag.label}
+            </Tag>
+          ))}
+        </TagsWrapper>
+      </Header>
+      <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
+        <ProjectList>{displayProject}</ProjectList>
+      </InfiniteScroll>
+      {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
+    </Container>
   </>
 );
