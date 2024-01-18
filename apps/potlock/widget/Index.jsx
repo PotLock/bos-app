@@ -271,6 +271,7 @@ const props = {
     "jass.near",
     "inspiratibiz.near",
     "ntare.near",
+    "huunhanz.near",
     "chrestomanci.near",
     "wendersonpires.near",
     "superposition.near",
