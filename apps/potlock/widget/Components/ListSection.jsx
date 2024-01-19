@@ -12,7 +12,7 @@ const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
 const [searchTerm, setSearchTerm] = useState(null);
 const [tagSelected, setTagSelected] = useState([]);
-const [tab, setTab] = useState("DeFi");
+const [tab, setTab] = useState("");
 const [featuredProjects, setFeaturedProjects] = useState([
   {
     id: "magicbuild.near",
@@ -38,8 +38,8 @@ const [featuredProjects, setFeaturedProjects] = useState([
 ]);
 const [tagsList, setTagsList] = useState([
   {
-    label: "DeFi",
-    value: "defi",
+    label: "Desci",
+    value: "de-sci",
     selected: false,
   },
   {
@@ -233,6 +233,7 @@ const searchByWords = (projects, searchTerm) => {
   let alldata = [];
   dataArr.forEach((item) => {
     const data = Social.getr(`${item.id}/profile`);
+    console.log("data", data.category);
     alldata.push(data);
     if (data) {
       if (
