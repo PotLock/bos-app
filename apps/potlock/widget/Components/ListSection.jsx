@@ -1,4 +1,4 @@
-const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab } = props;
+const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab, nav } = props;
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
@@ -257,14 +257,50 @@ const searchByWordsPots = (projects, searchTerm) => {
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
+const searchByWordsPot = (projects, searchTerm) => {
+  let findId = [];
+  const dataArr = props.items;
+  let alldata = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.project_id}/profile`);
+    alldata.push(data);
+    if (data) {
+      if (
+        data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        data.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        findId.push(item.project_id);
+      }
+    }
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((project) => {
+    const data = Social.getr(`${project.project_id}/profile`);
+    findId.forEach((id) => {
+      if (tagSelected.length > 0) {
+        if (data.category == tagSelected[0]) {
+          if (project.project_id == id) {
+            projectFilterBySearch.push(project);
+          }
+        }
+      } else {
+        if (project.project_id == id) {
+          projectFilterBySearch.push(project);
+        }
+      }
+    });
+  });
 
+  setTotalProjects(projectFilterBySearch);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
 const searchByWords = (projects, searchTerm) => {
   let findId = [];
   const dataArr = props.items;
   let alldata = [];
   dataArr.forEach((item) => {
     const data = Social.getr(`${item.id}/profile`);
-    console.log("data", data.category);
     alldata.push(data);
     if (data) {
       if (
@@ -275,7 +311,6 @@ const searchByWords = (projects, searchTerm) => {
       }
     }
   });
-
   let projectFilterBySearch = [];
   dataArr.forEach((project) => {
     const data = Social.getr(`${project.id}/profile`);
@@ -413,7 +448,7 @@ const OnBottom = styled.div`
 
 return (
   <>
-    {tab != "pots" && (
+    {tab != "pots" && tab != "pot" && (
       <Container>
         <Header>
           <Title>Featured projects</Title>
@@ -446,15 +481,20 @@ return (
     )}
     <Container>
       <Header>
-        <Title>all projects {totalProjects.length}</Title>
+        <Title>
+          all {tab == "pots" ? "pots" : "projects"} {totalProjects.length}
+        </Title>
         {/* Search bar */}
         <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
+            tab: tab,
             projectLength: totalProjects.length,
             setSearchTerm: (value) => {
               tab == "pots"
                 ? searchByWordsPots(totalProjects, value)
+                : tab == "pot"
+                ? searchByWordsPot(totalProjects, value)
                 : searchByWords(totalProjects, value);
               setSearchTerm(value);
             },
@@ -463,7 +503,7 @@ return (
             },
           }}
         />
-        {tab != "pots" && (
+        {tab != "pots" && tab != "pot" && (
           <TagsWrapper>
             Tags:
             {tagsList.map((tag, key) => (
@@ -493,10 +533,9 @@ return (
             ))}
           </TagsWrapper>
         )}
-        ;
       </Header>
       <InfiniteScroll
-        loadMore={tab == "pots" ? loadProjectsPost : loadProjects}
+        loadMore={tab == "pots" || tab == "pot" ? loadProjectsPost : loadProjects}
         hasMore={lastNumberOfProject < totalProjects.length}
       >
         <ProjectList>{displayProject}</ProjectList>
