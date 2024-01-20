@@ -1,5 +1,4 @@
 const { id, review_notes, status, totalAmount } = props;
-
 const donationContractId = "donate.potlock.near";
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const cardData = Social.getr(`${id}/profile`);
@@ -7,7 +6,6 @@ const cardData = Social.getr(`${id}/profile`);
 const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
   recipient_id: id,
 });
-
 const Card = styled.a`
   display: flex;
   flex-direction: column;
@@ -140,6 +138,56 @@ const ButtonGroup = styled.div`
   gap: 16px;
   align-items: center;
 `;
+const TrashContainer = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const TrashIcon = styled.img`
+  //   width: 100%;
+  //   height: 100%;
+  width: 20px;
+  height: 20px;
+`;
+
+const ItemContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  border-bottom: 1px #dbdbdb solid;
+
+  &:hover ${TrashContainer} {
+    opacity: 1;
+  }
+`;
+
+const ProjectDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
+const Text = styled.div`
+  color: #2e2e2e;
+  font-size: 16px;
+  line-height: 24px;
+  word-wrap: break-word;
+  max-width: 270px;
+`;
 
 const getCategory = (category) => {
   switch (category) {
@@ -161,7 +209,7 @@ const getCategory = (category) => {
       return "Education";
   }
 };
-
+const MAX_DESCRIPTION_LENGTH = 120;
 return (
   <Card href={`?tab=project&projectId=${id}`} target="_blank">
     <CardImage
@@ -200,7 +248,29 @@ return (
         ${totalAmount(donationsForProject)} <span style={{ fontWeight: 400 }}>Raised</span>
       </TotalDonate>
       <ButtonGroup>
-        <AddToCartButton>Add to cart</AddToCartButton>
+        <AddToCartButton
+          onClick={(e) => {
+            e.preventDefault();
+            if (existsInCart) {
+              props.removeProjectsFromCart([props.id]);
+            } else {
+              props.addProjectsToCart([
+                {
+                  id: props.id,
+                  amount: "1",
+                  ft: "NEAR",
+                  referrerId: props.referrerId,
+                  potId: props.potId,
+                },
+              ]);
+              if (props.showModal) {
+                props.setIsCartModalOpen(true);
+              }
+            }
+          }}
+        >
+          Add to cart
+        </AddToCartButton>
         <DonationButton>Donate</DonationButton>
       </ButtonGroup>
     </CardFooter>
