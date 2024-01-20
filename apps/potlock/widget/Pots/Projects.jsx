@@ -1,6 +1,5 @@
 // get projects
 const { ownerId, potId, potDetail } = props;
-
 const projects = Near.view(potId, "get_approved_applications", {});
 
 if (!projects) return "Loading...";
@@ -14,6 +13,7 @@ return (
   <Widget
     src={`${ownerId}/widget/Components.ListSection`}
     props={{
+      ...props,
       items: projects,
       renderItem: (project) => {
         return (

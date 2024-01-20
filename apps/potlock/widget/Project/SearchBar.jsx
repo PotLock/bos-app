@@ -1,5 +1,4 @@
 const { projectLength, handleFilterChange, setSearchTerm } = props;
-
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
@@ -57,7 +56,7 @@ const FilterIcon = styled.div`
 
 const FilterMenu = styled.div`
   position: absolute;
-  background: #FFF;
+  background: #fff;
   top: 100%;
   right: 0;
   padding: 8px;
@@ -65,8 +64,9 @@ const FilterMenu = styled.div`
   flex-direction: column;
   gap: 8px;
   border-radius: 6px;
-  border: 1px solid rgba(41, 41, 41, 0.36); 
-  box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32), 0px 4px 8px -3px rgba(123, 123, 123, 0.20), 0px 0px 2px 0px rgba(123, 123, 123, 0.36); 
+  border: 1px solid rgba(41, 41, 41, 0.36);
+  box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
+    0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
 `;
 
 const FilterItem = styled.div`
@@ -76,9 +76,9 @@ const FilterItem = styled.div`
   gap: 12px;
   white-space: nowrap;
   &:hover {
-      background: #dd3345;
-      color: #FFF;
-      border-radius: 6px;
+    background: #dd3345;
+    color: #fff;
+    border-radius: 6px;
   }
 `;
 
@@ -101,13 +101,10 @@ return (
       </svg>
     </SearchIcon>
     <SearchBar
-      placeholder={`Search (${projectLength}) projects`}
+      placeholder={`Search (${projectLength}) ${props.tab == "pots" ? "pots" : "projects"}`}
       onChange={onSearchChange}
     />
-    <div
-      style={{ position: "relative" }}
-      onClick={() => setOpenFilter(!openFilter)}
-    >
+    <div style={{ position: "relative" }} onClick={() => setOpenFilter(!openFilter)}>
       <FilterButton>
         Sort
         <FilterIcon>
