@@ -48,19 +48,19 @@ State.init({
   pots: null,
   potConfigs: {},
 });
-
 if (!state.pots) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
     State.update({ pots });
-    for (let i = 0; i < pots.length; i++) {
-      const potId = pots[i].id;
-      Near.asyncView(potId, "get_config", {}).then((potConfig) => {
-        State.update({ potConfigs: { ...state.potConfigs, [potId]: potConfig } });
-      });
-    }
   });
 }
-
+if (state.pots) {
+  for (let i = 0; i < state.pots.length; i++) {
+    const potId = state.pots[i].id;
+    Near.asyncView(potId, "get_config", { account_id: context.accountId }).then((potConfig) => {
+      State.update({ potConfigs: { ...state.potConfigs, [potId]: potConfig } });
+    });
+  }
+}
 return (
   <Container>
     <HeaderContent>
@@ -89,6 +89,7 @@ return (
         props={{
           ...props,
           items: state.pots,
+          itemsAll: state.potConfigs,
           renderItem: (pot) => (
             <Widget
               src={`${ownerId}/widget/Pots.Card`}
