@@ -1,4 +1,4 @@
-const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen } = props;
+const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab } = props;
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
@@ -12,7 +12,6 @@ const [displayProject, setDisplayProject] = useState([]);
 const [lastNumberOfProject, setLastNumberOfProject] = useState(0);
 const [searchTerm, setSearchTerm] = useState(null);
 const [tagSelected, setTagSelected] = useState([]);
-const [tab, setTab] = useState("");
 const [featuredProjects, setFeaturedProjects] = useState([
   {
     id: "magicbuild.near",
@@ -83,7 +82,6 @@ const handleTag = (key) => {
   const tags = tagsList;
   tags[key].selected = !tagsList[key].selected;
   const dataArr = props.items;
-  console.log("dataArr", dataArr);
   let tagSelected = [];
   tagsList.forEach((tag) => {
     if (tag.selected) {
@@ -93,7 +91,6 @@ const handleTag = (key) => {
   let projectFilterBySearch = [];
   dataArr.forEach((item) => {
     const data = Social.getr(`${item.id}/profile`);
-    console.log("data", data.category);
     tagSelected.forEach((tag) => {
       if (data.category == tag) {
         projectFilterBySearch.push(item);
@@ -114,6 +111,10 @@ const handleTag = (key) => {
   setTagsList(tags);
 };
 if (!totalProjects) return "loading";
+
+const loadProjectsPost = () => {
+  setDisplayProject(totalProjects.map((item) => props.renderItem(item)));
+};
 
 const loadProjects = () => {
   setLastNumberOfProject(lastNumberOfProject + 9);
@@ -227,6 +228,36 @@ const sortOldToNew = (projects) => {
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
+
+const searchByWordsPots = (projects, searchTerm) => {
+  let findId = [];
+  const dataArr = props.items;
+  const allData = [];
+  dataArr.forEach((item) => {
+    const data = props.itemsAll[item.id];
+    allData.push(data);
+    if (data) {
+      if (
+        data.pot_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        data.pot_name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        findId.push(item.id);
+      }
+    }
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((project) => {
+    findId.forEach((id) => {
+      if (project.id == id) {
+        projectFilterBySearch.push(project);
+      }
+    });
+  });
+  setTotalProjects(projectFilterBySearch);
+  setDisplayProject([]);
+  setLastNumberOfProject(0);
+};
+
 const searchByWords = (projects, searchTerm) => {
   let findId = [];
   const dataArr = props.items;
@@ -264,7 +295,6 @@ const searchByWords = (projects, searchTerm) => {
   });
 
   setTotalProjects(projectFilterBySearch);
-  console.log("projectFilterBySearch", projectFilterBySearch);
   setDisplayProject([]);
   setLastNumberOfProject(0);
 };
@@ -383,46 +413,49 @@ const OnBottom = styled.div`
 
 return (
   <>
-    <Container>
-      <Header>
-        <Title>Featured projects</Title>
-      </Header>
+    {tab != "pots" && (
+      <Container>
+        <Header>
+          <Title>Featured projects</Title>
+        </Header>
 
-      <ProjectList>
-        {featuredProjects.map((item) => (
-          <Widget
-            src={`${ownerId}/widget/Components.ProjectCard`}
-            props={{
-              ...item,
-              isExistedInCart: props.cart && !!props.cart[item.id],
-              removeProjectsFromCart: (projectId) => {
-                removeProjectsFromCart(projectId);
-              },
-              addProjectsToCart: (project) => {
-                addProjectsToCart(project);
-              },
-              setIsCartModalOpen: (isOpen) => {
-                setIsCartModalOpen(isOpen);
-              },
-              totalAmount: (donations) => totalAmount(donations),
-            }}
-            key={key}
-          />
-        ))}
-      </ProjectList>
-      <OnBottom></OnBottom>
-    </Container>
+        <ProjectList>
+          {featuredProjects.map((item) => (
+            <Widget
+              src={`${ownerId}/widget/Components.ProjectCard`}
+              props={{
+                ...item,
+                isExistedInCart: props.cart && !!props.cart[item.id],
+                removeProjectsFromCart: (projectId) => {
+                  removeProjectsFromCart(projectId);
+                },
+                addProjectsToCart: (project) => {
+                  addProjectsToCart(project);
+                },
+                setIsCartModalOpen: (isOpen) => {
+                  setIsCartModalOpen(isOpen);
+                },
+                totalAmount: (donations) => totalAmount(donations),
+              }}
+              key={key}
+            />
+          ))}
+        </ProjectList>
+        <OnBottom></OnBottom>
+      </Container>
+    )}
     <Container>
       <Header>
         <Title>all projects {totalProjects.length}</Title>
-
         {/* Search bar */}
         <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
             projectLength: totalProjects.length,
             setSearchTerm: (value) => {
-              searchByWords(totalProjects, value);
+              tab == "pots"
+                ? searchByWordsPots(totalProjects, value)
+                : searchByWords(totalProjects, value);
               setSearchTerm(value);
             },
             handleFilterChange: (filter) => {
@@ -430,36 +463,42 @@ return (
             },
           }}
         />
-        <TagsWrapper>
-          Tags:
-          {tagsList.map((tag, key) => (
-            <Tag
-              key={key}
-              onClick={() => handleTag(key)}
-              className={`${
-                tag.selected && "gap-2 bg-[#FEF6EE]"
-              } p-2 rounded border text-sm flex items-center  cursor-pointer`}
-            >
-              {tag.selected && (
-                <svg
-                  width="12"
-                  height="10"
-                  viewBox="0 0 12 10"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
-                    fill="#F4B37D"
-                  ></path>
-                </svg>
-              )}
-              {tag.label}
-            </Tag>
-          ))}
-        </TagsWrapper>
+        {tab != "pots" && (
+          <TagsWrapper>
+            Tags:
+            {tagsList.map((tag, key) => (
+              <Tag
+                key={key}
+                onClick={() => handleTag(key)}
+                className={`${
+                  tag.selected && "gap-2 bg-[#FEF6EE]"
+                } p-2 rounded border text-sm flex items-center  cursor-pointer`}
+              >
+                {tag.selected && (
+                  <svg
+                    width="12"
+                    height="10"
+                    viewBox="0 0 12 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
+                      fill="#F4B37D"
+                    ></path>
+                  </svg>
+                )}
+                {tag.label}
+              </Tag>
+            ))}
+          </TagsWrapper>
+        )}
+        ;
       </Header>
-      <InfiniteScroll loadMore={loadProjects} hasMore={lastNumberOfProject < totalProjects.length}>
+      <InfiniteScroll
+        loadMore={tab == "pots" ? loadProjectsPost : loadProjects}
+        hasMore={lastNumberOfProject < totalProjects.length}
+      >
         <ProjectList>{displayProject}</ProjectList>
       </InfiniteScroll>
       {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}

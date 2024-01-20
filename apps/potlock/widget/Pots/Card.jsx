@@ -57,6 +57,7 @@ if (!potConfig) return "Loading...";
 
 const { pot_name, pot_description, base_currency, public_donations_count, total_public_donations } =
   potConfig;
+//console.log("potConfig", potConfig);
 
 const totalAmount =
   props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_public_donations);
