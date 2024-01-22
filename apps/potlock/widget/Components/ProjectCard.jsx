@@ -2,7 +2,6 @@ const { id, review_notes, status, totalAmount } = props;
 const donationContractId = "donate.potlock.near";
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const cardData = Social.getr(`${id}/profile`);
-
 const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
   recipient_id: id,
 });
@@ -138,57 +137,9 @@ const ButtonGroup = styled.div`
   gap: 16px;
   align-items: center;
 `;
-const TrashContainer = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const TrashIcon = styled.img`
-  //   width: 100%;
-  //   height: 100%;
-  width: 20px;
-  height: 20px;
-`;
-
-const ItemContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px;
-  border-bottom: 1px #dbdbdb solid;
-
-  &:hover ${TrashContainer} {
-    opacity: 1;
-  }
-`;
-
-const ProjectDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
-const Text = styled.div`
-  color: #2e2e2e;
-  font-size: 16px;
-  line-height: 24px;
-  word-wrap: break-word;
-  max-width: 270px;
-`;
-
+State.init({
+  isModalDonationOpen: false,
+});
 const getCategory = (category) => {
   switch (category) {
     case "social-impact":
@@ -209,70 +160,87 @@ const getCategory = (category) => {
       return "Education";
   }
 };
-const MAX_DESCRIPTION_LENGTH = 120;
+
 return (
-  <Card href={`?tab=project&projectId=${id}`} target="_blank">
-    <CardImage
-      src={
-        cardData && cardData?.backgroundImage && cardData?.backgroundImage?.ipfs_cid
-          ? `${IPFS_BASE_URL}${cardData.backgroundImage.ipfs_cid}`
-          : "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
-      }
-      alt="background"
-    />
-    <CardBody>
-      <CardAvatar
+  <>
+    <Card href={`?tab=project&projectId=${id}`} target="_blank">
+      <CardImage
         src={
-          cardData && cardData?.image && cardData?.image?.ipfs_cid
-            ? `${IPFS_BASE_URL}${cardData.image.ipfs_cid}`
+          cardData && cardData?.backgroundImage && cardData?.backgroundImage?.ipfs_cid
+            ? `${IPFS_BASE_URL}${cardData.backgroundImage.ipfs_cid}`
             : "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
         }
-        alt="avatar"
+        alt="background"
       />
-      <CardTitle>{cardData?.name}</CardTitle>
-      <CardDescription>
-        {cardData && cardData?.description.length > 60
-          ? cardData.description.slice(0, 70) + "..."
-          : cardData.description}
-      </CardDescription>
-      <CardTagContainer>
-        <CardTag>
-          {cardData && typeof cardData?.category === "object"
-            ? getCategory(cardData.category.value)
-            : getCategory(cardData.category)}
-        </CardTag>
-      </CardTagContainer>
-    </CardBody>
-    <CardFooter>
-      <TotalDonate>
-        ${totalAmount(donationsForProject)} <span style={{ fontWeight: 400 }}>Raised</span>
-      </TotalDonate>
-      <ButtonGroup>
-        <AddToCartButton
-          onClick={(e) => {
-            e.preventDefault();
-            if (existsInCart) {
-              props.removeProjectsFromCart([props.id]);
-            } else {
-              props.addProjectsToCart([
-                {
-                  id: props.id,
-                  amount: "1",
-                  ft: "NEAR",
-                  referrerId: props.referrerId,
-                  potId: props.potId,
-                },
-              ]);
-              if (props.showModal) {
-                props.setIsCartModalOpen(true);
+      <CardBody>
+        <CardAvatar
+          src={
+            cardData && cardData?.image && cardData?.image?.ipfs_cid
+              ? `${IPFS_BASE_URL}${cardData.image.ipfs_cid}`
+              : "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
+          }
+          alt="avatar"
+        />
+        <CardTitle>{cardData?.name}</CardTitle>
+        <CardDescription>
+          {cardData && cardData?.description.length > 60
+            ? cardData.description.slice(0, 70) + "..."
+            : cardData.description}
+        </CardDescription>
+        <CardTagContainer>
+          <CardTag>
+            {cardData && typeof cardData?.category === "object"
+              ? getCategory(cardData.category.value)
+              : getCategory(cardData.category)}
+          </CardTag>
+        </CardTagContainer>
+      </CardBody>
+      <CardFooter>
+        <TotalDonate>
+          ${totalAmount(donationsForProject)} <span style={{ fontWeight: 400 }}>Raised</span>
+        </TotalDonate>
+        <ButtonGroup>
+          <AddToCartButton
+            onClick={(e) => {
+              e.preventDefault();
+              if (existsInCart) {
+                props.removeProjectsFromCart([props.id]);
+              } else {
+                props.addProjectsToCart([
+                  {
+                    id: props.id,
+                    amount: "1",
+                    ft: "NEAR",
+                    referrerId: props.referrerId,
+                    potId: props.potId,
+                  },
+                ]);
+                if (props.showModal) {
+                  props.setIsCartModalOpen(true);
+                }
               }
-            }
-          }}
-        >
-          Add to cart
-        </AddToCartButton>
-        <DonationButton>Donate</DonationButton>
-      </ButtonGroup>
-    </CardFooter>
-  </Card>
+            }}
+          >
+            Add to cart
+          </AddToCartButton>
+          <DonationButton
+            onClick={(e) => {
+              e.preventDefault();
+              State.update({ isModalDonationOpen: true });
+            }}
+          >
+            Donate
+          </DonationButton>
+        </ButtonGroup>
+      </CardFooter>
+    </Card>
+    <Widget
+      src={`${props.ownerId}/widget/Components.ModalDonation`}
+      props={{
+        ownerId: props.ownerId,
+        isModalDonationOpen: state.isModalDonationOpen,
+        onClose: () => State.update({ isModalDonationOpen: false }),
+      }}
+    />
+  </>
 );
