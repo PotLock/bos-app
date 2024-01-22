@@ -1,4 +1,4 @@
-const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab, nav } = props;
+const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab } = props;
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
