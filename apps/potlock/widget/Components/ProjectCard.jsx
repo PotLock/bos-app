@@ -37,6 +37,7 @@ const CardImage = styled.img`
   height: 150px;
   min-height: 150px;
   width: 100%;
+  object-fit:cover;
 `;
 
 const CardTitle = styled.div`
@@ -163,7 +164,7 @@ const getCategory = (category) => {
 
 return (
   <>
-    <Card href={`?tab=project&projectId=${id}`} target="_blank">
+    <Card href={`?tab=project&projectId=${id}`}>
       <CardImage
         src={
           cardData && cardData?.backgroundImage && cardData?.backgroundImage?.ipfs_cid
