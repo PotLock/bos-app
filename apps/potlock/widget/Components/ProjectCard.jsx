@@ -5,6 +5,7 @@ const cardData = Social.getr(`${id}/profile`);
 const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
   recipient_id: id,
 });
+
 const Card = styled.a`
   display: flex;
   flex-direction: column;
@@ -139,6 +140,7 @@ const ButtonGroup = styled.div`
 `;
 State.init({
   isModalDonationOpen: false,
+  isModalDonationSucessOpen: false,
 });
 const getCategory = (category) => {
   switch (category) {
@@ -160,7 +162,9 @@ const getCategory = (category) => {
       return "Education";
   }
 };
-
+if (props.transactionHashes) {
+  State.update({ isModalDonationSucessOpen: true });
+}
 return (
   <>
     <Card href={`?tab=project&projectId=${id}`} target="_blank">
@@ -237,8 +241,12 @@ return (
     <Widget
       src={`${props.ownerId}/widget/Components.ModalDonation`}
       props={{
+        ...props,
+        transactionHashes: props.transactionHashes,
         ownerId: props.ownerId,
+        projectId: props.id,
         isModalDonationOpen: state.isModalDonationOpen,
+        isModalDonationSucessOpen: state.isModalDonationSucessOpen,
         onClose: () => State.update({ isModalDonationOpen: false }),
       }}
     />
