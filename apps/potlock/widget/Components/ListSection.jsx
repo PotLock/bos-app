@@ -462,6 +462,7 @@ return (
               src={`${ownerId}/widget/Components.ProjectCard`}
               props={{
                 ...item,
+                ...props,
                 ownerId: ownerId,
                 showModal: true,
                 transactionHashes: props.transactionHashes,

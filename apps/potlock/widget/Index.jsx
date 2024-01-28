@@ -63,6 +63,8 @@ State.init({
   isNavMenuOpen: false,
   registryAdmins: null,
   registeredProjects: null,
+  donnorProjectId: null,
+  amount: null,
 });
 
 if (!state.nearToUsd) {
@@ -183,6 +185,16 @@ const props = {
   ...props,
   ...state,
   ownerId: "potlock.near",
+  setAmount: (value) => {
+    const amount = state.amount ?? value;
+    State.update({ amount });
+    Storage.set("amount", amount);
+  },
+  setProjectId: (id) => {
+    const donnorProjectId = state.projectId ?? id;
+    State.update({ donnorProjectId });
+    Storage.set("projectId", donnorProjectId);
+  },
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
     projects.forEach((item) => {

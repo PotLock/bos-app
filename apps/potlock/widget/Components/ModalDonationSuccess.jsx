@@ -422,8 +422,8 @@ State.init({
   isModalDonationOpen: false,
 });
 const [isBreakDown, setIsBreakDown] = useState(false);
-const amount = Storage.get("amount");
-const projectId = Storage.get("projectId");
+const amount = props.amount ?? Storage.get("amount");
+const projectId = props.donnorProjectId ?? Storage.get("projectId");
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (

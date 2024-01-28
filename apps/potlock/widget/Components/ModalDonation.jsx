@@ -445,9 +445,11 @@ const handleChangeBreakDown = () => {
   setIsBreakDown(() => !isBreakDown);
 };
 
+//console.log("modal donation", props);
+
 const handleDonate = () => {
-  Storage.set("amount", amount);
-  Storage.set("projectId", props.projectId);
+  props.setAmount(amount);
+  props.setProjectId(props.projectId);
   const transactions = [];
   const amountFloat = parseFloat(amount);
   const amountIndivisible = new Big(amountFloat).mul(new Big(10).pow(24));
