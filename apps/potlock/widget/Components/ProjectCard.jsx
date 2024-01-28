@@ -163,6 +163,7 @@ const getCategory = (category) => {
   }
 };
 if (props.transactionHashes) {
+  State.update({ isModalDonationOpen: false });
   State.update({ isModalDonationSucessOpen: true });
 }
 return (

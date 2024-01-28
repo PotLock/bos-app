@@ -1,4 +1,12 @@
-const { ownerId, removeProjectsFromCart, addProjectsToCart, setIsCartModalOpen, tab } = props;
+const {
+  ownerId,
+  removeProjectsFromCart,
+  addProjectsToCart,
+  setIsCartModalOpen,
+  tab,
+  setAmount,
+  setProjectId,
+} = props;
 const filterList = [
   "Newest to Oldest",
   "Oldest to Newest",
@@ -462,7 +470,6 @@ return (
               src={`${ownerId}/widget/Components.ProjectCard`}
               props={{
                 ...item,
-                ...props,
                 ownerId: ownerId,
                 showModal: true,
                 transactionHashes: props.transactionHashes,
@@ -475,6 +482,12 @@ return (
                 },
                 setIsCartModalOpen: (isOpen) => {
                   setIsCartModalOpen(isOpen);
+                },
+                setAmount: (value) => {
+                  setAmount(value);
+                },
+                setProjectId: (id) => {
+                  setProjectId(id);
                 },
                 totalAmount: (donations) => totalAmount(donations),
               }}
