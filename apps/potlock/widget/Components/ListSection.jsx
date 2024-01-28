@@ -5,7 +5,7 @@ const filterList = [
   "Most to Least Donations",
   "Least to Most Donations",
 ];
-console.log(props);
+
 const donationContractId = "donate.potlock.near";
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
@@ -464,6 +464,7 @@ return (
                 ...item,
                 ownerId: ownerId,
                 showModal: true,
+                transactionHashes: props.transactionHashes,
                 isExistedInCart: props.cart && !!props.cart[item.id],
                 removeProjectsFromCart: (projectId) => {
                   removeProjectsFromCart(projectId);

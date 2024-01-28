@@ -1,4 +1,4 @@
-const donationContractId = "donate.potlock.near";
+const { onDonation } = props;
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -223,8 +223,8 @@ const TextBreakDown = styled.div`
 `;
 
 const IconBreakDown = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
 `;
 
 const ContentBreakDown = styled.div`
@@ -282,8 +282,7 @@ const ButtonGroup = styled.div`
   align-self: stretch;
   magrin-top: 24px;
 `;
-
-const ButtonDonate = styled.button`
+const DonateAgain = styled.button`
   display: flex;
   padding: 12px 16px;
   justify-content: center;
@@ -297,6 +296,31 @@ const ButtonDonate = styled.button`
   box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
   outline: none;
   border: none;
+  &:hover {
+    background: #dd3345;
+    color: #fff;
+  }
+`;
+
+const ButtonDonate = styled.a`
+  display: flex;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 0;
+  border-radius: 6px;
+  background: var(--Peach-50, #fef6ee);
+
+  /* Button/main shadow */
+  box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  color: #000;
+  &:link {
+    text-decoration: none;
+  }
   &:hover {
     background: #dd3345;
     color: #fff;
@@ -364,7 +388,7 @@ const TextTxnHash = styled.div`
   line-height: 24px; /* 171.429% */
 `;
 
-const TxnHash = styled.div`
+const TxnHash = styled.a`
   color: var(--Neutral-950, #292929);
   font-feature-settings: "ss01" on, "salt" on;
 
@@ -374,6 +398,7 @@ const TxnHash = styled.div`
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
+  cursor: pointer;
 `;
 
 const SocialMedia = styled.div`
@@ -395,18 +420,10 @@ const IconSocialMedia = styled.img`
 State.init({
   isModalDonationSucessOpen: false,
   isModalDonationOpen: false,
-  protocolFee: null,
-  referralFee: null,
 });
-Near.asyncView(donationContractId, "get_config", { account_id: context.accountId }).then(
-  (config) => {
-    State.update({
-      protocolFee: config.protocol_fee_basis_points,
-      referralFee: config.referral_fee_basis_points,
-    });
-  }
-);
-
+const [isBreakDown, setIsBreakDown] = useState(false);
+const amount = Storage.get("amount");
+const projectId = Storage.get("projectId");
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -414,6 +431,10 @@ const ModalDonate = ({ isOpen, onClose, children }) => {
       <ModalContainer onClick={(e) => e.stopPropagation()}>{children}</ModalContainer>
     </Modal>
   );
+};
+
+const handleChangeBreakDown = () => {
+  setIsBreakDown(() => !isBreakDown);
 };
 
 return (
@@ -437,7 +458,7 @@ return (
       <ModalContext>
         <TextContainer>
           <Text>
-            100
+            {amount}
             <iconNear
               src={
                 "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -445,7 +466,7 @@ return (
               alt={"Icon Near"}
             />
           </Text>
-          <TextAmount>350.55 USDC</TextAmount>
+          <TextAmount>{Number(onDonation.priceNear * amount).toFixed(2)} USDT</TextAmount>
         </TextContainer>
         <DonateContainer>
           <TextDonate>Has been donated to</TextDonate>
@@ -456,84 +477,68 @@ return (
               }
               alt={"avatar doner"}
             />
-            <DonerName>Doner Name</DonerName>
+            <DonerName>{context.accountId}</DonerName>
           </Donor>
         </DonateContainer>
         <BreakDownContainer>
-          <BreakDownButton>
-            <TextBreakDown>Hide breakdown</TextBreakDown>
-            <IconBreakDown
-              src={"https://cdn.icon-icons.com/icons2/2596/PNG/512/up_icon_154668.png"}
-              alt={"icon breakdown"}
-            />
+          <BreakDownButton onClick={handleChangeBreakDown}>
+            <TextBreakDown>{!isBreakDown ? "Hide breakdown" : "Show breakdown"}</TextBreakDown>
+            {isBreakDown ? (
+              <IconBreakDown
+                src={"https://cdn.icon-icons.com/icons2/1883/PNG/512/caretsymbol_120671.png"}
+                alt={"icon breakdown"}
+              />
+            ) : (
+              <IconBreakDown
+                src={"https://cdn.icon-icons.com/icons2/1883/PNG/512/downarrow_120663.png"}
+                alt={"icon breakdown"}
+              />
+            )}
           </BreakDownButton>
-          <ContentBreakDown>
-            <FormContentBreakDown>
-              <TextFormBreakDown>Project allocation (92.5%)</TextFormBreakDown>
-              <AmountBreakDown>
-                46.25
-                <IconNearBreakDown
-                  src={
-                    "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                  }
-                  alt={"logo near amount"}
-                />
-              </AmountBreakDown>
-            </FormContentBreakDown>
-            <FormContentBreakDown>
-              <TextFormBreakDown>Protocol fees (5%)</TextFormBreakDown>
-              <AmountBreakDown>
-                {state.protocolFee && state.protocolFee / 100}
-                <IconNearBreakDown
-                  src={
-                    "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                  }
-                  alt={"logo near amount"}
-                />
-              </AmountBreakDown>
-            </FormContentBreakDown>
-            <FormContentBreakDown>
-              <TextFormBreakDown>Referral fees (2.5%)</TextFormBreakDown>
-              <AmountBreakDown>
-                {state.referralFee && state.referralFee / 100}
-                <IconNearBreakDown
-                  src={
-                    "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                  }
-                  alt={"logo near amount"}
-                />
-              </AmountBreakDown>
-            </FormContentBreakDown>
-            <FormContentBreakDown>
-              <TextFormBreakDown>Chef fees (5%)</TextFormBreakDown>
-              <AmountBreakDown>
-                2.5
-                <IconNearBreakDown
-                  src={
-                    "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                  }
-                  alt={"logo near amount"}
-                />
-              </AmountBreakDown>
-            </FormContentBreakDown>
-          </ContentBreakDown>
+          {!isBreakDown && (
+            <ContentBreakDown>
+              <FormContentBreakDown>
+                <TextFormBreakDown>Project allocation (95%)</TextFormBreakDown>
+                <AmountBreakDown>
+                  {amount <= 0.1 ? (amount * 0.95).toFixed(3) : (amount * 0.95).toFixed(2)}
+                  <IconNearBreakDown
+                    src={
+                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                    }
+                    alt={"logo near amount"}
+                  />
+                </AmountBreakDown>
+              </FormContentBreakDown>
+              <FormContentBreakDown>
+                <TextFormBreakDown>Protocol fees (5%)</TextFormBreakDown>
+                <AmountBreakDown>
+                  {amount <= 0.1 ? (amount * 0.05).toFixed(3) : (amount * 0.05).toFixed(2)}
+                  <IconNearBreakDown
+                    src={
+                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                    }
+                    alt={"logo near amount"}
+                  />
+                </AmountBreakDown>
+              </FormContentBreakDown>
+              <FormContentBreakDown>
+                <TextFormBreakDown>Referral fees (0%)</TextFormBreakDown>
+                <AmountBreakDown>
+                  0
+                  <IconNearBreakDown
+                    src={
+                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                    }
+                    alt={"logo near amount"}
+                  />
+                </AmountBreakDown>
+              </FormContentBreakDown>
+            </ContentBreakDown>
+          )}
         </BreakDownContainer>
         <ButtonGroup>
-          <ButtonDonate
-            onClick={() => {
-              props.onCloseSuccess();
-              props.onOpen();
-            }}
-          >
-            Donate Again
-          </ButtonDonate>
-          <ButtonDonate
-            onClick={() => {
-              props.onCloseSuccess();
-            }}
-          >
-            Explore projects
-          </ButtonDonate>
+          <ButtonDonate href={"?"}>Donate Again</ButtonDonate>
+          <ButtonDonate href={"?"}>Explore projects</ButtonDonate>
         </ButtonGroup>
       </ModalContext>
       <ModalFooter>
@@ -547,13 +552,15 @@ return (
                 }
                 alt={"avatar doner"}
               />
-              <DonerName>Doner Name</DonerName>
+              <DonerName>{projectId}</DonerName>
             </Donor>
           </ModalFooterText>
         </ModalFooterForm>
         <FormTxnHash>
           <TextTxnHash>Transaction Hash</TextTxnHash>
-          <TxnHash>0x3f5...d4e</TxnHash>
+          <TxnHash href={`https://nearblocks.io/txns/${props.transactionHashes}`}>
+            {props.transactionHashes && props.transactionHashes.slice(0, 10) + "...."}
+          </TxnHash>
         </FormTxnHash>
         <SocialMedia>
           <TextTxnHash>
