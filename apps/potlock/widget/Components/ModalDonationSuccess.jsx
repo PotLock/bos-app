@@ -282,25 +282,6 @@ const ButtonGroup = styled.div`
   align-self: stretch;
   magrin-top: 24px;
 `;
-const DonateAgain = styled.button`
-  display: flex;
-  padding: 12px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex: 1 0 0;
-  border-radius: 6px;
-  background: var(--Peach-50, #fef6ee);
-
-  /* Button/main shadow */
-  box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
-  outline: none;
-  border: none;
-  &:hover {
-    background: #dd3345;
-    color: #fff;
-  }
-`;
 
 const ButtonDonate = styled.a`
   display: flex;
@@ -410,6 +391,10 @@ const SocialMedia = styled.div`
 `;
 const linkSocialMedia = styled.a`
   margin-left: 8px;
+  text-decoration: none;
+  &:link {
+    text-decoration: none;
+  }
 `;
 const IconSocialMedia = styled.img`
   width: 24px;
@@ -424,6 +409,7 @@ State.init({
 const [isBreakDown, setIsBreakDown] = useState(false);
 const amount = props.amount ?? Storage.get("amount");
 const projectId = props.donnorProjectId ?? Storage.get("projectId");
+const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -498,9 +484,13 @@ return (
           {!isBreakDown && (
             <ContentBreakDown>
               <FormContentBreakDown>
-                <TextFormBreakDown>Project allocation (95%)</TextFormBreakDown>
+                <TextFormBreakDown>
+                  Project allocation ({isReferrerId == undefined ? "95%" : "92.5%"})
+                </TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1 ? (amount * 0.95).toFixed(3) : (amount * 0.95).toFixed(2)}
+                  {amount <= 0.1
+                    ? (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(3)
+                    : (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(2)}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -522,9 +512,15 @@ return (
                 </AmountBreakDown>
               </FormContentBreakDown>
               <FormContentBreakDown>
-                <TextFormBreakDown>Referral fees (0%)</TextFormBreakDown>
+                <TextFormBreakDown>
+                  Referral fees ({isReferrerId == undefined ? "0%" : "2.5%"})
+                </TextFormBreakDown>
                 <AmountBreakDown>
-                  0
+                  {isReferrerId == undefined
+                    ? "0"
+                    : amount <= 0.1
+                    ? (amount * 0.25).toFixed(3)
+                    : (amount * 0.25).toFixed(2)}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -537,8 +533,8 @@ return (
           )}
         </BreakDownContainer>
         <ButtonGroup>
-          <ButtonDonate href={"?"}>Donate Again</ButtonDonate>
-          <ButtonDonate href={"?"}>Explore projects</ButtonDonate>
+          <ButtonDonate href={"?tab=projects"}>Donate Again</ButtonDonate>
+          <ButtonDonate href={"?tab=projects"}>Explore projects</ButtonDonate>
         </ButtonGroup>
       </ModalContext>
       <ModalFooter>

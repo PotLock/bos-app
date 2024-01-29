@@ -4,13 +4,15 @@ const [isBreakDown, setIsBreakDown] = useState(true);
 const [msg, setMsg] = useState("");
 const [note, setNote] = useState("");
 const [isNote, setIsNote] = useState(false);
-
+const [action, setAction] = useState([]);
+const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 const cardData = Social.getr(`${props.projectId}/profile`);
 State.init({
   isModalDonationOpen: false,
   isModalDonationSucessOpen: false,
 });
+//console.log("referralId", props.referrerId);
 const getBalance = () => {
   const res = fetch(`https://api.nearblocks.io/v1/account/${context.accountId}`);
 
@@ -28,6 +30,15 @@ const getInputValidation = () => {
     return "1px solid var(--Neutral-200, #dbdbdb)";
   }
 };
+
+const getNoteValidation = () => {
+  if (note.length > 350) {
+    return "1px solid var(--Neutral-200,#ff1232)";
+  } else {
+    return "1px solid var(--Neutral-200, #dbdbdb)";
+  }
+};
+
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -79,7 +90,7 @@ const ModalContainer = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  max-height: 80vh;
+  max-height: 90vh;
   max-width: 90vw;
   z-index: 1000;
 `;
@@ -271,21 +282,36 @@ const NoteInput = styled.input`
   margin-top: 20px;
   margin-left: 10px;
   flex: 1 0 0;
-  color: var(--Neutral-500, #7b7b7b);
+  color: var(--Neutral-500, ${note.length > 150 ? "#ff1232" : "#7b7b7b"});
   text-align: left;
   font-feature-settings: "ss01" on, "salt" on, "liga" off;
-
-  /* Label/Large/14px:regular */
   font-family: "Mona Sans";
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
   line-height: 20px; /* 142.857% */
-  border: 1px solid var(--Neutral-200, #dbdbdb);
+  border: 1px solid var(--Neutral-200, ${note.length > 150 ? "#ff1232" : "#dbdbdb"});
   border-radius: 6px;
   padding: 5px 10px;
   width: 100%;
   outline: none;
+`;
+const FormSubNumer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  align-self: stretch;
+`;
+const SubNumber = styled.span`
+  margin-top: -15px;
+  color: var(--Neutral-500, #7b7b7b);
+  font-feature-settings: "ss01" on, "salt" on;
+  /* Label/Medium/11px:regular */
+  font-family: "Mona Sans";
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 145.455% */
 `;
 
 const SubTitleBalance = styled.div`
@@ -480,38 +506,6 @@ const TitleMsg = styled.span`
   color: red;
 `;
 
-// const swap = () => {
-//   try {
-//     const actionsList = [
-//       {
-//         pool_id: 34,
-//         token_in: "usdt.tkn.near",
-//         token_out: "near.tkn.near",
-//         amount_in: new Big(parseFloat(amount)).mul(new Big(10).pow(24)),
-//         min_amount_out: "38582709410714",
-//       },
-//     ];
-//     const args = {
-//       receiver_id: "v2.ref-finance.near",
-//       amount: new Big(parseFloat(amount)).mul(new Big(10).pow(24)),
-//       msg: JSON.stringify({
-//         force: 0,
-//         actions: actionsList,
-//       }),
-//     };
-//     const action = Near.call({
-//       contractId: "v2.ref-finance.near",
-//       methodName: "ft_transfer_call",
-//       args: args,
-//       attachedDeposit: new BN("1"),
-//       gas: new BN("300000000000000"),
-//     });
-//     console.log("action", action);
-//   } catch (err) {
-//     console.log("err", err);
-//   }
-// };
-
 const onChangeAmount = (e) => {
   const amount = e.target.value;
   amount = amount.replace(/[^\d,.]/g, ""); // remove all non-numeric characters except for decimal
@@ -523,14 +517,24 @@ const onChangeAmount = (e) => {
 };
 
 const handleDonate = () => {
-  props.setAmount(amount);
-  props.setProjectId(props.projectId);
+  if (amount) {
+    props.setAmount(amount);
+  }
+  if (props.projectId) {
+    props.setProjectId(props.projectId);
+  }
+  if (note) {
+    props.setNote(note);
+  }
   const transactions = [];
   const amountFloat = parseFloat(amount);
   const amountIndivisible = new Big(amountFloat).mul(new Big(10).pow(24));
   const donateContractArgs = {};
   donateContractArgs.recipient_id = props.projectId;
-  donateContractArgs.message = note;
+  donateContractArgs.referrer_id = props.referrerId;
+  if (note) {
+    donateContractArgs.message = note;
+  }
   transactions.push({
     contractName: donationContractId,
     methodName: "donate",
@@ -627,9 +631,13 @@ return (
           {!isBreakDown && (
             <ContentBreakDown>
               <FormContentBreakDown>
-                <TextFormBreakDown>Project allocation (95%)</TextFormBreakDown>
+                <TextFormBreakDown>
+                  Project allocation ({isReferrerId == undefined ? "95%" : "92.5%"})
+                </TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1 ? (amount * 0.95).toFixed(3) : (amount * 0.95).toFixed(2)}
+                  {amount <= 0.1
+                    ? (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(3)
+                    : (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(2)}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -651,9 +659,15 @@ return (
                 </AmountBreakDown>
               </FormContentBreakDown>
               <FormContentBreakDown>
-                <TextFormBreakDown>Referral fees (0%)</TextFormBreakDown>
+                <TextFormBreakDown>
+                  Referral fees ({isReferrerId == undefined ? "0%" : "2.5%"})
+                </TextFormBreakDown>
                 <AmountBreakDown>
-                  0
+                  {isReferrerId == undefined
+                    ? "0"
+                    : amount <= 0.1
+                    ? (amount * 0.25).toFixed(3)
+                    : (amount * 0.25).toFixed(2)}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -684,6 +698,11 @@ return (
             autoFocus
           />
         )}
+        {isNote && (
+          <FormSubNumer>
+            <SubNumber>{note.length}/150</SubNumber>
+          </FormSubNumer>
+        )}
         <FooterModal>
           <AddToCartButton
             onClick={(e) => {
@@ -691,12 +710,13 @@ return (
               if (existsInCart) {
                 props.removeProjectsFromCart([props.projectId]);
               } else {
-                Storage.set("Note", note);
                 props.addProjectsToCart([
                   {
                     id: props.projectId,
                     amount: "1",
                     ft: "NEAR",
+                    note: note,
+                    referrerId: props.referrerId,
                   },
                 ]);
                 if (props.showModal) {

@@ -6,6 +6,7 @@ const {
   tab,
   setAmount,
   setProjectId,
+  setNote,
 } = props;
 const filterList = [
   "Newest to Oldest",
@@ -470,6 +471,7 @@ return (
               src={`${ownerId}/widget/Components.ProjectCard`}
               props={{
                 ...item,
+                referrerId: props.referrerId,
                 ownerId: ownerId,
                 showModal: true,
                 transactionHashes: props.transactionHashes,
@@ -488,6 +490,9 @@ return (
                 },
                 setProjectId: (id) => {
                   setProjectId(id);
+                },
+                setNote: (note) => {
+                  setNote(note);
                 },
                 totalAmount: (donations) => totalAmount(donations),
               }}
