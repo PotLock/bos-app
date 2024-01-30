@@ -154,7 +154,8 @@ const handleDonate = () => {
   //     }
   //   }
   const transactions = [];
-  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, potId }]) => {
+
+  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
     const amountFloat = parseFloat(amount || 0);
     const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
     const donateContractArgs = {};
@@ -165,6 +166,7 @@ const handleDonate = () => {
     } else {
       donateContractArgs.recipient_id = projectId;
       donateContractArgs.referrer_id = referrerId;
+      donateContractArgs.message = note;
     }
     transactions.push({
       contractName: potId ?? donationContractId,
@@ -173,6 +175,7 @@ const handleDonate = () => {
       deposit: amountIndivisible.toString(),
     });
   });
+
   const now = Date.now();
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet

@@ -231,7 +231,8 @@ return (
                 amount,
                 props.cart[projectId]?.ft,
                 props.cart[projectId]?.referrerId,
-                props.cart[projectId]?.potId
+                props.cart[projectId]?.potId,
+                props.cart[projectId]?.note
               ); // TODO: update this to use selected FT ID
             },
             inputStyles: {
@@ -250,7 +251,13 @@ return (
                   ],
                   value: { text: props.cart[projectId]?.ft, value: props.cart[projectId]?.ft },
                   onChange: ({ text, value }) => {
-                    props.updateCartItem(projectId, undefined, value, props.cart[projectId]?.potId);
+                    props.updateCartItem(
+                      projectId,
+                      undefined,
+                      value,
+                      props.cart[projectId]?.potId,
+                      Storage.get("note")
+                    );
                   },
                   containerStyles: {
                     width: "auto",

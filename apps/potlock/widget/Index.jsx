@@ -65,6 +65,7 @@ State.init({
   registeredProjects: null,
   donnorProjectId: null,
   amount: null,
+  note: null,
 });
 
 if (!state.nearToUsd) {
@@ -176,6 +177,7 @@ const getTabWidget = (tab) => {
 };
 
 const CART_KEY = "cart";
+
 // const PREVIOUS_CART_KEY = "previousCart";
 const storageCart = Storage.get(CART_KEY);
 // const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
@@ -185,14 +187,20 @@ const props = {
   ...props,
   ...state,
   ownerId: "potlock.near",
+  referrerId: props.referrerId,
+  setNote: (n) => {
+    const note = state.note ?? n;
+    State.update({ note: note });
+    Storage.set("note", note);
+  },
   setAmount: (value) => {
     const amount = state.amount ?? value;
-    State.update({ amount });
+    State.update({ amount: amount });
     Storage.set("amount", amount);
   },
   setProjectId: (id) => {
     const donnorProjectId = state.projectId ?? id;
-    State.update({ donnorProjectId });
+    State.update({ donnorProjectId: donnorProjectId });
     Storage.set("projectId", donnorProjectId);
   },
   addProjectsToCart: (projects) => {
@@ -212,7 +220,7 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: (projectId, amount, ft, referrerId, potId) => {
+  updateCartItem: (projectId, amount, ft, referrerId, potId, note) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";
@@ -220,6 +228,7 @@ const props = {
     if (ft) updated.ft = ft;
     if (referrerId) updated.referrerId = referrerId;
     if (potId) updated.potId = potId;
+    if (note) updated.note = note;
     cart[projectId] = updated;
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));

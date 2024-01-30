@@ -164,6 +164,7 @@ const getCategory = (category) => {
   }
 };
 if (props.transactionHashes) {
+  State.update({ isModalDonationOpen: false });
   State.update({ isModalDonationSucessOpen: true });
 }
 return (
@@ -217,7 +218,6 @@ return (
                     amount: "1",
                     ft: "NEAR",
                     referrerId: props.referrerId,
-                    potId: props.potId,
                   },
                 ]);
                 if (props.showModal) {
