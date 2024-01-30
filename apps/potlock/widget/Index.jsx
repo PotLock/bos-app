@@ -66,6 +66,8 @@ State.init({
   donnorProjectId: null,
   amount: null,
   note: null,
+  referrerId: null,
+  currency: null,
 });
 
 if (!state.nearToUsd) {
@@ -188,6 +190,11 @@ const props = {
   ...state,
   ownerId: "potlock.near",
   referrerId: props.referrerId,
+  setCurrency: (cur) => {
+    const curr = state.currency ?? cur;
+    State.update({ currency: curr });
+    Storage.set("currency", curr);
+  },
   setNote: (n) => {
     const note = state.note ?? n;
     State.update({ note: note });
@@ -199,9 +206,14 @@ const props = {
     Storage.set("amount", amount);
   },
   setProjectId: (id) => {
-    const donnorProjectId = state.projectId ?? id;
+    const donnorProjectId = state.donnorProjectId ?? id;
     State.update({ donnorProjectId: donnorProjectId });
     Storage.set("projectId", donnorProjectId);
+  },
+  setReferrerId: (ref) => {
+    const referrerId = state.referrerId ?? ref;
+    State.update({ referrerId: referrerId });
+    Storage.set("referrerId", referrerId);
   },
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};

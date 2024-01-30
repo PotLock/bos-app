@@ -409,7 +409,8 @@ State.init({
 const [isBreakDown, setIsBreakDown] = useState(false);
 const amount = props.amount ?? Storage.get("amount");
 const projectId = props.donnorProjectId ?? Storage.get("projectId");
-const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
+const [isReferrerId, setIsReferrerId] = useState(props.referrerId ?? Storage.get("referrerId"));
+const [isCurrency, setIsCurrency] = useState(props.currency ?? Storage.get("currency"));
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -421,6 +422,37 @@ const ModalDonate = ({ isOpen, onClose, children }) => {
 
 const handleChangeBreakDown = () => {
   setIsBreakDown(() => !isBreakDown);
+};
+
+const projectAllocation = () => {
+  const amount = Number(amount);
+  if (isCurrency == "near") {
+    const ref = isReferrerId == undefined ? 0.95 : 0.925;
+    return (amount * ref).toFixed(3);
+  } else {
+    const ref = isReferrerId == undefined ? 0.95 : 0.925;
+    return ((amount / onDonation.priceNear) * ref).toFixed(3);
+  }
+};
+
+const protocalFees = () => {
+  const amount = Number(amount);
+  if (isCurrency == "near") {
+    return (amount * 0.05).toFixed(3);
+  } else {
+    return ((amount / onDonation.priceNear) * 0.05).toFixed(3);
+  }
+};
+
+const referrerFees = () => {
+  const amount = Number(amount);
+  if (isCurrency == "near" && isReferrerId != undefined) {
+    return (amount * 0.25).toFixed(3);
+  } else if (isCurrency == "usd" && isReferrerId != undefined) {
+    return ((amount / onDonation.priceNear) * 0.25).toFixed(3);
+  } else {
+    return 0;
+  }
 };
 
 return (
@@ -444,7 +476,7 @@ return (
       <ModalContext>
         <TextContainer>
           <Text>
-            {amount}
+            {isCurrency == "near" ? amount : (Number(amount) / onDonation.priceNear).toFixed(3)}
             <iconNear
               src={
                 "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -452,7 +484,12 @@ return (
               alt={"Icon Near"}
             />
           </Text>
-          <TextAmount>{Number(onDonation.priceNear * amount).toFixed(2)} USDT</TextAmount>
+          <TextAmount>
+            {isCurrency == "near"
+              ? Number(onDonation.priceNear * Number(amount)).toFixed(2)
+              : amount}
+            USDT
+          </TextAmount>
         </TextContainer>
         <DonateContainer>
           <TextDonate>Has been donated to</TextDonate>
@@ -488,9 +525,7 @@ return (
                   Project allocation ({isReferrerId == undefined ? "95%" : "92.5%"})
                 </TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1
-                    ? (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(3)
-                    : (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(2)}
+                  {projectAllocation()}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -502,7 +537,7 @@ return (
               <FormContentBreakDown>
                 <TextFormBreakDown>Protocol fees (5%)</TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1 ? (amount * 0.05).toFixed(3) : (amount * 0.05).toFixed(2)}
+                  {protocalFees()}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
@@ -516,11 +551,7 @@ return (
                   Referral fees ({isReferrerId == undefined ? "0%" : "2.5%"})
                 </TextFormBreakDown>
                 <AmountBreakDown>
-                  {isReferrerId == undefined
-                    ? "0"
-                    : amount <= 0.1
-                    ? (amount * 0.25).toFixed(3)
-                    : (amount * 0.25).toFixed(2)}
+                  {referrerFees()}
                   <IconNearBreakDown
                     src={
                       "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"

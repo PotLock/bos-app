@@ -6,13 +6,15 @@ const [note, setNote] = useState("");
 const [isNote, setIsNote] = useState(false);
 const [action, setAction] = useState([]);
 const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
+const [onSelect, setOnSelect] = useState("near");
+
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 const cardData = Social.getr(`${props.projectId}/profile`);
 State.init({
   isModalDonationOpen: false,
   isModalDonationSucessOpen: false,
 });
-//console.log("referralId", props.referrerId);
+
 const getBalance = () => {
   const res = fetch(`https://api.nearblocks.io/v1/account/${context.accountId}`);
 
@@ -23,16 +25,9 @@ const getBalance = () => {
   const spendable_balance = native_balance - unspendable_balance;
   return spendable_balance.toFixed(4);
 };
+
 const getInputValidation = () => {
   if (Number(amount) > getBalance()) {
-    return "1px solid var(--Neutral-200,#ff1232)";
-  } else {
-    return "1px solid var(--Neutral-200, #dbdbdb)";
-  }
-};
-
-const getNoteValidation = () => {
-  if (note.length > 350) {
     return "1px solid var(--Neutral-200,#ff1232)";
   } else {
     return "1px solid var(--Neutral-200, #dbdbdb)";
@@ -448,6 +443,12 @@ const IconNear = styled.img`
   filter: grayscale(120%);
   margin-top: -5px;
 `;
+const FtIconNear = styled.img`
+  width: 22px;
+  height: 22px;
+  border-radius: 28px;
+  filter: grayscale(120%);
+`;
 const ButtonNote = styled.button`
   color: var(--Neutral-950, #292929);
   font-feature-settings: "ss01" on, "salt" on;
@@ -506,6 +507,10 @@ const TitleMsg = styled.span`
   color: red;
 `;
 
+const changeSelect = (e) => {
+  setOnSelect(e.target.value);
+};
+
 const onChangeAmount = (e) => {
   const amount = e.target.value;
   amount = amount.replace(/[^\d,.]/g, ""); // remove all non-numeric characters except for decimal
@@ -516,32 +521,61 @@ const onChangeAmount = (e) => {
   setAmount(amount);
 };
 
+const projectAllocation = () => {
+  const amount = Number(amount);
+  if (onSelect == "near") {
+    const ref = isReferrerId == undefined ? 0.95 : 0.925;
+    return (amount * ref).toFixed(3);
+  } else {
+    const ref = isReferrerId == undefined ? 0.95 : 0.925;
+    return ((amount / getPriceUSD()) * ref).toFixed(3);
+  }
+};
+
+const protocalFees = () => {
+  const amount = Number(amount);
+  if (onSelect == "near") {
+    return (amount * 0.05).toFixed(3);
+  } else {
+    return ((amount / getPriceUSD()) * 0.05).toFixed(3);
+  }
+};
+
+const referrerFees = () => {
+  const amount = Number(amount);
+  if (onSelect == "near" && isReferrerId) {
+    return (amount * 0.25).toFixed(3);
+  } else if (onSelect == "usd" && isReferrerId) {
+    return ((amount / getPriceUSD()) * 0.25).toFixed(3);
+  } else {
+    return 0;
+  }
+};
+
 const handleDonate = () => {
-  if (amount) {
+  if (Number(amount) > 0) {
     props.setAmount(amount);
-  }
-  if (props.projectId) {
     props.setProjectId(props.projectId);
-  }
-  if (note) {
     props.setNote(note);
+    props.setReferrerId(props.referrerId);
+    props.setCurrency(onSelect);
+    const transactions = [];
+    const amountFloat = onSelect == "near" ? amount : (Number(amount) / getPriceUSD()).toFixed(3);
+    const amountIndivisible = new Big(parseFloat(amountFloat)).mul(new Big(10).pow(24));
+    const donateContractArgs = {};
+    donateContractArgs.recipient_id = props.projectId;
+    donateContractArgs.referrer_id = props.referrerId;
+    if (note) {
+      donateContractArgs.message = note;
+    }
+    transactions.push({
+      contractName: donationContractId,
+      methodName: "donate",
+      args: donateContractArgs,
+      deposit: amountIndivisible.toString(),
+    });
+    Near.call(transactions);
   }
-  const transactions = [];
-  const amountFloat = parseFloat(amount);
-  const amountIndivisible = new Big(amountFloat).mul(new Big(10).pow(24));
-  const donateContractArgs = {};
-  donateContractArgs.recipient_id = props.projectId;
-  donateContractArgs.referrer_id = props.referrerId;
-  if (note) {
-    donateContractArgs.message = note;
-  }
-  transactions.push({
-    contractName: donationContractId,
-    methodName: "donate",
-    args: donateContractArgs,
-    deposit: amountIndivisible.toString(),
-  });
-  Near.call(transactions);
 };
 
 return (
@@ -587,9 +621,44 @@ return (
           <LabelAmount>Amount</LabelAmount>
         </FormAmountHeader>
         <FormInputAmount>
-          <CboxSelect>
-            <CboxSelectOption>NEAR</CboxSelectOption>
-          </CboxSelect>
+          <Widget
+            src={`${props.ownerId}/widget/Inputs.Select`}
+            props={{
+              noLabel: true,
+              placeholder: "",
+              options: [
+                { text: "NEAR", value: "near" },
+                { text: "USD", value: "usd" },
+              ],
+              containerStyles: {
+                width: "auto",
+              },
+              value: { text: onSelect.toUpperCase(), value: onSelect },
+              onChange: ({ text, value }) => {
+                setOnSelect(value);
+              },
+              inputStyles: {
+                border: "none",
+                borderRight: "1px #F0F0F0 solid",
+                boxShadow: "none",
+                borderRadius: "4px 0px 0px 4px",
+                width: "auto",
+                padding: "12px 16px",
+                boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
+              },
+              iconLeft:
+                onSelect == "near" ? (
+                  <FtIconNear
+                    src={
+                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                    }
+                    alt={"Icon Near"}
+                  />
+                ) : (
+                  "$"
+                ),
+            }}
+          />
           <FormInput>
             <AmountInput
               type={"number"}
@@ -602,15 +671,21 @@ return (
         </FormInputAmount>
         <SubTitleBalance>
           <LabelPrice>1 NEAR = ${Number(getPriceUSD()).toFixed(2)}</LabelPrice>
-          <LabelBalance>
-            Account balance: {getBalance().toString()}
-            <IconNear
-              src={
-                "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-              }
-              alt={"Icon Near"}
-            />
-          </LabelBalance>
+          {onSelect == "near" ? (
+            <LabelBalance>
+              Account balance: {getBalance().toString()}
+              <IconNear
+                src={
+                  "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                }
+                alt={"Icon Near"}
+              />
+            </LabelBalance>
+          ) : (
+            <LabelBalance>
+              Account balance: {(Number(getBalance()) * Number(getPriceUSD())).toFixed(2)} $
+            </LabelBalance>
+          )}
         </SubTitleBalance>
         <TitleMsg>{msg}</TitleMsg>
         <BreakDownContainer>
@@ -635,27 +710,33 @@ return (
                   Project allocation ({isReferrerId == undefined ? "95%" : "92.5%"})
                 </TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1
-                    ? (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(3)
-                    : (amount * isReferrerId == undefined ? 0.95 : 0.925).toFixed(2)}
-                  <IconNearBreakDown
-                    src={
-                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                    }
-                    alt={"logo near amount"}
-                  />
+                  {projectAllocation()}
+                  {onSelect == "near" ? (
+                    <IconNearBreakDown
+                      src={
+                        "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                      }
+                      alt={"logo near amount"}
+                    />
+                  ) : (
+                    "$"
+                  )}
                 </AmountBreakDown>
               </FormContentBreakDown>
               <FormContentBreakDown>
                 <TextFormBreakDown>Protocol fees (5%)</TextFormBreakDown>
                 <AmountBreakDown>
-                  {amount <= 0.1 ? (amount * 0.05).toFixed(3) : (amount * 0.05).toFixed(2)}
-                  <IconNearBreakDown
-                    src={
-                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                    }
-                    alt={"logo near amount"}
-                  />
+                  {protocalFees()}
+                  {onSelect == "near" ? (
+                    <IconNearBreakDown
+                      src={
+                        "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                      }
+                      alt={"logo near amount"}
+                    />
+                  ) : (
+                    "$"
+                  )}
                 </AmountBreakDown>
               </FormContentBreakDown>
               <FormContentBreakDown>
@@ -663,17 +744,17 @@ return (
                   Referral fees ({isReferrerId == undefined ? "0%" : "2.5%"})
                 </TextFormBreakDown>
                 <AmountBreakDown>
-                  {isReferrerId == undefined
-                    ? "0"
-                    : amount <= 0.1
-                    ? (amount * 0.25).toFixed(3)
-                    : (amount * 0.25).toFixed(2)}
-                  <IconNearBreakDown
-                    src={
-                      "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
-                    }
-                    alt={"logo near amount"}
-                  />
+                  {referrerFees()}
+                  {onSelect == "near" ? (
+                    <IconNearBreakDown
+                      src={
+                        "https://s3-alpha-sig.figma.com/img/8cc9/7cfb/5a58fb149e537ae5ea03b9d97cd11c2a?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=qQbfzhPe~lml8Lk-A27HSS2mhwQhpvaZL3-Nsoj7qtiKgQCX~galYPrQYHI59dSCLAjyomlBiGm0GJNI8~YwL43CVOqaptW0HHgliMo2fs0lmGpfBPEYWiPexu-NtpbdLwkAObem4CE2Wmjk4CysTx2f4mBVc43gcjvxiv2tuPcyVnjTZ7ByCe2qjQvs-D01YTmfP7n~nGtnVWCYqcHZ26pXq9FaN3Ssse6dNedBQWFMM~2UQej3p5dUXgqGDhfYxMABsjemVA1SrMJAFMYK1ZyE5k~MOnWtytWh~jgYvXXKUWSKRmP1aXMdHfBkVIAHoRI7rSnA7IhECie8lvUu6Q__"
+                      }
+                      alt={"logo near amount"}
+                    />
+                  ) : (
+                    "$"
+                  )}
                 </AmountBreakDown>
               </FormContentBreakDown>
             </ContentBreakDown>

@@ -7,6 +7,13 @@ const {
   setAmount,
   setProjectId,
   setNote,
+  setReferrerId,
+  setCurrency,
+  donnorProjectId,
+  amount,
+  referrerId,
+  currency,
+  note,
 } = props;
 const filterList = [
   "Newest to Oldest",
@@ -136,6 +143,11 @@ const loadProjects = () => {
           ownerId: ownerId,
           showModal: true,
           isExistedInCart: props.cart && !!props.cart[item.id],
+          donnorProjectId: donnorProjectId,
+          amount: amount,
+          referrerId: referrerId,
+          currency: currency,
+          note: note,
           removeProjectsFromCart: (projectId) => {
             removeProjectsFromCart(projectId);
           },
@@ -144,6 +156,21 @@ const loadProjects = () => {
           },
           setIsCartModalOpen: (isOpen) => {
             setIsCartModalOpen(isOpen);
+          },
+          setAmount: (value) => {
+            setAmount(value);
+          },
+          setProjectId: (id) => {
+            setProjectId(id);
+          },
+          setNote: (note) => {
+            setNote(note);
+          },
+          setReferrerId: (ref) => {
+            setReferrerId(ref);
+          },
+          setCurrency: (cur) => {
+            setCurrency(cur);
           },
           totalAmount: (donations) => totalAmount(donations),
         }}
@@ -476,6 +503,11 @@ return (
                 showModal: true,
                 transactionHashes: props.transactionHashes,
                 isExistedInCart: props.cart && !!props.cart[item.id],
+                donnorProjectId: donnorProjectId,
+                amount: amount,
+                referrerId: referrerId,
+                currency: currency,
+                note: note,
                 removeProjectsFromCart: (projectId) => {
                   removeProjectsFromCart(projectId);
                 },
@@ -493,6 +525,12 @@ return (
                 },
                 setNote: (note) => {
                   setNote(note);
+                },
+                setReferrerId: (ref) => {
+                  setReferrerId(ref);
+                },
+                setCurrency: (cur) => {
+                  setCurrency(cur);
                 },
                 totalAmount: (donations) => totalAmount(donations),
               }}
