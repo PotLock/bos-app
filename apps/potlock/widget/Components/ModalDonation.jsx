@@ -1,8 +1,9 @@
+const { setAmount, setProjectId, setNote, setReferrerId, setCurrency } = props;
 const donationContractId = "donate.potlock.near";
-const [amount, setAmount] = useState("1");
+const [amount, setAmounts] = useState("1");
 const [isBreakDown, setIsBreakDown] = useState(true);
 const [msg, setMsg] = useState("");
-const [note, setNote] = useState("");
+const [note, setNotes] = useState("");
 const [isNote, setIsNote] = useState(false);
 const [action, setAction] = useState([]);
 const isReferrerId = props.referrerId;
@@ -27,10 +28,18 @@ const getBalance = () => {
 };
 
 const getInputValidation = () => {
-  if (Number(amount) > getBalance()) {
-    return "1px solid var(--Neutral-200,#ff1232)";
+  if (onSelect == "near") {
+    if (Number(amount) > getBalance()) {
+      return "1px solid var(--Neutral-200,#ff1232)";
+    } else {
+      return "1px solid var(--Neutral-200, #dbdbdb)";
+    }
   } else {
-    return "1px solid var(--Neutral-200, #dbdbdb)";
+    if (Number(amount) > Number(getBalance()) * Number(getPriceUSD())) {
+      return "1px solid var(--Neutral-200,#ff1232)";
+    } else {
+      return "1px solid var(--Neutral-200, #dbdbdb)";
+    }
   }
 };
 
@@ -515,10 +524,14 @@ const onChangeAmount = (e) => {
   const amount = e.target.value;
   amount = amount.replace(/[^\d,.]/g, ""); // remove all non-numeric characters except for decimal
   if (amount === ".") amount = "0.";
-  Number(amount) > getBalance()
+  onSelect == "near"
+    ? Number(amount) > getBalance()
+      ? setMsg("The amount of money in your account is not enough.")
+      : setMsg("")
+    : Number(amount) > Number(getBalance()) * Number(getPriceUSD())
     ? setMsg("The amount of money in your account is not enough.")
     : setMsg("");
-  setAmount(amount);
+  setAmounts(amount);
 };
 
 const projectAllocation = () => {
@@ -551,14 +564,14 @@ const referrerFees = () => {
     return 0;
   }
 };
-
+// console.log(props);
 const handleDonate = () => {
+  setAmount(amount);
+  setProjectId(props.projectId);
+  setNote(note);
+  setReferrerId(props.referrerId);
+  setCurrency(onSelect);
   if (Number(amount) > 0) {
-    props.setAmount(amount);
-    props.setProjectId(props.projectId);
-    props.setNote(note);
-    props.setReferrerId(props.referrerId);
-    props.setCurrency(onSelect);
     const transactions = [];
     const amountFloat = onSelect == "near" ? amount : (Number(amount) / getPriceUSD()).toFixed(3);
     const amountIndivisible = new Big(parseFloat(amountFloat)).mul(new Big(10).pow(24));
@@ -775,7 +788,7 @@ return (
           <NoteInput
             placeholder={"Please enter your note"}
             value={note}
-            onChange={(e) => setNote(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
             autoFocus
           />
         )}
