@@ -230,6 +230,7 @@ return (
                 projectId,
                 amount,
                 props.cart[projectId]?.ft,
+                props.cart[projectId]?.price,
                 props.cart[projectId]?.referrerId,
                 props.cart[projectId]?.potId,
                 props.cart[projectId]?.note
@@ -248,6 +249,7 @@ return (
                   options: [
                     { text: "", value: "" },
                     { text: "NEAR", value: "NEAR" },
+                    { text: "USD", value: "USD" },
                   ],
                   value: { text: props.cart[projectId]?.ft, value: props.cart[projectId]?.ft },
                   onChange: ({ text, value }) => {
@@ -255,6 +257,8 @@ return (
                       projectId,
                       undefined,
                       value,
+                      props.cart[projectId]?.price,
+                      props.cart[projectId]?.referrerId,
                       props.cart[projectId]?.potId,
                       Storage.get("note")
                     );
@@ -271,7 +275,12 @@ return (
                     padding: "12px 16px",
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
-                  iconLeft: <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />,
+                  iconLeft:
+                    props.cart[projectId]?.ft == "NEAR" ? (
+                      <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    ) : (
+                      "$"
+                    ),
                 }}
               />
             ),
@@ -294,7 +303,11 @@ return (
                   <BreakdownAmount>
                     {protocolFeeAmount ? protocolFeeAmount.toFixed(3) : "-"}
                   </BreakdownAmount>
-                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {props.cart[projectId]?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  ) : (
+                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                  )}
                 </BreakdownItemRight>
               </BreakdownItem>
               {props.cart[projectId]?.referrerId && (
@@ -306,7 +319,11 @@ return (
                     <BreakdownAmount>
                       {referrerFeeAmount ? referrerFeeAmount.toFixed(3) : "-"}
                     </BreakdownAmount>
-                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    {props.cart[projectId]?.ft == "NEAR" ? (
+                      <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    ) : (
+                      props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                    )}
                   </BreakdownItemRight>
                 </BreakdownItem>
               )}
@@ -314,7 +331,11 @@ return (
                 <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
                 <BreakdownItemRight>
                   <BreakdownAmount>{"<0.010"}</BreakdownAmount>
-                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {props.cart[projectId]?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  ) : (
+                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                  )}
                 </BreakdownItemRight>
               </BreakdownItem>
               <BreakdownItem>
@@ -323,9 +344,15 @@ return (
                 </BreakdownItemLeft>
                 <BreakdownItemRight>
                   <BreakdownAmount>
-                    ~{projectAllocationAmount ? projectAllocationAmount.toFixed(3) : "-"}
+                    {props.cart[projectId]?.ft == "NEAR"
+                      ? projectAllocationAmount.toFixed(3)
+                      : (projectAllocationAmount / props.cart[projectId].price).toFixed(3)}
                   </BreakdownAmount>
-                  <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {props.cart[projectId]?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  ) : (
+                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                  )}
                 </BreakdownItemRight>
               </BreakdownItem>
             </BreakdownDetails>

@@ -5,7 +5,7 @@ const [msg, setMsg] = useState("");
 const [note, setNote] = useState("");
 const [isNote, setIsNote] = useState(false);
 const [action, setAction] = useState([]);
-const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
+const isReferrerId = props.referrerId;
 const [onSelect, setOnSelect] = useState("near");
 
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
@@ -794,8 +794,9 @@ return (
                 props.addProjectsToCart([
                   {
                     id: props.projectId,
-                    amount: "1",
-                    ft: "NEAR",
+                    amount: amount,
+                    ft: onSelect == "near" ? "NEAR" : "USD",
+                    price: getPriceUSD(),
                     note: note,
                     referrerId: props.referrerId,
                   },

@@ -232,12 +232,13 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: (projectId, amount, ft, referrerId, potId, note) => {
+  updateCartItem: (projectId, amount, ft, price, referrerId, potId, note) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";
     if (amount || amount === "") updated.amount = amount;
     if (ft) updated.ft = ft;
+    if (price) updated.price = price;
     if (referrerId) updated.referrerId = referrerId;
     if (potId) updated.potId = potId;
     if (note) updated.note = note;
@@ -281,6 +282,14 @@ const props = {
     // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
       iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
+      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
+      fromIndivisible: (amount, decimals) =>
+        Big(amount)
+          .div(Big(10).pow(24))
+          .toFixed(decimals || 2),
+    },
+    USD: {
+      iconUrl: "$",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
       fromIndivisible: (amount, decimals) =>
         Big(amount)

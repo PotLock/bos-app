@@ -1,4 +1,4 @@
-const { onDonation } = props;
+const { onDonation, ownerId } = props;
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -405,12 +405,25 @@ const IconSocialMedia = styled.img`
 State.init({
   isModalDonationSucessOpen: false,
   isModalDonationOpen: false,
+  successfulDonationRecipientId: null,
+  successfulDonationRecipientProfile: null,
 });
 const [isBreakDown, setIsBreakDown] = useState(false);
 const amount = props.amount ?? Storage.get("amount");
 const projectId = props.donnorProjectId ?? Storage.get("projectId");
-const [isReferrerId, setIsReferrerId] = useState(props.referrerId ?? Storage.get("referrerId"));
-const [isCurrency, setIsCurrency] = useState(props.currency ?? Storage.get("currency"));
+const isReferrerId = props.referrerId ?? Storage.get("referrerId");
+const isCurrency = props.currency ?? Storage.get("currency");
+const avatar = Social.getr(`${context.accountId}/profile`);
+const profile = Social.getr(`${projectId}/profile`);
+const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
+const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
+const IPFS_BASE_URL_NFT = "https://nftstorage.link/ipfs/";
+const TRASH_ICON_URL =
+  IPFS_BASE_URL + "bafkreicwtubzlywmtvoxc4tqjfturyi5oqxtbpezceosiw3juv2d4uf7om";
+
+const DEFAULT_GATEWAY = "https://bos.potlock.org/";
+const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
+
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -419,6 +432,32 @@ const ModalDonate = ({ isOpen, onClose, children }) => {
     </Modal>
   );
 };
+
+if (projectId && !state.successfulDonationRecipientProfile) {
+  const profile = Social.getr(`${projectId}/profile`);
+  // console.log("profile: ", profile);
+  if (profile) {
+    State.update({ successfulDonationRecipientProfile: profile });
+  }
+}
+
+const twitterIntent = useMemo(() => {
+  if (!projectId) return;
+  const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
+  let url =
+    DEFAULT_GATEWAY +
+    `${ownerId}/widget/Index?tab=project&projectId=${projectId}&referrerId=${context.accountId}`;
+  let text = `I just donated to ${
+    state.successfulDonationRecipientProfile
+      ? state.successfulDonationRecipientProfile.linktree?.twitter
+        ? `@${state.successfulDonationRecipientProfile.linktree.twitter}`
+        : state.successfulDonationRecipientProfile.name
+      : projectId
+  } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
+  text = encodeURIComponent(text);
+  url = encodeURIComponent(url);
+  return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
+}, [projectId, state.successfulDonationRecipientProfile]);
 
 const handleChangeBreakDown = () => {
   setIsBreakDown(() => !isBreakDown);
@@ -454,6 +493,7 @@ const referrerFees = () => {
     return 0;
   }
 };
+//console.log("amount", isCurrency);
 
 return (
   <ModalDonate
@@ -496,11 +536,13 @@ return (
           <Donor>
             <DonerAvatar
               src={
-                "https://s3-alpha-sig.figma.com/img/0dd0/eca3/4f07344bd377bb7dc94622788695208e?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=L2UXIsQ94KtwQLR9rDAr6xp0q4dba9vb6YfaMftLoMqosfQaG9gwFVSFegE0stN58oZ6isJABcsyI2V2h9jylJMbLodvTKpnihvAmetY5Ubmc0ZEuHejPnck5GMKP9bS1tZzCRTy8BQkUjgE3GABYwBIW-2vJjf73GhtJWI5iZ2AP9FNJsPTio7cLbqFZ~PoxNztehHRSbZgpedtvVRv0LvdKjoXAIrjRhb2JcPPf2jeeOgxDxKNRP8jJksztS6O-vpgh8L-a2SefrFFuJmu1eCyIdFw3jTdgDa-Uf8QWm0SxFNE9gu726-6ygAUbGAKSMnUI7dR7S5B837T1YP0KQ__"
+                profile && profile?.image && profile?.image?.ipfs_cid
+                  ? `${IPFS_BASE_URL}${profile.image.ipfs_cid}`
+                  : "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
               }
-              alt={"avatar doner"}
+              alt="avatar"
             />
-            <DonerName>{context.accountId}</DonerName>
+            <DonerName>{projectId}</DonerName>
           </Donor>
         </DonateContainer>
         <BreakDownContainer>
@@ -575,47 +617,35 @@ return (
             <Donor>
               <DonerAvatar
                 src={
-                  "https://s3-alpha-sig.figma.com/img/0dd0/eca3/4f07344bd377bb7dc94622788695208e?Expires=1707091200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=L2UXIsQ94KtwQLR9rDAr6xp0q4dba9vb6YfaMftLoMqosfQaG9gwFVSFegE0stN58oZ6isJABcsyI2V2h9jylJMbLodvTKpnihvAmetY5Ubmc0ZEuHejPnck5GMKP9bS1tZzCRTy8BQkUjgE3GABYwBIW-2vJjf73GhtJWI5iZ2AP9FNJsPTio7cLbqFZ~PoxNztehHRSbZgpedtvVRv0LvdKjoXAIrjRhb2JcPPf2jeeOgxDxKNRP8jJksztS6O-vpgh8L-a2SefrFFuJmu1eCyIdFw3jTdgDa-Uf8QWm0SxFNE9gu726-6ygAUbGAKSMnUI7dR7S5B837T1YP0KQ__"
+                  avatar && avatar?.image && avatar?.image?.ipfs_cid
+                    ? `${IPFS_BASE_URL}${avatar.image.ipfs_cid}`
+                    : "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci"
                 }
-                alt={"avatar doner"}
+                alt="avatar"
               />
-              <DonerName>{projectId}</DonerName>
+              <DonerName>{context.accountId}</DonerName>
             </Donor>
           </ModalFooterText>
         </ModalFooterForm>
         <FormTxnHash>
           <TextTxnHash>Transaction Hash</TextTxnHash>
-          <TxnHash href={`https://nearblocks.io/txns/${props.transactionHashes}`}>
+          <TxnHash href={`https://nearblocks.io/txns/${props.transactionHashes}`} target="_blank">
             {props.transactionHashes && props.transactionHashes.slice(0, 10) + "...."}
           </TxnHash>
         </FormTxnHash>
         <SocialMedia>
           <TextTxnHash>
             Share to
-            <linkSocialMedia href={"https://web.telegram.org/"} target={"_blank"}>
-              <IconSocialMedia
-                src={
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/240px-Telegram_logo.svg.png"
-                }
-                alt={"telegram"}
-              />
-            </linkSocialMedia>
-            <linkSocialMedia href={"https://www.linkedin.com/"} target={"_blank"}>
-              <IconSocialMedia
-                src={
-                  "https://static-00.iconduck.com/assets.00/linkedin-icon-1024x1024-net2o24e.png"
-                }
-                alt={"linkedin"}
-              />
-            </linkSocialMedia>
-            <linkSocialMedia href={"https://twitter.com/"} target={"_blank"}>
-              <IconSocialMedia
-                src={
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/292px-Logo_of_Twitter.svg.png"
-                }
-                alt={"twitter"}
-              />
-            </linkSocialMedia>
+            {twitterIntent && (
+              <linkSocialMedia href={twitterIntent} target={"_blank"} disabled={!twitterIntent}>
+                <IconSocialMedia
+                  src={
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/292px-Logo_of_Twitter.svg.png"
+                  }
+                  alt={"twitter"}
+                />
+              </linkSocialMedia>
+            )}
           </TextTxnHash>
         </SocialMedia>
       </ModalFooter>
