@@ -440,7 +440,7 @@ if (projectId && !state.successfulDonationRecipientProfile) {
     State.update({ successfulDonationRecipientProfile: profile });
   }
 }
-
+console.log("props modation", props);
 const twitterIntent = useMemo(() => {
   if (!projectId) return;
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";

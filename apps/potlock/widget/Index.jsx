@@ -182,6 +182,11 @@ const CART_KEY = "cart";
 
 // const PREVIOUS_CART_KEY = "previousCart";
 const storageCart = Storage.get(CART_KEY);
+const StorageCurrency = Storage.get("currency");
+const StorageNote = Storage.get("note");
+const StorageAmount = Storage.get("amount");
+const StorageProjectId = Storage.get("projectId");
+const StorageReferrerId = Storage.get("referrerId");
 // const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
 const DEFAULT_CART = {};
 
@@ -191,9 +196,9 @@ const props = {
   ownerId: "potlock.near",
   referrerId: props.referrerId,
   setCurrency: (cur) => {
-    const curr = state.currency ?? cur;
-    State.update({ currency: curr });
-    Storage.set("currency", curr);
+    const currency = state.currency ?? cur;
+    State.update({ currency: currency });
+    Storage.set("currency", currency);
   },
   setNote: (n) => {
     const note = state.note ?? n;
@@ -422,6 +427,21 @@ if (state.cart === null && storageCart !== null) {
     cart = JSON.parse(storageCart);
   }
   State.update({ cart });
+}
+
+if (
+  state.currency === null &&
+  state.donnorProjectId === null &&
+  state.amount === null &&
+  StorageCurrency !== null &&
+  StorageAmount !== null &&
+  StorageProjectId !== null
+) {
+  State.update({ currency: StorageCurrency });
+  State.update({ amount: StorageAmount });
+  State.update({ donnorProjectId: StorageProjectId });
+  State.update({ note: StorageNote });
+  State.update({ referrerId: StorageReferrerId });
 }
 
 // if (state.previousCart === null && storagePreviousCart !== null) {
