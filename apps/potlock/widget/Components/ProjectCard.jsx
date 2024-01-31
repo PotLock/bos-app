@@ -18,6 +18,9 @@ const Card = styled.a`
     text-decoration: none;
     cursor: pointer;
   }
+  @media screen and (max-width: 768px) {
+    width: 340px;
+  }
   min-height: 429px;
   margin-left: auto;
   margin-right: auto;
@@ -135,7 +138,7 @@ const AddToCartButton = styled.button`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: center;
 `;
 State.init({
@@ -164,8 +167,9 @@ const getCategory = (category) => {
 };
 if (props.transactionHashes) {
   State.update({ isModalDonationOpen: false });
-  State.update({ isModalDonationSucessOpen: true });
+  state.isModalDonationSucessOpen = true;
 }
+
 return (
   <>
     <Card href={`?tab=project&projectId=${id}`} target="_blank">

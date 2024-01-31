@@ -404,11 +404,10 @@ const IconSocialMedia = styled.img`
 
 State.init({
   isModalDonationSucessOpen: false,
-  isModalDonationOpen: false,
   successfulDonationRecipientId: null,
   successfulDonationRecipientProfile: null,
 });
-const [isBreakDown, setIsBreakDown] = useState(false);
+const [isBreakDown, setIsBreakDown] = useState(true);
 const amount = props.amount ?? Storage.get("amount");
 const projectId = props.donnorProjectId ?? Storage.get("projectId");
 const isReferrerId = props.referrerId ?? Storage.get("referrerId");
