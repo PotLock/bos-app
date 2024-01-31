@@ -5,7 +5,7 @@ const [msg, setMsg] = useState("");
 const [note, setNote] = useState("");
 const [isNote, setIsNote] = useState(false);
 const [action, setAction] = useState([]);
-const isReferrerId = props.referrerId;
+const [isReferrerId, setIsReferrerId] = useState(props.referrerId);
 const [onSelect, setOnSelect] = useState("near");
 
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;

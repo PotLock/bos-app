@@ -245,9 +245,9 @@ return (
           </BreakdownItemLeft>
           <BreakdownItemRight>
             <BreakdownItemText>
-              {props.cart[props.projectId]?.ft == "NEAR"
-                ? `${amountFloat.toFixed(2)} N`
-                : `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} $`}
+              {props.cart[props.projectId]?.ft != "NEAR"
+                ? `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} N`
+                : `${amountFloat.toFixed(2)}$`}
             </BreakdownItemText>
           </BreakdownItemRight>
         </BreakdownItemContainer>
@@ -256,9 +256,9 @@ return (
     <TotalContainer>
       <TotalText>Total</TotalText>
       <TotalText>
-        {props.cart[props.projectId]?.ft == "NEAR"
-          ? `${totalAmount.toFixed(2)} N`
-          : `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} $`}
+        {props.cart[props.projectId]?.ft != "NEAR"
+          ? `$${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
+          : `${totalAmount.toFixed(2)}$`}
       </TotalText>
     </TotalContainer>
     <Widget
@@ -267,9 +267,9 @@ return (
         type: "primary",
         // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
         text: `Donate ${
-          props.cart[props.projectId]?.ft != "NEAR"
-            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} $`
-            : `${totalAmount.toFixed(2)} N`
+          props.cart[props.projectId]?.ft == "NEAR"
+            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
+            : `${totalAmount.toFixed(2)}$`
         }`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
