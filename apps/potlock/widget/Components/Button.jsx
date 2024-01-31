@@ -59,6 +59,7 @@ return (
     }}
     href={props.href}
     style={{ ...props.style }}
+    target={props.target}
   >
     {props.text}
   </Button>
