@@ -409,8 +409,8 @@ State.init({
 const [isBreakDown, setIsBreakDown] = useState(false);
 const amount = props.amount ?? Storage.get("amount");
 const projectId = props.donnorProjectId ?? Storage.get("projectId");
-const [isReferrerId, setIsReferrerId] = useState(props.referrerId ?? Storage.get("referrerId"));
-const [isCurrency, setIsCurrency] = useState(props.currency ?? Storage.get("currency"));
+const isReferrerId = props.referrerId ?? Storage.get("referrerId");
+const isCurrency = props.currency ?? Storage.get("currency");
 const ModalDonate = ({ isOpen, onClose, children }) => {
   if (!isOpen) return "";
   return (
@@ -454,6 +454,7 @@ const referrerFees = () => {
     return 0;
   }
 };
+console.log("amount", isCurrency);
 
 return (
   <ModalDonate
@@ -500,7 +501,7 @@ return (
               }
               alt={"avatar doner"}
             />
-            <DonerName>{context.accountId}</DonerName>
+            <DonerName>{projectId}</DonerName>
           </Donor>
         </DonateContainer>
         <BreakDownContainer>
@@ -579,7 +580,7 @@ return (
                 }
                 alt={"avatar doner"}
               />
-              <DonerName>{projectId}</DonerName>
+              <DonerName>{context.accountId}</DonerName>
             </Donor>
           </ModalFooterText>
         </ModalFooterForm>

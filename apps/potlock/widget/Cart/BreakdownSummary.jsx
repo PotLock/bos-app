@@ -156,7 +156,12 @@ const handleDonate = () => {
   const transactions = [];
 
   Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
-    const amountFloat = parseFloat(amount || 0);
+    const amountFloat = 0;
+    if (ft == "NEAR") {
+      amountFloat = parseFloat(amount || 0);
+    } else {
+      amountFloat = parseFloat((amount / props.cart[props.projectId]?.price).toFixed(2) || 0);
+    }
     const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
     const donateContractArgs = {};
     const potContractArgs = {};
@@ -195,7 +200,7 @@ const handleDonate = () => {
       for (const donation of donations) {
         const { recipient_id: projectId, donated_at_ms, total_amount } = donation;
         const matchingCartItem = props.cart[projectId];
-        const ft_id = "NEAR"; // TODO: remove hardcoding to support other FTs
+        const ft_id = props.cart[projectId]?.ft == "NEAR" ? "NEAR" : "USD"; // TODO: remove hardcoding to support other FTs
         if (
           matchingCartItem &&
           donated_at_ms > now &&
@@ -216,29 +221,33 @@ const handleDonate = () => {
     });
   }, pollIntervalMs);
 };
-
-// console.log("props in breakdown: ", props);
-
+//console.log("props", props.projectId);
 return (
   <Container>
     <Title>Breakdown summary</Title>
     <CurrencyHeader>
       <CurrencyHeaderText>Currency</CurrencyHeaderText>
-      <CurrencyHeaderText>{props.nearToUsd ? "USD" : "NEAR"}</CurrencyHeaderText>
+      <CurrencyHeaderText>
+        {props.cart[props.projectId]?.ft == "USD" ? "USD" : "NEAR"}
+      </CurrencyHeaderText>
     </CurrencyHeader>
     {Object.entries(amountsByFt).map(([ft, amount]) => {
       const amountFloat = parseFloat(amount || 0);
       return (
         <BreakdownItemContainer>
           <BreakdownItemLeft>
-            <CurrencyIcon src={props.SUPPORTED_FTS[ft].iconUrl} />
+            {props.cart[props.projectId]?.ft == "NEAR" ? (
+              <CurrencyIcon src={props.SUPPORTED_FTS[ft].iconUrl} />
+            ) : (
+              "$"
+            )}
             <BreakdownItemText>{amountFloat.toFixed(2)}</BreakdownItemText>
           </BreakdownItemLeft>
           <BreakdownItemRight>
             <BreakdownItemText>
-              {props.nearToUsd
-                ? `$${(amountFloat * props.nearToUsd).toFixed(2)}`
-                : `${amountFloat.toFixed(2)} N`}
+              {props.cart[props.projectId]?.ft != "NEAR"
+                ? `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} N`
+                : `${amountFloat.toFixed(2)}$`}
             </BreakdownItemText>
           </BreakdownItemRight>
         </BreakdownItemContainer>
@@ -247,9 +256,9 @@ return (
     <TotalContainer>
       <TotalText>Total</TotalText>
       <TotalText>
-        {props.nearToUsd
-          ? `$${(totalAmount * props.nearToUsd).toFixed(2)}`
-          : `${totalAmount.toFixed(2)} N`}
+        {props.cart[props.projectId]?.ft != "NEAR"
+          ? `$${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
+          : `${totalAmount.toFixed(2)}$`}
       </TotalText>
     </TotalContainer>
     <Widget
@@ -258,9 +267,9 @@ return (
         type: "primary",
         // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
         text: `Donate ${
-          props.nearToUsd
-            ? `$${(totalAmount * props.nearToUsd).toFixed(2)}`
-            : `${totalAmount.toFixed(2)} N`
+          props.cart[props.projectId]?.ft == "NEAR"
+            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
+            : `${totalAmount.toFixed(2)}$`
         }`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,

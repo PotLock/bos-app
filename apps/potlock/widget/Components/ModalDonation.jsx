@@ -794,8 +794,9 @@ return (
                 props.addProjectsToCart([
                   {
                     id: props.projectId,
-                    amount: "1",
-                    ft: "NEAR",
+                    amount: amount,
+                    ft: onSelect == "near" ? "NEAR" : "USD",
+                    price: getPriceUSD(),
                     note: note,
                     referrerId: props.referrerId,
                   },

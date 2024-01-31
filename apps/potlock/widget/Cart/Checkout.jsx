@@ -9,7 +9,7 @@ const DEFAULT_GATEWAY = "https://bos.potlock.org/";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
 const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
-
+const [projectId, setProjectId] = useState("");
 // const Wrapper = styled.div`
 //   display: flex;
 //   flex-direction: row;
@@ -233,7 +233,7 @@ const twitterIntent = useMemo(() => {
 //   console.log("donations: ", donations);
 // }, []);
 
-// console.log("props in Checkout: ", props);
+//console.log("props in Checkout: ", projectId);
 
 return (
   // <div>
@@ -341,6 +341,7 @@ return (
             <div>No items in cart</div>
           ) : (
             Object.keys(props.cart).map((projectId) => {
+              setProjectId(projectId);
               const checked = state.selectedProjectIds.includes(projectId);
               return (
                 <Widget
@@ -380,6 +381,7 @@ return (
             src={`${ownerId}/widget/Cart.BreakdownSummary`}
             props={{
               ...props,
+              projectId: projectId,
               updateSuccessfulDonationRecipientId: (recipientId) =>
                 State.update({ successfulDonationRecipientId: recipientId }),
             }}
