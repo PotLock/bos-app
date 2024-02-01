@@ -536,32 +536,19 @@ const onChangeAmount = (e) => {
 
 const projectAllocation = () => {
   const amount = Number(amount);
-  if (onSelect == "near") {
-    const ref = isReferrerId == undefined ? 0.95 : 0.925;
-    return (amount * ref).toFixed(3);
-  } else {
-    const ref = isReferrerId == undefined ? 0.95 : 0.925;
-    return ((amount / getPriceUSD()) * ref).toFixed(3);
-  }
+  const ref = isReferrerId == undefined ? 0.95 : 0.925;
+  return (amount * ref).toFixed(3);
 };
 
 const protocalFees = () => {
   const amount = Number(amount);
-  if (onSelect == "near") {
-    return (amount * 0.05).toFixed(3);
-  } else {
-    return ((amount / getPriceUSD()) * 0.05).toFixed(3);
-  }
+  return (amount * 0.05).toFixed(3);
 };
 
 const referrerFees = () => {
   const amount = Number(amount);
-  if (onSelect == "near" && isReferrerId) {
+  if (isReferrerId) {
     return (amount * 0.25).toFixed(3);
-  } else if (onSelect == "usd" && isReferrerId) {
-    return ((amount / getPriceUSD()) * 0.25).toFixed(3);
-  } else {
-    return 0;
   }
 };
 // console.log(props);
@@ -573,7 +560,7 @@ const handleDonate = () => {
   setCurrency(onSelect);
   if (Number(amount) > 0) {
     const transactions = [];
-    const amountFloat = onSelect == "near" ? amount : (Number(amount) / getPriceUSD()).toFixed(3);
+    const amountFloat = onSelect == "near" ? amount : Number(amount).toFixed(3);
     const amountIndivisible = new Big(parseFloat(amountFloat)).mul(new Big(10).pow(24));
     const donateContractArgs = {};
     donateContractArgs.recipient_id = props.projectId;
