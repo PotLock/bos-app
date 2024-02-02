@@ -622,7 +622,7 @@ return (
         </FormAmountHeader>
         <FormInputAmount>
           <Widget
-            src={`${props.ownerId}/widget/Inputs.Select`}
+            src={`potlock.near/widget/Inputs.Select`}
             props={{
               noLabel: true,
               placeholder: "",

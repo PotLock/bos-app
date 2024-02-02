@@ -222,7 +222,7 @@ const handleDonate = () => {
     });
   }, pollIntervalMs);
 };
-//console.log("props", props.projectId);
+console.log("props", props);
 return (
   <Container>
     <Title>Breakdown summary</Title>
@@ -248,7 +248,7 @@ return (
             <BreakdownItemText>
               {props.cart[props.projectId]?.ft == "NEAR"
                 ? `${amountFloat.toFixed(2)} N`
-                : `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} $`}
+                : `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} N`}
             </BreakdownItemText>
           </BreakdownItemRight>
         </BreakdownItemContainer>
@@ -259,7 +259,7 @@ return (
       <TotalText>
         {props.cart[props.projectId]?.ft == "NEAR"
           ? `${totalAmount.toFixed(2)} N`
-          : `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} $`}
+          : `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`}
       </TotalText>
     </TotalContainer>
     <Widget
@@ -269,7 +269,7 @@ return (
         // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
         text: `Donate ${
           props.cart[props.projectId]?.ft != "NEAR"
-            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} $`
+            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
             : `${totalAmount.toFixed(2)} N`
         }`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
