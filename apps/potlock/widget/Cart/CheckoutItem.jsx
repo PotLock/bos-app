@@ -9,6 +9,11 @@ const CHEVRON_DOWN_URL =
 const CHEVRON_UP_URL =
   IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
+const getPriceUSD = () => {
+  const res = fetch(`https://api.nearblocks.io/v1/stats`, { mode: "cors" });
+  return res.body.stats[0].near_price;
+};
+
 const ItemContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -230,7 +235,7 @@ return (
                 projectId,
                 amount,
                 props.cart[projectId]?.ft,
-                props.cart[projectId]?.price,
+                props.cart[projectId]?.price ?? getPriceUSD(),
                 props.cart[projectId]?.referrerId,
                 props.cart[projectId]?.potId,
                 props.cart[projectId]?.note
@@ -257,7 +262,7 @@ return (
                       projectId,
                       undefined,
                       value,
-                      props.cart[projectId]?.price,
+                      props.cart[projectId]?.price ?? getPriceUSD(),
                       props.cart[projectId]?.referrerId,
                       props.cart[projectId]?.potId,
                       Storage.get("note")
@@ -343,11 +348,7 @@ return (
                   Project allocation (~{projectAllocationPercent}% to {projectId})
                 </BreakdownItemLeft>
                 <BreakdownItemRight>
-                  <BreakdownAmount>
-                    {props.cart[projectId]?.ft == "NEAR"
-                      ? projectAllocationAmount.toFixed(3)
-                      : (projectAllocationAmount / props.cart[projectId].price).toFixed(3)}
-                  </BreakdownAmount>
+                  <BreakdownAmount>{projectAllocationAmount.toFixed(3)}</BreakdownAmount>
                   {props.cart[projectId]?.ft == "NEAR" ? (
                     <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
                   ) : (
