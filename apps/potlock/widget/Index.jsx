@@ -282,7 +282,7 @@ const props = {
     community: "Community",
     education: "Education",
   },
-  PROJECT_STATUSES: ["Submitted", "InReview", "Approved", "Rejected", "Graylisted", "Blacklisted"],
+  PROJECT_STATUSES: ["Pending", "Approved", "Rejected", "Graylisted", "Blacklisted"],
   SUPPORTED_FTS: {
     // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
