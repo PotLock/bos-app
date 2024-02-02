@@ -44,7 +44,7 @@ const [featuredProjects, setFeaturedProjects] = useState([
     review_notes: null,
   },
   {
-    id: "nadabot.near",
+    id: "yearofchef.near",
     status: "Approved",
     submitted_ms: 1703055390614,
     updated_ms: 1703055390614,
