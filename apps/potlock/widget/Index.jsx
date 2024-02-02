@@ -404,6 +404,16 @@ const props = {
       ? "Just now"
       : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
+  daysUntil: (timestamp, suffix) => {
+    const now = new Date();
+    const futureDate = new Date(timestamp);
+    const differenceInTime = futureDate - now;
+
+    // Convert time difference from milliseconds to days
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}${suffix || ""}`;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {

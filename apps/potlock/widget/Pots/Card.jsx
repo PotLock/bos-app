@@ -55,8 +55,17 @@ const { ownerId, potId, potConfig } = props;
 
 if (!potConfig) return "Loading...";
 
-const { pot_name, pot_description, base_currency, public_donations_count, total_public_donations } =
-  potConfig;
+const {
+  pot_name,
+  pot_description,
+  base_currency,
+  public_donations_count,
+  total_public_donations,
+  application_start_ms,
+  application_end_ms,
+  public_round_start_ms,
+  public_round_end_ms,
+} = potConfig;
 //console.log("potConfig", potConfig);
 
 const totalAmount =
@@ -74,6 +83,10 @@ const title = !pot_name
   ? `${pot_name.slice(0, MAX_TITLE_LENGTH)}...`
   : pot_name;
 
+const now = Date.now();
+const isInApplicationPeriod = application_start_ms <= now && application_end_ms > now;
+const isInPublicRoundPeriod = public_round_start_ms <= now && public_round_end_ms > now;
+
 return (
   <Card href={`?tab=pot&potId=${potId}`}>
     <CardSection style={{ borderBottom: "1px #C7C7C7 solid" }}>
@@ -86,7 +99,22 @@ return (
         {`${totalAmount} ${base_currency.toUpperCase()} `}
         <Subtitle>Matched</Subtitle>
       </Title>
-      <props.ToDo>Add Tags</props.ToDo>
+      {(isInApplicationPeriod || isInPublicRoundPeriod) && (
+        <Widget
+          src={`${ownerId}/widget/Pots.Tag`}
+          props={{
+            ...props,
+            backgroundColor: isInPublicRoundPeriod ? "#F7FDE8" : "#EFFEFA",
+            borderColor: isInPublicRoundPeriod ? "#9ADD33" : "#33DDCB",
+            textColor: isInPublicRoundPeriod ? "#023131" : "#192C07",
+            text: isInApplicationPeriod
+              ? props.daysUntil(application_end_ms, " left to Apply")
+              : isInPublicRoundPeriod
+              ? props.daysUntil(public_round_end_ms, " left for Matching")
+              : "",
+          }}
+        />
+      )}
     </CardSection>
   </Card>
 );
