@@ -156,17 +156,6 @@ const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater
 
 // const publicRoundOpen = true;
 
-const daysUntil = (timestamp) => {
-  const now = new Date();
-  const futureDate = new Date(timestamp);
-  const differenceInTime = futureDate - now;
-
-  // Convert time difference from milliseconds to days
-  const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
-
-  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} to go`;
-};
-
 const handleFundMatchingPool = () => {
   State.update({ isMatchingPoolModalOpen: true });
 };
@@ -261,7 +250,9 @@ return (
                 />
                 <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
               </Row>
-              <StatusText style={{ color: "#292929" }}>{daysUntil(application_end_ms)}</StatusText>
+              <StatusText style={{ color: "#292929" }}>
+                {props.daysUntil(application_end_ms, " to go")}
+              </StatusText>
             </Row>
             <H3>
               Application starts on <Time>{formatDate(application_start_ms)}</Time> and ends on{" "}
@@ -289,7 +280,9 @@ return (
                 />
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
               </Row>
-              <StatusText style={{ color: "#292929" }}>{daysUntil(public_round_end_ms)}</StatusText>
+              <StatusText style={{ color: "#292929" }}>
+                {props.daysUntil(public_round_end_ms, "to go")}
+              </StatusText>
             </Row>
             <H3>
               Round starts on <Time>{formatDate(public_round_start_ms)}</Time> and ends on{" "}
