@@ -42,11 +42,10 @@ const Divider = styled.div`
   margin-bottom: 40px;
 `;
 
-const userIsWhitelisted = props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId);
-
 State.init({
   pots: null,
   potConfigs: {},
+  potFactoryConfig: null,
 });
 if (!state.pots) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
@@ -61,6 +60,20 @@ if (state.pots) {
     });
   }
 }
+if (!state.potFactoryConfig) {
+  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_config", {}).then((potFactoryConfig) => {
+    State.update({ potFactoryConfig });
+  });
+}
+
+if (!state.potFactoryConfig) {
+  return <div class="spinner-border text-secondary" role="status" />;
+}
+// user can deploy a pot if !potConfig.require_whitelist or potConfig.whitelisted_deployers.includes(context.accountId)
+const canDeploy =
+  !state.potFactoryConfig.require_whitelist ||
+  state.potFactoryConfig.whitelisted_deployers.includes(context.accountId);
+
 return (
   <Container>
     <HeaderContent>
@@ -68,19 +81,16 @@ return (
       <HeaderDescription>
         Donate to matching rounds to get your contributions amplified.
       </HeaderDescription>
-      {userIsWhitelisted && (
-        <>
-          <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: "primary",
-              text: "Deploy pot",
-              style: props.style || {},
-              href: `?tab=deploypot`,
-            }}
-          />
-          <props.ToDo>Only show deploy button for admin</props.ToDo>
-        </>
+      {canDeploy && (
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "primary",
+            text: "Deploy pot",
+            style: props.style || {},
+            href: `?tab=deploypot`,
+          }}
+        />
       )}
     </HeaderContent>
     {state.pots && (
