@@ -62,6 +62,7 @@ State.init({
   isCartModalOpen: false,
   isNavMenuOpen: false,
   registryConfig: null,
+  userIsRegistryAdmin: null,
   registeredProjects: null,
   donnorProjectId: null,
   amount: null,
@@ -148,7 +149,12 @@ if (!state.registeredProjects) {
 
 if (state.registryConfig === null) {
   const registryConfig = Near.view(registryContractId, "get_config", {});
-  State.update({ registryConfig });
+  if (registryConfig) {
+    State.update({
+      registryConfig,
+      userIsRegistryAdmin: registryConfig.admins.includes(context.accountId),
+    });
+  }
 }
 
 const tabContentWidget = {
