@@ -1,4 +1,4 @@
-const { ownerId } = props;
+const { ownerId, userIsRegistryAdmin } = props;
 const registryId = "registry.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -100,14 +100,12 @@ const InfoCardsContainer = styled.div`
   }
 `;
 
-const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
-
 const projects = useMemo(
   () =>
-    userIsAdmin
+    userIsRegistryAdmin
       ? props.registeredProjects
       : props.registeredProjects.filter((project) => project.status === "Approved"),
-  [props.registeredProjects, userIsAdmin]
+  [props.registeredProjects, userIsRegistryAdmin]
 );
 
 const [totalDonations, totalDonors] = useMemo(() => {

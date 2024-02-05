@@ -1,17 +1,15 @@
-const { ownerId } = props;
+const { ownerId, projectId, userIsRegistryAdmin } = props;
 const registryId = "registry.potlock.near";
 
-const profile = props.profile ?? Social.getr(`${props.projectId}/profile`);
+const profile = props.profile ?? Social.getr(`${projectId}/profile`);
 
-const projects = props.projects ?? Near.view(registryId, "get_projects", {});
+const project = Near.view(registryId, "get_project_by_id", { project_id: projectId });
 
-if (!profile || !projects) {
+if (!profile || !project) {
   return "Loading";
 }
 
-const registeredProject = projects.find(
-  (project) => project.id == props.projectId && project.status == "Approved"
-);
+const projectIsViewable = project.status === "Approved" || userIsRegistryAdmin;
 
 const name = profile.name || "No-name profile";
 const image = profile.image;
@@ -61,14 +59,14 @@ props.navOptions = [
     id: "home",
     disabled: false,
     source: `${ownerId}/widget/Project.About`,
-    href: `?tab=project&projectId=${props.projectId}&nav=home`,
+    href: `?tab=project&projectId=${projectId}&nav=home`,
   },
   {
     label: "Social Feed",
     id: "feed",
     disabled: false,
     source: `${ownerId}/widget/Project.Feed`,
-    href: `?tab=project&projectId=${props.projectId}&nav=feed`,
+    href: `?tab=project&projectId=${projectId}&nav=feed`,
   },
   {
     label: "Pots",
@@ -94,7 +92,7 @@ const profileImageTranslateYPx = 220;
 
 return (
   <Wrapper>
-    {!registeredProject ? (
+    {!projectIsViewable ? (
       <div style={{ textAlign: "center", paddingTop: "12px" }}>Project not found</div>
     ) : (
       <>
