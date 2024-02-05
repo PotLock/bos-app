@@ -61,7 +61,7 @@ State.init({
   nearToUsd: null,
   isCartModalOpen: false,
   isNavMenuOpen: false,
-  registryAdmins: null,
+  registryConfig: null,
   registeredProjects: null,
   donnorProjectId: null,
   amount: null,
@@ -146,9 +146,9 @@ if (!state.registeredProjects) {
     });
 }
 
-if (state.registryAdmins === null) {
-  const registryAdmins = Near.view(registryContractId, "get_admins", {});
-  State.update({ registryAdmins });
+if (state.registryConfig === null) {
+  const registryConfig = Near.view(registryContractId, "get_config", {});
+  State.update({ registryConfig });
 }
 
 const tabContentWidget = {

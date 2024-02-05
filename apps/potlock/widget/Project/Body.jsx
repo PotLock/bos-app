@@ -185,7 +185,7 @@ return (
       />
     </Header>
     <Actions />
-    {props.registryAdmins && props.registryAdmins.includes(context.accountId) && (
+    {props.registryConfig && props.registryConfig.admins.includes(context.accountId) && (
       <Widget
         src={`${ownerId}/widget/Inputs.Select`}
         props={{

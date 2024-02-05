@@ -100,7 +100,10 @@ const InfoCardsContainer = styled.div`
   }
 `;
 
-const userIsAdmin = props.registryAdmins && props.registryAdmins.includes(context.accountId);
+console.log("props in listpage: ", props);
+const userIsAdmin = props.registryConfig && props.registryConfig.admins.includes(context.accountId);
+console.log("user is admin? ", userIsAdmin);
+console.log("props.registeredProjects length: ", props.registeredProjects.length);
 
 const projects = useMemo(
   () =>

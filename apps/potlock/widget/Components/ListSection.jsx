@@ -22,6 +22,8 @@ const filterList = [
   "Least to Most Donations",
 ];
 
+console.log("props.items.length: ", props.items.length);
+
 const donationContractId = "donate.potlock.near";
 const [totalProjects, setTotalProjects] = useState(props.items);
 const [displayProject, setDisplayProject] = useState([]);
