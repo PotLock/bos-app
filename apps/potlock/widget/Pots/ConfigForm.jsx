@@ -7,6 +7,12 @@ const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
 
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const ADD_ADMINS_ICON_URL =
+  IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
+const CLOSE_ICON_URL =
+  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+
 Big.PE = 100;
 
 const FormBody = styled.div`
@@ -134,6 +140,7 @@ State.init({
   ownerError: "",
   admins: isUpdate ? potDetail.admins : [],
   adminsError: "",
+  isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
   description: isUpdate ? potDetail.pot_description : "",
@@ -639,5 +646,107 @@ return (
         </Row>
       </FormSectionRightDiv>
     </FormSectionContainer>
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        isModalOpen: state.isAdminsModalOpen,
+        onClose: () => State.update({ isAdminsModalOpen: false }),
+        children: (
+          <>
+            <ModalHeader>
+              <ModalHeaderLeft>
+                <IconContainer>
+                  <Icon src={ADD_ADMINS_ICON_URL} />
+                </IconContainer>
+                <ModalTitle>Add admins</ModalTitle>
+              </ModalHeaderLeft>
+              <Icon
+                cursor={"pointer"}
+                src={CLOSE_ICON_URL}
+                onClick={() => State.update({ isModalOpen: false })}
+              />
+            </ModalHeader>
+            <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                placeholder: "NEAR account ID",
+                value: state.teamMember,
+                onChange: (teamMember) => {
+                  State.update({ teamMember, nearAccountIdError: "" });
+                },
+                postInputChildren: (
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "primary",
+                      text: "Add",
+                      onClick: handleAddTeamMember,
+                      style: { borderRadius: `0px 4px 4px 0px` },
+                      submit: true,
+                    }}
+                  />
+                ),
+                handleKeyPress: (e) => {
+                  if (e.key === "Enter") {
+                    handleAddTeamMember();
+                  }
+                },
+                error: state.nearAccountIdError,
+              }}
+            />
+            <Space height={24} />
+            <MembersText>
+              <MembersCount>
+                {state.teamMembers.filter((teamMember) => !teamMember.remove).length}{" "}
+              </MembersCount>
+              {state.teamMembers.filter((teamMember) => !teamMember.remove).length == 1
+                ? "member"
+                : "members"}
+            </MembersText>
+            {state.teamMembers
+              .filter((teamMember) => !teamMember.remove)
+              .map((teamMember) => {
+                return (
+                  <MembersListItem>
+                    <MembersListItemLeft>
+                      <Widget
+                        src="mob.near/widget/ProfileImage"
+                        props={{
+                          accountId: teamMember.accountId,
+                          style: {
+                            width: "40px",
+                            height: "40px",
+                            margin: "0 -8px 0 0",
+                            borderRadius: "50%",
+                            background: "white",
+                          },
+                          imageClassName: "rounded-circle w-100 h-100 d-block",
+                          thumbnail: false,
+                          tooltip: true,
+                        }}
+                      />
+                      <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
+                    </MembersListItemLeft>
+                    <RemoveMember
+                      onClick={() => {
+                        const teamMembers = state.teamMembers.map((tm) => {
+                          if (tm.accountId == teamMember.accountId) {
+                            return { ...tm, remove: true };
+                          }
+                          return tm;
+                        });
+                        State.update({ teamMembers });
+                      }}
+                    >
+                      Remove
+                    </RemoveMember>
+                  </MembersListItem>
+                );
+              })}
+          </>
+        ),
+      }}
+    />
   </FormBody>
 );
