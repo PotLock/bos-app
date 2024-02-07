@@ -12,6 +12,16 @@ const ADD_ADMINS_ICON_URL =
   IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
 const CLOSE_ICON_URL =
   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+};
 
 Big.PE = 100;
 
@@ -82,6 +92,14 @@ const Row = styled.div`
   justify-content: flex-start;
 `;
 
+const Label = styled.label`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  word-wrap: break-word;
+  color: #2e2e2e;
+`;
+
 const isUpdate = !!potDetail;
 
 // TODO: take values from props.potDetail if present
@@ -138,6 +156,7 @@ const formatTimestampForDateTimeLocal = (timestamp) => {
 State.init({
   owner: isUpdate ? potDetail.owner : context.accountId,
   ownerError: "",
+  admin: "",
   admins: isUpdate ? potDetail.admins : [],
   adminsError: "",
   isAdminsModalOpen: false,
@@ -205,7 +224,7 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
 const getDeployArgsFromState = () => {
   return {
     owner: state.owner,
-    admins: [], // TODO: CHANGE TO TAKE FROM STATE
+    admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
     chef: state.chef,
     pot_name: state.name,
     pot_description: state.description,
@@ -251,7 +270,7 @@ const getUpdateArgsFromState = () => {
   // pub chef_fee_basis_points: Option<u32>,
   return {
     owner: context.accountId === potDetail.owner ? state.owner : null,
-    admins: state.admins,
+    admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
     chef: state.chef,
     pot_name: state.name,
     pot_description: state.description,
@@ -345,6 +364,43 @@ const validateAndUpdatePercentages = (percent, stateKey, errorKey) => {
   State.update(updates);
 };
 
+const handleAddAdmin = () => {
+  let isValid = props.validateNearAddress(state.admin);
+  if (!isValid) {
+    State.update({
+      adminsError: "Invalid NEAR account ID",
+    });
+    return;
+  }
+  if (!state.admins.find((admin) => admin.accountId == state.admin && !admin.remove)) {
+    // TODO: if already in state.admins with remove = true, set remove = false
+    // get data from social.near
+    // const profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+    const newAdmin = {
+      accountId: state.admin.toLowerCase(),
+      // imageUrl: profileImageUrl,
+    };
+    const admins = [...state.admins, newAdmin];
+    console.log("admins: ", admins);
+    State.update({
+      admins,
+      admin: "",
+      adminsError: "",
+    });
+  }
+};
+
+const handleRemoveAdmin = (accountId) => {
+  State.update({
+    admins: state.admins.map((admin) => {
+      if (admin.accountId == accountId) {
+        return { ...admin, remove: true };
+      }
+      return admin;
+    }),
+  });
+};
+
 const FormSectionLeft = (title, description) => {
   return (
     <FormSectionLeftDiv>
@@ -377,7 +433,27 @@ return (
             error: state.ownerError,
           }}
         />
-        <props.ToDo>ADD ADMINS multi-entry</props.ToDo>
+        {/* <props.ToDo>ADD ADMINS multi-entry</props.ToDo> */}
+        <Label>Admins</Label>
+        <Widget
+          src={`${ownerId}/widget/Components.AccountsList`}
+          props={{
+            accountIds: state.admins
+              .filter((account) => !account.remove)
+              .map((account) => account.accountId),
+            allowRemove: true,
+            handleRemoveAccount: handleRemoveAdmin,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "tertiary",
+            text: "Add admins",
+            style: { width: "fit-content" },
+            onClick: () => State.update({ isAdminsModalOpen: true }),
+          }}
+        />
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
@@ -647,105 +723,22 @@ return (
       </FormSectionRightDiv>
     </FormSectionContainer>
     <Widget
-      src={`${ownerId}/widget/Components.Modal`}
+      src={`${ownerId}/widget/Components.ModalMultiAccount`}
       props={{
+        ...props,
         isModalOpen: state.isAdminsModalOpen,
         onClose: () => State.update({ isAdminsModalOpen: false }),
-        children: (
-          <>
-            <ModalHeader>
-              <ModalHeaderLeft>
-                <IconContainer>
-                  <Icon src={ADD_ADMINS_ICON_URL} />
-                </IconContainer>
-                <ModalTitle>Add admins</ModalTitle>
-              </ModalHeaderLeft>
-              <Icon
-                cursor={"pointer"}
-                src={CLOSE_ICON_URL}
-                onClick={() => State.update({ isModalOpen: false })}
-              />
-            </ModalHeader>
-            <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
-            <Widget
-              src={`${ownerId}/widget/Inputs.Text`}
-              props={{
-                placeholder: "NEAR account ID",
-                value: state.teamMember,
-                onChange: (teamMember) => {
-                  State.update({ teamMember, nearAccountIdError: "" });
-                },
-                postInputChildren: (
-                  <Widget
-                    src={`${ownerId}/widget/Components.Button`}
-                    props={{
-                      type: "primary",
-                      text: "Add",
-                      onClick: handleAddTeamMember,
-                      style: { borderRadius: `0px 4px 4px 0px` },
-                      submit: true,
-                    }}
-                  />
-                ),
-                handleKeyPress: (e) => {
-                  if (e.key === "Enter") {
-                    handleAddTeamMember();
-                  }
-                },
-                error: state.nearAccountIdError,
-              }}
-            />
-            <Space height={24} />
-            <MembersText>
-              <MembersCount>
-                {state.teamMembers.filter((teamMember) => !teamMember.remove).length}{" "}
-              </MembersCount>
-              {state.teamMembers.filter((teamMember) => !teamMember.remove).length == 1
-                ? "member"
-                : "members"}
-            </MembersText>
-            {state.teamMembers
-              .filter((teamMember) => !teamMember.remove)
-              .map((teamMember) => {
-                return (
-                  <MembersListItem>
-                    <MembersListItemLeft>
-                      <Widget
-                        src="mob.near/widget/ProfileImage"
-                        props={{
-                          accountId: teamMember.accountId,
-                          style: {
-                            width: "40px",
-                            height: "40px",
-                            margin: "0 -8px 0 0",
-                            borderRadius: "50%",
-                            background: "white",
-                          },
-                          imageClassName: "rounded-circle w-100 h-100 d-block",
-                          thumbnail: false,
-                          tooltip: true,
-                        }}
-                      />
-                      <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
-                    </MembersListItemLeft>
-                    <RemoveMember
-                      onClick={() => {
-                        const teamMembers = state.teamMembers.map((tm) => {
-                          if (tm.accountId == teamMember.accountId) {
-                            return { ...tm, remove: true };
-                          }
-                          return tm;
-                        });
-                        State.update({ teamMembers });
-                      }}
-                    >
-                      Remove
-                    </RemoveMember>
-                  </MembersListItem>
-                );
-              })}
-          </>
-        ),
+        titleText: "Add admins",
+        descriptionText: "Add NEAR account IDs for your admins.",
+        inputValue: state.admin,
+        onInputChange: (admin) => {
+          State.update({ admin, adminsError: "" });
+        },
+        handleAddAccount: handleAddAdmin,
+        handleRemoveAccount: handleRemoveAdmin,
+        accountError: state.adminsError,
+        accounts: state.admins,
+        unitText: "admin",
       }}
     />
   </FormBody>

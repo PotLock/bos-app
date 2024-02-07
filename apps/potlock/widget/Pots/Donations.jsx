@@ -5,7 +5,7 @@ const donations = Near.view(potId, "get_public_round_donations", {});
 
 if (!donations) return "Loading...";
 
-console.log("donations: ", donations);
+// console.log("donations: ", donations);
 const TitleText = styled.div`
   color: #3d3d3d;
   font-size: 24px;
