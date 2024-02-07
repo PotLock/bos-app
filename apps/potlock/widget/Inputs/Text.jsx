@@ -76,6 +76,15 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
+const PercentageSign = styled.span`
+  display: flex;
+  align-items: center;
+  padding: 0 0.75em;
+  color: #7b7b7b;
+  font-size: 16px;
+  font-weight: 400;
+`;
+
 return (
   <Container>
     {label && <Label>{label}</Label>}
@@ -93,6 +102,7 @@ return (
         onKeyDown={props.handleKeyPress ?? null}
         style={props.inputStyles || {}}
       />
+      {props.percent && <PercentageSign>%</PercentageSign>}
       {props.postInputChildren && props.postInputChildren}
     </InputContainer>
     <Error className={error ? "show" : ""}>{error}</Error>

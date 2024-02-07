@@ -1,4 +1,4 @@
-const { ownerId, potDetail, potId, POT_FACTORY_CONTRACT_ID } = props;
+const { ownerId, potDetail, potId, POT_FACTORY_CONTRACT_ID, validateNearAddress } = props;
 
 const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near:is_registered";
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = "sybil.potlock.near:is_human";
@@ -15,6 +15,13 @@ const CLOSE_ICON_URL =
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
 
+const MAX_POT_NAME_LENGTH = 64;
+const MAX_POT_DESCRIPTION_LENGTH = 256;
+const MAX_MAX_PROJECTS = 100;
+const MAX_REFERRAL_FEE_MATCHING_POOL_BASIS_POINTS = 1000; // 10%
+const MAX_REFERRAL_FEE_PUBLIC_ROUND_BASIS_POINTS = 1000; // 10%
+const MAX_CHEF_FEE_BASIS_POINTS = 1000; // 10%
+
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
     return image.url;
@@ -22,6 +29,10 @@ const getImageUrlFromSocialImage = (image) => {
     return IPFS_BASE_URL + image.ipfs_cid;
   }
 };
+
+const protocolConfigContractId = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[0];
+const protocolConfigViewMethodName = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[1];
+const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
 
 Big.PE = 100;
 
@@ -126,8 +137,8 @@ const isUpdate = !!potDetail;
 //   matchingRoundEndDateError: "",
 //   chef: "",
 //   chefError: "",
-//   chefFeeBasisPoints: "",
-//   chefFeeBasisPointsError: "",
+//   chefFeePercent: "",
+//   chefFeePercentError: "",
 //   maxProjects: "",
 //   maxProjectsError: "",
 //   latestSourceCodeCommitHash: "",
@@ -164,14 +175,16 @@ State.init({
   nameError: "",
   description: isUpdate ? potDetail.pot_description : "",
   descriptionError: "",
-  referrerFeeMatchingPoolBasisPoints: isUpdate
-    ? potDetail.referral_fee_matching_pool_basis_points
+  // referrerFeeMatchingPoolPercent * 100: isUpdate
+  //   ? potDetail.referral_fee_matching_pool_basis_points
+  //   : "",
+  // referrerFeeMatchingPoolPercent * 100Error: "",
+  referrerFeeMatchingPoolPercent: isUpdate
+    ? potDetail.referral_fee_matching_pool_basis_points / 100
     : "",
-  referrerFeeMatchingPoolBasisPointsError: "",
-  referrerFeePublicRoundBasisPoints: isUpdate
-    ? potDetail.referral_fee_public_round_basis_points
-    : "",
-  referrerFeePublicRoundBasisPointsError: "",
+  referrerFeeMatchingPoolPercentError: "",
+  referrerFeePublicRoundPercent: isUpdate ? potDetail.referral_fee_public_round_basis_points : "",
+  referrerFeePublicRoundPercentError: "",
   protocolFeeBasisPoints: isUpdate ? potDetail.protocol_fee_basis_points : "",
   protocolFeeBasisPointsError: "",
   applicationStartDate: isUpdate
@@ -190,8 +203,8 @@ State.init({
   matchingRoundEndDateError: "",
   chef: isUpdate ? potDetail.chef : "",
   chefError: "",
-  chefFeeBasisPoints: isUpdate ? potDetail.chef_fee_basis_points : "",
-  chefFeeBasisPointsError: "",
+  chefFeePercent: isUpdate ? potDetail.chef_fee_basis_points : "",
+  chefFeePercentError: "",
   maxProjects: isUpdate ? potDetail.max_projects : "",
   maxProjectsError: "",
   baseCurrency: isUpdate ? potDetail.base_currency : "",
@@ -203,8 +216,6 @@ State.init({
   latestSourceCodeCommitHash: "",
   deploymentSuccess: false,
 });
-
-const MAX_DESCRIPTION_LENGTH = 320;
 
 const userIsWhitelisted = props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId);
 
@@ -237,9 +248,9 @@ const getDeployArgsFromState = () => {
     sybil_wrapper_provider: DEFAULT_SYBIL_WRAPPER_PROVIDER,
     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
     custom_min_threshold_score: null,
-    referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolBasisPoints,
+    referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolPercent * 100,
     referral_fee_public_round_basis_points: state.referrerFeePublicRoundBasisPoints,
-    chef_fee_basis_points: state.chefFeeBasisPoints,
+    chef_fee_basis_points: state.chefFeePercent,
     protocol_config_provider: DEFAULT_PROTOCOL_CONFIG_PROVIDER, // TODO: this should not be passed in here, as it's too easy to override. Should be set by factory contract when deploying.
     source_metadata: {
       version: CURRENT_SOURCE_CODE_VERSION,
@@ -283,7 +294,7 @@ const getUpdateArgsFromState = () => {
     min_matching_pool_donation_amount: state.minMatchingPoolDonationAmount,
     referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolBasisPoints,
     referral_fee_public_round_basis_points: state.referrerFeePublicRoundBasisPoints,
-    chef_fee_basis_points: state.chefFeeBasisPoints,
+    chef_fee_basis_points: state.chefFeePercent,
   };
 };
 
@@ -350,16 +361,36 @@ const handleUpdate = () => {
 
 // console.log("state: ", state);
 
-const validateAndUpdatePercentages = (percent, stateKey, errorKey) => {
+const validateAndUpdatePercentages = (percent, stateKey, errorKey, maxVal) => {
   // TODO: move this to separate component for percentage input that accepts "basisPoints" bool parameter
-  const percentFloat = parseFloat(percent);
   const updates = {
     [errorKey]: "",
   };
   if (!percent) {
-    updates[stateKey] = "";
-  } else if (percentFloat && percentFloat <= 100) {
-    updates[stateKey] = percentFloat * 100;
+    updates[stateKey] = "0";
+  } else {
+    const split = percent.split(".");
+    if (split.length > 2) {
+      return;
+    }
+    if (split.length === 2 && split[1].length > 2) {
+      return;
+    }
+    // if it ends with a period and this is the only period in the string, set on state
+    if (percent.endsWith(".") && percent.indexOf(".") === percent.length - 1) {
+      State.update({
+        [stateKey]: percent,
+      });
+      return;
+    }
+    // otherwise, parse into a float
+    const percentFloat = parseFloat(percent);
+    if (percentFloat) {
+      updates[stateKey] = percentFloat.toString();
+      if (percentFloat > maxVal) {
+        updates[errorKey] = `Maximum ${maxVal}%`;
+      }
+    }
   }
   State.update(updates);
 };
@@ -412,7 +443,6 @@ const FormSectionLeft = (title, description) => {
 
 return (
   <FormBody>
-    <props.ToDo>Add validation to all fields (currently only %'s are validated)</props.ToDo>
     <FormDivider />
     <FormSectionContainer>
       {FormSectionLeft("Pot details", "")}
@@ -427,10 +457,11 @@ return (
             onChange: (owner) => State.update({ owner, ownerError: "" }),
             validate: () => {
               // **CALLED ON BLUR**
-              // TODO: validate owner
-              State.update({ ownerError: "" });
+              const valid = validateNearAddress(state.owner);
+              State.update({ ownerError: valid ? "" : "Invalid NEAR account ID" });
             },
             error: state.ownerError,
+            disabled: true,
           }}
         />
         {/* <props.ToDo>ADD ADMINS multi-entry</props.ToDo> */}
@@ -463,8 +494,10 @@ return (
             onChange: (name) => State.update({ name, nameError: "" }),
             validate: () => {
               // **CALLED ON BLUR**
-              // TODO: validate name
-              State.update({ nameError: "" });
+              const valid = state.name.length <= MAX_POT_NAME_LENGTH;
+              State.update({
+                nameError: valid ? "" : `Name must be ${MAX_POT_NAME_LENGTH} characters or less`,
+              });
             },
             error: state.nameError,
           }}
@@ -477,14 +510,13 @@ return (
             value: state.description,
             onChange: (description) => State.update({ description }),
             validate: () => {
-              if (state.description.length > MAX_DESCRIPTION_LENGTH) {
-                State.update({
-                  descriptionError: `Description must be less than ${MAX_DESCRIPTION_LENGTH} characters`,
-                });
-                return;
-              }
-
-              State.update({ descriptionError: "" });
+              // **CALLED ON BLUR**
+              const valid = state.description.length <= MAX_POT_DESCRIPTION_LENGTH;
+              State.update({
+                descriptionError: valid
+                  ? ""
+                  : `Description must be ${MAX_POT_DESCRIPTION_LENGTH} characters or less`,
+              });
             },
             error: state.descriptionError,
           }}
@@ -494,53 +526,38 @@ return (
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "Referrer fee % (matching pool)",
-              placeholder: "% 0",
-              value: state.referrerFeeMatchingPoolBasisPoints
-                ? state.referrerFeeMatchingPoolBasisPoints / 100
-                : "",
+              placeholder: "0",
+              percent: true,
+              value: state.referrerFeeMatchingPoolPercent,
               onChange: (percent) => {
                 validateAndUpdatePercentages(
                   percent,
-                  "referrerFeeMatchingPoolBasisPoints",
-                  "referrerFeeMatchingPoolBasisPointsError"
+                  "referrerFeeMatchingPoolPercent",
+                  "referrerFeeMatchingPoolPercentError",
+                  MAX_REFERRAL_FEE_MATCHING_POOL_BASIS_POINTS / 100
                 );
               },
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate percent
-                State.update({ referrerFeeMatchingPoolBasisPointsError: "" });
               },
-              error: state.referrerFeeMatchingPoolBasisPointsError,
+              error: state.referrerFeeMatchingPoolPercentError,
             }}
           />
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
-              label: "Referrer fee % (public round)",
-              placeholder: "% 0",
-              value: state.referrerFeePublicRoundBasisPoints
-                ? state.referrerFeePublicRoundBasisPoints / 100
-                : "",
-              onChange: (percent) => {
-                validateAndUpdatePercentages(
-                  percent,
-                  "referrerFeePublicRoundBasisPoints",
-                  "referrerFeePublicRoundBasisPointsError"
-                );
-              },
-              validate: () => {
-                // **CALLED ON BLUR**
-                // TODO: validate percent
-                State.update({ referrerFeePublicRoundBasisPointsError: "" });
-              },
-              error: state.referrerFeePublicRoundBasisPointsError,
+              label: "Protocol fee %",
+              value: protocolConfig ? protocolConfig.basis_points / 100 : "-",
+              disabled: true,
+              percent: true,
             }}
           />
+          {/* <props.ToDo>Add Protocol fee %</props.ToDo> */}
           {/* <Widget
               src={`${ownerId}/widget/Inputs.Text`}
               props={{
                 label: "Protocol fee %",
-                placeholder: "% 0",
+                placeholder: "0",
                 value: state.protocolFeeBasisPoints ? state.protocolFeeBasisPoints / 100 : "",
                 onChange: (percent) =>
                   State.update({
@@ -561,7 +578,7 @@ return (
             src={`${ownerId}/widget/Inputs.Date`}
             props={{
               label: "Application start date",
-              //   placeholder: "% 0", // TODO: possibly add this back in
+              //   placeholder: "0", // TODO: possibly add this back in
               selectTime: true,
               value: state.applicationStartDate,
               onChange: (date) => {
@@ -569,8 +586,13 @@ return (
               },
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate date
-                State.update({ applicationStartDateError: "" });
+                // must be before application end date
+                const valid =
+                  !state.applicationEndDate ||
+                  state.applicationStartDate < state.applicationEndDate;
+                State.update({
+                  applicationStartDateError: valid ? "" : "Invalid application start date",
+                });
               },
               error: state.applicationStartDateError,
             }}
@@ -579,14 +601,21 @@ return (
             src={`${ownerId}/widget/Inputs.Date`}
             props={{
               label: "Application end date",
-              //   placeholder: "% 0", // TODO: possibly add this back in
+              //   placeholder: "0", // TODO: possibly add this back in
               selectTime: true,
               value: state.applicationEndDate,
               onChange: (date) => State.update({ applicationEndDate: date }),
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate date
-                State.update({ applicationEndDateError: "" });
+                // must be before matching round start date
+                const valid =
+                  (!state.matchingRoundStartDate ||
+                    state.applicationEndDate < state.matchingRoundStartDate) &&
+                  (!state.applicationStartDate ||
+                    state.applicationEndDate > state.applicationStartDate);
+                State.update({
+                  applicationEndDateError: valid ? "" : "Invalid application end date",
+                });
               },
               error: state.applicationEndDateError,
             }}
@@ -602,8 +631,15 @@ return (
               onChange: (date) => State.update({ matchingRoundStartDate: date }),
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate date
-                State.update({ matchingRoundStartDateError: "" });
+                // must be after application end and before matching round end
+                const valid =
+                  (!state.applicationEndDate ||
+                    state.matchingRoundStartDate > state.applicationEndDate) &&
+                  (!state.matchingRoundEndDate ||
+                    state.matchingRoundStartDate < state.matchingRoundEndDate);
+                State.update({
+                  matchingRoundStartDateError: valid ? "" : "Invalid round start date",
+                });
               },
               error: state.matchingRoundStartDateError,
             }}
@@ -612,14 +648,17 @@ return (
             src={`${ownerId}/widget/Inputs.Date`}
             props={{
               label: "Matching round end date",
-              //   placeholder: "% 0", // TODO: possibly add this back in
+              //   placeholder: "0", // TODO: possibly add this back in
               selectTime: true,
               value: state.matchingRoundEndDate,
               onChange: (date) => State.update({ matchingRoundEndDate: date }),
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate date
-                State.update({ matchingRoundEndDateError: "" });
+                // must be after matching round start
+                const valid =
+                  !state.matchingRoundStartDate ||
+                  state.matchingRoundEndDate > state.matchingRoundStartDate;
+                State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
               },
               error: state.matchingRoundEndDateError,
             }}
@@ -636,12 +675,13 @@ return (
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "Assign chef",
+              placeholder: "E.g. user.near",
               value: state.chef,
               onChange: (chef) => State.update({ chef }),
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate chef
-                State.update({ chefError: "" });
+                const valid = validateNearAddress(state.chef);
+                State.update({ chefError: valid ? "" : "Invalid NEAR account ID" });
               },
               error: state.chefError,
             }}
@@ -650,21 +690,21 @@ return (
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
               label: "Chef fee %",
-              placeholder: "% 0",
-              value: state.chefFeeBasisPoints ? state.chefFeeBasisPoints / 100 : "",
+              placeholder: "0",
+              percent: true,
+              value: state.chefFeePercent,
               onChange: (percent) => {
                 validateAndUpdatePercentages(
                   percent,
-                  "chefFeeBasisPoints",
-                  "chefFeeBasisPointsError"
+                  "chefFeePercent",
+                  "chefFeePercentError",
+                  MAX_CHEF_FEE_BASIS_POINTS / 100
                 );
               },
               validate: () => {
                 // **CALLED ON BLUR**
-                // TODO: validate percent
-                State.update({ chefFeeBasisPointsError: "" });
               },
-              error: state.chefFeeBasisPointsError,
+              error: state.chefFeePercentError,
             }}
           />
         </Row>
@@ -677,14 +717,14 @@ return (
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
-            label: "Max. approved applicants",
-            placeholder: "4",
+            label: "Max. approved projects",
+            placeholder: "e.g. 20",
             value: state.maxProjects,
             onChange: (maxProjects) => State.update({ maxProjects }),
             validate: () => {
               // **CALLED ON BLUR**
-              // TODO: validate maxProjects
-              State.update({ maxProjectsError: "" });
+              const valid = parseInt(state.maxProjects) <= MAX_MAX_PROJECTS;
+              State.update({ maxProjectsError: valid ? "" : `Maximum ${MAX_MAX_PROJECTS}` });
             },
             error: state.maxProjectsError,
           }}
@@ -692,10 +732,9 @@ return (
       </FormSectionRightDiv>
     </FormSectionContainer>
     <FormSectionContainer>
-      {FormSectionLeft("Donor Requirements", "")}
+      {FormSectionLeft("Donor Sybil Resistance", "")}
       <FormSectionRightDiv>
         <props.ToDo>Add donor requirements as per latest sybil contract</props.ToDo>
-        <props.ToDo>Add Pot images upload (main & background/cover)</props.ToDo>
         <Row style={{ justifyContent: "flex-end", marginTop: "36px" }}>
           {!isUpdate && (
             <Widget
