@@ -7,6 +7,22 @@ const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
 
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const ADD_ADMINS_ICON_URL =
+  IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
+const CLOSE_ICON_URL =
+  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
+
+const getImageUrlFromSocialImage = (image) => {
+  if (image.url) {
+    return image.url;
+  } else if (image.ipfs_cid) {
+    return IPFS_BASE_URL + image.ipfs_cid;
+  }
+};
+
 Big.PE = 100;
 
 const FormBody = styled.div`
@@ -76,6 +92,14 @@ const Row = styled.div`
   justify-content: flex-start;
 `;
 
+const Label = styled.label`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  word-wrap: break-word;
+  color: #2e2e2e;
+`;
+
 const isUpdate = !!potDetail;
 
 // TODO: take values from props.potDetail if present
@@ -132,8 +156,10 @@ const formatTimestampForDateTimeLocal = (timestamp) => {
 State.init({
   owner: isUpdate ? potDetail.owner : context.accountId,
   ownerError: "",
+  admin: "",
   admins: isUpdate ? potDetail.admins : [],
   adminsError: "",
+  isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
   description: isUpdate ? potDetail.pot_description : "",
@@ -198,7 +224,7 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
 const getDeployArgsFromState = () => {
   return {
     owner: state.owner,
-    admins: [], // TODO: CHANGE TO TAKE FROM STATE
+    admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
     chef: state.chef,
     pot_name: state.name,
     pot_description: state.description,
@@ -244,7 +270,7 @@ const getUpdateArgsFromState = () => {
   // pub chef_fee_basis_points: Option<u32>,
   return {
     owner: context.accountId === potDetail.owner ? state.owner : null,
-    admins: state.admins,
+    admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
     chef: state.chef,
     pot_name: state.name,
     pot_description: state.description,
@@ -338,6 +364,43 @@ const validateAndUpdatePercentages = (percent, stateKey, errorKey) => {
   State.update(updates);
 };
 
+const handleAddAdmin = () => {
+  let isValid = props.validateNearAddress(state.admin);
+  if (!isValid) {
+    State.update({
+      adminsError: "Invalid NEAR account ID",
+    });
+    return;
+  }
+  if (!state.admins.find((admin) => admin.accountId == state.admin && !admin.remove)) {
+    // TODO: if already in state.admins with remove = true, set remove = false
+    // get data from social.near
+    // const profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+    const newAdmin = {
+      accountId: state.admin.toLowerCase(),
+      // imageUrl: profileImageUrl,
+    };
+    const admins = [...state.admins, newAdmin];
+    console.log("admins: ", admins);
+    State.update({
+      admins,
+      admin: "",
+      adminsError: "",
+    });
+  }
+};
+
+const handleRemoveAdmin = (accountId) => {
+  State.update({
+    admins: state.admins.map((admin) => {
+      if (admin.accountId == accountId) {
+        return { ...admin, remove: true };
+      }
+      return admin;
+    }),
+  });
+};
+
 const FormSectionLeft = (title, description) => {
   return (
     <FormSectionLeftDiv>
@@ -370,7 +433,27 @@ return (
             error: state.ownerError,
           }}
         />
-        <props.ToDo>ADD ADMINS multi-entry</props.ToDo>
+        {/* <props.ToDo>ADD ADMINS multi-entry</props.ToDo> */}
+        <Label>Admins</Label>
+        <Widget
+          src={`${ownerId}/widget/Components.AccountsList`}
+          props={{
+            accountIds: state.admins
+              .filter((account) => !account.remove)
+              .map((account) => account.accountId),
+            allowRemove: true,
+            handleRemoveAccount: handleRemoveAdmin,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "tertiary",
+            text: "Add admins",
+            style: { width: "fit-content" },
+            onClick: () => State.update({ isAdminsModalOpen: true }),
+          }}
+        />
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
@@ -639,5 +722,24 @@ return (
         </Row>
       </FormSectionRightDiv>
     </FormSectionContainer>
+    <Widget
+      src={`${ownerId}/widget/Components.ModalMultiAccount`}
+      props={{
+        ...props,
+        isModalOpen: state.isAdminsModalOpen,
+        onClose: () => State.update({ isAdminsModalOpen: false }),
+        titleText: "Add admins",
+        descriptionText: "Add NEAR account IDs for your admins.",
+        inputValue: state.admin,
+        onInputChange: (admin) => {
+          State.update({ admin, adminsError: "" });
+        },
+        handleAddAccount: handleAddAdmin,
+        handleRemoveAccount: handleRemoveAdmin,
+        accountError: state.adminsError,
+        accounts: state.admins,
+        unitText: "admin",
+      }}
+    />
   </FormBody>
 );

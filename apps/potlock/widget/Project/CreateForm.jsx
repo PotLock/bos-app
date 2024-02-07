@@ -10,14 +10,8 @@ const MIN_PROPOSAL_DEPOSIT = "100000000000000000000000"; // 0.1N
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
-// const DEFAULT_BANNER_IMAGE_URL =
-//   IPFS_BASE_URL + "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
-// const DEFAULT_PROFILE_IMAGE_URL =
-//   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
-const ADD_TEAM_MEMBERS_ICON_URL =
-  IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
-const CLOSE_ICON_URL =
-  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+const DEFAULT_PROFILE_IMAGE_URL =
+  IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -89,15 +83,15 @@ const LowerBannerContainerRight = styled.div`
   flex: 1;
 `;
 
-const TeamContainer = styled.div`
-  width: 200px;
-  height: 30px;
-  // background: green;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: row;
-  // gap: -40px;
-`;
+// const TeamContainer = styled.div`
+//   width: 200px;
+//   height: 30px;
+//   // background: green;
+//   margin-bottom: 16px;
+//   display: flex;
+//   flex-direction: row;
+//   // gap: -40px;
+// `;
 
 const AddTeamMembers = styled.a`
   margin: 0px 0px 16px 36px;
@@ -193,147 +187,6 @@ const ButtonsContainer = styled.div`
 
 const Space = styled.div`
   height: ${(props) => props.height}px;
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  // padding-top: 30vh;
-`;
-
-const ModalContent = styled.div`
-  border-radius: 14px;
-  // width: 60%;
-  padding: 32px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 24px;
-`;
-
-const ModalHeaderLeft = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const IconContainer = styled.div`
-  width: 40px;
-  height: 40px;
-  background: #f0f0f0;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-`;
-
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-  cursor: ${(props) => (props.cursor ? props.cursor : "default")};
-`;
-
-const ModalTitle = styled.div`
-  font-color: #2e2e2e;
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const ModalDescription = styled.p`
-  font-color: #2e2e2e;
-  font-size: 16px;
-  font-weight: 400;
-=`;
-
-const MembersCount = styled.span`
-  color: #2e2e2e;
-  font-weight: 600;
-`;
-
-const MembersText = styled.div`
-  color: #7b7b7b;
-  font-size: 12px;
-  font-weight: 400;
-`;
-
-const MembersListItem = styled.div`
-  padding: 16px 0px;
-  border-top: 1px #f0f0f0 solid;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const RemoveMember = styled.a`
-  color: #2e2e2e;
-  font-size: 14px;
-  font-weight: 600;
-  visibility: hidden;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  ${MembersListItem}:hover & {
-    visibility: visible;
-    opacity: 1;
-  }
-`;
-
-const MembersListItemLeft = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 16px;
-`;
-
-const MembersListItemText = styled.div`
-  font-size: 16px;
-  font-weight: 400;
-  color: #2e2e2e;
-`;
-
-const MoreTeamMembersContainer = styled.div`
-  width: 28px;
-  height: 28px;
-  border: 2px solid white;
-  border-radius: 50%;
-  background: #dd3345;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: ${(props) => props.zIndex};
-  margin-right: -8px;
-`;
-
-const MoreTeamMembersText = styled.div`
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
 `;
 
 const InputPrefix = styled.div`
@@ -479,9 +332,9 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       }
       if (shouldSetTeamMembers) {
         stateUpdates.teamMembers = Object.entries(team)
-          .filter(([_address, value]) => value !== null)
-          .map(([address, _]) => ({
-            address,
+          .filter(([_accountId, value]) => value !== null)
+          .map(([accountId, _]) => ({
+            accountId,
             imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
           }));
       }
@@ -520,10 +373,6 @@ const isCreateProjectDisabled =
   state.descriptionError ||
   !state.category ||
   state.categoryError;
-
-// console.log("isCreateProjectDisabled: ", isCreateProjectDisabled);
-// console.log("state: ", state);
-// console.log("policy: ", policy);
 
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
@@ -761,6 +610,7 @@ const handleAddTeamMember = () => {
         console.log("error getting social data: ", e);
       })
       .finally(() => {
+        console.log("full team member: ", fullTeamMember);
         State.update({
           teamMembers: [...state.teamMembers, fullTeamMember],
           teamMember: "",
@@ -929,39 +779,18 @@ return (
                   </AddTeamMembers>
                 </LowerBannerContainerLeft>
                 <LowerBannerContainerRight>
-                  <TeamContainer>
-                    {state.teamMembers.length > MAX_TEAM_MEMBERS_DISPLAY_COUNT && (
-                      <MoreTeamMembersContainer zIndex={state.teamMembers.length + 1}>
-                        <MoreTeamMembersText>{MAX_TEAM_MEMBERS_DISPLAY_COUNT}+</MoreTeamMembersText>
-                      </MoreTeamMembersContainer>
-                    )}
-                    {state.teamMembers
-                      .filter((teamMember) => !teamMember.remove)
-                      .slice(0, MAX_TEAM_MEMBERS_DISPLAY_COUNT)
-                      .map((teamMember, idx) => {
-                        return (
-                          <Widget
-                            src="mob.near/widget/ProfileImage"
-                            props={{
-                              accountId: teamMember.accountId,
-                              style: {
-                                width: "28px",
-                                height: "28px",
-                                zIndex: state.isModalOpen ? 0 : state.teamMembers.length - idx,
-                                margin: "0 -8px 0 0",
-                                border: "2px solid white",
-                                borderRadius: "50%",
-                                background: "white",
-                              },
-                              className: "mb-2",
-                              imageClassName: "rounded-circle w-100 h-100 d-block",
-                              thumbnail: false,
-                              tooltip: true,
-                            }}
-                          />
-                        );
-                      })}
-                  </TeamContainer>
+                  <Widget
+                    src={`${ownerId}/widget/Components.AccountsStack`}
+                    props={{
+                      accountIds: state.teamMembers
+                        .filter((teamMember) => !teamMember.remove)
+                        .map((tm) => {
+                          console.log("tm: ", tm);
+                          return tm.accountId;
+                        }),
+                      sendToBack: state.isModalOpen,
+                    }}
+                  />
                 </LowerBannerContainerRight>
               </LowerBannerContainer>
             ),
@@ -1241,99 +1070,34 @@ return (
             </FormSectionRightDiv>
           </FormSectionContainer>
         </FormBody>
-        <Modal isOpen={state.isModalOpen} onClose={() => State.update({ isModalOpen: false })}>
-          <ModalHeader>
-            <ModalHeaderLeft>
-              <IconContainer>
-                <Icon src={ADD_TEAM_MEMBERS_ICON_URL} />
-              </IconContainer>
-              <ModalTitle>Add team members</ModalTitle>
-            </ModalHeaderLeft>
-            <Icon
-              cursor={"pointer"}
-              src={CLOSE_ICON_URL}
-              onClick={() => State.update({ isModalOpen: false })}
-            />
-          </ModalHeader>
-          <ModalDescription>Add NEAR account IDs for your team members.</ModalDescription>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
-            props={{
-              placeholder: "NEAR account ID",
-              value: state.teamMember,
-              onChange: (teamMember) => {
-                State.update({ teamMember, nearAccountIdError: "" });
-              },
-              postInputChildren: (
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "primary",
-                    text: "Add",
-                    onClick: handleAddTeamMember,
-                    style: { borderRadius: `0px 4px 4px 0px` },
-                    submit: true,
-                  }}
-                />
-              ),
-              handleKeyPress: (e) => {
-                if (e.key === "Enter") {
-                  handleAddTeamMember();
-                }
-              },
-              error: state.nearAccountIdError,
-            }}
-          />
-          <Space height={24} />
-          <MembersText>
-            <MembersCount>
-              {state.teamMembers.filter((teamMember) => !teamMember.remove).length}{" "}
-            </MembersCount>
-            {state.teamMembers.filter((teamMember) => !teamMember.remove).length == 1
-              ? "member"
-              : "members"}
-          </MembersText>
-          {state.teamMembers
-            .filter((teamMember) => !teamMember.remove)
-            .map((teamMember) => {
-              return (
-                <MembersListItem>
-                  <MembersListItemLeft>
-                    <Widget
-                      src="mob.near/widget/ProfileImage"
-                      props={{
-                        accountId: teamMember.accountId,
-                        style: {
-                          width: "40px",
-                          height: "40px",
-                          margin: "0 -8px 0 0",
-                          borderRadius: "50%",
-                          background: "white",
-                        },
-                        imageClassName: "rounded-circle w-100 h-100 d-block",
-                        thumbnail: false,
-                        tooltip: true,
-                      }}
-                    />
-                    <MembersListItemText>@{teamMember.accountId}</MembersListItemText>
-                  </MembersListItemLeft>
-                  <RemoveMember
-                    onClick={() => {
-                      const teamMembers = state.teamMembers.map((tm) => {
-                        if (tm.accountId == teamMember.accountId) {
-                          return { ...tm, remove: true };
-                        }
-                        return tm;
-                      });
-                      State.update({ teamMembers });
-                    }}
-                  >
-                    Remove
-                  </RemoveMember>
-                </MembersListItem>
-              );
-            })}
-        </Modal>
+        <Widget
+          src={`${ownerId}/widget/Components.ModalMultiAccount`}
+          props={{
+            ...props,
+            isModalOpen: state.isModalOpen,
+            onClose: () => State.update({ isModalOpen: false }),
+            titleText: "Add team members",
+            descriptionText: "Add NEAR account IDs for your team members.",
+            inputValue: state.teamMember,
+            onInputChange: (teamMember) => {
+              State.update({ teamMember, nearAccountIdError: "" });
+            },
+            handleAddAccount: handleAddTeamMember,
+            handleRemoveAccount: (accountId) => {
+              State.update({
+                teamMembers: state.teamMembers.map((tm) => {
+                  if (tm.accountId == accountId) {
+                    return { ...tm, remove: true };
+                  }
+                  return tm;
+                }),
+              });
+            },
+            accountError: state.nearAccountIdError,
+            accounts: state.teamMembers,
+            unitText: "member",
+          }}
+        />
       </>
     )}
   </Container>

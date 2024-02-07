@@ -6,7 +6,7 @@ if (!accountId) {
 
 const editable = props.bgImageOnChange && props.profileImageOnChange;
 
-console.log(props);
+// console.log(props);
 
 // const link =
 //   props.link &&
@@ -190,35 +190,35 @@ const CameraSvg = ({ height }) => (
 return (
   <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
     {backgroundImage && (
-            <BackgroundImageContainer>
-            <Widget
-              src="mob.near/widget/Image"
-              props={{
-                image: backgroundImage,
-                alt: "profile background",
-                className: "position-absolute w-100",
-                style: { ...backgroundStyle, pointerEvents: "none" },
-                fallbackUrl:
-                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-              }}
-            />
-            <CameraSvg height={48} />
-            {editable && (
-              <Files
-                multiple={false}
-                accepts={["image/*"]}
-                minFileSize={1}
-                style={{
-                  zIndex: 4,
-                  width: "100%",
-                  height: backgroundStyle.height ?? "100%",
-                  position: "absolute",
-                }}
-                clickable
-                onChange={props.bgImageOnChange}
-              />
-            )}
-          </BackgroundImageContainer>
+      <BackgroundImageContainer>
+        <Widget
+          src="mob.near/widget/Image"
+          props={{
+            image: backgroundImage,
+            alt: "profile background",
+            className: "position-absolute w-100",
+            style: { ...backgroundStyle, pointerEvents: "none" },
+            fallbackUrl:
+              "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+          }}
+        />
+        <CameraSvg height={48} />
+        {editable && (
+          <Files
+            multiple={false}
+            accepts={["image/*"]}
+            minFileSize={1}
+            style={{
+              zIndex: 4,
+              width: "100%",
+              height: backgroundStyle.height ?? "100%",
+              position: "absolute",
+            }}
+            clickable
+            onChange={props.bgImageOnChange}
+          />
+        )}
+      </BackgroundImageContainer>
       // <BackgroundImageContainer>
       //   <CameraSvg height={48} />
       //   {editable && (

@@ -222,7 +222,7 @@ const handleDonate = () => {
     });
   }, pollIntervalMs);
 };
-console.log("props", props);
+// console.log("props", props);
 return (
   <Container>
     <Title>Breakdown summary</Title>

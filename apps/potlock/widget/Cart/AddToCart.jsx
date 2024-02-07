@@ -1,6 +1,6 @@
 const { ownerId } = props;
 const existsInCart = props.cart && !!props.cart[props.projectId];
-console.log("existsInCart: ", props);
+// console.log("existsInCart: ", props);
 return (
   <Widget
     src={`${ownerId}/widget/Components.Button`}
