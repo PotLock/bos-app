@@ -1,7 +1,14 @@
-const { ownerId, potDetail, potId, POT_FACTORY_CONTRACT_ID, validateNearAddress } = props;
+const {
+  ownerId,
+  potDetail,
+  potId,
+  POT_FACTORY_CONTRACT_ID,
+  NADABOT_CONTRACT_ID,
+  validateNearAddress,
+} = props;
 
 const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near:is_registered";
-const DEFAULT_SYBIL_WRAPPER_PROVIDER = "sybil.potlock.near:is_human";
+const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:is_human`;
 const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
@@ -113,38 +120,6 @@ const Label = styled.label`
 
 const isUpdate = !!potDetail;
 
-// TODO: take values from props.potDetail if present
-// State.init({
-//   owner:  context.accountId,
-//   ownerError: "",
-//   name: "",
-//   nameError: "",
-//   description: "",
-//   descriptionError: "",
-//   referrerFeeMatchingPoolBasisPoints: "",
-//   referrerFeeMatchingPoolBasisPointsError: "",
-//   referrerFeePublicRoundBasisPoints: "",
-//   referrerFeePublicRoundBasisPointsError: "",
-//   protocolFeeBasisPoints: "",
-//   protocolFeeBasisPointsError: "",
-//   applicationStartDate: "",
-//   applicationStartDateError: "",
-//   applicationEndDate: "",
-//   applicationEndDateError: "",
-//   matchingRoundStartDate: "",
-//   matchingRoundStartDateError: "",
-//   matchingRoundEndDate: "",
-//   matchingRoundEndDateError: "",
-//   chef: "",
-//   chefError: "",
-//   chefFeePercent: "",
-//   chefFeePercentError: "",
-//   maxProjects: "",
-//   maxProjectsError: "",
-//   latestSourceCodeCommitHash: "",
-//   deploymentSuccess: false,
-// });
-
 const convertToUTCTimestamp = (localDateTime) => {
   if (!localDateTime) {
     return;
@@ -213,6 +188,9 @@ State.init({
     ? potDetail.min_matching_pool_donation_amount
     : "1000000000000000000000000", // 1 NEAR
   minMatchingPoolDonationAmountError: "",
+  useNadabotSybil: isUpdate
+    ? potDetail.sybil_wrapper_provider == DEFAULT_SYBIL_WRAPPER_PROVIDER
+    : true,
   latestSourceCodeCommitHash: "",
   deploymentSuccess: false,
 });
@@ -230,8 +208,6 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
   }
 }
 
-// TODO: GET PROTOCOL FEES FROM POTFACTORY CONTRACT AND SET ON STATE & DISPLAY IN FORM AS READ-ONLY INPUTS
-
 const getDeployArgsFromState = () => {
   return {
     owner: state.owner,
@@ -245,7 +221,7 @@ const getDeployArgsFromState = () => {
     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
     public_round_end_ms: convertToUTCTimestamp(state.matchingRoundEndDate),
     registry_provider: DEFAULT_REGISTRY_PROVIDER,
-    sybil_wrapper_provider: DEFAULT_SYBIL_WRAPPER_PROVIDER,
+    sybil_wrapper_provider: state.useNadabotSybil ? DEFAULT_SYBIL_WRAPPER_PROVIDER : null,
     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
     custom_min_threshold_score: null,
     referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolPercent * 100,
@@ -261,24 +237,6 @@ const getDeployArgsFromState = () => {
 };
 
 const getUpdateArgsFromState = () => {
-  // pub owner: Option<AccountId>,
-  // pub admins: Option<Vec<AccountId>>,
-  // pub chef: Option<AccountId>,
-  // pub pot_name: Option<String>,
-  // pub pot_description: Option<String>,
-  // pub max_projects: Option<u32>,
-  // pub application_start_ms: Option<TimestampMs>,
-  // pub application_end_ms: Option<TimestampMs>,
-  // pub public_round_start_ms: Option<TimestampMs>,
-  // pub public_round_end_ms: Option<TimestampMs>,
-  // pub registry_provider: Option<ProviderId>,
-  // pub min_matching_pool_donation_amount: Option<U128>,
-  // pub sybil_wrapper_provider: Option<ProviderId>,
-  // pub custom_sybil_checks: Option<Vec<CustomSybilCheck>>,
-  // pub custom_min_threshold_score: Option<u32>,
-  // pub referral_fee_matching_pool_basis_points: Option<u32>,
-  // pub referral_fee_public_round_basis_points: Option<u32>,
-  // pub chef_fee_basis_points: Option<u32>,
   return {
     owner: context.accountId === potDetail.owner ? state.owner : null,
     admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
@@ -298,14 +256,45 @@ const getUpdateArgsFromState = () => {
   };
 };
 
+const canDeploy = useMemo(() => {
+  if (
+    !state.owner ||
+    state.ownerError ||
+    !state.name ||
+    state.nameError ||
+    !state.description ||
+    state.descriptionError ||
+    !state.referrerFeeMatchingPoolPercent ||
+    state.referrerFeeMatchingPoolPercentError ||
+    !state.applicationStartDate ||
+    state.applicationStartDateError ||
+    !state.applicationEndDate ||
+    state.applicationEndDateError ||
+    !state.matchingRoundStartDate ||
+    state.matchingRoundStartDateError ||
+    !state.matchingRoundEndDate ||
+    state.matchingRoundEndDateError ||
+    !state.chef ||
+    state.chefError ||
+    !state.chefFeePercent ||
+    state.chefFeePercentError ||
+    !state.maxProjects ||
+    state.maxProjectsError
+  ) {
+    return false;
+  }
+  return true;
+}, [state]);
+
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getDeployArgsFromState();
-  //   console.log("deployargs: ", deployArgs);
+  console.log("deployArgs: ", deployArgs);
 
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
     args: deployArgs,
   }).then((amount) => {
+    console.log("amount: ", amount);
     const amountYoctos = Big(amount).plus(Big("20000000000000000000000")); // add extra 0.02 NEAR as buffer
     const transactions = [
       {
@@ -552,26 +541,6 @@ return (
               percent: true,
             }}
           />
-          {/* <props.ToDo>Add Protocol fee %</props.ToDo> */}
-          {/* <Widget
-              src={`${ownerId}/widget/Inputs.Text`}
-              props={{
-                label: "Protocol fee %",
-                placeholder: "0",
-                value: state.protocolFeeBasisPoints ? state.protocolFeeBasisPoints / 100 : "",
-                onChange: (percent) =>
-                  State.update({
-                    protocolFeeBasisPoints: parseFloat(percent) * 100,
-                    protocolFeeBasisPointsError: "",
-                  }),
-                validate: () => {
-                  // **CALLED ON BLUR**
-                  // TODO: validate percent
-                  State.update({ protocolFeeBasisPointsError: "" });
-                },
-                error: state.protocolFeeBasisPointsError,
-              }}
-            /> */}
         </Row>
         <Row>
           <Widget
@@ -734,7 +703,22 @@ return (
     <FormSectionContainer>
       {FormSectionLeft("Donor Sybil Resistance", "")}
       <FormSectionRightDiv>
-        <props.ToDo>Add donor requirements as per latest sybil contract</props.ToDo>
+        {/* <props.ToDo>Add donor requirements as per latest sybil contract</props.ToDo> */}
+        <Row>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Checkbox`}
+            props={{
+              id: "sybilSelector",
+              checked: state.useNadabotSybil,
+              onClick: (e) => {
+                State.update({
+                  useNadabotSybil: e.target.checked,
+                });
+              },
+            }}
+          />
+          <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
+        </Row>
         <Row style={{ justifyContent: "flex-end", marginTop: "36px" }}>
           {!isUpdate && (
             <Widget
@@ -756,6 +740,7 @@ return (
               text: isUpdate ? "Save changes" : "Deploy",
               style: props.style || {},
               onClick: isUpdate ? handleUpdate : handleDeploy,
+              disabled: !canDeploy,
             }}
           />
         </Row>
