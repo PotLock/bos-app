@@ -5,6 +5,7 @@ const {
   POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   validateNearAddress,
+  SUPPORTED_FTS: { NEAR },
 } = props;
 
 const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near:is_registered";
@@ -184,13 +185,14 @@ State.init({
   maxProjectsError: "",
   baseCurrency: isUpdate ? potDetail.base_currency : "",
   baseCurrencyError: "",
-  minMatchingPoolDonationAmount: isUpdate
-    ? potDetail.min_matching_pool_donation_amount
-    : "1000000000000000000000000", // 1 NEAR
+  minMatchingPoolDonationAmount: NEAR.fromIndivisible(
+    isUpdate ? potDetail.min_matching_pool_donation_amount : "1000000000000000000000000" // 1 NEAR
+  ),
   minMatchingPoolDonationAmountError: "",
   useNadabotSybil: isUpdate
     ? potDetail.sybil_wrapper_provider == DEFAULT_SYBIL_WRAPPER_PROVIDER
     : true,
+  usePotlockRegistry: isUpdate ? potDetail.registry_provider == DEFAULT_REGISTRY_PROVIDER : true,
   latestSourceCodeCommitHash: "",
   deploymentSuccess: false,
 });
@@ -208,6 +210,8 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
   }
 }
 
+console.log("state: ", state);
+
 const getDeployArgsFromState = () => {
   return {
     owner: state.owner,
@@ -220,15 +224,18 @@ const getDeployArgsFromState = () => {
     application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
     public_round_end_ms: convertToUTCTimestamp(state.matchingRoundEndDate),
-    registry_provider: DEFAULT_REGISTRY_PROVIDER,
+    min_matching_pool_donation_amount: NEAR.toIndivisible(
+      state.minMatchingPoolDonationAmount
+    ).toString(),
+    registry_provider: state.usePotlockRegistry ? DEFAULT_REGISTRY_PROVIDER : null,
     sybil_wrapper_provider: state.useNadabotSybil ? DEFAULT_SYBIL_WRAPPER_PROVIDER : null,
     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
-    custom_min_threshold_score: null,
+    custom_min_threshold_score: null, // not necessary to include null values but doing so for clarity
     referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolPercent * 100,
-    referral_fee_public_round_basis_points: state.referrerFeePublicRoundBasisPoints,
-    chef_fee_basis_points: state.chefFeePercent,
-    protocol_config_provider: DEFAULT_PROTOCOL_CONFIG_PROVIDER, // TODO: this should not be passed in here, as it's too easy to override. Should be set by factory contract when deploying.
+    referral_fee_public_round_basis_points: state.referrerFeePublicRoundPercent * 100,
+    chef_fee_basis_points: state.chefFeePercent * 100,
     source_metadata: {
+      // TODO: think about the best way to handle this so that it keeps up to date with the latest source code
       version: CURRENT_SOURCE_CODE_VERSION,
       commit_hash: state.latestSourceCodeCommitHash,
       link: SOURCE_CODE_LINK,
@@ -535,6 +542,27 @@ return (
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
+              label: "Referrer fee % (public round)",
+              placeholder: "0",
+              percent: true,
+              value: state.referrerFeePublicRoundPercent,
+              onChange: (percent) => {
+                validateAndUpdatePercentages(
+                  percent,
+                  "referrerFeePublicRoundPercent",
+                  "referrerFeePublicRoundPercentError",
+                  MAX_REFERRAL_FEE_PUBLIC_ROUND_BASIS_POINTS / 100
+                );
+              },
+              validate: () => {
+                // **CALLED ON BLUR**
+              },
+              error: state.referrerFeeMatchingPoolPercentError,
+            }}
+          />
+          <Widget
+            src={`${ownerId}/widget/Inputs.Text`}
+            props={{
               label: "Protocol fee %",
               value: protocolConfig ? protocolConfig.basis_points / 100 : "-",
               disabled: true,
@@ -555,10 +583,12 @@ return (
               },
               validate: () => {
                 // **CALLED ON BLUR**
-                // must be before application end date
+                // must be after now & before application end date
+                const now = Date.now();
                 const valid =
-                  !state.applicationEndDate ||
-                  state.applicationStartDate < state.applicationEndDate;
+                  state.applicationStartDate > now &&
+                  (!state.applicationEndDate ||
+                    state.applicationStartDate < state.applicationEndDate);
                 State.update({
                   applicationStartDateError: valid ? "" : "Invalid application start date",
                 });
@@ -633,6 +663,23 @@ return (
             }}
           />
         </Row>
+        <Row>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Text`}
+            props={{
+              label: "Min matching pool donation amount (in NEAR - optional)",
+              placeholder: "0",
+              value: state.minMatchingPoolDonationAmount,
+              onChange: (amountNear) => {
+                State.update({ minMatchingPoolDonationAmount: amountNear });
+              },
+              validate: () => {
+                // **CALLED ON BLUR**
+              },
+              error: state.referrerFeeMatchingPoolPercentError,
+            }}
+          />
+        </Row>
       </FormSectionRightDiv>
     </FormSectionContainer>
     {/* <FormDivider /> */}
@@ -701,9 +748,28 @@ return (
       </FormSectionRightDiv>
     </FormSectionContainer>
     <FormSectionContainer>
+      {FormSectionLeft("Project Registration", "")}
+      <FormSectionRightDiv>
+        <Row>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Checkbox`}
+            props={{
+              id: "registrationSelector",
+              checked: state.usePotlockRegistry,
+              onClick: (e) => {
+                State.update({
+                  usePotlockRegistry: e.target.checked,
+                });
+              },
+            }}
+          />
+          <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
+        </Row>
+      </FormSectionRightDiv>
+    </FormSectionContainer>
+    <FormSectionContainer>
       {FormSectionLeft("Donor Sybil Resistance", "")}
       <FormSectionRightDiv>
-        {/* <props.ToDo>Add donor requirements as per latest sybil contract</props.ToDo> */}
         <Row>
           <Widget
             src={`${ownerId}/widget/Inputs.Checkbox`}
@@ -740,7 +806,7 @@ return (
               text: isUpdate ? "Save changes" : "Deploy",
               style: props.style || {},
               onClick: isUpdate ? handleUpdate : handleDeploy,
-              disabled: !canDeploy,
+              // disabled: !canDeploy,
             }}
           />
         </Row>
