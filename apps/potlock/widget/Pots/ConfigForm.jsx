@@ -191,6 +191,7 @@ State.init({
   useNadabotSybil: isUpdate
     ? potDetail.sybil_wrapper_provider == DEFAULT_SYBIL_WRAPPER_PROVIDER
     : true,
+  usePotlockRegistry: isUpdate ? potDetail.registry_provider == DEFAULT_REGISTRY_PROVIDER : true,
   latestSourceCodeCommitHash: "",
   deploymentSuccess: false,
 });
@@ -220,7 +221,7 @@ const getDeployArgsFromState = () => {
     application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
     public_round_end_ms: convertToUTCTimestamp(state.matchingRoundEndDate),
-    registry_provider: DEFAULT_REGISTRY_PROVIDER,
+    registry_provider: state.usePotlockRegistry ? DEFAULT_REGISTRY_PROVIDER : null,
     sybil_wrapper_provider: state.useNadabotSybil ? DEFAULT_SYBIL_WRAPPER_PROVIDER : null,
     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
     custom_min_threshold_score: null,
@@ -701,9 +702,28 @@ return (
       </FormSectionRightDiv>
     </FormSectionContainer>
     <FormSectionContainer>
+      {FormSectionLeft("Project Registration", "")}
+      <FormSectionRightDiv>
+        <Row>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Checkbox`}
+            props={{
+              id: "registrationSelector",
+              checked: state.usePotlockRegistry,
+              onClick: (e) => {
+                State.update({
+                  usePotlockRegistry: e.target.checked,
+                });
+              },
+            }}
+          />
+          <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
+        </Row>
+      </FormSectionRightDiv>
+    </FormSectionContainer>
+    <FormSectionContainer>
       {FormSectionLeft("Donor Sybil Resistance", "")}
       <FormSectionRightDiv>
-        {/* <props.ToDo>Add donor requirements as per latest sybil contract</props.ToDo> */}
         <Row>
           <Widget
             src={`${ownerId}/widget/Inputs.Checkbox`}
