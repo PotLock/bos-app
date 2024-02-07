@@ -309,6 +309,7 @@ const props = {
     },
   },
   POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
+  NADABOT_CONTRACT_ID: "v1.staging.nadabot.near", // TODO: UPDATE WITH PROD NADABOT ID
   QF_WHITELISTED_ACCOUNTS: [
     "lachlan.near",
     "potlock.near",

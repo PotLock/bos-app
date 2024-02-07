@@ -6,7 +6,7 @@ const { ownerId } = props;
 // const DEFAULT_PROTOCOL_CONFIG_PROVIDER = potFactoryContractId;
 // const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 // const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
-// const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
+const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
 
 // Big.PE = 100;
 
