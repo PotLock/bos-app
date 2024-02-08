@@ -67,6 +67,9 @@ if (!state.potFactoryConfig) {
   });
 }
 
+console.log("state: ", state);
+console.log("props: ", props);
+
 if (!state.potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
