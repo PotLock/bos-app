@@ -141,11 +141,13 @@ const formatTimestampForDateTimeLocal = (timestamp) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
+// console.log("potDetail: ", potDetail);
+
 State.init({
   owner: isUpdate ? potDetail.owner : context.accountId,
   ownerError: "",
   admin: "",
-  admins: isUpdate ? potDetail.admins : [],
+  admins: isUpdate ? potDetail.admins.map((accountId) => ({ accountId })) : [],
   adminsError: "",
   isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
@@ -160,7 +162,9 @@ State.init({
     ? potDetail.referral_fee_matching_pool_basis_points / 100
     : "",
   referrerFeeMatchingPoolPercentError: "",
-  referrerFeePublicRoundPercent: isUpdate ? potDetail.referral_fee_public_round_basis_points : "",
+  referrerFeePublicRoundPercent: isUpdate
+    ? potDetail.referral_fee_public_round_basis_points / 100
+    : "",
   referrerFeePublicRoundPercentError: "",
   protocolFeeBasisPoints: isUpdate ? potDetail.protocol_fee_basis_points : "",
   protocolFeeBasisPointsError: "",
@@ -180,7 +184,7 @@ State.init({
   matchingRoundEndDateError: "",
   chef: isUpdate ? potDetail.chef : "",
   chefError: "",
-  chefFeePercent: isUpdate ? potDetail.chef_fee_basis_points : "",
+  chefFeePercent: isUpdate ? potDetail.chef_fee_basis_points / 100 : "",
   chefFeePercentError: "",
   maxProjects: isUpdate ? potDetail.max_projects : "",
   maxProjectsError: "",
@@ -211,7 +215,7 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
   }
 }
 
-const getDeployArgsFromState = () => {
+const getPotDetailArgsFromState = () => {
   return {
     owner: state.owner,
     admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
@@ -230,35 +234,21 @@ const getDeployArgsFromState = () => {
     sybil_wrapper_provider: state.useNadabotSybil ? DEFAULT_SYBIL_WRAPPER_PROVIDER : null,
     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
     custom_min_threshold_score: null, // not necessary to include null values but doing so for clarity
-    referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolPercent * 100,
-    referral_fee_public_round_basis_points: state.referrerFeePublicRoundPercent * 100,
-    chef_fee_basis_points: state.chefFeePercent * 100,
-    source_metadata: {
-      // TODO: think about the best way to handle this so that it keeps up to date with the latest source code
-      version: CURRENT_SOURCE_CODE_VERSION,
-      commit_hash: state.latestSourceCodeCommitHash,
-      link: SOURCE_CODE_LINK,
-    },
-  };
-};
-
-const getUpdateArgsFromState = () => {
-  return {
-    owner: context.accountId === potDetail.owner ? state.owner : null,
-    admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
-    chef: state.chef,
-    pot_name: state.name,
-    pot_description: state.description,
-    max_projects: parseInt(state.maxProjects),
-    application_start_ms: convertToUTCTimestamp(state.applicationStartDate),
-    application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
-    public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
-    public_round_end_ms: convertToUTCTimestamp(state.matchingRoundEndDate),
-    // TODO: add registry_provider, sybil_wrapper_provider, custom_sybil_checks, custom_min_threshold_score
-    min_matching_pool_donation_amount: state.minMatchingPoolDonationAmount,
-    referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolBasisPoints,
-    referral_fee_public_round_basis_points: state.referrerFeePublicRoundBasisPoints,
-    chef_fee_basis_points: state.chefFeePercent,
+    referral_fee_matching_pool_basis_points: parseInt(
+      (state.referrerFeeMatchingPoolPercent * 100).toFixed(0)
+    ),
+    referral_fee_public_round_basis_points: parseInt(
+      (state.referrerFeePublicRoundPercent * 100).toFixed(0)
+    ),
+    chef_fee_basis_points: parseInt((state.chefFeePercent * 100).toFixed(0)),
+    source_metadata: isUpdate
+      ? null
+      : {
+          // TODO: think about the best way to handle this so that it keeps up to date with the latest source code
+          version: CURRENT_SOURCE_CODE_VERSION,
+          commit_hash: state.latestSourceCodeCommitHash,
+          link: SOURCE_CODE_LINK,
+        },
   };
 };
 
@@ -294,7 +284,7 @@ const canDeploy = useMemo(() => {
 
 const handleDeploy = () => {
   // create deploy pot args
-  const deployArgs = getDeployArgsFromState();
+  const deployArgs = getPotDetailArgsFromState();
   console.log("deployArgs: ", deployArgs);
   // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
 
@@ -336,15 +326,16 @@ const handleDeploy = () => {
 
 const handleUpdate = () => {
   // create update pot args
-  const updateArgs = getUpdateArgsFromState();
-  updateArgs.source_metadata = potDetail.source_metadata;
-  //   console.log("updateArgs: ", updateArgs);
+  const updateArgs = getPotDetailArgsFromState();
+  console.log("updateArgs: ", updateArgs);
+  const depositFloat = JSON.stringify(updateArgs).length * 0.00003;
+  const deposit = Big(depositFloat).mul(Big(10).pow(24));
   const transactions = [
     {
       contractName: potId,
       methodName: "admin_dangerously_set_pot_config",
-      //   deposit: Big(0.1).mul(Big(10).pow(24)),
-      deposit: 0,
+      deposit: Big(0.1).mul(Big(10).pow(24)),
+      deposit,
       args: { update_args: updateArgs },
       gas: props.ONE_TGAS.mul(100),
     },
@@ -428,6 +419,10 @@ const handleRemoveAdmin = (accountId) => {
   });
 };
 
+const userIsOwner = context.accountId === potDetail.owner;
+const userIsAdmin = potDetail.admins.includes(context.accountId);
+const isAdminOrGreater = userIsOwner || userIsAdmin;
+
 const FormSectionLeft = (title, description) => {
   return (
     <FormSectionLeftDiv>
@@ -443,7 +438,6 @@ return (
     <FormSectionContainer>
       {FormSectionLeft("Pot details", "")}
       <FormSectionRightDiv>
-        {isUpdate && <props.ToDo>Only allow owner edit if logged in account is owner</props.ToDo>}
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
@@ -457,7 +451,7 @@ return (
               State.update({ ownerError: valid ? "" : "Invalid NEAR account ID" });
             },
             error: state.ownerError,
-            disabled: true,
+            disabled: isUpdate ? !userIsOwner : true,
           }}
         />
         {/* <props.ToDo>ADD ADMINS multi-entry</props.ToDo> */}
@@ -468,19 +462,21 @@ return (
             accountIds: state.admins
               .filter((account) => !account.remove)
               .map((account) => account.accountId),
-            allowRemove: true,
+            allowRemove: isUpdate ? userIsOwner : true,
             handleRemoveAccount: handleRemoveAdmin,
           }}
         />
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "tertiary",
-            text: "Add admins",
-            style: { width: "fit-content" },
-            onClick: () => State.update({ isAdminsModalOpen: true }),
-          }}
-        />
+        {userIsOwner && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "tertiary",
+              text: "Add admins",
+              style: { width: "fit-content" },
+              onClick: () => State.update({ isAdminsModalOpen: true }),
+            }}
+          />
+        )}
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
@@ -496,6 +492,7 @@ return (
               });
             },
             error: state.nameError,
+            disabled: !isAdminOrGreater,
           }}
         />
         <Widget
@@ -515,6 +512,7 @@ return (
               });
             },
             error: state.descriptionError,
+            disabled: !isAdminOrGreater,
           }}
         />
         <Row>
@@ -537,6 +535,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
+              disabled: !isAdminOrGreater,
             }}
           />
           <Widget
@@ -558,6 +557,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
+              disabled: !isAdminOrGreater,
             }}
           />
           <Widget
@@ -591,15 +591,12 @@ return (
                 const valid =
                   applicationStartDate > now &&
                   (!applicationEndDate || applicationStartDate < applicationEndDate);
-                console.log("applicationStartDate: ", applicationStartDate);
-                console.log("now: ", now);
-                console.log("application end date: ", applicationEndDate);
-                console.log("valid: ", valid);
                 State.update({
                   applicationStartDateError: valid ? "" : "Invalid application start date",
                 });
               },
               error: state.applicationStartDateError,
+              disabled: !isAdminOrGreater,
             }}
           />
           <Widget
@@ -623,6 +620,7 @@ return (
                 });
               },
               error: state.applicationEndDateError,
+              disabled: !isAdminOrGreater,
             }}
           />
         </Row>
@@ -666,6 +664,7 @@ return (
                 State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
               },
               error: state.matchingRoundEndDateError,
+              disabled: !isAdminOrGreater,
             }}
           />
         </Row>
@@ -683,6 +682,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
+              disabled: !isAdminOrGreater,
             }}
           />
         </Row>
@@ -706,6 +706,7 @@ return (
                 State.update({ chefError: valid ? "" : "Invalid NEAR account ID" });
               },
               error: state.chefError,
+              disabled: !isAdminOrGreater,
             }}
           />
           <Widget
@@ -727,6 +728,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.chefFeePercentError,
+              disabled: !isAdminOrGreater,
             }}
           />
         </Row>
@@ -749,6 +751,7 @@ return (
               State.update({ maxProjectsError: valid ? "" : `Maximum ${MAX_MAX_PROJECTS}` });
             },
             error: state.maxProjectsError,
+            disabled: !isAdminOrGreater,
           }}
         />
       </FormSectionRightDiv>
@@ -767,6 +770,7 @@ return (
                   usePotlockRegistry: e.target.checked,
                 });
               },
+              disabled: !isAdminOrGreater,
             }}
           />
           <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
@@ -787,12 +791,13 @@ return (
                   useNadabotSybil: e.target.checked,
                 });
               },
+              disabled: !isAdminOrGreater,
             }}
           />
           <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
         </Row>
         <Row style={{ justifyContent: "flex-end", marginTop: "36px" }}>
-          {!isUpdate && (
+          {!isUpdate && isAdminOrGreater && (
             <Widget
               src={`${ownerId}/widget/Components.Button`}
               props={{
@@ -805,16 +810,18 @@ return (
               }}
             />
           )}
-          <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: "primary",
-              text: isUpdate ? "Save changes" : "Deploy",
-              style: props.style || {},
-              onClick: isUpdate ? handleUpdate : handleDeploy,
-              // disabled: !canDeploy,
-            }}
-          />
+          {((isUpdate && isAdminOrGreater) || !isUpdate) && (
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: "primary",
+                text: isUpdate ? "Save changes" : "Deploy",
+                style: props.style || {},
+                onClick: isUpdate ? handleUpdate : handleDeploy,
+                // disabled: !canDeploy,
+              }}
+            />
+          )}
         </Row>
       </FormSectionRightDiv>
     </FormSectionContainer>
