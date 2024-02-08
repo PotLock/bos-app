@@ -1,8 +1,10 @@
-const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH, formatDate } = props;
+const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH, formatDate, referrerId } = props;
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 Big.PE = 100;
+
+// console.log("header props: ", props);
 
 const Container = styled.div`
   display: flex;
@@ -98,12 +100,28 @@ const ModalTitle = styled.div`
   margin-bottom: 8px;
 `;
 
+const Label = styled.label`
+  font-size: 12px;
+  line-height: 16px;
+  word-wrap: break-word;
+  color: #2e2e2e;
+`;
+
+const FeeText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  word-wrap: break-word;
+`;
+
 State.init({
   isMatchingPoolModalOpen: false,
   matchingPoolDonationAmountNear: "",
   matchingPoolDonationAmountNearError: "",
   matchingPoolDonationMessage: "",
   matchingPoolDonationMessageError: "",
+  bypassProtocolFee: false,
 });
 
 // console.log("props in header: ", props);
@@ -124,12 +142,20 @@ const {
   public_round_start_ms,
   public_round_end_ms,
   min_matching_pool_donation_amount,
+  referral_fee_matching_pool_basis_points,
   base_currency,
   matching_pool_balance,
   registry_provider,
+  protocol_config_provider,
   cooldown_end_ms,
   all_paid_out,
 } = potDetail;
+
+// console.log("potDetail: ", potDetail);
+
+const protocolConfigContractId = protocol_config_provider.split(":")[0];
+const protocolConfigViewMethodName = protocol_config_provider.split(":")[1];
+const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
 
 const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
   base_currency.toUpperCase()
@@ -169,11 +195,10 @@ const totalMatchingPoolAmount =
 
 const handleMatchingPoolDonation = () => {
   const { matchingPoolDonationAmountNear } = state;
-  // TODO: implement
   const args = {
     message: state.matchingPoolDonationMessage,
     matching_pool: true,
-    // TODO: ADD REFERRER ID
+    referrer_id: referrerId || null,
   };
   // const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
   const amountFloat = parseFloat(matchingPoolDonationAmountNear || 0);
@@ -214,6 +239,16 @@ const handleProcessPayouts = () => {
   // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
 };
 
+// console.log("protocolConfig: ", protocolConfig);
+
+const protocolFeeAmountNear = state.bypassProtocolFee
+  ? 0
+  : (state.matchingPoolDonationAmountNear * protocolConfig?.basis_points) / 10_000 || 0;
+
+const referrerFeeAmountNear = referrerId
+  ? (state.matchingPoolDonationAmountNear * referral_fee_matching_pool_basis_points) / 10_000 || 0
+  : 0;
+
 return (
   <Container>
     <Column style={{ gap: "48px" }}>
@@ -225,7 +260,9 @@ return (
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
         <Row style={{ gap: "8px" }}>
-          <H2>{`${totalMatchingPoolAmount} ${base_currency.toUpperCase()} `}</H2>
+          <H2>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
+            matching_pool_balance
+          )} ${base_currency.toUpperCase()} `}</H2>
           <Description>Matching funds available</Description>
         </Row>
       </ColumnRightSegment>
@@ -293,16 +330,6 @@ return (
         {publicRoundClosed && <props.ToDo>Add round closed indicator</props.ToDo>}
       </ColumnRightSegment>
       <Row style={{ gap: "24px" }}>
-        {now < public_round_end_ms && (
-          <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: publicRoundOpen ? "secondary" : "primary",
-              text: "Fund matching pool",
-              onClick: handleFundMatchingPool,
-            }}
-          />
-        )}
         {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
@@ -310,6 +337,16 @@ return (
               type: "tertiary",
               text: "Apply to pot",
               onClick: handleApplyToPot,
+            }}
+          />
+        )}
+        {now < public_round_end_ms && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: publicRoundOpen || canApply ? "secondary" : "primary",
+              text: "Fund matching pool",
+              onClick: handleFundMatchingPool,
             }}
           />
         )}
@@ -358,7 +395,7 @@ return (
         children: (
           <>
             <ModalTitle>
-              Enter matching pool contribution amount
+              Enter matching pool contribution amount in NEAR
               {min_matching_pool_donation_amount === "1"
                 ? "(no minimum)"
                 : `(Min. ${totalMatchingPoolAmount} ${base_currency.toUpperCase()})`}
@@ -405,8 +442,43 @@ return (
                 error: state.matchingPoolDonationMessageError,
               }}
             />
-            <props.ToDo>NB: No referrals yet</props.ToDo>
-            <props.ToDo>Display fees breakdown and amount after fees</props.ToDo>
+            {/* <props.ToDo>Display fees breakdown and amount after fees</props.ToDo> */}
+            <Row>
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "bypassFeeSelector",
+                  checked: state.bypassProtocolFee,
+                  onClick: (e) => {
+                    State.update({ bypassProtocolFee: e.target.checked });
+                  },
+                }}
+              />
+              <Label htmlFor="bypassFeeSelector">
+                Bypass protocol fee ({protocolConfig?.basis_points / 100 || "-"}%)
+              </Label>
+            </Row>
+            <Row style={{ marginTop: "12px" }}>
+              <FeeText>
+                Protocol fee (to {protocolConfig?.account_id}): {protocolFeeAmountNear} NEAR
+              </FeeText>
+            </Row>
+            <Row style={{ marginTop: "6px" }}>
+              {referrerId && (
+                <FeeText>
+                  Referrer fee (to {referrerId}): {referrerFeeAmountNear} NEAR
+                </FeeText>
+              )}
+            </Row>
+            <Row style={{ marginTop: "6px" }}>
+              <FeeText>
+                Net donation amount:{" "}
+                {state.matchingPoolDonationAmountNear -
+                  protocolFeeAmountNear -
+                  referrerFeeAmountNear}{" "}
+                NEAR
+              </FeeText>
+            </Row>
             <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
               <Widget
                 src={`${ownerId}/widget/Components.Button`}
