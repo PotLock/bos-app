@@ -4,6 +4,8 @@ const MAX_TITLE_LENGTH = 36;
 const Card = styled.a`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 45%;
   min-width: 320px;
@@ -53,7 +55,12 @@ const Subtitle = styled.span`
 
 const { ownerId, potId, potConfig } = props;
 
-if (!potConfig) return "Loading...";
+if (!potConfig)
+  return (
+    <Card>
+      <div class="spinner-border text-secondary" role="status" />
+    </Card>
+  );
 
 const {
   pot_name,
