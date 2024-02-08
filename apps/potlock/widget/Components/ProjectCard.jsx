@@ -41,7 +41,7 @@ const CardImage = styled.img`
   height: 150px;
   min-height: 150px;
   width: 100%;
-  object-fit:cover;
+  object-fit: cover;
 `;
 
 const CardTitle = styled.div`
@@ -171,9 +171,11 @@ if (props.transactionHashes) {
   state.isModalDonationSucessOpen = true;
 }
 
+const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${id}`);
+
 return (
   <>
-    <Card href={`?tab=project&projectId=${id}`}>
+    <Card href={projectUrl}>
       <CardImage
         src={
           cardData && cardData?.backgroundImage && cardData?.backgroundImage?.ipfs_cid

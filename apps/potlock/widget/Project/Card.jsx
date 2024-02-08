@@ -116,8 +116,10 @@ const [totalAmount, totalDonors] = useMemo(() => {
   ];
 }, [donationsForProject]);
 
+const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${projectId}`);
+
 return (
-  <Card href={`?tab=project&projectId=${projectId}`} key={projectId}>
+  <Card href={projectUrl} key={projectId}>
     <Widget
       src={`${ownerId}/widget/Project.BannerHeader`}
       props={{

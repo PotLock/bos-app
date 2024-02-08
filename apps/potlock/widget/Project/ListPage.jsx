@@ -1,5 +1,4 @@
 const { ownerId, userIsRegistryAdmin } = props;
-const registryId = "registry.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
@@ -163,7 +162,7 @@ return (
                 type: "secondary",
                 text: "Create project",
                 disabled: false,
-                href: `?tab=createproject`,
+                href: props.hrefWithEnv(`?tab=createproject`),
                 style: { padding: "16px 24px" },
               }}
             />
@@ -203,8 +202,8 @@ return (
       <Widget
         src={`${ownerId}/widget/Components.ListSection`}
         props={{
-          items: projects,
           ...props,
+          items: projects,
         }}
       />
     </ProjectsContainer>

@@ -5,6 +5,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding-bottom: 48px;
 `;
 
 const HeaderContent = styled.div`
@@ -88,7 +89,7 @@ return (
             type: "primary",
             text: "Deploy pot",
             style: props.style || {},
-            href: `?tab=deploypot`,
+            href: props.hrefWithEnv(`?tab=deploypot`),
           }}
         />
       )}

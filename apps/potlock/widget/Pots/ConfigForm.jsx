@@ -2,13 +2,14 @@ const {
   ownerId,
   potDetail,
   potId,
+  REGISTRY_CONTRACT_ID,
   POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   validateNearAddress,
   SUPPORTED_FTS: { NEAR },
 } = props;
 
-const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near:is_registered";
+const DEFAULT_REGISTRY_PROVIDER = `${REGISTRY_CONTRACT_ID}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:is_human`;
 const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
@@ -584,11 +585,17 @@ return (
               validate: () => {
                 // **CALLED ON BLUR**
                 // must be after now & before application end date
-                const now = Date.now();
+                // const now = Date.now();
+                const now = new Date().getTime();
+                const applicationStartDate = new Date(state.applicationStartDate).getTime();
+                const applicationEndDate = new Date(state.applicationEndDate).getTime();
                 const valid =
-                  state.applicationStartDate > now &&
-                  (!state.applicationEndDate ||
-                    state.applicationStartDate < state.applicationEndDate);
+                  applicationStartDate > now &&
+                  (!applicationEndDate || applicationStartDate < applicationEndDate);
+                console.log("applicationStartDate: ", applicationStartDate);
+                console.log("now: ", now);
+                console.log("application end date: ", applicationEndDate);
+                console.log("valid: ", valid);
                 State.update({
                   applicationStartDateError: valid ? "" : "Invalid application start date",
                 });

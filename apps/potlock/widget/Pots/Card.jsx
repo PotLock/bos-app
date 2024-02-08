@@ -93,7 +93,7 @@ const isInApplicationPeriod = application_start_ms <= now && application_end_ms 
 const isInPublicRoundPeriod = public_round_start_ms <= now && public_round_end_ms > now;
 
 return (
-  <Card href={`?tab=pot&potId=${potId}`}>
+  <Card href={props.hrefWithEnv(`?tab=pot&potId=${potId}`)}>
     <CardSection style={{ borderBottom: "1px #C7C7C7 solid" }}>
       <Title>{title}</Title>
       <Description>{description}</Description>

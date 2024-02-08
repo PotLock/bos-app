@@ -211,7 +211,7 @@ return (
             type: "primary",
             text: "View all pots",
             style: props.style || {},
-            href: `?tab=pots`,
+            href: props.hrefWithEnv(`?tab=pots`),
           }}
         />
       </SuccessContainer>
