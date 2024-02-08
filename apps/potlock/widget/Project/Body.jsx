@@ -1,4 +1,9 @@
-const { ownerId, REGISTRY_CONTRACT_ID } = props;
+const {
+  ownerId,
+  REGISTRY_CONTRACT_ID,
+  userIsRegistryAdmin,
+  SUPPORTED_FTS: { NEAR },
+} = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
@@ -184,7 +189,7 @@ return (
       />
     </Header>
     <Actions />
-    {props.registryConfig && props.registryConfig.admins.includes(context.accountId) && (
+    {userIsRegistryAdmin && (
       <Widget
         src={`${ownerId}/widget/Inputs.Select`}
         props={{
@@ -201,6 +206,7 @@ return (
                   contractName: REGISTRY_CONTRACT_ID,
                   methodName: "admin_set_project_status",
                   args: { project_id: props.projectId, status: status.value },
+                  deposit: NEAR.toIndivisible(0.01).toString(),
                 },
               ]);
             }
