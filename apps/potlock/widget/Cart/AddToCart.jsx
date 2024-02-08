@@ -1,5 +1,7 @@
 const { ownerId } = props;
 const existsInCart = props.cart && !!props.cart[props.projectId];
+
+// console.log("props in AddToCart: ", props);
 // console.log("existsInCart: ", props);
 return (
   <Widget
@@ -19,6 +21,7 @@ return (
               ft: "NEAR",
               referrerId: props.referrerId,
               potId: props.potId,
+              potDetail: props.potDetail,
             },
           ]);
           if (props.showModal) {

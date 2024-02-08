@@ -179,6 +179,7 @@ const handleDonate = () => {
       methodName: "donate",
       args: potId ? potContractArgs : donateContractArgs,
       deposit: amountIndivisible.toString(),
+      gas: "300000000000000",
     });
   });
 
@@ -245,33 +246,21 @@ return (
             <BreakdownItemText>{amountFloat.toFixed(2)}</BreakdownItemText>
           </BreakdownItemLeft>
           <BreakdownItemRight>
-            <BreakdownItemText>
-              {props.cart[props.projectId]?.ft == "NEAR"
-                ? `${amountFloat.toFixed(2)} N`
-                : `${(amountFloat / props.cart[props.projectId]?.price).toFixed(2)} N`}
-            </BreakdownItemText>
+            <BreakdownItemText>{amountFloat.toFixed(2)} N</BreakdownItemText>
           </BreakdownItemRight>
         </BreakdownItemContainer>
       );
     })}
     <TotalContainer>
       <TotalText>Total</TotalText>
-      <TotalText>
-        {props.cart[props.projectId]?.ft == "NEAR"
-          ? `${totalAmount.toFixed(2)} N`
-          : `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`}
-      </TotalText>
+      <TotalText>{totalAmount.toFixed(2)} N</TotalText>
     </TotalContainer>
     <Widget
       src={`${ownerId}/widget/Components.Button`}
       props={{
         type: "primary",
         // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
-        text: `Donate ${
-          props.cart[props.projectId]?.ft != "NEAR"
-            ? `${(totalAmount / props.cart[props.projectId]?.price).toFixed(2)} N`
-            : `${totalAmount.toFixed(2)} N`
-        }`,
+        text: `Donate ${`${totalAmount.toFixed(2)} N`}`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
         style: {

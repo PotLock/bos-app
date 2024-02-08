@@ -1,4 +1,4 @@
-const { ownerId } = props;
+const { ownerId, potDetail } = props;
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
