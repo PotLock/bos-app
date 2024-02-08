@@ -211,8 +211,6 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
   }
 }
 
-console.log("state: ", state);
-
 const getDeployArgsFromState = () => {
   return {
     owner: state.owner,
@@ -298,6 +296,7 @@ const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getDeployArgsFromState();
   console.log("deployArgs: ", deployArgs);
+  // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
 
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
     args: deployArgs,

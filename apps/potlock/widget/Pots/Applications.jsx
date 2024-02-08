@@ -1,5 +1,10 @@
 // get applications
-const { ownerId, potId, potDetail } = props;
+const {
+  ownerId,
+  potId,
+  potDetail,
+  SUPPORTED_FTS: { NEAR },
+} = props;
 
 const Row = styled.div`
   display: flex;
@@ -104,7 +109,7 @@ const handleSubmit = () => {
     {
       contractName: potId,
       methodName: "chef_set_application_status",
-      deposit: "0",
+      deposit: NEAR.toIndivisible(0.01),
       args,
       gas: props.ONE_TGAS.mul(100),
     },
@@ -138,7 +143,9 @@ return (
               <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
             </Row>
             <div>{message}</div>
-            <div style={{ fontSize: "12px", marginTop: "8px" }}>Admin notes: {review_notes}</div>
+            <div style={{ fontSize: "12px", marginTop: "8px" }}>
+              Admin notes: {review_notes.length > 0 ? review_notes : "None yet"}
+            </div>
           </Column>
           <div>{status}</div>
           {isChefOrGreater && (

@@ -604,7 +604,6 @@ return (
       >
         <ProjectList>{displayProject}</ProjectList>
       </InfiniteScroll>
-      {lastNumberOfProject >= totalProjects.length && <OnBottom>On bottom</OnBottom>}
     </Container>
   </>
 );
