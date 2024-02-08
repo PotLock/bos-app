@@ -312,7 +312,7 @@ const props = {
   // POT_FACTORY_CONTRACT_ID: "potfactory.staging.potlock.near",
   REGISTRY_CONTRACT_ID: registryContractId,
   POT_FACTORY_CONTRACT_ID:
-    props.env === "staging" ? "potfactory2.tests.potlock.near" : "v1.potfactory.potlock.near",
+    props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
   NADABOT_CONTRACT_ID: props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near",
   QF_WHITELISTED_ACCOUNTS: [
     "lachlan.near",
@@ -356,6 +356,7 @@ const props = {
     "jgodwill.near",
     "0xprometheus.near",
     "minorityprogrammers.near",
+    "yomamma.near",
   ],
   ToDo: styled.div`
     position: relative;

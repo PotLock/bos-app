@@ -1,5 +1,10 @@
 // get applications
-const { ownerId, potId, potDetail } = props;
+const {
+  ownerId,
+  potId,
+  potDetail,
+  SUPPORTED_FTS: { NEAR },
+} = props;
 
 const Row = styled.div`
   display: flex;
@@ -55,16 +60,31 @@ const ModalFooter = styled.div`
   width: 100%;
 `;
 
+const APPLICATIONS_FILTERS = {
+  ALL: "All applications",
+  PENDING: "Pending applications",
+  APPROVED: "Approved applications",
+  REJECTED: "Rejected applications",
+};
+
 State.init({
   isModalOpen: false,
   newStatus: "",
   projectId: "",
   reviewMessage: "",
+  searchTerm: "",
+  allApplications: applications,
+  filteredApplications: [],
+  filterVal: APPLICATIONS_FILTERS.ALL,
 });
 
-const applications = Near.view(potId, "get_applications", {});
+if (!state.allApplications) {
+  Near.asyncView(potId, "get_applications", {}).then((applications) => {
+    State.update({ filteredApplications: applications, allApplications: applications });
+  });
+}
 
-if (!applications) return "Loading...";
+if (!state.allApplications) return "Loading...";
 
 const daysAgo = (timestamp) => {
   const now = new Date();
@@ -104,7 +124,7 @@ const handleSubmit = () => {
     {
       contractName: potId,
       methodName: "chef_set_application_status",
-      deposit: "0",
+      deposit: NEAR.toIndivisible(0.01),
       args,
       gas: props.ONE_TGAS.mul(100),
     },
@@ -114,60 +134,108 @@ const handleSubmit = () => {
   // <---- TODO: IMPLEMENT EXTENSION WALLET HANDLING ---->
 };
 
+// console.log("applications: ", applications);
+// console.log("state: ", state);
+
+const searchApplications = (searchTerm) => {
+  // filter applications that match the search term (message, project_id, review_notes or status)
+  const filteredApplications = state.allApplications.filter((application) => {
+    const { message, project_id, review_notes, status } = application;
+    const searchFields = [message, project_id, review_notes, status];
+    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
+  return filteredApplications;
+};
+
+const sortApplications = (sortVal) => {
+  if (sortVal === APPLICATIONS_FILTERS.ALL) {
+    return searchApplications(state.searchTerm);
+  }
+  const filtered = state.allApplications.filter((application) => {
+    return application.status === sortVal.split(" ")[0];
+  });
+  return filtered;
+};
+
 return (
   <>
-    {applications.map((application, index) => {
-      const { project_id, message, status, submitted_at, review_notes } = application;
+    <Widget
+      src={`${ownerId}/widget/Project.SearchBar`}
+      props={{
+        title: "Filter",
+        tab: tab,
+        numItems: state.filteredApplications.length,
+        itemName: "application",
+        sortList: Object.values(APPLICATIONS_FILTERS),
+        sortVal: state.filterVal,
+        setSearchTerm: (value) => {
+          const results = searchApplications(value);
+          State.update({ searchTerm: value, filteredApplications: results });
+        },
+        handleSortChange: (sortVal) => {
+          const sorted = sortApplications(sortVal);
+          State.update({ filteredApplications: sorted, filterVal: sortVal });
+        },
+      }}
+    />
+    {state.filteredApplications.length === 0 ? (
+      <Row>No applications to display</Row>
+    ) : (
+      state.filteredApplications.map((application, index) => {
+        const { project_id, message, status, submitted_at, review_notes } = application;
 
-      return (
-        <Row key={index}>
-          <Widget
-            src={`${ownerId}/widget/Project.ProfileImage`}
-            props={{
-              ...props,
-              accountId: project_id,
-              imageWrapperStyle: {
-                height: "32px",
-                width: "32px",
-              },
-            }}
-          />
-          <Column style={{ flex: 1 }}>
-            <Row style={{ borderBottom: "none", padding: "0px" }}>
-              <div style={{ fontWeight: "bold" }}>{project_id}</div>
-              <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
-            </Row>
-            <div>{message}</div>
-            <div style={{ fontSize: "12px", marginTop: "8px" }}>Admin notes: {review_notes}</div>
-          </Column>
-          <div>{status}</div>
-          {isChefOrGreater && (
-            <>
-              {status !== "Approved" && (
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "secondary",
-                    text: "Approve",
-                    onClick: () => handleApproveApplication(project_id),
-                  }}
-                />
-              )}
-              {status !== "Rejected" && (
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "primary",
-                    text: "Reject",
-                    onClick: () => handleRejectApplication(project_id),
-                  }}
-                />
-              )}
-            </>
-          )}
-        </Row>
-      );
-    })}
+        return (
+          <Row key={index}>
+            <Widget
+              src={`${ownerId}/widget/Project.ProfileImage`}
+              props={{
+                ...props,
+                accountId: project_id,
+                imageWrapperStyle: {
+                  height: "32px",
+                  width: "32px",
+                },
+              }}
+            />
+            <Column style={{ flex: 1 }}>
+              <Row style={{ borderBottom: "none", padding: "0px" }}>
+                <div style={{ fontWeight: "bold" }}>{project_id}</div>
+                <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
+              </Row>
+              <div>{message}</div>
+              <div style={{ fontSize: "12px", marginTop: "8px" }}>
+                Admin notes: {review_notes.length > 0 ? review_notes : "None yet"}
+              </div>
+            </Column>
+            <div>{status}</div>
+            {isChefOrGreater && (
+              <>
+                {status !== "Approved" && (
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "secondary",
+                      text: "Approve",
+                      onClick: () => handleApproveApplication(project_id),
+                    }}
+                  />
+                )}
+                {status !== "Rejected" && (
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "primary",
+                      text: "Reject",
+                      onClick: () => handleRejectApplication(project_id),
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </Row>
+        );
+      })
+    )}
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
       props={{
