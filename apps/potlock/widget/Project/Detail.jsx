@@ -1,9 +1,8 @@
-const { ownerId, projectId, userIsRegistryAdmin } = props;
-const registryId = "registry.potlock.near";
+const { ownerId, projectId, userIsRegistryAdmin, REGISTRY_CONTRACT_ID } = props;
 
 const profile = props.profile ?? Social.getr(`${projectId}/profile`);
 
-const project = Near.view(registryId, "get_project_by_id", { project_id: projectId });
+const project = Near.view(REGISTRY_CONTRACT_ID, "get_project_by_id", { project_id: projectId });
 
 if (!profile || !project) {
   return "Loading";
@@ -59,14 +58,14 @@ props.navOptions = [
     id: "home",
     disabled: false,
     source: `${ownerId}/widget/Project.About`,
-    href: `?tab=project&projectId=${projectId}&nav=home`,
+    href: props.hrefWithEnv(`?tab=project&projectId=${projectId}&nav=home`),
   },
   {
     label: "Social Feed",
     id: "feed",
     disabled: false,
     source: `${ownerId}/widget/Project.Feed`,
-    href: `?tab=project&projectId=${projectId}&nav=feed`,
+    href: props.hrefWithEnv(`?tab=project&projectId=${projectId}&nav=feed`),
   },
   {
     label: "Pots",

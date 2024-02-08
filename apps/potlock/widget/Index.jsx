@@ -1,5 +1,6 @@
 const ownerId = "potlock.near";
-const registryContractId = "registry.potlock.near";
+const registryContractId =
+  props.env === "staging" ? "registry.staging.potlock.near" : "registry.potlock.near";
 const donationContractId = "donate.potlock.near";
 
 const CREATE_PROJECT_TAB = "createproject";
@@ -308,9 +309,11 @@ const props = {
           .toFixed(decimals || 2),
     },
   },
-  // POT_FACTORY_CONTRACT_ID: "potfactory.staging.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
-  POT_FACTORY_CONTRACT_ID: "potfactory2.tests.potlock.near", // TODO: UPDATE WITH PROD FACTORY ID
-  NADABOT_CONTRACT_ID: "v1.staging.nadabot.near", // TODO: UPDATE WITH PROD NADABOT ID
+  // POT_FACTORY_CONTRACT_ID: "potfactory.staging.potlock.near",
+  REGISTRY_CONTRACT_ID: registryContractId,
+  POT_FACTORY_CONTRACT_ID:
+    props.env === "staging" ? "potfactory2.tests.potlock.near" : "v1.potfactory.potlock.near",
+  NADABOT_CONTRACT_ID: props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near",
   QF_WHITELISTED_ACCOUNTS: [
     "lachlan.near",
     "potlock.near",
@@ -368,6 +371,13 @@ const props = {
   `,
   ONE_TGAS: Big(1_000_000_000_000),
   MAX_DONATION_MESSAGE_LENGTH: 100,
+  hrefWithEnv: (href) => {
+    // add env=staging to params
+    if (props.env === "staging") {
+      return `${href}${href.includes("?") ? "&" : "?"}env=staging`;
+    }
+    return href;
+  },
   formatDate: (timestamp) => {
     const months = [
       "Jan",

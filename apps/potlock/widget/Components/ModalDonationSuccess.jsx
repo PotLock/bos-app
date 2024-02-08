@@ -604,8 +604,8 @@ return (
           )}
         </BreakDownContainer>
         <ButtonGroup>
-          <ButtonDonate href={"?tab=projects"}>Donate Again</ButtonDonate>
-          <ButtonDonate href={"?tab=projects"}>Explore projects</ButtonDonate>
+          <ButtonDonate href={props.hrefWithEnv("?tab=projects")}>Donate Again</ButtonDonate>
+          <ButtonDonate href={props.hrefWithEnv("?tab=projects")}>Explore projects</ButtonDonate>
         </ButtonGroup>
       </ModalContext>
       <ModalFooter>

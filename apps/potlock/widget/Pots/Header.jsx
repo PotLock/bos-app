@@ -319,7 +319,7 @@ return (
             props={{
               type: "primary",
               text: "Donate to projects",
-              href: `?tab=pot&potId=${potId}&nav=projects`,
+              href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`),
             }}
           />
         )}

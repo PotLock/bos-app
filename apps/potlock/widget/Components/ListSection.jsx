@@ -139,6 +139,7 @@ const loadProjects = () => {
       <Widget
         src={`${ownerId}/widget/Components.ProjectCard`}
         props={{
+          ...props,
           ...item,
           ownerId: ownerId,
           showModal: true,
@@ -497,6 +498,7 @@ return (
             <Widget
               src={`${ownerId}/widget/Components.ProjectCard`}
               props={{
+                ...props,
                 ...item,
                 referrerId: props.referrerId,
                 ownerId: ownerId,

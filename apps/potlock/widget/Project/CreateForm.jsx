@@ -1,5 +1,4 @@
-const { ownerId } = props;
-const REGISTRY_CONTRACT_ID = "registry.potlock.near";
+const { ownerId, REGISTRY_CONTRACT_ID } = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
 
@@ -723,7 +722,9 @@ return (
               type: "primary",
               text: "View your project",
               disabled: false,
-              href: `?tab=project&projectId=${registeredProject?.id || context.accountId}`,
+              href: props.hrefWithEnv(
+                `?tab=project&projectId=${registeredProject?.id || context.accountId}`
+              ),
             }}
           />
           <Widget
@@ -732,7 +733,7 @@ return (
               type: "secondary",
               text: "View all projects",
               disabled: false,
-              href: `?tab=projects`,
+              href: props.hrefWithEnv(`?tab=projects`),
             }}
           />
         </ButtonsContainer>

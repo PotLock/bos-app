@@ -220,7 +220,9 @@ return (
         />
       </ImageContainer>
       <DetailsContainer>
-        <Title href={`?tab=project&projectId=${projectId}`}>{profile.name ?? ""}</Title>
+        <Title href={props.hrefWithEnv(`?tab=project&projectId=${projectId}`)}>
+          {profile.name ?? ""}
+        </Title>
         <Description>{profile.description ?? ""}</Description>
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}

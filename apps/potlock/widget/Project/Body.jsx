@@ -1,5 +1,4 @@
-const { ownerId } = props;
-const registryContractId = "registry.potlock.near";
+const { ownerId, REGISTRY_CONTRACT_ID } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 
@@ -160,7 +159,7 @@ return (
                 type: "secondary",
                 text: "Edit profile",
                 disabled: false,
-                href: `?tab=editproject&projectId=${props.projectId}`,
+                href: props.hrefWithEnv(`?tab=editproject&projectId=${props.projectId}`),
               }}
             />
           ))}
@@ -199,7 +198,7 @@ return (
             if (status.value != project.status) {
               Near.call([
                 {
-                  contractName: registryContractId,
+                  contractName: REGISTRY_CONTRACT_ID,
                   methodName: "admin_set_project_status",
                   args: { project_id: props.projectId, status: status.value },
                 },
