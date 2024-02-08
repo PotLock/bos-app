@@ -1,10 +1,4 @@
-const { projectLength, handleFilterChange, setSearchTerm } = props;
-const filterList = [
-  "Newest to Oldest",
-  "Oldest to Newest",
-  "Most to Least Donations",
-  "Least to Most Donations",
-];
+const { title, numItems, itemName, sortList, sortVal, handleSortChange, setSearchTerm } = props;
 
 const [openFilter, setOpenFilter] = useState(false);
 
@@ -101,12 +95,12 @@ return (
       </svg>
     </SearchIcon>
     <SearchBar
-      placeholder={`Search (${projectLength}) ${props.tab == "pots" ? "pots" : "projects"}`}
+      placeholder={`Search (${numItems}) ${numItems === 1 ? itemName : itemName + "s"}`}
       onChange={onSearchChange}
     />
     <div style={{ position: "relative" }} onClick={() => setOpenFilter(!openFilter)}>
       <FilterButton>
-        Sort
+        {sortVal || title}
         <FilterIcon>
           <svg
             width="16"
@@ -124,8 +118,14 @@ return (
       </FilterButton>
       {openFilter && (
         <FilterMenu onClick={(e) => e.stopPropagation()}>
-          {filterList.map((filter, key) => (
-            <FilterItem key={key} onClick={() => handleFilterChange(filter)}>
+          {sortList.map((filter, key) => (
+            <FilterItem
+              key={key}
+              onClick={() => {
+                setOpenFilter(false);
+                handleSortChange(filter);
+              }}
+            >
               {filter}
             </FilterItem>
           ))}

@@ -15,7 +15,7 @@ const {
   currency,
   note,
 } = props;
-const filterList = [
+const sortList = [
   "Newest to Oldest",
   "Oldest to Newest",
   "Most to Least Donations",
@@ -388,8 +388,8 @@ useEffect(() => {
   });
 }, []);
 
-const handleFilterChange = (filterType) => {
-  switch (filterType) {
+const handleSortChange = (sortType) => {
+  switch (sortType) {
     case "Newest to Oldest":
       sortNewToOld(totalProjects);
       break;
@@ -552,8 +552,11 @@ return (
         <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
+            title: "Sort",
             tab: tab,
-            projectLength: totalProjects.length,
+            numItems: totalProjects.length,
+            itemName: tab == "pots" ? "pot" : "project",
+            sortList,
             setSearchTerm: (value) => {
               tab == "pots"
                 ? searchByWordsPots(totalProjects, value)
@@ -562,8 +565,8 @@ return (
                 : searchByWords(totalProjects, value);
               setSearchTerm(value);
             },
-            handleFilterChange: (filter) => {
-              handleFilterChange(filter);
+            handleSortChange: (filter) => {
+              handleSortChange(filter);
             },
           }}
         />
