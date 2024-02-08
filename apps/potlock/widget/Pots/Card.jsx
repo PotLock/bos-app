@@ -4,8 +4,6 @@ const MAX_TITLE_LENGTH = 36;
 const Card = styled.a`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   max-width: 45%;
   min-width: 320px;
@@ -57,7 +55,7 @@ const { ownerId, potId, potConfig } = props;
 
 if (!potConfig)
   return (
-    <Card>
+    <Card style={{ justifyContent: "center", alignItems: "center" }}>
       <div class="spinner-border text-secondary" role="status" />
     </Card>
   );
