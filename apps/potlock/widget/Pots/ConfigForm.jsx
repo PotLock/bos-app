@@ -9,6 +9,8 @@ const {
   SUPPORTED_FTS: { NEAR },
 } = props;
 
+console.log("props in config form: ", props);
+
 const DEFAULT_REGISTRY_PROVIDER = `${REGISTRY_CONTRACT_ID}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:is_human`;
 const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
@@ -420,7 +422,7 @@ const handleRemoveAdmin = (accountId) => {
 };
 
 const userIsOwner = context.accountId === potDetail.owner;
-const userIsAdmin = potDetail.admins.includes(context.accountId);
+const userIsAdmin = isUpdate && potDetail.admins.includes(context.accountId);
 const isAdminOrGreater = userIsOwner || userIsAdmin;
 
 const FormSectionLeft = (title, description) => {
