@@ -245,7 +245,7 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: (projectId, amount, ft, price, referrerId, potId, note) => {
+  updateCartItem: ({ projectId, amount, ft, price, referrerId, potId, potDetail, note }) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";

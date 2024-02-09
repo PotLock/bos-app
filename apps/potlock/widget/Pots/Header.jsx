@@ -1,6 +1,7 @@
 const {
   ownerId,
   potId,
+  potDetail,
   MAX_DONATION_MESSAGE_LENGTH,
   formatDate,
   referrerId,
@@ -22,6 +23,7 @@ const Container = styled.div`
   padding: 60px 80px;
   gap: 40px;
   width: 100%;
+  background: #f6f5f3;
 `;
 
 const Column = styled.div`
@@ -76,6 +78,14 @@ const H2 = styled.div`
 `;
 
 const H3 = styled.div`
+  color: #292929;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 28px;
+  word-wrap: break-word;
+`;
+
+const H4 = styled.div`
   color: #7b7b7b;
   font-size: 17px;
   font-weight: 600;
@@ -123,6 +133,15 @@ const FeeText = styled.div`
   word-wrap: break-word;
 `;
 
+const TotalsSubtext = styled.div`
+  color: #7b7b7b;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  word-wrap: break-word;
+  text-transform: uppercase;
+`;
+
 State.init({
   isMatchingPoolModalOpen: false,
   matchingPoolDonationAmountNear: "",
@@ -133,9 +152,6 @@ State.init({
 });
 
 // console.log("props in header: ", props);
-const potDetail = Near.view(potId, "get_config", {});
-
-if (!potDetail) return "";
 
 // console.log("pot config: ", potDetail);
 
@@ -153,6 +169,8 @@ const {
   referral_fee_matching_pool_basis_points,
   base_currency,
   matching_pool_balance,
+  public_donations_count,
+  total_public_donations,
   registry_provider,
   protocol_config_provider,
   cooldown_end_ms,
@@ -259,9 +277,21 @@ const referrerFeeAmountNear = referrerId
 
 return (
   <Container>
-    <Column style={{ gap: "48px" }}>
+    <Column style={{ gap: "24px" }}>
       <Title>{pot_name}</Title>
       <Description>{pot_description}</Description>
+      <Row style={{ width: "100%" }}>
+        <Column style={{ width: "100%" }}>
+          <H3>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
+            total_public_donations
+          )}  ${base_currency.toUpperCase()}`}</H3>
+          <TotalsSubtext>donated</TotalsSubtext>
+        </Column>
+        <Column style={{ width: "100%" }}>
+          <H3>{public_donations_count}</H3>
+          <TotalsSubtext>{`Donor${public_donations_count !== 1 ? "s" : ""}`}</TotalsSubtext>
+        </Column>
+      </Row>
     </Column>
     <Column>
       <ColumnRightSegment
@@ -299,10 +329,10 @@ return (
                 {props.daysUntil(application_end_ms, " to go")}
               </StatusText>
             </Row>
-            <H3>
+            <H4>
               Application starts on <Time>{formatDate(application_start_ms)}</Time> and ends on{" "}
               <Time>{formatDate(application_end_ms)}</Time>
-            </H3>
+            </H4>
           </>
         )}
         {publicRoundOpen && (
@@ -330,10 +360,10 @@ return (
                 {props.daysUntil(public_round_end_ms, "to go")}
               </StatusText>
             </Row>
-            <H3>
+            <H4>
               Round starts on <Time>{formatDate(public_round_start_ms)}</Time> and ends on{" "}
               <Time>{formatDate(public_round_end_ms)}</Time>
-            </H3>
+            </H4>
           </>
         )}
         {publicRoundClosed && <props.ToDo>Add round closed indicator</props.ToDo>}
