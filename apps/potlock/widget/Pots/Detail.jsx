@@ -80,7 +80,7 @@ State.init({
   applicationMessage: "",
   applicationMessageError: "",
   applicationSuccess: false,
-  sybilWrapperProviderResult: null,
+  sybilRequirementMet: null,
 });
 
 if (state.potDetail === null) {
@@ -109,8 +109,10 @@ if (state.potDetail === null) {
         const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
         Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((result) => {
           console.log("sybil result: ", result);
-          State.update({ sybilWrapperProviderResult: result });
+          State.update({ sybilRequirementMet: result });
         });
+      } else {
+        State.update({ sybilRequirementMet: true });
       }
     })
     .catch((e) => {
@@ -224,6 +226,7 @@ return (
           ...props,
           setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
           handleApplyToPot,
+          sybilRequirementMet: state.sybilRequirementMet,
         }}
       />
       <Container>
@@ -247,6 +250,7 @@ return (
               props={{
                 ...props,
                 potDetail: state.potDetail,
+                sybilRequirementMet: state.sybilRequirementMet,
               }}
             />
           </BodyContainer>

@@ -1,4 +1,12 @@
-const { ownerId, potId, MAX_DONATION_MESSAGE_LENGTH, formatDate, referrerId } = props;
+const {
+  ownerId,
+  potId,
+  MAX_DONATION_MESSAGE_LENGTH,
+  formatDate,
+  referrerId,
+  sybilRequirementMet,
+  NADA_BOT_URL,
+} = props;
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
@@ -313,6 +321,7 @@ return (
                   props={{
                     colorOuter: "#D7F5A1",
                     colorInner: "#9ADD33",
+                    animate: true,
                   }}
                 />
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
@@ -355,8 +364,11 @@ return (
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
-              text: "Donate to projects",
-              href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`),
+              text: sybilRequirementMet ? "Donate to projects" : "Verify to Donate",
+              href: sybilRequirementMet
+                ? props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`)
+                : NADA_BOT_URL,
+              target: sybilRequirementMet ? "_self" : "_blank",
             }}
           />
         )}

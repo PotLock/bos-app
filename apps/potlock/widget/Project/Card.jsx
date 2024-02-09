@@ -1,4 +1,4 @@
-const { ownerId, potDetail } = props;
+const { ownerId, potDetail, NADA_BOT_URL } = props;
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
@@ -187,6 +187,20 @@ return (
           },
           stopPropagation: true,
           showModal: false,
+        }}
+      />
+    )}
+    {props.requireVerification && (
+      <Widget
+        src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
+        props={{
+          ...props,
+          style: {
+            borderRadius: "0px 0px 6px 6px",
+            boxShadow: "0px",
+            border: "0px",
+          },
+          href: NADA_BOT_URL,
         }}
       />
     )}

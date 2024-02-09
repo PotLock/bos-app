@@ -1,5 +1,5 @@
 // get projects
-const { ownerId, potId, potDetail } = props;
+const { ownerId, potId, potDetail, sybilRequirementMet } = props;
 const projects = Near.view(potId, "get_approved_applications", {});
 
 if (!projects) return "Loading...";
@@ -35,18 +35,9 @@ return (
               ...props,
               potId,
               projectId: project.project_id,
-              allowDonate: publicRoundOpen && project.project_id !== context.accountId,
-              // button: (
-              //   <Widget
-              //     src={`${ownerId}/widget/Components.Button`}
-              //     props={{
-              //       type: "primary",
-              //       text: "Donate",
-              //       onClick: handleDonate,
-              //     }}
-              //   />
-              // ),
-              // TODO: add prop indicating that button should read "Donate" and providing onClick method
+              allowDonate:
+                sybilRequirementMet && publicRoundOpen && project.project_id !== context.accountId,
+              requireVerification: !sybilRequirementMet,
             }}
           />
         );
