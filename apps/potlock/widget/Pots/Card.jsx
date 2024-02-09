@@ -113,9 +113,9 @@ return (
             borderColor: isInPublicRoundPeriod ? "#9ADD33" : "#33DDCB",
             textColor: isInPublicRoundPeriod ? "#023131" : "#192C07",
             text: isInApplicationPeriod
-              ? props.daysUntil(application_end_ms, " left to Apply")
+              ? props.daysUntil(application_end_ms) + " left to Apply"
               : isInPublicRoundPeriod
-              ? props.daysUntil(public_round_end_ms, " left for Matching")
+              ? props.daysUntil(public_round_end_ms) + " left for Matching"
               : "",
           }}
         />
