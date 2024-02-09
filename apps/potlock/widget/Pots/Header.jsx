@@ -18,7 +18,7 @@ Big.PE = 100;
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 60px 80px;
   gap: 40px;
@@ -188,7 +188,9 @@ const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
 ].fromIndivisible(min_matching_pool_donation_amount);
 
 const now = Date.now();
+const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
+const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 const publicRoundClosed = now >= public_round_end_ms;
 const userIsAdminOrGreater = admins.includes(context.accountId) || owner === context.accountId;
@@ -275,10 +277,68 @@ const referrerFeeAmountNear = referrerId
   ? (state.matchingPoolDonationAmountNear * referral_fee_matching_pool_basis_points) / 10_000 || 0
   : 0;
 
+const getApplicationTagText = () => {
+  if (applicationNotStarted) return "Application Round Not Started";
+  if (applicationOpen) return props.daysUntil(public_round_end_ms) + " left to apply";
+  else return "Application Round Ended";
+};
+
+const getMatchingRoundTagText = () => {
+  if (publicRoundNotStarted) return "Matching Round Not Started";
+  if (publicRoundOpen) return props.daysUntil(public_round_end_ms) + " left in round";
+  else return "Matching Round Ended";
+};
+
 return (
   <Container>
     <Column style={{ gap: "24px" }}>
       <Title>{pot_name}</Title>
+      <Row style={{ gap: "24px" }}>
+        {/* Application tag */}
+        <Widget
+          src={`${ownerId}/widget/Pots.Tag`}
+          props={{
+            ...props,
+            backgroundColor: applicationOpen ? "#EFFEFA" : "#EBEBEB",
+            borderColor: applicationOpen ? "#33DDCB" : "#DBDBDB",
+            textColor: applicationOpen ? "#023131" : "#192C07",
+            text: getApplicationTagText(),
+            textStyle: { fontWeight: 500, marginLeft: applicationOpen ? "8px" : "0px" },
+            preElements: applicationOpen ? (
+              <Widget
+                src={`${ownerId}/widget/Components.Indicator`}
+                props={{
+                  colorOuter: "#CAFDF3",
+                  colorInner: "#33DDCB",
+                  animate: true,
+                }}
+              />
+            ) : null,
+          }}
+        />
+        {/* Matching round tag */}
+        <Widget
+          src={`${ownerId}/widget/Pots.Tag`}
+          props={{
+            ...props,
+            backgroundColor: publicRoundOpen ? "#F7FDE8" : "#EBEBEB",
+            borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
+            textColor: "#192C07",
+            text: getMatchingRoundTagText(),
+            textStyle: { fontWeight: 500, marginLeft: publicRoundOpen ? "8px" : "0px" },
+            preElements: publicRoundOpen ? (
+              <Widget
+                src={`${ownerId}/widget/Components.Indicator`}
+                props={{
+                  colorOuter: "#D7F5A1",
+                  colorInner: "#9ADD33",
+                  animate: true,
+                }}
+              />
+            ) : null,
+          }}
+        />
+      </Row>
       <Description>{pot_description}</Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
@@ -321,12 +381,13 @@ return (
                   props={{
                     colorOuter: "#CAFDF3",
                     colorInner: "#33DDCB",
+                    animate: true,
                   }}
                 />
                 <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {props.daysUntil(application_end_ms, " to go")}
+                {props.daysUntil(application_end_ms) + " to go"}
               </StatusText>
             </Row>
             <H4>
@@ -357,7 +418,7 @@ return (
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {props.daysUntil(public_round_end_ms, "to go")}
+                {"Ends in " + props.daysUntil(public_round_end_ms)}
               </StatusText>
             </Row>
             <H4>
