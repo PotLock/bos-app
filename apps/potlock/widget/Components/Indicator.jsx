@@ -2,8 +2,8 @@ const Outer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background-color: ${props.colorOuter};
 
@@ -17,12 +17,15 @@ const Outer = styled.div`
     }
   }
 
+  ${props.animate &&
+  `
   animation: beacon 1.5s infinite;
+  `}
 `;
 
 const Inner = styled.div`
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: ${props.colorInner};
 `;

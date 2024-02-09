@@ -70,6 +70,7 @@ State.init({
   note: null,
   referrerId: null,
   currency: null,
+  // isSybilModalOpen: false,
 });
 
 if (!state.nearToUsd) {
@@ -434,6 +435,10 @@ const props = {
 
     return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}${suffix || ""}`;
   },
+  NADA_BOT_URL: "https://app.nada.bot",
+  // openSybilModal: () => {
+  //   State.update({ isSybilModalOpen: true });
+  // },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
@@ -523,5 +528,13 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
+    {/* <Widget
+      src={`${ownerId}/widget/Pots.ModalSybil`}
+      props={{
+        ...props,
+        isModalOpen: state.isSybilModalOpen,
+        onClose: () => State.update({ isSybilModalOpen: false }),
+      }}
+    /> */}
   </Theme>
 );
