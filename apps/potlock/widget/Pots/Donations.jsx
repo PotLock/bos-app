@@ -1,119 +1,239 @@
 // get donations
 const { ownerId, potId, potDetail } = props;
 
-const donations = Near.view(potId, "get_public_round_donations", {});
+State.init({
+  allDonations: null,
+  filteredDonations: [],
+});
 
-if (!donations) return "Loading...";
+if (!state.allDonations) {
+  Near.asyncView(potId, "get_public_round_donations", {}).then((donations) => {
+    State.update({ filteredDonations: donations, allDonations: donations });
+  });
+}
+
+if (!state.allDonations) return "Loading...";
 
 // console.log("donations: ", donations);
-const TitleText = styled.div`
-  color: #3d3d3d;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
+
+const columns = ["Project", "Donor", "Amount", "Date"];
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
+`;
+
+const OuterTextContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
+
+const OuterText = styled.div`
+  color: #7b7b7b;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 24px;
+  letter-spacing: 1.12px;
   word-wrap: break-word;
 `;
 
-const RowOuter = styled.div`
+const DonationsCount = styled.div`
+  color: #dd3345;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+`;
+
+const TableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 0.5px rgba(41, 41, 41, 0.5) solid;
+  box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
+  border-radius: 2px;
+  width: 100%;
+`;
+
+const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0px;
-  //   gap: 92px;
-  border-bottom: 1px #f0f0f0 solid;
+  background: #f6f5f3;
   width: 100%;
 `;
 
-const RowInner = styled.div`
+const HeaderItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  justify-content: flex-start;
+  padding: 10px 20px;
+  width: ${100 / columns.length}%;
+`;
+
+const HeaderItemText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const RowItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 20px;
+  padding: 20px;
+  width: ${100 / columns.length}%;
 `;
 
 const RowText = styled.div`
-  color: #525252;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 32px;
+  color: #292929;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
   word-wrap: break-word;
-  width: 100%;
 `;
 
-const daysAgo = (timestamp) => {
-  const now = new Date();
-  const pastDate = new Date(timestamp);
-  const differenceInTime = now - pastDate;
+const SearchBarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  border-bottom: 1px #dbdbdb solid;
+  padding: 12px 24px;
+`;
 
-  // Convert time difference from milliseconds to days
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+const SearchBar = styled.input`
+  background: none;
+  width: 100%;
+  border-radius: 
+  outline: none;
+  border: none;
+  color: #525252;
+  &:focus {
+      outline: none;
+      border: none;
+  }
+`;
 
-  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-};
+const SearchIcon = styled.div`
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+`;
 
 const { base_currency } = potDetail;
 
-const columns = ["Project", "Donor", "Amount", "Date"];
+const searchDonations = (searchTerm) => {
+  // filter donations that match the search term (donor_id, project_id)
+  const filteredDonations = state.allDonations.filter((donation) => {
+    const { donor_id, project_id } = donation;
+    const searchFields = [donor_id, project_id];
+    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
+  return filteredDonations;
+};
 
 return (
-  <>
-    <props.ToDo>Add totals</props.ToDo>
-    <props.ToDo>Add filters</props.ToDo>
-    <props.ToDo>Order reverse chronologically</props.ToDo>
-    <props.ToDo>Add messages from donations?</props.ToDo>
-    <RowOuter>
-      {columns.map((column, index) => (
-        <TitleText key={index}>{column}</TitleText>
-      ))}
-    </RowOuter>
-    {donations.map((donation, index) => {
-      const { project_id, message, donor_id, total_amount, donated_at } = donation;
-      const totalDonationAmount =
-        props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+  <Container>
+    <OuterTextContainer>
+      <OuterText>all donations</OuterText>
+      <DonationsCount>{state.allDonations.length}</DonationsCount>
+    </OuterTextContainer>
+    <TableContainer>
+      <SearchBarContainer>
+        <SearchIcon>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M15.7549 14.2549H14.9649L14.6849 13.9849C15.6649 12.8449 16.2549 11.3649 16.2549 9.75488C16.2549 6.16488 13.3449 3.25488 9.75488 3.25488C6.16488 3.25488 3.25488 6.16488 3.25488 9.75488C3.25488 13.3449 6.16488 16.2549 9.75488 16.2549C11.3649 16.2549 12.8449 15.6649 13.9849 14.6849L14.2549 14.9649V15.7549L19.2549 20.7449L20.7449 19.2549L15.7549 14.2549ZM9.75488 14.2549C7.26488 14.2549 5.25488 12.2449 5.25488 9.75488C5.25488 7.26488 7.26488 5.25488 9.75488 5.25488C12.2449 5.25488 14.2549 7.26488 14.2549 9.75488C14.2549 12.2449 12.2449 14.2549 9.75488 14.2549Z"
+              fill="#C7C7C7"
+            />
+          </svg>
+        </SearchIcon>
+        <SearchBar
+          placeholder="Search donations"
+          onChange={({ target: { value } }) => {
+            const filteredDonations = searchDonations(value);
+            State.update({ filteredDonations });
+          }}
+        />
+      </SearchBarContainer>
+      <Header>
+        {columns.map((column, index) => (
+          <HeaderItem>
+            <HeaderItemText key={index}>{column}</HeaderItemText>
+          </HeaderItem>
+        ))}
+      </Header>
+      {state.filteredDonations.length === 0 ? (
+        <Row style={{ padding: "12px" }}>No donations to display</Row>
+      ) : (
+        state.filteredDonations.map((donation, index) => {
+          const { project_id, message, donor_id, total_amount, donated_at } = donation;
+          const totalDonationAmount =
+            props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
-      return (
-        <RowOuter key={index}>
-          <RowInner>
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
-                accountId: project_id,
-                imageWrapperStyle: {
-                  height: "32px",
-                  width: "32px",
-                },
-              }}
-            />
-            <RowText>{project_id}</RowText>
-          </RowInner>
-          <RowInner>
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
-                accountId: donor_id,
-                imageWrapperStyle: {
-                  height: "32px",
-                  width: "32px",
-                },
-              }}
-            />
-            <RowText>{donor_id}</RowText>
-          </RowInner>
-          <RowInner>
-            <RowText>
-              {totalDonationAmount} {base_currency.toUpperCase()}
-            </RowText>
-          </RowInner>
-          <RowInner>
-            <RowText>{props.daysAgo(donated_at)}</RowText>
-          </RowInner>
-        </RowOuter>
-      );
-    })}
-    <props.ToDo>Add pagination</props.ToDo>
-  </>
+          return (
+            <Row key={index}>
+              <RowItem>
+                <Widget
+                  src={`${ownerId}/widget/Project.ProfileImage`}
+                  props={{
+                    ...props,
+                    accountId: project_id,
+                    style: {
+                      height: "24px",
+                      width: "24px",
+                    },
+                  }}
+                />
+                <RowText>{project_id}</RowText>
+              </RowItem>
+              <RowItem>
+                <Widget
+                  src={`${ownerId}/widget/Project.ProfileImage`}
+                  props={{
+                    ...props,
+                    accountId: donor_id,
+                    style: {
+                      height: "24px",
+                      width: "24px",
+                    },
+                  }}
+                />
+                <RowText>{donor_id}</RowText>
+              </RowItem>
+              <RowItem>
+                <RowText>
+                  {totalDonationAmount} {base_currency.toUpperCase()}
+                </RowText>
+              </RowItem>
+              <RowItem>
+                <RowText>{props.daysAgo(donated_at)}</RowText>
+              </RowItem>
+            </Row>
+          );
+        })
+      )}
+    </TableContainer>
+  </Container>
 );
