@@ -428,7 +428,7 @@ const ProjectList = styled.div`
 
   // For desktop devices (3 columns)
   @media screen and (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
   }
 `;
 
