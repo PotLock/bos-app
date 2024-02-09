@@ -263,15 +263,16 @@ return (
             onChange: (amount) => {
               amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
               if (amount === ".") amount = "0.";
-              props.updateCartItem(
+              props.updateCartItem({
                 projectId,
                 amount,
-                cartItem?.ft,
-                cartItem?.price ?? getPriceUSD(),
-                cartItem?.referrerId,
-                cartItem?.potId,
-                cartItem?.note
-              ); // TODO: update this to use selected FT ID
+                ft: cartItem?.ft,
+                price: cartItem?.price ?? getPriceUSD(),
+                referrerId: cartItem?.referrerId,
+                potId: cartItem?.potId,
+                potDetail: cartItem?.potDetail,
+                note: cartItem?.note,
+              }); // TODO: update this to use selected FT ID
             },
             inputStyles: {
               textAlign: "right",
@@ -290,15 +291,16 @@ return (
                   ],
                   value: { text: cartItem?.ft, value: cartItem?.ft },
                   onChange: ({ text, value }) => {
-                    props.updateCartItem(
+                    props.updateCartItem({
                       projectId,
-                      undefined,
-                      value,
-                      cartItem?.price ?? getPriceUSD(),
-                      cartItem?.referrerId,
-                      cartItem?.potId,
-                      Storage.get("note")
-                    );
+                      amount: undefined,
+                      ft: value,
+                      price: cartItem?.price ?? getPriceUSD(),
+                      referrerId: cartItem?.referrerId,
+                      potId: cartItem?.potId,
+                      potDetail: cartItem?.potDetail,
+                      note: Storage.get("note"),
+                    });
                   },
                   containerStyles: {
                     width: "auto",

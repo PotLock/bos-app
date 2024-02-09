@@ -1,4 +1,4 @@
-const { ownerId, potDetail, NADA_BOT_URL } = props;
+const { ownerId, potId, potDetail, NADA_BOT_URL } = props;
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
@@ -94,9 +94,11 @@ const { name, description, category } = projectProfile;
 
 const tags = [category.text ?? props.CATEGORY_MAPPINGS[category] ?? ""];
 
-const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
-  recipient_id: projectId,
-});
+const donationsForProject = Near.view(
+  potId || donationContractId,
+  potId ? "get_donations_for_project" : "get_donations_for_recipient",
+  potId ? { project_id: projectId } : { recipient_id: projectId }
+);
 
 // console.log(donationsForProject);
 

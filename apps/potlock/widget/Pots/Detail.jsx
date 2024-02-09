@@ -1,4 +1,3 @@
-// console.log("props in Pot Detail: ", props);
 const { potId, ownerId } = props;
 
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
@@ -121,7 +120,7 @@ if (state.potDetail === null) {
     });
 }
 
-console.log("state in pot detail: ", state);
+// console.log("state in pot detail: ", state);
 
 const noPot = state.potDetail === undefined;
 const loading = state.potDetail === null;
@@ -224,13 +223,13 @@ return (
         src={`${ownerId}/widget/Pots.Header`}
         props={{
           ...props,
+          potDetail: state.potDetail,
           setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
           handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
         }}
       />
       <Container>
-        <Divider />
         <ContainerInner>
           <SidebarContainer
           // class="col-3"
