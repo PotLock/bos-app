@@ -14,6 +14,7 @@ return (
     src={`${ownerId}/widget/Components.ListSection`}
     props={{
       ...props,
+      maxCols: 2,
       items: projects,
       renderItem: (project) => {
         return (
