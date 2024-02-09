@@ -253,6 +253,7 @@ const props = {
     if (price) updated.price = price;
     if (referrerId) updated.referrerId = referrerId;
     if (potId) updated.potId = potId;
+    if (potDetail) updated.potDetail = potDetail;
     if (note) updated.note = note;
     cart[projectId] = updated;
     State.update({ cart });

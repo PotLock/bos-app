@@ -70,7 +70,7 @@ const Description = styled.div`
   font-weight: 400;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  margin-bottom: 24px;
+  margin: 16px 0px 24px 0px;
 `;
 
 const FtIcon = styled.img`
@@ -155,6 +155,13 @@ const BreakdownAmount = styled.div`
   word-wrap: break-word;
 `;
 
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const { projectId, checked, handleCheckboxClick } = props;
 
 const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") || {};
@@ -169,6 +176,11 @@ const basisPointsToPercent = (basisPoints) => {
 
 if (!donationContractConfig) return "";
 
+const cartItem = props.cart[projectId];
+// console.log("cartitem: ", cartItem);
+const isPotDonation = !!cartItem?.potId;
+// console.log("props in checkout item: ", props);
+
 const {
   protocol_fee_basis_points: protocolFeeBasisPoints,
   referral_fee_basis_points: referralFeeBasisPoints,
@@ -176,18 +188,20 @@ const {
 } = donationContractConfig;
 const TOTAL_BASIS_POINTS = 10_000;
 let projectAllocationBasisPoints = TOTAL_BASIS_POINTS - protocolFeeBasisPoints;
-if (props.cart[projectId]?.referrerId) {
+if (cartItem?.referrerId) {
   projectAllocationBasisPoints -= referralFeeBasisPoints;
 }
 const projectAllocationPercent = basisPointsToPercent(projectAllocationBasisPoints);
 const projectAllocationAmount =
-  (parseFloat(props.cart[projectId]?.amount) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
+  (parseFloat(cartItem?.amount) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
 const protocolFeePercent = basisPointsToPercent(protocolFeeBasisPoints);
 const protocolFeeAmount =
-  (parseFloat(props.cart[projectId]?.amount) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
+  (parseFloat(cartItem?.amount) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
 const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
 const referrerFeeAmount =
-  (parseFloat(props.cart[projectId]?.amount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
+  (parseFloat(cartItem?.amount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
+
+console.log("cartItem: ", cartItem);
 
 return (
   <ItemContainer>
@@ -220,27 +234,43 @@ return (
         />
       </ImageContainer>
       <DetailsContainer>
-        <Title href={props.hrefWithEnv(`?tab=project&projectId=${projectId}`)}>
-          {profile.name ?? ""}
-        </Title>
+        <Row>
+          <Title href={props.hrefWithEnv(`?tab=project&projectId=${projectId}`)}>
+            {profile.name ?? ""}
+          </Title>
+          <Widget
+            src={`${ownerId}/widget/Pots.Tag`}
+            props={{
+              ...props,
+              backgroundColor: isPotDonation ? "#FEF6EE" : "#F6F5F3",
+              borderColor: isPotDonation ? "rgba(219, 82, 27, 0.36)" : "#DBDBDB",
+              textColor: isPotDonation ? "#EA6A25" : "#292929",
+              text: isPotDonation
+                ? cartItem.potDetail
+                  ? cartItem.potDetail.pot_name
+                  : "-"
+                : "Direct Donation",
+            }}
+          />
+        </Row>
         <Description>{profile.description ?? ""}</Description>
         <Widget
           src={`${ownerId}/widget/Inputs.Text`}
           props={{
             label: "Amount",
             placeholder: "0",
-            value: props.cart[projectId]?.amount,
+            value: cartItem?.amount,
             onChange: (amount) => {
               amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
               if (amount === ".") amount = "0.";
               props.updateCartItem(
                 projectId,
                 amount,
-                props.cart[projectId]?.ft,
-                props.cart[projectId]?.price ?? getPriceUSD(),
-                props.cart[projectId]?.referrerId,
-                props.cart[projectId]?.potId,
-                props.cart[projectId]?.note
+                cartItem?.ft,
+                cartItem?.price ?? getPriceUSD(),
+                cartItem?.referrerId,
+                cartItem?.potId,
+                cartItem?.note
               ); // TODO: update this to use selected FT ID
             },
             inputStyles: {
@@ -258,15 +288,15 @@ return (
                     { text: "NEAR", value: "NEAR" },
                     { text: "USD", value: "USD" },
                   ],
-                  value: { text: props.cart[projectId]?.ft, value: props.cart[projectId]?.ft },
+                  value: { text: cartItem?.ft, value: cartItem?.ft },
                   onChange: ({ text, value }) => {
                     props.updateCartItem(
                       projectId,
                       undefined,
                       value,
-                      props.cart[projectId]?.price ?? getPriceUSD(),
-                      props.cart[projectId]?.referrerId,
-                      props.cart[projectId]?.potId,
+                      cartItem?.price ?? getPriceUSD(),
+                      cartItem?.referrerId,
+                      cartItem?.potId,
                       Storage.get("note")
                     );
                   },
@@ -283,8 +313,8 @@ return (
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
                   iconLeft:
-                    props.cart[projectId]?.ft == "NEAR" ? (
-                      <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    cartItem?.ft == "NEAR" ? (
+                      <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
                     ) : (
                       "$"
                     ),
@@ -310,26 +340,26 @@ return (
                   <BreakdownAmount>
                     {protocolFeeAmount ? protocolFeeAmount.toFixed(3) : "-"}
                   </BreakdownAmount>
-                  {props.cart[projectId]?.ft == "NEAR" ? (
-                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {cartItem?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
                   ) : (
-                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                    props.SUPPORTED_FTS[cartItem.ft].iconUrl
                   )}
                 </BreakdownItemRight>
               </BreakdownItem>
-              {props.cart[projectId]?.referrerId && (
+              {cartItem?.referrerId && (
                 <BreakdownItem>
                   <BreakdownItemLeft>
-                    Referrer fee ({referrerFeePercent}% to {props.cart[projectId]?.referrerId})
+                    Referrer fee ({referrerFeePercent}% to {cartItem?.referrerId})
                   </BreakdownItemLeft>
                   <BreakdownItemRight>
                     <BreakdownAmount>
                       {referrerFeeAmount ? referrerFeeAmount.toFixed(3) : "-"}
                     </BreakdownAmount>
-                    {props.cart[projectId]?.ft == "NEAR" ? (
-                      <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                    {cartItem?.ft == "NEAR" ? (
+                      <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
                     ) : (
-                      props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                      props.SUPPORTED_FTS[cartItem.ft].iconUrl
                     )}
                   </BreakdownItemRight>
                 </BreakdownItem>
@@ -338,10 +368,10 @@ return (
                 <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
                 <BreakdownItemRight>
                   <BreakdownAmount>{"<0.010"}</BreakdownAmount>
-                  {props.cart[projectId]?.ft == "NEAR" ? (
-                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {cartItem?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
                   ) : (
-                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                    props.SUPPORTED_FTS[cartItem.ft].iconUrl
                   )}
                 </BreakdownItemRight>
               </BreakdownItem>
@@ -351,10 +381,10 @@ return (
                 </BreakdownItemLeft>
                 <BreakdownItemRight>
                   <BreakdownAmount>{projectAllocationAmount.toFixed(3)}</BreakdownAmount>
-                  {props.cart[projectId]?.ft == "NEAR" ? (
-                    <FtIcon src={props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl} />
+                  {cartItem?.ft == "NEAR" ? (
+                    <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
                   ) : (
-                    props.SUPPORTED_FTS[props.cart[projectId].ft].iconUrl
+                    props.SUPPORTED_FTS[cartItem.ft].iconUrl
                   )}
                 </BreakdownItemRight>
               </BreakdownItem>

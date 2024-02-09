@@ -63,6 +63,7 @@ return (
       onBlur={() => validate()}
       rows={props.inputRows ?? 5}
       style={props.inputStyle ?? {}}
+      disabled={!!props.disabled}
     />
     <Error style={props.errorStyle ?? {}} className={error ? "show" : ""}>
       {error}

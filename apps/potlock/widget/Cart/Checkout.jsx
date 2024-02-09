@@ -233,7 +233,7 @@ const twitterIntent = useMemo(() => {
 //   console.log("donations: ", donations);
 // }, []);
 
-//console.log("props in Checkout: ", projectId);
+// console.log("props in Checkout: ", props);
 
 return (
   // <div>
@@ -341,7 +341,7 @@ return (
             <div>No items in cart</div>
           ) : (
             Object.keys(props.cart).map((projectId) => {
-              setProjectId(projectId);
+              // setProjectId(projectId); // wtf is this?? commenting out
               const checked = state.selectedProjectIds.includes(projectId);
               return (
                 <Widget

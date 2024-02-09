@@ -1,5 +1,6 @@
-const { ownerId } = props;
+const { ownerId, potDetail } = props;
 const donationContractId = "donate.potlock.near";
+// console.log("props in Card: ", props);
 
 const Card = styled.a`
   display: flex;
@@ -15,7 +16,7 @@ const Card = styled.a`
   }
   margin-left: auto;
   margin-right: auto;
-  height: 500px;
+  // height: 500px;
 `;
 
 const Info = styled.div`
@@ -82,6 +83,7 @@ const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
+console.log("project profile: ", projectProfile);
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
@@ -125,7 +127,7 @@ return (
       props={{
         ...props,
         projectId,
-        profile,
+        profile: projectProfile,
         profileImageTranslateYPx: 145,
         profileImageTranslateYPxMobile: 122,
         containerStyle: {
