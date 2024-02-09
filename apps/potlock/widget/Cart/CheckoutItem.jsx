@@ -201,6 +201,8 @@ const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
 const referrerFeeAmount =
   (parseFloat(cartItem?.amount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
+console.log("cartItem: ", cartItem);
+
 return (
   <ItemContainer>
     <ItemLeft>

@@ -80,6 +80,7 @@ State.init({
   applicationMessage: "",
   applicationMessageError: "",
   applicationSuccess: false,
+  sybilWrapperProviderResult: null,
 });
 
 if (state.potDetail === null) {
@@ -104,6 +105,13 @@ if (state.potDetail === null) {
       } else {
         State.update({ potDetail, canApply: true });
       }
+      if (potDetail.sybil_wrapper_provider) {
+        const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
+        Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((result) => {
+          console.log("sybil result: ", result);
+          State.update({ sybilWrapperProviderResult: result });
+        });
+      }
     })
     .catch((e) => {
       console.log("error getting pot detail: ", e);
@@ -111,7 +119,7 @@ if (state.potDetail === null) {
     });
 }
 
-// console.log("state in pot detail: ", state);
+console.log("state in pot detail: ", state);
 
 const noPot = state.potDetail === undefined;
 const loading = state.potDetail === null;
