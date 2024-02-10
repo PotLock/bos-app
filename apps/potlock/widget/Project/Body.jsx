@@ -150,24 +150,24 @@ const userHasPermissions = useMemo(() => {
 
 const isOwner = props.projectId === context.accountId;
 const isPermissionedMember = isDao && userHasPermissions;
+const canEdit = isOwner || isPermissionedMember;
 
 return (
   <BodyContainer>
     <Header>
       <NameContainer>
         <Name>{profile.name}</Name>
-        {isOwner ||
-          (isPermissionedMember && (
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "secondary",
-                text: "Edit profile",
-                disabled: false,
-                href: props.hrefWithEnv(`?tab=editproject&projectId=${props.projectId}`),
-              }}
-            />
-          ))}
+        {canEdit && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "secondary",
+              text: "Edit profile",
+              disabled: false,
+              href: props.hrefWithEnv(`?tab=editproject&projectId=${props.projectId}`),
+            }}
+          />
+        )}
       </NameContainer>
       <AccountInfoContainer>
         <AccountId>@{props.projectId}</AccountId>
