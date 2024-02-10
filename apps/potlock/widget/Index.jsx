@@ -175,6 +175,7 @@ const getTabWidget = (tab) => {
   const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
   if (
     [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
+    props.env !== "staging" &&
     !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId)
   ) {
     // if user requests a QF-related tab but is not whitelisted, redirect to projects list
