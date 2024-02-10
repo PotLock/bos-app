@@ -217,6 +217,8 @@ State.init({
   categoryError: "",
   description: "",
   descriptionError: "",
+  publicGoodReason: "",
+  publicGoodReasonError: "",
   website: "",
   websiteError: "",
   twitter: "",
@@ -306,6 +308,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const backgroundImage = profileData.backgroundImage;
       const profileImage = profileData.image || "";
       const description = profileData.description || "";
+      const publicGoodReason = profileData.potlockPublicGoodReason || "";
       const category = typeof profileData.category == "string" ? profileData.category : "";
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
@@ -319,6 +322,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         profileImage,
         name: profileData?.name || "",
         description,
+        publicGoodReason,
         category,
         twitter,
         telegram,
@@ -370,6 +374,8 @@ const isCreateProjectDisabled =
   state.nameError ||
   !state.description ||
   state.descriptionError ||
+  !state.publicGoodReason ||
+  state.publicGoodReasonError ||
   !state.category ||
   state.categoryError;
 
@@ -391,6 +397,7 @@ const handleCreateOrUpdateProject = (e) => {
           name: state.name,
           category: state.category,
           description: state.description,
+          potlockPublicGoodReason: state.publicGoodReason,
           linktree: {
             website: state.website,
             twitter: state.twitter,
@@ -945,6 +952,28 @@ return (
                     State.update({ descriptionError: "" });
                   },
                   error: state.descriptionError,
+                }}
+              />
+              <Space height={24} />
+
+              <Widget
+                src={`${ownerId}/widget/Inputs.TextArea`}
+                props={{
+                  label: "Reason for considering yourself a public good *",
+                  placeholder: "Type response",
+                  value: state.publicGoodReason,
+                  onChange: (publicGoodReason) => State.update({ publicGoodReason }),
+                  validate: () => {
+                    if (state.publicGoodReason.length > 500) {
+                      State.update({
+                        publicGoodReasonError: "Response must be less than 500 characters",
+                      });
+                      return;
+                    }
+
+                    State.update({ publicGoodReasonError: "" });
+                  },
+                  error: state.publicGoodReasonError,
                 }}
               />
               <Space height={24} />
