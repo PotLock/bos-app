@@ -1,4 +1,10 @@
-const { ownerId, REGISTRY_CONTRACT_ID, validateNearAddress, validateEVMAddress } = props;
+const {
+  ownerId,
+  REGISTRY_CONTRACT_ID,
+  validateNearAddress,
+  validateEVMAddress,
+  validateGithubRepoUrl,
+} = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
 
@@ -242,6 +248,8 @@ State.init({
   hasSmartContracts: false,
   originalSmartContracts: [], // to keep track of removals
   smartContracts: [],
+  originalGithubRepos: [], // to keep track of removals
+  githubRepos: [],
   hasReceivedFunding: false,
   website: "",
   websiteError: "",
@@ -414,6 +422,12 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
           )
         : [];
       smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
+      const githubRepos = profileData.potlockGithubRepos
+        ? Object.keys(profileData.potlockGithubRepos)
+            .filter((key) => obj[key] === "")
+            .map((key) => [key])
+        : [];
+      githubRepos.push([""]); // Add an empty entry for the user to add a new repo (if they want to add one)
       const hasReceivedFunding = profileData.potlockHasReceivedFunding || false;
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
@@ -433,6 +447,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         hasSmartContracts,
         originalSmartContracts: smartContracts,
         smartContracts,
+        originalGithubRepos: githubRepos,
+        githubRepos,
         hasReceivedFunding,
         twitter,
         telegram,
@@ -486,6 +502,8 @@ const isCreateProjectDisabled =
   state.descriptionError ||
   !state.publicGoodReason ||
   state.publicGoodReasonError ||
+  (state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) &&
+    !state.githubRepos.filter((val) => val[0]).length) ||
   !state.categories.length ||
   state.categoriesError;
 
@@ -535,6 +553,18 @@ const handleCreateOrUpdateProject = (e) => {
     }
   });
 
+  // format github repos
+  const formattedGithubRepos = state.githubRepos.reduce((acc, cur) => {
+    acc[cur[0]] = "";
+    return acc;
+  }, {});
+  // if the user removed a github repo, we need to remove it from the formattedGithubRepos by setting its value to null
+  state.originalGithubRepos.forEach((repo) => {
+    if (repo && !formattedGithubRepos.hasOwnProperty(repo)) {
+      formattedGithubRepos[repo] = null;
+    }
+  });
+
   const socialArgs = {
     data: {
       [accountId]: {
@@ -546,6 +576,7 @@ const handleCreateOrUpdateProject = (e) => {
           potlockPublicGoodReason: state.publicGoodReason,
           potlockHasSmartContracts: state.hasSmartContracts,
           potlockSmartContracts: state.hasSmartContracts ? formattedSmartContracts : null,
+          potlockGithubRepos: formattedGithubRepos,
           potlockHasReceivedFunding: state.hasReceivedFunding,
           linktree: {
             website: state.website,
@@ -1273,6 +1304,81 @@ return (
                       onClick: () => {
                         State.update({
                           smartContracts: [...state.smartContracts, ["", ""]],
+                        });
+                      },
+                    }}
+                  />
+                </FormSectionRightDiv>
+              </FormSectionContainer>
+            </>
+          )}
+          {state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Add Your Repositories",
+                  "Add full URLs for specific github repositories so we can track their popularity.",
+                  true
+                )}
+                <FormSectionRightDiv>
+                  {state.githubRepos.map((repo, index) => {
+                    return (
+                      <Row style={{ marginBottom: "12px" }} key={index}>
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Text`}
+                          props={{
+                            label: "GitHub Repo URL #" + (index + 1),
+                            // preInputChildren: <InputPrefix>github.com/</InputPrefix>,
+                            inputStyles: { borderRadius: "0px 4px 4px 0px" },
+                            value: state.githubRepos[index][0],
+                            onChange: (repo) =>
+                              State.update({
+                                githubRepos: state.githubRepos.map((r, i) =>
+                                  i == index ? [repo] : [r[0]]
+                                ),
+                              }),
+                            validate: () => {
+                              // validate link
+                              const isValid = validateGithubRepoUrl(repo);
+                              // if invalid, set the error as the 2nd element of the array
+                              if (!isValid) {
+                                State.update({
+                                  githubRepos: state.githubRepos.map((r, i) =>
+                                    i == index ? [r[0], "Invalid GitHub Repo URL"] : [r[0]]
+                                  ),
+                                });
+                                return;
+                              }
+                            },
+                            error: state.githubRepos[index][1] || "",
+                          }}
+                        />
+                        {state.githubRepos.length > 1 && (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+                            <TrashIcon
+                              onClick={() => {
+                                const updatedRepos = state.githubRepos.filter((r, i) => i != index);
+                                State.update({
+                                  githubRepos: updatedRepos,
+                                });
+                              }}
+                              src={TRASH_ICON_URL}
+                            />
+                          </div>
+                        )}
+                      </Row>
+                    );
+                  })}
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "tertiary",
+                      text: "Add another repository",
+                      disabled: !state.githubRepos[state.githubRepos.length - 1][0],
+                      onClick: () => {
+                        State.update({
+                          githubRepos: [...state.githubRepos, [""]],
                         });
                       },
                     }}
