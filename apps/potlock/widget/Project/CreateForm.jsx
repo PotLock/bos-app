@@ -213,8 +213,9 @@ State.init({
   profileImage: "",
   name: "",
   nameError: "",
-  category: "",
-  categoryError: "",
+  originalCategories: [], // to keep track of removals
+  categories: [],
+  categoriesError: "",
   description: "",
   descriptionError: "",
   publicGoodReason: "",
@@ -239,6 +240,37 @@ State.init({
   showAlert: false,
   alertMessage: "",
 });
+
+// console.log("state in create form: ", state);
+
+const CATEGORY_MAPPINGS = {
+  // "social-impact": "Social Impact",
+  // "non-profit": "NonProfit",
+  // climate: "Climate",
+  // "public-good": "Public Good",
+  // "de-sci": "DeSci",
+  // "open-source": "Open Source",
+  // community: "Community",
+  // education: "Education",
+  SOCIAL_IMPACT: "Social Impact",
+  NON_PROFIT: "NonProfit",
+  CLIMATE: "Climate",
+  PUBLIC_GOOD: "Public Good",
+  DE_SCI: "DeSci",
+  OPEN_SOURCE: "Open Source",
+  COMMUNITY: "Community",
+  EDUCATION: "Education",
+  _deprecated: {
+    "social-impact": "SOCIAL_IMPACT",
+    "non-profit": "NON_PROFIT",
+    climate: "CLIMATE",
+    "public-good": "PUBLIC_GOOD",
+    "de-sci": "DE_SCI",
+    "open-source": "OPEN_SOURCE",
+    community: "COMMUNITY",
+    education: "EDUCATION",
+  },
+};
 
 const accountId = props.projectId
   ? props.projectId
@@ -294,7 +326,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         State.update({
           socialDataFetched: true,
           name: "",
-          category: "",
+          originalCategories: [],
+          categories: [],
           description: "",
           website: "",
           twitter: "",
@@ -309,7 +342,19 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const profileImage = profileData.image || "";
       const description = profileData.description || "";
       const publicGoodReason = profileData.potlockPublicGoodReason || "";
-      const category = typeof profileData.category == "string" ? profileData.category : "";
+      let categories = [];
+      if (profileData.potlockCategories) {
+        categories = profileData.potlockCategories;
+      } else if (profileData.category) {
+        // old/deprecated version
+        if (typeof profileData.category == "string") {
+          const availableCategory =
+            CATEGORY_MAPPINGS[CATEGORY_MAPPINGS._deprecated[profileData.category]];
+          if (availableCategory) {
+            categories.push(availableCategory);
+          }
+        }
+      }
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
       const telegram = linktree.telegram || "";
@@ -323,7 +368,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         name: profileData?.name || "",
         description,
         publicGoodReason,
-        category,
+        originalCategories: categories,
+        categories,
         twitter,
         telegram,
         github,
@@ -376,8 +422,8 @@ const isCreateProjectDisabled =
   state.descriptionError ||
   !state.publicGoodReason ||
   state.publicGoodReasonError ||
-  !state.category ||
-  state.categoryError;
+  !state.categories.length ||
+  state.categoriesError;
 
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
@@ -389,13 +435,23 @@ const handleCreateOrUpdateProject = (e) => {
     return;
   }
 
+  const formattedCategories = state.categories.reduce((acc, cur) => {
+    acc[cur] = "";
+    return acc;
+  }, {});
+  // if the user removed a category, we need to remove it from the formattedCategories by setting its value to null
+  state.originalCategories.forEach((category) => {
+    if (!formattedCategories.hasOwnProperty(category)) {
+      formattedCategories[category] = null;
+    }
+  });
   const socialArgs = {
     data: {
       [accountId]: {
         // basic profile details
         profile: {
           name: state.name,
-          category: state.category,
+          potlockCategories: formattedCategories,
           description: state.description,
           potlockPublicGoodReason: state.publicGoodReason,
           linktree: {
@@ -624,17 +680,6 @@ const handleAddTeamMember = () => {
         });
       });
   }
-};
-
-const CATEGORY_MAPPINGS = {
-  "social-impact": "Social Impact",
-  "non-profit": "NonProfit",
-  climate: "Climate",
-  "public-good": "Public Good",
-  "de-sci": "DeSci",
-  "open-source": "Open Source",
-  community: "Community",
-  education: "Education",
 };
 
 const FormSectionLeft = (title, description, isRequired) => {
@@ -979,29 +1024,17 @@ return (
               <Space height={24} />
 
               <Widget
-                src={`${ownerId}/widget/Inputs.Select`}
+                src={`${ownerId}/widget/Inputs.SelectMultiple`}
                 props={{
-                  label: "Select category *",
-                  noLabel: false,
+                  label: "Select category (select multiple) *",
                   placeholder: "Choose category",
-                  options: Object.entries(CATEGORY_MAPPINGS).map(([value, text]) => ({
-                    value,
-                    text,
-                  })),
-                  value: { text: CATEGORY_MAPPINGS[state.category] || "", value: state.category },
-                  onChange: (category) => {
+                  options: Object.values(CATEGORY_MAPPINGS).filter((el) => typeof el === "string"),
+                  onChange: (categories) => {
                     State.update({
-                      category: category.value,
+                      categories,
                     });
                   },
-                  validate: () => {
-                    if (!state.category) {
-                      State.update({
-                        categoryError: "Please select a category",
-                      });
-                    }
-                  },
-                  error: state.categoryError,
+                  selected: state.categories,
                 }}
               />
             </FormSectionRightDiv>
