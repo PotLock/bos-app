@@ -282,6 +282,22 @@ const props = {
     }
     return isValid;
   },
+  validateEVMAddress: (address) => {
+    // Check if the address is defined and the length is correct (42 characters, including '0x')
+    if (!address || address.length !== 42) {
+      return false;
+    }
+    // Check if the address starts with '0x' and contains only valid hexadecimal characters after '0x'
+    const re = /^0x[a-fA-F0-9]{40}$/;
+    return re.test(address);
+  },
+  validateGithubRepoUrl: (url) => {
+    // Regular expression to match the GitHub repository URL pattern
+    // This regex checks for optional "www.", a required "github.com/", and then captures the username and repo name segments
+    const githubRepoUrlPattern =
+      /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
+    return githubRepoUrlPattern.test(url);
+  },
   CATEGORY_MAPPINGS: {
     "social-impact": "Social Impact",
     "non-profit": "NonProfit",

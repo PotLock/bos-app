@@ -1,4 +1,10 @@
-const { ownerId, REGISTRY_CONTRACT_ID } = props;
+const {
+  ownerId,
+  REGISTRY_CONTRACT_ID,
+  validateNearAddress,
+  validateEVMAddress,
+  validateGithubRepoUrl,
+} = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
 
@@ -11,6 +17,9 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
+const TRASH_ICON_URL =
+  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -202,6 +211,77 @@ const InputPrefix = styled.div`
   box-shadow: 0px -2px 0px rgba(93, 93, 93, 0.24) inset;
 `;
 
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+`;
+
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const FUNDING_SOURCE_COLUMNS = ["Funding Source", "Description", "Amount", "Denomination"];
+
+const FundingHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: #f6f5f3;
+  width: 100%;
+`;
+
+const FundingHeaderItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  justify-content: flex-start;
+  padding: 10px 20px;
+  width: ${100 / FUNDING_SOURCE_COLUMNS.length}%;
+`;
+
+const FundingHeaderItemText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
+const TableRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const TableRowItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 20px;
+  width: ${100 / FUNDING_SOURCE_COLUMNS.length}%;
+`;
+
+const TableRowText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
 State.init({
   isDao: false,
   daoAddressTemp: "", // used while input is focused
@@ -213,10 +293,22 @@ State.init({
   profileImage: "",
   name: "",
   nameError: "",
-  category: "",
-  categoryError: "",
+  originalCategories: [], // to keep track of removals
+  categories: [],
+  categoriesError: "",
   description: "",
   descriptionError: "",
+  publicGoodReason: "",
+  publicGoodReasonError: "",
+  hasSmartContracts: false,
+  originalSmartContracts: [], // to keep track of removals
+  smartContracts: [],
+  originalGithubRepos: [], // to keep track of removals
+  githubRepos: [],
+  hasReceivedFunding: false,
+  fundingSourceIndex: null,
+  originalFundingSources: [], // to keep track of removals
+  fundingSources: [],
   website: "",
   websiteError: "",
   twitter: "",
@@ -229,7 +321,7 @@ State.init({
   socialDataIsFetching: false,
   registeredProjects: null,
   getRegisteredProjectsError: "",
-  isModalOpen: false,
+  isMultiAccountModalOpen: false,
   teamMember: "",
   teamMembers: [],
   nearAccountIdError: "",
@@ -237,6 +329,58 @@ State.init({
   showAlert: false,
   alertMessage: "",
 });
+
+// console.log("state in create form: ", state);
+
+const CATEGORY_MAPPINGS = {
+  SOCIAL_IMPACT: "Social Impact",
+  NON_PROFIT: "NonProfit",
+  CLIMATE: "Climate",
+  PUBLIC_GOOD: "Public Good",
+  DE_SCI: "DeSci",
+  OPEN_SOURCE: "Open Source",
+  COMMUNITY: "Community",
+  EDUCATION: "Education",
+  _deprecated: {
+    "social-impact": "SOCIAL_IMPACT",
+    "non-profit": "NON_PROFIT",
+    climate: "CLIMATE",
+    "public-good": "PUBLIC_GOOD",
+    "de-sci": "DE_SCI",
+    "open-source": "OPEN_SOURCE",
+    community: "COMMUNITY",
+    education: "EDUCATION",
+  },
+};
+
+const CHAIN_OPTIONS = {
+  NEAR: { isEVM: false },
+  Solana: { isEVM: false },
+  Ethereum: { isEVM: true },
+  Polygon: { isEVM: true },
+  Avalanche: { isEVM: true },
+  Optimism: { isEVM: true },
+  Arbitrum: { isEVM: true },
+  BNB: { isEVM: true },
+  Sui: { isEVM: false },
+  Aptos: { isEVM: false },
+  Polkadot: { isEVM: false },
+  Stellar: { isEVM: false },
+  ZkSync: { isEVM: false }, // Note: ZkSync aims for EVM compatibility but might not fully be considered as traditional EVM at the time of writing.
+  Celo: { isEVM: true },
+  Aurora: { isEVM: true },
+  Injective: { isEVM: true },
+  Base: { isEVM: false },
+  Manta: { isEVM: false }, // Listed twice in the original list; included once here.
+  Fantom: { isEVM: true },
+  ZkEVM: { isEVM: true }, // Considering the name, assuming it aims for EVM compatibility.
+  Flow: { isEVM: false },
+  Tron: { isEVM: true },
+  MultiverseX: { isEVM: false }, // Formerly known as Elrond, not traditionally EVM but has some level of compatibility.
+  Scroll: { isEVM: true }, // Assuming EVM compatibility based on the context of ZkEVM.
+  Linea: { isEVM: true }, // Assuming non-EVM due to lack of information.
+  Metis: { isEVM: true },
+};
 
 const accountId = props.projectId
   ? props.projectId
@@ -292,7 +436,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         State.update({
           socialDataFetched: true,
           name: "",
-          category: "",
+          originalCategories: [],
+          categories: [],
           description: "",
           website: "",
           twitter: "",
@@ -306,7 +451,48 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const backgroundImage = profileData.backgroundImage;
       const profileImage = profileData.image || "";
       const description = profileData.description || "";
-      const category = typeof profileData.category == "string" ? profileData.category : "";
+      const publicGoodReason = profileData.potlockPublicGoodReason || "";
+      let categories = [];
+      if (profileData.potlockCategories) {
+        categories = Object.keys(profileData.potlockCategories);
+      } else if (profileData.category) {
+        // console.log("profileData.category: ", profileData.category);
+        // old/deprecated version
+        if (typeof profileData.category == "string") {
+          const availableCategory =
+            CATEGORY_MAPPINGS[CATEGORY_MAPPINGS._deprecated[profileData.category]];
+          if (availableCategory) {
+            categories.push(availableCategory);
+          }
+        }
+      }
+      const smartContracts = profileData.potlockSmartContracts
+        ? Object.entries(profileData.potlockSmartContracts).reduce(
+            (accumulator, [chain, contracts]) => {
+              // Iterate over each contract address in the current chain
+              const contractsForChain = Object.keys(contracts).map((contractAddress) => {
+                return [chain, contractAddress]; // Create an array with the chain and contract address
+              });
+
+              return accumulator.concat(contractsForChain); // Add the arrays for this chain to the accumulator
+            },
+            []
+          )
+        : [];
+      const hasSmartContracts = smartContracts.length > 0;
+      smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
+      const githubRepos = profileData.potlockGithubRepos
+        ? Object.keys(profileData.potlockGithubRepos)
+            .filter((key) => obj[key] === "")
+            .map((key) => [key])
+        : [];
+      githubRepos.push([""]); // Add an empty entry for the user to add a new repo (if they want to add one)
+
+      const fundingSources = profileData.potlockFundingSources
+        ? Object.values(profileData.potlockFundingSources)
+        : [];
+      const hasReceivedFunding = fundingSources.length > 0;
+
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
       const telegram = linktree.telegram || "";
@@ -319,7 +505,17 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         profileImage,
         name: profileData?.name || "",
         description,
-        category,
+        publicGoodReason,
+        originalCategories: categories,
+        categories,
+        hasSmartContracts,
+        originalSmartContracts: smartContracts,
+        smartContracts,
+        originalGithubRepos: githubRepos,
+        githubRepos,
+        hasReceivedFunding,
+        originalFundingSources: fundingSources,
+        fundingSources,
         twitter,
         telegram,
         github,
@@ -370,8 +566,14 @@ const isCreateProjectDisabled =
   state.nameError ||
   !state.description ||
   state.descriptionError ||
-  !state.category ||
-  state.categoryError;
+  !state.publicGoodReason ||
+  state.publicGoodReasonError ||
+  (state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) &&
+    !state.githubRepos.filter((val) => val[0]).length) ||
+  (state.hasSmartContracts && !state.smartContracts.length) || // TODO: REVIEW THIS
+  (state.hasReceivedFunding && !state.fundingSources.length) ||
+  !state.categories.length ||
+  state.categoriesError;
 
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
@@ -383,14 +585,76 @@ const handleCreateOrUpdateProject = (e) => {
     return;
   }
 
+  // format categories
+  const formattedCategories = state.categories.reduce((acc, cur) => {
+    acc[cur] = "";
+    return acc;
+  }, {});
+  // if the user removed a category, we need to remove it from the formattedCategories by setting its value to null
+  state.originalCategories.forEach((category) => {
+    if (!formattedCategories.hasOwnProperty(category)) {
+      formattedCategories[category] = null;
+    }
+  });
+
+  // format smart contracts
+  const formattedSmartContracts = state.smartContracts.reduce(
+    (accumulator, [chain, contractAddress]) => {
+      // If the chain doesn't exist in the accumulator, initialize it with an empty object
+      if (!accumulator[chain]) {
+        accumulator[chain] = {};
+      }
+      // Add the contractAddress with an empty string as its value under the chain
+      accumulator[chain][contractAddress] = "";
+      return accumulator; // Return the updated accumulator for the next iteration
+    },
+    {}
+  );
+  // if the user removed a smart contract, we need to remove it from the smartContracts by setting its value to null
+  state.originalSmartContracts.forEach(([chain, contractAddress]) => {
+    if (
+      chain &&
+      contractAddress &&
+      !formattedSmartContracts[chain]?.hasOwnProperty(contractAddress)
+    ) {
+      formattedSmartContracts[chain][contractAddress] = null;
+    }
+  });
+
+  // format github repos
+  const formattedGithubRepos = state.githubRepos.reduce((acc, cur) => {
+    acc[cur[0]] = "";
+    return acc;
+  }, {});
+  // if the user removed a github repo, we need to remove it from the formattedGithubRepos by setting its value to null
+  state.originalGithubRepos.forEach((repo) => {
+    if (repo && !formattedGithubRepos.hasOwnProperty(repo)) {
+      formattedGithubRepos[repo] = null;
+    }
+  });
+
+  // format funding (stringify)
+  // const formattedFundingSources = JSON.stringify(state.fundingSources);
+  const formattedFundingSources = state.fundingSources.reduce(
+    (accumulator, currentObject, index) => {
+      accumulator[index] = currentObject; // Set the current index as the key and the current object as the value
+      return accumulator;
+    },
+    {}
+  );
+
   const socialArgs = {
     data: {
       [accountId]: {
         // basic profile details
         profile: {
           name: state.name,
-          category: state.category,
+          potlockCategories: formattedCategories,
           description: state.description,
+          potlockPublicGoodReason: state.publicGoodReason,
+          potlockSmartContracts: state.hasSmartContracts ? formattedSmartContracts : null,
+          potlockGithubRepos: formattedGithubRepos,
+          potlockFundingSources: formattedFundingSources,
           linktree: {
             website: state.website,
             twitter: state.twitter,
@@ -457,7 +721,7 @@ const handleCreateOrUpdateProject = (e) => {
       methodName: "set",
       args: socialArgs,
     };
-    let depositFloat = JSON.stringify(socialArgs).length * 0.00003;
+    let depositFloat = JSON.stringify(socialArgs).length * 0.0001;
     if (!account) {
       depositFloat += 0.1;
     }
@@ -619,17 +883,6 @@ const handleAddTeamMember = () => {
   }
 };
 
-const CATEGORY_MAPPINGS = {
-  "social-impact": "Social Impact",
-  "non-profit": "NonProfit",
-  climate: "Climate",
-  "public-good": "Public Good",
-  "de-sci": "DeSci",
-  "open-source": "Open Source",
-  community: "Community",
-  education: "Education",
-};
-
 const FormSectionLeft = (title, description, isRequired) => {
   return (
     <FormSectionLeftDiv>
@@ -675,6 +928,8 @@ const uploadFileUpdateState = (body, callback) => {
     body,
   }).then(callback);
 };
+
+console.log("state.funding sources: ", state.fundingSources);
 
 return (
   <Container>
@@ -950,33 +1205,352 @@ return (
               <Space height={24} />
 
               <Widget
-                src={`${ownerId}/widget/Inputs.Select`}
+                src={`${ownerId}/widget/Inputs.TextArea`}
                 props={{
-                  label: "Select category *",
-                  noLabel: false,
+                  label: "Reason for considering yourself a public good *",
+                  placeholder: "Type response",
+                  value: state.publicGoodReason,
+                  onChange: (publicGoodReason) => State.update({ publicGoodReason }),
+                  validate: () => {
+                    if (state.publicGoodReason.length > 500) {
+                      State.update({
+                        publicGoodReasonError: "Response must be less than 500 characters",
+                      });
+                      return;
+                    }
+
+                    State.update({ publicGoodReasonError: "" });
+                  },
+                  error: state.publicGoodReasonError,
+                }}
+              />
+              <Space height={24} />
+
+              <Widget
+                src={`${ownerId}/widget/Inputs.SelectMultiple`}
+                props={{
+                  label: "Select category (select multiple) *",
                   placeholder: "Choose category",
-                  options: Object.entries(CATEGORY_MAPPINGS).map(([value, text]) => ({
-                    value,
-                    text,
-                  })),
-                  value: { text: CATEGORY_MAPPINGS[state.category] || "", value: state.category },
-                  onChange: (category) => {
+                  options: Object.values(CATEGORY_MAPPINGS).filter((el) => typeof el === "string"),
+                  onChange: (categories) => {
                     State.update({
-                      category: category.value,
+                      categories,
                     });
                   },
-                  validate: () => {
-                    if (!state.category) {
-                      State.update({
-                        categoryError: "Please select a category",
-                      });
-                    }
+                  selected: state.categories,
+                }}
+              />
+              <Space height={24} />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "hasSmartContractsSelector",
+                  checked: state.hasSmartContracts,
+                  onClick: (e) => {
+                    State.update({ hasSmartContracts: e.target.checked });
                   },
-                  error: state.categoryError,
+                  label: "Yes, my project has smart contracts",
+                  containerStyle: {
+                    marginBottom: "16px",
+                  },
+                }}
+              />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "hasReceivedFundingSelector",
+                  checked: state.hasReceivedFunding,
+                  onClick: (e) => {
+                    State.update({ hasReceivedFunding: e.target.checked });
+                  },
+                  label: "Yes, my project has received funding",
+                  // containerStyle: {
+                  //   marginBottom: "24px",
+                  // },
                 }}
               />
             </FormSectionRightDiv>
           </FormSectionContainer>
+          {state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Add Your Repositories",
+                  "Add full URLs for specific github repositories so we can track their popularity.",
+                  true
+                )}
+                <FormSectionRightDiv>
+                  {state.githubRepos.map((repo, index) => {
+                    return (
+                      <Row style={{ marginBottom: "12px" }} key={index}>
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Text`}
+                          props={{
+                            label: "GitHub Repo URL #" + (index + 1),
+                            // preInputChildren: <InputPrefix>github.com/</InputPrefix>,
+                            inputStyles: { borderRadius: "0px 4px 4px 0px" },
+                            value: state.githubRepos[index][0],
+                            onChange: (repo) =>
+                              State.update({
+                                githubRepos: state.githubRepos.map((r, i) =>
+                                  i == index ? [repo] : [r[0]]
+                                ),
+                              }),
+                            validate: () => {
+                              // validate link
+                              const isValid = validateGithubRepoUrl(repo);
+                              // if invalid, set the error as the 2nd element of the array
+                              if (!isValid) {
+                                State.update({
+                                  githubRepos: state.githubRepos.map((r, i) =>
+                                    i == index ? [r[0], "Invalid GitHub Repo URL"] : [r[0]]
+                                  ),
+                                });
+                                return;
+                              }
+                            },
+                            error: state.githubRepos[index][1] || "",
+                          }}
+                        />
+                        {state.githubRepos.length > 1 && (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+                            <Icon
+                              onClick={() => {
+                                const updatedRepos = state.githubRepos.filter((r, i) => i != index);
+                                State.update({
+                                  githubRepos: updatedRepos,
+                                });
+                              }}
+                              src={TRASH_ICON_URL}
+                            />
+                          </div>
+                        )}
+                      </Row>
+                    );
+                  })}
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "tertiary",
+                      text: "Add another repository",
+                      disabled: !state.githubRepos[state.githubRepos.length - 1][0],
+                      onClick: () => {
+                        State.update({
+                          githubRepos: [...state.githubRepos, [""]],
+                        });
+                      },
+                    }}
+                  />
+                </FormSectionRightDiv>
+              </FormSectionContainer>
+            </>
+          )}
+          {state.hasSmartContracts && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Smart contracts",
+                  "Add smart contracts from different chains that belong to your application.",
+                  true
+                )}
+                <FormSectionRightDiv>
+                  {state.smartContracts.map(([chain, contractAddress], index) => {
+                    return (
+                      <Row style={{ marginBottom: "12px" }} key={index}>
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Select`}
+                          props={{
+                            label: "Add chain",
+                            noLabel: false,
+                            placeholder: "Select chain",
+                            options: Object.keys(CHAIN_OPTIONS).map((chain) => ({
+                              text: chain,
+                              value: chain,
+                            })),
+                            value: {
+                              text: chain,
+                              value: chain,
+                            },
+                            onChange: (chain) => {
+                              const updatedSmartContracts = state.smartContracts.map((sc, i) => {
+                                if (i == index) {
+                                  return [chain.value, sc[1]];
+                                }
+                                return sc;
+                              });
+                              State.update({
+                                smartContracts: updatedSmartContracts,
+                              });
+                            },
+                          }}
+                        />
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Text`}
+                          props={{
+                            label: "Contract address",
+                            placeholder: "Enter address",
+                            value: contractAddress,
+                            onChange: (contractAddress) => {
+                              const updatedSmartContracts = state.smartContracts.map((sc, i) => {
+                                if (i == index) {
+                                  return [sc[0], contractAddress];
+                                }
+                                return sc;
+                              });
+                              State.update({
+                                smartContracts: updatedSmartContracts,
+                              });
+                            },
+                            validate: () => {
+                              // if NEAR, use validateNearAddress, otherwise if EVM, use validateEvmAddress
+                              const chain = state.smartContracts[index][0];
+                              const isEvm = CHAIN_OPTIONS[chain].isEVM;
+                              const isValid =
+                                chain == "NEAR"
+                                  ? validateNearAddress(contractAddress)
+                                  : isEvm
+                                  ? validateEVMAddress(contractAddress)
+                                  : true; // TODO: validate non-EVM, non-NEAR addresses
+                              // if invalid, set the error as the 3rd element of the array
+                              if (!isValid) {
+                                State.update({
+                                  smartContracts: state.smartContracts.map((sc, i) => {
+                                    if (i == index) {
+                                      return [sc[0], sc[1], "Invalid address"];
+                                    }
+                                    return sc;
+                                  }),
+                                });
+                                return;
+                              }
+                            },
+                            error: state.smartContracts[index][2] || "",
+                          }}
+                        />
+                        {state.smartContracts.length > 1 && (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+                            <Icon
+                              onClick={() => {
+                                const updatedSmartContracts = state.smartContracts.filter(
+                                  (sc, i) => i != index
+                                );
+                                State.update({
+                                  smartContracts: updatedSmartContracts,
+                                });
+                              }}
+                              src={TRASH_ICON_URL}
+                            />
+                          </div>
+                        )}
+                      </Row>
+                    );
+                  })}
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "tertiary",
+                      text: "Add another contract",
+                      disabled:
+                        !state.smartContracts[state.smartContracts.length - 1][0] &&
+                        !state.smartContracts[state.smartContracts.length - 1][1],
+                      onClick: () => {
+                        State.update({
+                          smartContracts: [...state.smartContracts, ["", ""]],
+                        });
+                      },
+                    }}
+                  />
+                </FormSectionRightDiv>
+              </FormSectionContainer>
+            </>
+          )}
+          {state.hasReceivedFunding && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Funding sources",
+                  "Add any previous funding you have received.",
+                  true
+                )}
+                {/* <FormSectionRightDiv>
+                  
+                </FormSectionRightDiv> */}
+              </FormSectionContainer>
+              {state.fundingSources.length > 0 && (
+                <FundingHeader>
+                  {FUNDING_SOURCE_COLUMNS.map((column, index) => (
+                    <FundingHeaderItem>
+                      <FundingHeaderItemText key={index}>{column}</FundingHeaderItemText>
+                    </FundingHeaderItem>
+                  ))}
+                </FundingHeader>
+              )}
+              {state.fundingSources.map(
+                ({ investorName, description, amountReceived, denomination }, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableRowItem>
+                        <TableRowText>{investorName}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{description}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{amountReceived}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{denomination}</TableRowText>
+                        {/* <Icon
+                          src={EDIT_ICON_URL}
+                          onClick={() => {
+                            State.update({
+                              fundingSourceIndex: index,
+                            });
+                          }}
+                        /> */}
+                        <Icon
+                          src={TRASH_ICON_URL}
+                          onClick={() => {
+                            const updatedFundingSources = state.fundingSources.filter(
+                              (fs, i) => i != index
+                            );
+                            State.update({ fundingSources: updatedFundingSources });
+                          }}
+                        />
+                      </TableRowItem>
+                    </TableRow>
+                  );
+                }
+              )}
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "tertiary",
+                  text: "Add funding source",
+                  disabled: !state.smartContracts[state.smartContracts.length - 1],
+                  onClick: () => {
+                    // add new funding source obj & set index
+                    const updatedFundingSources = [
+                      ...state.fundingSources,
+                      {
+                        investorName: "",
+                        description: "",
+                        amountReceived: "",
+                        denomination: "",
+                      },
+                    ];
+                    State.update({
+                      fundingSources: updatedFundingSources,
+                      fundingSourceIndex: updatedFundingSources.length - 1,
+                    });
+                  },
+                }}
+              />
+            </>
+          )}
           <FormDivider />
           <FormSectionContainer>
             {FormSectionLeft(
@@ -1075,8 +1649,8 @@ return (
           src={`${ownerId}/widget/Components.ModalMultiAccount`}
           props={{
             ...props,
-            isModalOpen: state.isModalOpen,
-            onClose: () => State.update({ isModalOpen: false }),
+            isModalOpen: state.isMultiAccountModalOpen,
+            onClose: () => State.update({ isMultiAccountModalOpen: false }),
             titleText: "Add team members",
             descriptionText: "Add NEAR account IDs for your team members.",
             inputValue: state.teamMember,
@@ -1097,6 +1671,74 @@ return (
             accountError: state.nearAccountIdError,
             accounts: state.teamMembers,
             unitText: "member",
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Project.ModalAddFundingSource`}
+          props={{
+            ...props,
+            isModalOpen: state.fundingSourceIndex !== null,
+            onClose: () => {
+              // remove any funding sources with all empty values
+              console.log("state.fundingSources line 1660: ", state.fundingSources);
+              const updatedFundingSources = state.fundingSources.filter(
+                (fs) => fs.investorName && fs.amountReceived && fs.denomination && fs.description
+              );
+              console.log("updatedFundingSources: ", updatedFundingSources);
+              State.update({
+                fundingSources: updatedFundingSources,
+                fundingSourceIndex: null,
+              });
+            },
+            // investorName,
+            // setInvestorName,
+            // investorNameError,
+            // setInvestorNameError,
+            // description,
+            // setDescription,
+            // descriptionError,
+            // setDescriptionError,
+            // amountDenomination,
+            // setAmountDenomination,
+            // amountDenominationError,
+            // setAmountDenominationError,
+            // amountReceived,
+            // setAmountReceived,
+            // amountReceivedError,
+            // setAmountReceivedError,
+            // handleAddFundingSource,
+            // investorName: state.fundingSources[state.fundingSourceIndex]?.investorName,
+            // description: state.fundingSources[state.fundingSourceIndex]?.description,
+            // amountDenomination: state.fundingSources[state.fundingSourceIndex]?.denomination,
+            // amountDenominationError:
+            //   state.fundingSources[state.fundingSourceIndex]?.denominationError,
+            // amountReceived: state.fundingSources[state.fundingSourceIndex]?.amountReceived,
+            // amountReceivedError:
+            //   state.fundingSources[state.fundingSourceIndex]?.amountReceivedError,
+            fundingSources: state.fundingSources,
+            fundingSourceIndex: state.fundingSourceIndex,
+            handleAddFundingSource: ({
+              investorName,
+              description,
+              amountReceived,
+              denomination,
+            }) => {
+              const updatedFundingSources = state.fundingSources.map((fs, i) => {
+                if (i == state.fundingSourceIndex) {
+                  return {
+                    investorName,
+                    description,
+                    amountReceived,
+                    denomination,
+                  };
+                }
+                return fs;
+              });
+              State.update({
+                fundingSources: updatedFundingSources,
+                fundingSourceIndex: null,
+              });
+            },
           }}
         />
       </>
