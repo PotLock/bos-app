@@ -1,4 +1,4 @@
-const { ownerId, REGISTRY_CONTRACT_ID } = props;
+const { ownerId, REGISTRY_CONTRACT_ID, validateNearAddress, validateEVMAddress } = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
 
@@ -11,6 +11,8 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
+const TRASH_ICON_URL =
+  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -202,6 +204,23 @@ const InputPrefix = styled.div`
   box-shadow: 0px -2px 0px rgba(93, 93, 93, 0.24) inset;
 `;
 
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+`;
+
+const TrashIcon = styled.img`
+  width: 24px;
+  height: 24px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 State.init({
   isDao: false,
   daoAddressTemp: "", // used while input is focused
@@ -220,6 +239,10 @@ State.init({
   descriptionError: "",
   publicGoodReason: "",
   publicGoodReasonError: "",
+  hasSmartContracts: false,
+  originalSmartContracts: [], // to keep track of removals
+  smartContracts: [],
+  hasReceivedFunding: false,
   website: "",
   websiteError: "",
   twitter: "",
@@ -244,14 +267,6 @@ State.init({
 // console.log("state in create form: ", state);
 
 const CATEGORY_MAPPINGS = {
-  // "social-impact": "Social Impact",
-  // "non-profit": "NonProfit",
-  // climate: "Climate",
-  // "public-good": "Public Good",
-  // "de-sci": "DeSci",
-  // "open-source": "Open Source",
-  // community: "Community",
-  // education: "Education",
   SOCIAL_IMPACT: "Social Impact",
   NON_PROFIT: "NonProfit",
   CLIMATE: "Climate",
@@ -270,6 +285,35 @@ const CATEGORY_MAPPINGS = {
     community: "COMMUNITY",
     education: "EDUCATION",
   },
+};
+
+const CHAIN_OPTIONS = {
+  NEAR: { isEVM: false },
+  Solana: { isEVM: false },
+  Ethereum: { isEVM: true },
+  Polygon: { isEVM: true },
+  Avalanche: { isEVM: true },
+  Optimism: { isEVM: true },
+  Arbitrum: { isEVM: true },
+  BNB: { isEVM: true },
+  Sui: { isEVM: false },
+  Aptos: { isEVM: false },
+  Polkadot: { isEVM: false },
+  Stellar: { isEVM: false },
+  ZkSync: { isEVM: false }, // Note: ZkSync aims for EVM compatibility but might not fully be considered as traditional EVM at the time of writing.
+  Celo: { isEVM: true },
+  Aurora: { isEVM: true },
+  Injective: { isEVM: true },
+  Base: { isEVM: false },
+  Manta: { isEVM: false }, // Listed twice in the original list; included once here.
+  Fantom: { isEVM: true },
+  ZkEVM: { isEVM: true }, // Considering the name, assuming it aims for EVM compatibility.
+  Flow: { isEVM: false },
+  Tron: { isEVM: true },
+  MultiverseX: { isEVM: false }, // Formerly known as Elrond, not traditionally EVM but has some level of compatibility.
+  Scroll: { isEVM: true }, // Assuming EVM compatibility based on the context of ZkEVM.
+  Linea: { isEVM: true }, // Assuming non-EVM due to lack of information.
+  Metis: { isEVM: true },
 };
 
 const accountId = props.projectId
@@ -355,6 +399,22 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
           }
         }
       }
+      const hasSmartContracts = profileData.potlockHasSmartContracts || false;
+      const smartContracts = profileData.potlockSmartContracts
+        ? Object.entries(profileData.potlockSmartContracts).reduce(
+            (accumulator, [chain, contracts]) => {
+              // Iterate over each contract address in the current chain
+              const contractsForChain = Object.keys(contracts).map((contractAddress) => {
+                return [chain, contractAddress]; // Create an array with the chain and contract address
+              });
+
+              return accumulator.concat(contractsForChain); // Add the arrays for this chain to the accumulator
+            },
+            []
+          )
+        : [];
+      smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
+      const hasReceivedFunding = profileData.potlockHasReceivedFunding || false;
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
       const telegram = linktree.telegram || "";
@@ -370,6 +430,10 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         publicGoodReason,
         originalCategories: categories,
         categories,
+        hasSmartContracts,
+        originalSmartContracts: smartContracts,
+        smartContracts,
+        hasReceivedFunding,
         twitter,
         telegram,
         github,
@@ -435,6 +499,7 @@ const handleCreateOrUpdateProject = (e) => {
     return;
   }
 
+  // format categories
   const formattedCategories = state.categories.reduce((acc, cur) => {
     acc[cur] = "";
     return acc;
@@ -445,6 +510,31 @@ const handleCreateOrUpdateProject = (e) => {
       formattedCategories[category] = null;
     }
   });
+
+  // format smart contracts
+  const formattedSmartContracts = state.smartContracts.reduce(
+    (accumulator, [chain, contractAddress]) => {
+      // If the chain doesn't exist in the accumulator, initialize it with an empty object
+      if (!accumulator[chain]) {
+        accumulator[chain] = {};
+      }
+      // Add the contractAddress with an empty string as its value under the chain
+      accumulator[chain][contractAddress] = "";
+      return accumulator; // Return the updated accumulator for the next iteration
+    },
+    {}
+  );
+  // if the user removed a smart contract, we need to remove it from the smartContracts by setting its value to null
+  state.originalSmartContracts.forEach(([chain, contractAddress]) => {
+    if (
+      chain &&
+      contractAddress &&
+      !formattedSmartContracts[chain]?.hasOwnProperty(contractAddress)
+    ) {
+      formattedSmartContracts[chain][contractAddress] = null;
+    }
+  });
+
   const socialArgs = {
     data: {
       [accountId]: {
@@ -454,6 +544,9 @@ const handleCreateOrUpdateProject = (e) => {
           potlockCategories: formattedCategories,
           description: state.description,
           potlockPublicGoodReason: state.publicGoodReason,
+          potlockHasSmartContracts: state.hasSmartContracts,
+          potlockSmartContracts: state.hasSmartContracts ? formattedSmartContracts : null,
+          potlockHasReceivedFunding: state.hasReceivedFunding,
           linktree: {
             website: state.website,
             twitter: state.twitter,
@@ -1037,8 +1130,157 @@ return (
                   selected: state.categories,
                 }}
               />
+              <Space height={24} />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "hasSmartContractsSelector",
+                  checked: state.hasSmartContracts,
+                  onClick: (e) => {
+                    State.update({ hasSmartContracts: e.target.checked });
+                  },
+                  label: "Yes, my project has smart contracts",
+                  containerStyle: {
+                    marginBottom: "16px",
+                  },
+                }}
+              />
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "hasReceivedFundingSelector",
+                  checked: state.hasReceivedFunding,
+                  onClick: (e) => {
+                    State.update({ hasReceivedFunding: e.target.checked });
+                  },
+                  label: "Yes, my project has received funding",
+                  // containerStyle: {
+                  //   marginBottom: "24px",
+                  // },
+                }}
+              />
             </FormSectionRightDiv>
           </FormSectionContainer>
+          {state.hasSmartContracts && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Smart contracts",
+                  "Add smart contracts from different chains that belong to your application.",
+                  true
+                )}
+                <FormSectionRightDiv>
+                  {state.smartContracts.map(([chain, contractAddress], index) => {
+                    return (
+                      <Row style={{ marginBottom: "12px" }} key={index}>
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Select`}
+                          props={{
+                            label: "Add chain",
+                            noLabel: false,
+                            placeholder: "Select chain",
+                            options: Object.keys(CHAIN_OPTIONS).map((chain) => ({
+                              text: chain,
+                              value: chain,
+                            })),
+                            value: {
+                              text: chain,
+                              value: chain,
+                            },
+                            onChange: (chain) => {
+                              const updatedSmartContracts = state.smartContracts.map((sc, i) => {
+                                if (i == index) {
+                                  return [chain.value, sc[1]];
+                                }
+                                return sc;
+                              });
+                              State.update({
+                                smartContracts: updatedSmartContracts,
+                              });
+                            },
+                          }}
+                        />
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Text`}
+                          props={{
+                            label: "Contract address",
+                            placeholder: "Enter address",
+                            value: contractAddress,
+                            onChange: (contractAddress) => {
+                              const updatedSmartContracts = state.smartContracts.map((sc, i) => {
+                                if (i == index) {
+                                  return [sc[0], contractAddress];
+                                }
+                                return sc;
+                              });
+                              State.update({
+                                smartContracts: updatedSmartContracts,
+                              });
+                            },
+                            validate: () => {
+                              // if NEAR, use validateNearAddress, otherwise if EVM, use validateEvmAddress
+                              const chain = state.smartContracts[index][0];
+                              const isEvm = CHAIN_OPTIONS[chain].isEVM;
+                              const isValid =
+                                chain == "NEAR"
+                                  ? validateNearAddress(contractAddress)
+                                  : isEvm
+                                  ? validateEVMAddress(contractAddress)
+                                  : true; // TODO: validate non-EVM, non-NEAR addresses
+                              // if invalid, set the error as the 3rd element of the array
+                              if (!isValid) {
+                                State.update({
+                                  smartContracts: state.smartContracts.map((sc, i) => {
+                                    if (i == index) {
+                                      return [sc[0], sc[1], "Invalid address"];
+                                    }
+                                    return sc;
+                                  }),
+                                });
+                                return;
+                              }
+                            },
+                            error: state.smartContracts[index][2] || "",
+                          }}
+                        />
+                        {state.smartContracts.length > 1 && (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+                            <TrashIcon
+                              onClick={() => {
+                                const updatedSmartContracts = state.smartContracts.filter(
+                                  (sc, i) => i != index
+                                );
+                                State.update({
+                                  smartContracts: updatedSmartContracts,
+                                });
+                              }}
+                              src={TRASH_ICON_URL}
+                            />
+                          </div>
+                        )}
+                      </Row>
+                    );
+                  })}
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "tertiary",
+                      text: "Add another contract",
+                      disabled:
+                        !state.smartContracts[state.smartContracts.length - 1][0] &&
+                        !state.smartContracts[state.smartContracts.length - 1][1],
+                      onClick: () => {
+                        State.update({
+                          smartContracts: [...state.smartContracts, ["", ""]],
+                        });
+                      },
+                    }}
+                  />
+                </FormSectionRightDiv>
+              </FormSectionContainer>
+            </>
+          )}
           <FormDivider />
           <FormSectionContainer>
             {FormSectionLeft(
