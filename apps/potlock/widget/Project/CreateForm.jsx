@@ -19,6 +19,7 @@ const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
 const TRASH_ICON_URL =
   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -218,13 +219,67 @@ const Row = styled.div`
   justify-content: center;
 `;
 
-const TrashIcon = styled.img`
+const Icon = styled.img`
   width: 24px;
   height: 24px;
 
   &:hover {
     cursor: pointer;
   }
+`;
+
+const FUNDING_SOURCE_COLUMNS = ["Funding Source", "Description", "Amount", "Denomination"];
+
+const FundingHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: #f6f5f3;
+  width: 100%;
+`;
+
+const FundingHeaderItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  justify-content: flex-start;
+  padding: 10px 20px;
+  width: ${100 / FUNDING_SOURCE_COLUMNS.length}%;
+`;
+
+const FundingHeaderItemText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
+const TableRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const TableRowItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 20px;
+  width: ${100 / FUNDING_SOURCE_COLUMNS.length}%;
+`;
+
+const TableRowText = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  word-wrap: break-word;
 `;
 
 State.init({
@@ -251,6 +306,9 @@ State.init({
   originalGithubRepos: [], // to keep track of removals
   githubRepos: [],
   hasReceivedFunding: false,
+  fundingSourceIndex: null,
+  originalFundingSources: [], // to keep track of removals
+  fundingSources: [],
   website: "",
   websiteError: "",
   twitter: "",
@@ -263,7 +321,7 @@ State.init({
   socialDataIsFetching: false,
   registeredProjects: null,
   getRegisteredProjectsError: "",
-  isModalOpen: false,
+  isMultiAccountModalOpen: false,
   teamMember: "",
   teamMembers: [],
   nearAccountIdError: "",
@@ -396,8 +454,9 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const publicGoodReason = profileData.potlockPublicGoodReason || "";
       let categories = [];
       if (profileData.potlockCategories) {
-        categories = profileData.potlockCategories;
+        categories = Object.keys(profileData.potlockCategories);
       } else if (profileData.category) {
+        // console.log("profileData.category: ", profileData.category);
         // old/deprecated version
         if (typeof profileData.category == "string") {
           const availableCategory =
@@ -407,7 +466,6 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
           }
         }
       }
-      const hasSmartContracts = profileData.potlockHasSmartContracts || false;
       const smartContracts = profileData.potlockSmartContracts
         ? Object.entries(profileData.potlockSmartContracts).reduce(
             (accumulator, [chain, contracts]) => {
@@ -421,6 +479,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             []
           )
         : [];
+      const hasSmartContracts = smartContracts.length > 0;
       smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
       const githubRepos = profileData.potlockGithubRepos
         ? Object.keys(profileData.potlockGithubRepos)
@@ -428,7 +487,12 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             .map((key) => [key])
         : [];
       githubRepos.push([""]); // Add an empty entry for the user to add a new repo (if they want to add one)
-      const hasReceivedFunding = profileData.potlockHasReceivedFunding || false;
+
+      const fundingSources = profileData.potlockFundingSources
+        ? Object.values(profileData.potlockFundingSources)
+        : [];
+      const hasReceivedFunding = fundingSources.length > 0;
+
       const linktree = profileData.linktree || {};
       const twitter = linktree.twitter || "";
       const telegram = linktree.telegram || "";
@@ -450,6 +514,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         originalGithubRepos: githubRepos,
         githubRepos,
         hasReceivedFunding,
+        originalFundingSources: fundingSources,
+        fundingSources,
         twitter,
         telegram,
         github,
@@ -504,6 +570,8 @@ const isCreateProjectDisabled =
   state.publicGoodReasonError ||
   (state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) &&
     !state.githubRepos.filter((val) => val[0]).length) ||
+  (state.hasSmartContracts && !state.smartContracts.length) || // TODO: REVIEW THIS
+  (state.hasReceivedFunding && !state.fundingSources.length) ||
   !state.categories.length ||
   state.categoriesError;
 
@@ -565,6 +633,16 @@ const handleCreateOrUpdateProject = (e) => {
     }
   });
 
+  // format funding (stringify)
+  // const formattedFundingSources = JSON.stringify(state.fundingSources);
+  const formattedFundingSources = state.fundingSources.reduce(
+    (accumulator, currentObject, index) => {
+      accumulator[index] = currentObject; // Set the current index as the key and the current object as the value
+      return accumulator;
+    },
+    {}
+  );
+
   const socialArgs = {
     data: {
       [accountId]: {
@@ -574,10 +652,9 @@ const handleCreateOrUpdateProject = (e) => {
           potlockCategories: formattedCategories,
           description: state.description,
           potlockPublicGoodReason: state.publicGoodReason,
-          potlockHasSmartContracts: state.hasSmartContracts,
           potlockSmartContracts: state.hasSmartContracts ? formattedSmartContracts : null,
           potlockGithubRepos: formattedGithubRepos,
-          potlockHasReceivedFunding: state.hasReceivedFunding,
+          potlockFundingSources: formattedFundingSources,
           linktree: {
             website: state.website,
             twitter: state.twitter,
@@ -644,7 +721,7 @@ const handleCreateOrUpdateProject = (e) => {
       methodName: "set",
       args: socialArgs,
     };
-    let depositFloat = JSON.stringify(socialArgs).length * 0.00003;
+    let depositFloat = JSON.stringify(socialArgs).length * 0.0001;
     if (!account) {
       depositFloat += 0.1;
     }
@@ -851,6 +928,8 @@ const uploadFileUpdateState = (body, callback) => {
     body,
   }).then(callback);
 };
+
+console.log("state.funding sources: ", state.fundingSources);
 
 return (
   <Container>
@@ -1192,6 +1271,81 @@ return (
               />
             </FormSectionRightDiv>
           </FormSectionContainer>
+          {state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) && (
+            <>
+              <FormDivider />
+              <FormSectionContainer>
+                {FormSectionLeft(
+                  "Add Your Repositories",
+                  "Add full URLs for specific github repositories so we can track their popularity.",
+                  true
+                )}
+                <FormSectionRightDiv>
+                  {state.githubRepos.map((repo, index) => {
+                    return (
+                      <Row style={{ marginBottom: "12px" }} key={index}>
+                        <Widget
+                          src={`${ownerId}/widget/Inputs.Text`}
+                          props={{
+                            label: "GitHub Repo URL #" + (index + 1),
+                            // preInputChildren: <InputPrefix>github.com/</InputPrefix>,
+                            inputStyles: { borderRadius: "0px 4px 4px 0px" },
+                            value: state.githubRepos[index][0],
+                            onChange: (repo) =>
+                              State.update({
+                                githubRepos: state.githubRepos.map((r, i) =>
+                                  i == index ? [repo] : [r[0]]
+                                ),
+                              }),
+                            validate: () => {
+                              // validate link
+                              const isValid = validateGithubRepoUrl(repo);
+                              // if invalid, set the error as the 2nd element of the array
+                              if (!isValid) {
+                                State.update({
+                                  githubRepos: state.githubRepos.map((r, i) =>
+                                    i == index ? [r[0], "Invalid GitHub Repo URL"] : [r[0]]
+                                  ),
+                                });
+                                return;
+                              }
+                            },
+                            error: state.githubRepos[index][1] || "",
+                          }}
+                        />
+                        {state.githubRepos.length > 1 && (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
+                            <Icon
+                              onClick={() => {
+                                const updatedRepos = state.githubRepos.filter((r, i) => i != index);
+                                State.update({
+                                  githubRepos: updatedRepos,
+                                });
+                              }}
+                              src={TRASH_ICON_URL}
+                            />
+                          </div>
+                        )}
+                      </Row>
+                    );
+                  })}
+                  <Widget
+                    src={`${ownerId}/widget/Components.Button`}
+                    props={{
+                      type: "tertiary",
+                      text: "Add another repository",
+                      disabled: !state.githubRepos[state.githubRepos.length - 1][0],
+                      onClick: () => {
+                        State.update({
+                          githubRepos: [...state.githubRepos, [""]],
+                        });
+                      },
+                    }}
+                  />
+                </FormSectionRightDiv>
+              </FormSectionContainer>
+            </>
+          )}
           {state.hasSmartContracts && (
             <>
               <FormDivider />
@@ -1277,7 +1431,7 @@ return (
                         />
                         {state.smartContracts.length > 1 && (
                           <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
-                            <TrashIcon
+                            <Icon
                               onClick={() => {
                                 const updatedSmartContracts = state.smartContracts.filter(
                                   (sc, i) => i != index
@@ -1312,79 +1466,89 @@ return (
               </FormSectionContainer>
             </>
           )}
-          {state.categories.includes(CATEGORY_MAPPINGS.OPEN_SOURCE) && (
+          {state.hasReceivedFunding && (
             <>
               <FormDivider />
               <FormSectionContainer>
                 {FormSectionLeft(
-                  "Add Your Repositories",
-                  "Add full URLs for specific github repositories so we can track their popularity.",
+                  "Funding sources",
+                  "Add any previous funding you have received.",
                   true
                 )}
-                <FormSectionRightDiv>
-                  {state.githubRepos.map((repo, index) => {
-                    return (
-                      <Row style={{ marginBottom: "12px" }} key={index}>
-                        <Widget
-                          src={`${ownerId}/widget/Inputs.Text`}
-                          props={{
-                            label: "GitHub Repo URL #" + (index + 1),
-                            // preInputChildren: <InputPrefix>github.com/</InputPrefix>,
-                            inputStyles: { borderRadius: "0px 4px 4px 0px" },
-                            value: state.githubRepos[index][0],
-                            onChange: (repo) =>
-                              State.update({
-                                githubRepos: state.githubRepos.map((r, i) =>
-                                  i == index ? [repo] : [r[0]]
-                                ),
-                              }),
-                            validate: () => {
-                              // validate link
-                              const isValid = validateGithubRepoUrl(repo);
-                              // if invalid, set the error as the 2nd element of the array
-                              if (!isValid) {
-                                State.update({
-                                  githubRepos: state.githubRepos.map((r, i) =>
-                                    i == index ? [r[0], "Invalid GitHub Repo URL"] : [r[0]]
-                                  ),
-                                });
-                                return;
-                              }
-                            },
-                            error: state.githubRepos[index][1] || "",
+                {/* <FormSectionRightDiv>
+                  
+                </FormSectionRightDiv> */}
+              </FormSectionContainer>
+              {state.fundingSources.length > 0 && (
+                <FundingHeader>
+                  {FUNDING_SOURCE_COLUMNS.map((column, index) => (
+                    <FundingHeaderItem>
+                      <FundingHeaderItemText key={index}>{column}</FundingHeaderItemText>
+                    </FundingHeaderItem>
+                  ))}
+                </FundingHeader>
+              )}
+              {state.fundingSources.map(
+                ({ investorName, description, amountReceived, denomination }, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableRowItem>
+                        <TableRowText>{investorName}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{description}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{amountReceived}</TableRowText>
+                      </TableRowItem>
+                      <TableRowItem>
+                        <TableRowText>{denomination}</TableRowText>
+                        {/* <Icon
+                          src={EDIT_ICON_URL}
+                          onClick={() => {
+                            State.update({
+                              fundingSourceIndex: index,
+                            });
+                          }}
+                        /> */}
+                        <Icon
+                          src={TRASH_ICON_URL}
+                          onClick={() => {
+                            const updatedFundingSources = state.fundingSources.filter(
+                              (fs, i) => i != index
+                            );
+                            State.update({ fundingSources: updatedFundingSources });
                           }}
                         />
-                        {state.githubRepos.length > 1 && (
-                          <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
-                            <TrashIcon
-                              onClick={() => {
-                                const updatedRepos = state.githubRepos.filter((r, i) => i != index);
-                                State.update({
-                                  githubRepos: updatedRepos,
-                                });
-                              }}
-                              src={TRASH_ICON_URL}
-                            />
-                          </div>
-                        )}
-                      </Row>
-                    );
-                  })}
-                  <Widget
-                    src={`${ownerId}/widget/Components.Button`}
-                    props={{
-                      type: "tertiary",
-                      text: "Add another repository",
-                      disabled: !state.githubRepos[state.githubRepos.length - 1][0],
-                      onClick: () => {
-                        State.update({
-                          githubRepos: [...state.githubRepos, [""]],
-                        });
+                      </TableRowItem>
+                    </TableRow>
+                  );
+                }
+              )}
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "tertiary",
+                  text: "Add funding source",
+                  disabled: !state.smartContracts[state.smartContracts.length - 1],
+                  onClick: () => {
+                    // add new funding source obj & set index
+                    const updatedFundingSources = [
+                      ...state.fundingSources,
+                      {
+                        investorName: "",
+                        description: "",
+                        amountReceived: "",
+                        denomination: "",
                       },
-                    }}
-                  />
-                </FormSectionRightDiv>
-              </FormSectionContainer>
+                    ];
+                    State.update({
+                      fundingSources: updatedFundingSources,
+                      fundingSourceIndex: updatedFundingSources.length - 1,
+                    });
+                  },
+                }}
+              />
             </>
           )}
           <FormDivider />
@@ -1485,8 +1649,8 @@ return (
           src={`${ownerId}/widget/Components.ModalMultiAccount`}
           props={{
             ...props,
-            isModalOpen: state.isModalOpen,
-            onClose: () => State.update({ isModalOpen: false }),
+            isModalOpen: state.isMultiAccountModalOpen,
+            onClose: () => State.update({ isMultiAccountModalOpen: false }),
             titleText: "Add team members",
             descriptionText: "Add NEAR account IDs for your team members.",
             inputValue: state.teamMember,
@@ -1507,6 +1671,74 @@ return (
             accountError: state.nearAccountIdError,
             accounts: state.teamMembers,
             unitText: "member",
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Project.ModalAddFundingSource`}
+          props={{
+            ...props,
+            isModalOpen: state.fundingSourceIndex !== null,
+            onClose: () => {
+              // remove any funding sources with all empty values
+              console.log("state.fundingSources line 1660: ", state.fundingSources);
+              const updatedFundingSources = state.fundingSources.filter(
+                (fs) => fs.investorName && fs.amountReceived && fs.denomination && fs.description
+              );
+              console.log("updatedFundingSources: ", updatedFundingSources);
+              State.update({
+                fundingSources: updatedFundingSources,
+                fundingSourceIndex: null,
+              });
+            },
+            // investorName,
+            // setInvestorName,
+            // investorNameError,
+            // setInvestorNameError,
+            // description,
+            // setDescription,
+            // descriptionError,
+            // setDescriptionError,
+            // amountDenomination,
+            // setAmountDenomination,
+            // amountDenominationError,
+            // setAmountDenominationError,
+            // amountReceived,
+            // setAmountReceived,
+            // amountReceivedError,
+            // setAmountReceivedError,
+            // handleAddFundingSource,
+            // investorName: state.fundingSources[state.fundingSourceIndex]?.investorName,
+            // description: state.fundingSources[state.fundingSourceIndex]?.description,
+            // amountDenomination: state.fundingSources[state.fundingSourceIndex]?.denomination,
+            // amountDenominationError:
+            //   state.fundingSources[state.fundingSourceIndex]?.denominationError,
+            // amountReceived: state.fundingSources[state.fundingSourceIndex]?.amountReceived,
+            // amountReceivedError:
+            //   state.fundingSources[state.fundingSourceIndex]?.amountReceivedError,
+            fundingSources: state.fundingSources,
+            fundingSourceIndex: state.fundingSourceIndex,
+            handleAddFundingSource: ({
+              investorName,
+              description,
+              amountReceived,
+              denomination,
+            }) => {
+              const updatedFundingSources = state.fundingSources.map((fs, i) => {
+                if (i == state.fundingSourceIndex) {
+                  return {
+                    investorName,
+                    description,
+                    amountReceived,
+                    denomination,
+                  };
+                }
+                return fs;
+              });
+              State.update({
+                fundingSources: updatedFundingSources,
+                fundingSourceIndex: null,
+              });
+            },
           }}
         />
       </>
