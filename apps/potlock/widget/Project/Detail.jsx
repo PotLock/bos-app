@@ -144,6 +144,7 @@ return (
               props={{
                 ...props,
                 profile,
+                project,
               }}
             />
           </BodyContainer>
