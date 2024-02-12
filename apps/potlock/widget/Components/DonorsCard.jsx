@@ -76,7 +76,7 @@ return (
         }}
       />{" "}
       <a
-        href={"https://near.org/near/widget/ProfilePage?accountId=" + id}
+        href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + id}
         className="name"
         target="_blank"
       >

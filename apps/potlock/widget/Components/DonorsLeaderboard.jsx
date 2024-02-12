@@ -110,7 +110,7 @@ return (
             <div>#{idx + 1 + page * perPage}</div>
 
             <a
-              href={"https://near.org/near/widget/ProfilePage?accountId=" + donor_id}
+              href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + donor_id}
               className="address"
               target="_blank"
             >
