@@ -193,7 +193,7 @@ State.init({
   baseCurrency: isUpdate ? potDetail.base_currency : "",
   baseCurrencyError: "",
   minMatchingPoolDonationAmount: NEAR.fromIndivisible(
-    isUpdate ? potDetail.min_matching_pool_donation_amount : "1000000000000000000000000" // 1 NEAR
+    isUpdate ? potDetail.min_matching_pool_donation_amount : "1"
   ),
   minMatchingPoolDonationAmountError: "",
   useNadabotSybil: isUpdate
@@ -674,7 +674,7 @@ return (
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
-              label: "Min matching pool donation amount (in NEAR - optional)",
+              label: "Optional: Min matching pool donation amount (in NEAR)",
               placeholder: "0",
               value: state.minMatchingPoolDonationAmount,
               onChange: (amountNear) => {

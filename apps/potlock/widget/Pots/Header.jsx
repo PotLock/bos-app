@@ -149,6 +149,7 @@ State.init({
   matchingPoolDonationMessage: "",
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
+  isOnRegistry: false,
 });
 
 // console.log("props in header: ", props);
@@ -206,7 +207,16 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
 
+if (registry_provider) {
+  const [contractId, methodName] = registry_provider.split(":");
+  Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
+    State.update({ isOnRegistry });
+  });
+}
+
 const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
+
+const registryRequirementMet = state.isOnRegistry || !registry_provider;
 
 // const publicRoundOpen = true;
 
@@ -427,7 +437,18 @@ return (
             </H4>
           </>
         )}
-        {publicRoundClosed && <props.ToDo>Add round closed indicator</props.ToDo>}
+        {publicRoundClosed && (
+          <Row>
+            <Widget
+              src={`${ownerId}/widget/Components.Indicator`}
+              props={{
+                colorOuter: "#DBDBDB",
+                colorInner: "#A6A6A6",
+              }}
+            />
+            <StatusText style={{ color: "#525252" }}>Matching Round Ended</StatusText>
+          </Row>
+        )}
       </ColumnRightSegment>
       <Row style={{ gap: "24px" }}>
         {canApply && (
@@ -435,8 +456,10 @@ return (
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "tertiary",
-              text: "Apply to pot",
-              onClick: handleApplyToPot,
+              text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
+              onClick: registryRequirementMet ? handleApplyToPot : null,
+              href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
+              target: "_self",
             }}
           />
         )}
