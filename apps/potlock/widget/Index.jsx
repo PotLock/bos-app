@@ -173,14 +173,6 @@ const tabContentWidget = {
 
 const getTabWidget = (tab) => {
   const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
-  if (
-    [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
-    props.env !== "staging" &&
-    !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId)
-  ) {
-    // if user requests a QF-related tab but is not whitelisted, redirect to projects list
-    return defaultTabWidget;
-  }
   if (tab in tabContentWidget) {
     return tabContentWidget[props.tab];
   }
@@ -333,50 +325,6 @@ const props = {
   POT_FACTORY_CONTRACT_ID:
     props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
   NADABOT_CONTRACT_ID: props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near",
-  QF_WHITELISTED_ACCOUNTS: [
-    "lachlan.near",
-    "potlock.near",
-    "lachlanglen2.near",
-    "plugrel.near",
-    "efiz.near",
-    "orasci-contributor.near",
-    "dkritik007.near",
-    "blackdragonis.near",
-    "joespano.near",
-    "mattb.near",
-    "achraf.near",
-    "jass.near",
-    "inspiratibiz.near",
-    "ntare.near",
-    "huunhanz.near",
-    "chrestomanci.near",
-    "wendersonpires.near",
-    "superposition.near",
-    "jiyuan.near",
-    "ndcplug.near",
-    "cameron.near",
-    "magicbuild.near",
-    "nadabot.near",
-    "ndcdev.near",
-    "flowscience.near",
-    "ogruss.near",
-    "james.near",
-    "kurodenjiro.near",
-    "huunhanz.near",
-    "dkritik007.near",
-    "proofofvibes.near",
-    "genadrop.near",
-    "evrything.near",
-    "baam25.near",
-    "sharddog.near",
-    "grift.near",
-    "publicgoodspodcast.near",
-    "agwaze.near",
-    "jgodwill.near",
-    "0xprometheus.near",
-    "minorityprogrammers.near",
-    "yomamma.near",
-  ],
   ToDo: styled.div`
     position: relative;
 
@@ -397,6 +345,19 @@ const props = {
       return `${href}${href.includes("?") ? "&" : "?"}env=staging`;
     }
     return href;
+  },
+  yoctosToUsdWithFallback: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  },
+  yoctosToUsd: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : null;
+  },
+  yoctosToNear: (amountYoctos) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
   },
   formatDate: (timestamp) => {
     const months = [

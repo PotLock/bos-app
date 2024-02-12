@@ -204,10 +204,6 @@ State.init({
   deploymentSuccess: false,
 });
 
-const userIsWhitelisted = props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId);
-
-if (!isUpdate && props.env !== "staging" && !userIsWhitelisted) return "Unauthorized";
-
 if (!isUpdate && !state.latestSourceCodeCommitHash) {
   const res = fetch("https://api.github.com/repos/PotLock/core/commits");
   if (res.ok && res.body.length > 0) {
