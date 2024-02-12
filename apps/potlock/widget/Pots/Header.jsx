@@ -289,7 +289,7 @@ const referrerFeeAmountNear = referrerId
 
 const getApplicationTagText = () => {
   if (applicationNotStarted) return "Application Round Not Started";
-  if (applicationOpen) return props.daysUntil(public_round_end_ms) + " left to apply";
+  if (applicationOpen) return props.daysUntil(application_end_ms) + " left to apply";
   else return "Application Round Ended";
 };
 
@@ -455,7 +455,7 @@ return (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: "tertiary",
+              type: "primary",
               text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
               onClick: registryRequirementMet ? handleApplyToPot : null,
               href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),

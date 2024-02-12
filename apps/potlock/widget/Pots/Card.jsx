@@ -130,7 +130,7 @@ return (
             backgroundColor: "#EFFEFA",
             borderColor: "#33DDCB",
             textColor: "#023131",
-            text: props.daysUntil(public_round_end_ms) + " left to apply",
+            text: props.daysUntil(application_end_ms) + " left to apply",
             textStyle: { fontWeight: 500, marginLeft: "8px" },
             preElements: (
               <Widget
