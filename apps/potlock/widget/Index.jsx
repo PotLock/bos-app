@@ -175,13 +175,6 @@ const tabContentWidget = {
 
 const getTabWidget = (tab) => {
   const defaultTabWidget = tabContentWidget[PROJECTS_LIST_TAB];
-  if (
-    [POTS_TAB, DEPLOY_POT_TAB, POT_DETAIL_TAB].includes(tab) &&
-    !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId)
-  ) {
-    // if user requests a QF-related tab but is not whitelisted, redirect to projects list
-    return defaultTabWidget;
-  }
   if (tab in tabContentWidget) {
     return tabContentWidget[props.tab];
   }
@@ -283,6 +276,22 @@ const props = {
     }
     return isValid;
   },
+  validateEVMAddress: (address) => {
+    // Check if the address is defined and the length is correct (42 characters, including '0x')
+    if (!address || address.length !== 42) {
+      return false;
+    }
+    // Check if the address starts with '0x' and contains only valid hexadecimal characters after '0x'
+    const re = /^0x[a-fA-F0-9]{40}$/;
+    return re.test(address);
+  },
+  validateGithubRepoUrl: (url) => {
+    // Regular expression to match the GitHub repository URL pattern
+    // This regex checks for optional "www.", a required "github.com/", and then captures the username and repo name segments
+    const githubRepoUrlPattern =
+      /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
+    return githubRepoUrlPattern.test(url);
+  },
   CATEGORY_MAPPINGS: {
     "social-impact": "Social Impact",
     "non-profit": "NonProfit",
@@ -318,50 +327,6 @@ const props = {
   POT_FACTORY_CONTRACT_ID:
     props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
   NADABOT_CONTRACT_ID: props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near",
-  QF_WHITELISTED_ACCOUNTS: [
-    "lachlan.near",
-    "potlock.near",
-    "lachlanglen2.near",
-    "plugrel.near",
-    "efiz.near",
-    "orasci-contributor.near",
-    "dkritik007.near",
-    "blackdragonis.near",
-    "joespano.near",
-    "mattb.near",
-    "achraf.near",
-    "jass.near",
-    "inspiratibiz.near",
-    "ntare.near",
-    "huunhanz.near",
-    "chrestomanci.near",
-    "wendersonpires.near",
-    "superposition.near",
-    "jiyuan.near",
-    "ndcplug.near",
-    "cameron.near",
-    "magicbuild.near",
-    "nadabot.near",
-    "ndcdev.near",
-    "flowscience.near",
-    "ogruss.near",
-    "james.near",
-    "kurodenjiro.near",
-    "huunhanz.near",
-    "dkritik007.near",
-    "proofofvibes.near",
-    "genadrop.near",
-    "evrything.near",
-    "baam25.near",
-    "sharddog.near",
-    "grift.near",
-    "publicgoodspodcast.near",
-    "agwaze.near",
-    "jgodwill.near",
-    "0xprometheus.near",
-    "minorityprogrammers.near",
-    "yomamma.near",
-  ],
   ToDo: styled.div`
     position: relative;
 
@@ -382,6 +347,19 @@ const props = {
       return `${href}${href.includes("?") ? "&" : "?"}env=staging`;
     }
     return href;
+  },
+  yoctosToUsdWithFallback: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  },
+  yoctosToUsd: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : null;
+  },
+  yoctosToNear: (amountYoctos) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
   },
   formatDate: (timestamp) => {
     const months = [
@@ -427,7 +405,7 @@ const props = {
       ? "Just now"
       : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
-  daysUntil: (timestamp, suffix) => {
+  daysUntil: (timestamp) => {
     const now = new Date();
     const futureDate = new Date(timestamp);
     const differenceInTime = futureDate - now;
@@ -435,7 +413,7 @@ const props = {
     // Convert time difference from milliseconds to days
     const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}${suffix || ""}`;
+    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}`;
   },
   NADA_BOT_URL: "https://app.nada.bot",
   // openSybilModal: () => {

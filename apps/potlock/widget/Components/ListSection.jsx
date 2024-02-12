@@ -410,6 +410,7 @@ const Container = styled.div`
   flex-direction: column;
   width: 100%;
   gap: 48px;
+  padding-top: 20px;
 `;
 
 const ProjectList = styled.div`
@@ -546,7 +547,10 @@ return (
     <Container>
       <Header>
         <Title>
-          all {tab == "pots" ? "pots" : "projects"} {totalProjects.length}
+          all {tab == "pots" ? "pots" : "projects"}
+          <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
+            {totalProjects.length}
+          </span>
         </Title>
         {/* Search bar */}
         <Widget

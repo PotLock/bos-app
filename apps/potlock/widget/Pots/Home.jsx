@@ -1,5 +1,7 @@
 const { ownerId, POT_FACTORY_CONTRACT_ID } = props;
 
+const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -14,26 +16,31 @@ const HeaderContent = styled.div`
   align-items: center;
   justify-content: center;
   gap: 24px;
-  padding: 48px;
+  padding: 100px 48px;
+  background: #f6f5f3;
+  width: 100%;
 `;
 
 const HeaderTitle = styled.div`
   color: #292929;
-  font-size: 60px;
-  font-weight: 400;
-  line-height: 72px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
   word-wrap: break-word;
-  font-family: Lora;
+  letter-spacing: 1px;
   text-align: center;
+  text-transform: uppercase;
 `;
 
 const HeaderDescription = styled.div`
   color: #292929;
-  font-size: 17px;
+  font-size: 44px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 56px;
   word-wrap: break-word;
   text-align: center;
+  font-family: "Lora";
+  ${loraCss}
 `;
 
 const Divider = styled.div`
@@ -41,6 +48,13 @@ const Divider = styled.div`
   width: 100%;
   background-color: #ebebeb;
   margin-bottom: 40px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
 `;
 
 State.init({
@@ -53,22 +67,14 @@ if (!state.pots) {
     State.update({ pots });
   });
 }
-if (state.pots) {
-  for (let i = 0; i < state.pots.length; i++) {
-    const potId = state.pots[i].id;
-    Near.asyncView(potId, "get_config", { account_id: context.accountId }).then((potConfig) => {
-      State.update({ potConfigs: { ...state.potConfigs, [potId]: potConfig } });
-    });
-  }
-}
 if (!state.potFactoryConfig) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_config", {}).then((potFactoryConfig) => {
     State.update({ potFactoryConfig });
   });
 }
 
-console.log("state: ", state);
-console.log("props: ", props);
+// console.log("state: ", state);
+// console.log("props: ", props);
 
 if (!state.potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
@@ -83,19 +89,30 @@ return (
     <HeaderContent>
       <HeaderTitle>Explore Pots</HeaderTitle>
       <HeaderDescription>
-        Donate to matching rounds to get your contributions amplified.
+        Donate to matching rounds <br />
+        to get your contributions amplified.
       </HeaderDescription>
-      {canDeploy && (
+      <Row>
+        {canDeploy && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "primary",
+              text: "Deploy Pot",
+              href: props.hrefWithEnv(`?tab=deploypot`),
+            }}
+          />
+        )}
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
-            type: "primary",
-            text: "Deploy pot",
-            style: props.style || {},
-            href: props.hrefWithEnv(`?tab=deploypot`),
+            type: canDeploy ? "secondary" : "primary",
+            text: "Learn More",
+            href: "https://potlock.org/chef-training",
+            target: "_blank",
           }}
         />
-      )}
+      </Row>
     </HeaderContent>
     {state.pots && (
       <Widget
@@ -107,18 +124,18 @@ return (
           renderItem: (pot) => (
             <Widget
               src={`${ownerId}/widget/Pots.Card`}
-              loading={
-                <div
-                  style={{
-                    width: "320px",
-                    height: "500px",
-                    borderRadius: "12px",
-                    background: "white",
-                    boxShadow: "0px -2px 0px #464646 inset",
-                    border: "1px solid #292929",
-                  }}
-                />
-              }
+              // loading={
+              //   <div
+              //     style={{
+              //       width: "320px",
+              //       height: "500px",
+              //       borderRadius: "12px",
+              //       background: "white",
+              //       boxShadow: "0px -2px 0px #464646 inset",
+              //       border: "1px solid #292929",
+              //     }}
+              //   />
+              // }
               props={{
                 ...props,
                 potId: pot.id,
@@ -126,12 +143,13 @@ return (
               }}
             />
           ),
-          containerStyle: {
-            background: "white",
-          },
-          listStyle: {
-            justifyContent: "center",
-          },
+          maxCols: 2,
+          // containerStyle: {
+          //   background: "white",
+          // },
+          // listStyle: {
+          //   justifyContent: "center",
+          // },
         }}
       />
     )}

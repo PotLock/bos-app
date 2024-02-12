@@ -2,7 +2,7 @@ const profile = Social.getr(`${props.projectId}/profile`);
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const TRASH_ICON_URL =
-  IPFS_BASE_URL + "bafkreicwtubzlywmtvoxc4tqjfturyi5oqxtbpezceosiw3juv2d4uf7om";
+  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
 const TrashContainer = styled.div`
   position: absolute;

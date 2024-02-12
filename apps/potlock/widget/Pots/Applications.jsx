@@ -73,7 +73,7 @@ State.init({
   projectId: "",
   reviewMessage: "",
   searchTerm: "",
-  allApplications: applications,
+  allApplications: null,
   filteredApplications: [],
   filterVal: APPLICATIONS_FILTERS.ALL,
 });

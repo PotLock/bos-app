@@ -1,4 +1,6 @@
-const { backgroundColor, borderColor, textColor, text } = props;
+const { ownerId, backgroundColor, borderColor, textColor, text } = props;
+
+const textStyle = props.textStyle || {};
 
 const TagContainer = styled.div`
   display: flex;
@@ -21,6 +23,7 @@ const TagText = styled.span`
 
 return (
   <TagContainer>
-    <TagText>{text}</TagText>
+    {props.preElements}
+    <TagText style={textStyle}>{text}</TagText>
   </TagContainer>
 );

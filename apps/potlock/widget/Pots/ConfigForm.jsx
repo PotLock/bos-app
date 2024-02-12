@@ -9,6 +9,8 @@ const {
   SUPPORTED_FTS: { NEAR },
 } = props;
 
+console.log("props in config form: ", props);
+
 const DEFAULT_REGISTRY_PROVIDER = `${REGISTRY_CONTRACT_ID}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:is_human`;
 const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
@@ -191,7 +193,7 @@ State.init({
   baseCurrency: isUpdate ? potDetail.base_currency : "",
   baseCurrencyError: "",
   minMatchingPoolDonationAmount: NEAR.fromIndivisible(
-    isUpdate ? potDetail.min_matching_pool_donation_amount : "1000000000000000000000000" // 1 NEAR
+    isUpdate ? potDetail.min_matching_pool_donation_amount : "1"
   ),
   minMatchingPoolDonationAmountError: "",
   useNadabotSybil: isUpdate
@@ -201,10 +203,6 @@ State.init({
   latestSourceCodeCommitHash: "",
   deploymentSuccess: false,
 });
-
-const userIsWhitelisted = props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId);
-
-if (!isUpdate && props.env !== "staging" && !userIsWhitelisted) return "Unauthorized";
 
 if (!isUpdate && !state.latestSourceCodeCommitHash) {
   const res = fetch("https://api.github.com/repos/PotLock/core/commits");
@@ -420,7 +418,7 @@ const handleRemoveAdmin = (accountId) => {
 };
 
 const userIsOwner = context.accountId === potDetail.owner;
-const userIsAdmin = potDetail.admins.includes(context.accountId);
+const userIsAdmin = isUpdate && potDetail.admins.includes(context.accountId);
 const isAdminOrGreater = userIsOwner || userIsAdmin;
 
 const FormSectionLeft = (title, description) => {
@@ -466,7 +464,7 @@ return (
             handleRemoveAccount: handleRemoveAdmin,
           }}
         />
-        {userIsOwner && (
+        {(!isUpdate || userIsOwner) && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
@@ -492,7 +490,7 @@ return (
               });
             },
             error: state.nameError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
         <Widget
@@ -512,7 +510,7 @@ return (
               });
             },
             error: state.descriptionError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
         <Row>
@@ -535,7 +533,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -557,7 +555,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -596,7 +594,7 @@ return (
                 });
               },
               error: state.applicationStartDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -620,7 +618,7 @@ return (
                 });
               },
               error: state.applicationEndDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -664,7 +662,7 @@ return (
                 State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
               },
               error: state.matchingRoundEndDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -672,7 +670,7 @@ return (
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
             props={{
-              label: "Min matching pool donation amount (in NEAR - optional)",
+              label: "Optional: Min matching pool donation amount (in NEAR)",
               placeholder: "0",
               value: state.minMatchingPoolDonationAmount,
               onChange: (amountNear) => {
@@ -682,7 +680,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -706,7 +704,7 @@ return (
                 State.update({ chefError: valid ? "" : "Invalid NEAR account ID" });
               },
               error: state.chefError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -728,7 +726,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.chefFeePercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -751,7 +749,7 @@ return (
               State.update({ maxProjectsError: valid ? "" : `Maximum ${MAX_MAX_PROJECTS}` });
             },
             error: state.maxProjectsError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
       </FormSectionRightDiv>
@@ -770,7 +768,7 @@ return (
                   usePotlockRegistry: e.target.checked,
                 });
               },
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
@@ -791,7 +789,7 @@ return (
                   useNadabotSybil: e.target.checked,
                 });
               },
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
