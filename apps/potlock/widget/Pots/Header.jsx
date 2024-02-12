@@ -237,6 +237,7 @@ const handleMatchingPoolDonation = () => {
     message: state.matchingPoolDonationMessage,
     matching_pool: true,
     referrer_id: referrerId || null,
+    bypass_protocol_fee: state.bypassProtocolFee,
   };
   // const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
   const amountFloat = parseFloat(matchingPoolDonationAmountNear || 0);
