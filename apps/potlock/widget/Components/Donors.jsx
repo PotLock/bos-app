@@ -1,12 +1,13 @@
 const { ownerId } = props;
-const { calcDonations, reverseArr } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
+const { calcDonations, filterByDate } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 
 const [totalDonations, setDonations] = useState([]);
 const [index, setIndex] = useState(0);
 const [page, setPage] = useState(0);
 const [currentTab, setTab] = useState("Leaderboard");
+const [filter, setFilter] = useState("");
 
-const perPage = 30; // need to be less than 50
+const perPage = 30;
 
 const limit = 100;
 
@@ -16,7 +17,7 @@ const donationsPart = Near.view("donate.potlock.near", "get_donations", {
   limit: limit,
 });
 
-if (donationsPart === null) return "loading";
+if (donationsPart === null) return "loading...";
 
 if (
   donationsPart.length === limit &&
@@ -24,13 +25,16 @@ if (
 ) {
   setIndex(index + 1);
   setDonations([...totalDonations, ...donationsPart]);
-  return "loading";
+  return "loading...";
 }
-const donations = [...totalDonations];
+let donations = [...totalDonations];
 
 if (donationsPart.length < limit) {
   donations.push(...donationsPart);
 }
+
+// Filter Donation
+donations = donations.filter((donation) => filterByDate(filter.value, donation));
 
 const uniqueDonations = donations.reduce((accumulator, currentDonation) => {
   const existingDonation = accumulator.find((item) => item.donor_id === currentDonation.donor_id);
@@ -48,6 +52,7 @@ const uniqueDonations = donations.reduce((accumulator, currentDonation) => {
 
   return accumulator;
 }, []);
+
 // Sorted Unique Donors according to amount
 const sortedDonations = uniqueDonations.sort((a, b) => b.amount - a.amount);
 
@@ -92,29 +97,10 @@ const Container = styled.div`
   }
 `;
 
-const Transactions = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  overflow-x: scroll;
-  .header {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 0;
-    gap: 1rem;
-    background: var(--primary-color);
-    color: white;
-    margin-bottom: 1rem;
-    min-width: 600px;
-    div {
-      text-align: center;
-    }
-  }
-`;
 const Tabs = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 2rem;
   font-size: 14px;
   color: rgb(123, 123, 123);
@@ -130,23 +116,32 @@ const Tabs = styled.div`
       color: black;
     }
   }
+  .select {
+    width: fit-content;
+  }
+`;
+
+const NoResult = styled.div`
+  font-size: 2rem;
+  text-align: center;
 `;
 
 const rank1 = Social.getr(`${sortedDonations[0].donor_id}/profile`);
 const rank2 = Social.getr(`${sortedDonations[1].donor_id}/profile`);
 const rank3 = Social.getr(`${sortedDonations[2].donor_id}/profile`);
 
-if (rank1 === null || rank2 === null || rank3 === null) return "loading";
+if (rank1 === null || rank2 === null || rank3 === null) return "loading...";
+
+console.log("rank1", rank1);
+console.log("rank2", rank2);
+console.log("rank3", rank3);
 
 const leaderboard = [
   {
     rank: "#2",
     id: sortedDonations[1].donor_id,
-    name: rank2.name || sortedDonations[1].donor_id,
-    description: rank2.description || "-",
-    image: rank2.image,
-    backgroundImage: rank2.backgroundImage,
     amount: sortedDonations[1].amount,
+    profile: rank2,
   },
   {
     rank: (
@@ -156,21 +151,16 @@ const leaderboard = [
       />
     ),
     id: sortedDonations[0].donor_id,
-    name: rank2.name || sortedDonations[0].donor_id,
+    name: rank1.name || sortedDonations[0].donor_id,
     className: "top",
-    description: rank1.description || "-",
-    image: rank1.image,
-    backgroundImage: rank1.backgroundImage,
     amount: sortedDonations[0].amount,
+    profile: rank1,
   },
   {
     rank: "#3",
     id: sortedDonations[2].donor_id,
-    name: rank2.name || sortedDonations[2].donor_id,
-    description: rank3.description || "-",
-    image: rank3.image,
-    backgroundImage: rank3.backgroundImage,
     amount: sortedDonations[2].amount,
+    profile: rank3,
   },
 ];
 
@@ -185,7 +175,7 @@ return (
           <Widget
             key={donation.id}
             src={`${ownerId}/widget/Components.DonorsCard`}
-            props={{ donation, ownerId }}
+            props={{ ...props, donation }}
           />
         ))}
       </div>
@@ -196,60 +186,43 @@ return (
           {tab}
         </div>
       ))}
+      <Widget
+        src={`${ownerId}/widget/Inputs.Select`}
+        props={{
+          noLabel: true,
+          placeholder: "Filter",
+          containerStyles: { width: "fit-content", marginLeft: "auto", color: "black" },
+          options: [
+            { text: "Today", value: "day" },
+            { text: "Last Week", value: "week" },
+            { text: "Last Month", value: "month" },
+            { text: "All Time", value: "all" },
+          ],
+          value: filter,
+          onChange: (filter) => {
+            setFilter(filter);
+          },
+        }}
+      />
     </Tabs>
-    {currentTab === "Transactions" && (
-      <Transactions>
-        <div className="header">
-          <div>ID</div>
-          <div>Donor ID</div>
-          <div>Amount</div>
-          <div>Project ID</div>
-          <div>Date</div>
-        </div>
-        {reverseArr(donations)
-          .slice(page * perPage, (page + 1) * perPage)
-          .map((donation) => {
-            return (
-              <Widget
-                key={donation.id}
-                src={`${ownerId}/widget/Components.DonorsRow`}
-                props={{ donation, ownerId }}
-              />
-            );
-          })}
-      </Transactions>
-    )}
-    {currentTab === "Leaderboard" && (
-      <Transactions>
-        <div className="header">
-          <div>Rank</div>
-          <div>Name</div>
-          <div>Amount</div>
-          <div>Amount (USD)</div>
-          <div>Percentage Share</div>
-        </div>
-        {setDonations.slice(page * perPage, (page + 1) * perPage).map((donation) => {
-          return (
-            <Widget
-              key={donation.id}
-              src={`${ownerId}/widget/Components.DonorsRow`}
-              props={{ donation, ownerId }}
-            />
-          );
-        })}
-      </Transactions>
-    )}
-    <Widget
-      src="baam25.near/widget/pagination"
-      props={{
-        onClick: (page) => {
-          setPage(page);
-        },
-        data: donations,
-        page: page,
-        perPage: perPage,
-        bgColor: "var(--primary-color)",
-      }}
-    />
+
+    {currentTab === "Transactions" &&
+      (donations.length ? (
+        <Widget
+          src={`${ownerId}/widget/Components.DonorsTrx`}
+          props={{ ...props, donations: donations }}
+        />
+      ) : (
+        <NoResult>No Donations</NoResult>
+      ))}
+    {currentTab === "Leaderboard" &&
+      (sortedDonations.length ? (
+        <Widget
+          src={`${ownerId}/widget/Components.DonorsLeaderboard`}
+          props={{ ...props, donations: sortedDonations }}
+        />
+      ) : (
+        <NoResult>No Donations</NoResult>
+      ))}
   </Container>
 );

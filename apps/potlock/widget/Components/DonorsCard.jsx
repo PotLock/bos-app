@@ -1,5 +1,8 @@
 const { donation, ownerId } = props;
-const nearToUsd = props.nearToUsd || 2.9;
+const { id, rank, className, donor_id, amount, profile } = donation;
+const { name, backgroundImage, description } = profile;
+
+const nearToUsd = props.nearToUsd || 1;
 
 const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 
@@ -39,20 +42,8 @@ const Container = styled.div`
     height: 100px;
     width: 100%;
   }
-  .profile {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
+  > .profile {
     transform: translateY(-50%);
-    position: relative;
-    :before {
-      content: " ";
-      display: block;
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      background-image: url("https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi");
-    }
   }
   .amount {
     margin-top: 1rem;
@@ -63,41 +54,36 @@ const Container = styled.div`
 `;
 
 return (
-  <div key={donation} className={donation.className || ""}>
-    <Container
-      href={"https://near.org/near/widget/ProfilePage?accountId=" + donation.id}
-      target="_blank"
-    >
+  <div key={donation} className={className || ""}>
+    <Container>
       <Widget
         src="mob.near/widget/Image"
         props={{
-          image: donation.backgroundImage,
+          image: backgroundImage,
           className: "background",
-          alt: donation.name,
+          alt: name,
           fallbackUrl:
             "https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi",
         }}
       />
-      <div className="tag">{donation.rank}</div>
+      <div className="tag">{rank}</div>
       <Widget
-        src="mob.near/widget/Image"
+        src="mob.near/widget/ProfileImage"
         props={{
-          image: donation.image,
+          profile,
+          style: { width: "4rem", height: "4rem" },
           className: "profile",
-          alt: donation.name,
-          fallbackUrl:
-            "https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi",
         }}
       />{" "}
       <a
-        href={"https://near.org/near/widget/ProfilePage?accountId=" + recipient_id}
+        href={"https://near.org/near/widget/ProfilePage?accountId=" + id}
         className="name"
         target="_blank"
       >
-        {_address(donation.name)}
+        {name ? _address(name) : id}
       </a>
-      <div className="description">{_address(donation.description, 30, 20)}</div>
-      <div className="amount">${donation.amount * nearToUsd} Donated</div>
+      <div className="description">{description ? _address(description, 20) : "-"}</div>
+      <div className="amount">${(amount * nearToUsd).toFixed(2)} Donated</div>
     </Container>
   </div>
 );

@@ -5,7 +5,12 @@ const currentDate = new Date();
 let localTimeZoneOffsetMinutes = currentDate.getTimezoneOffset();
 localTimeZoneOffsetMinutes = localTimeZoneOffsetMinutes * 60 * 1000;
 
+const oneDayTime = 24 * 60 * 60 * 1000;
 const currentTimestamp = new Date().getTime();
+
+const yesterday = currentTimestamp - oneDayTime;
+const lastWeek = currentTimestamp - oneDayTime * 7;
+const lastMonth = currentTimestamp - oneDayTime * 30;
 
 const getTimePassed = (timestamp) => {
   // Calculate the difference in milliseconds
@@ -32,8 +37,9 @@ const getTimePassed = (timestamp) => {
   return time;
 };
 
-const _address = (address, max, limit) => {
-  if (address.length > max || 20) return address.slice(0, limit || 10) + "...";
+const _address = (address, max) => {
+  const limit = max || 10;
+  if (address.length > limit) return address.slice(0, limit) + "...";
   else return address;
 };
 
@@ -52,8 +58,28 @@ const calcDonations = (donation) => {
   return parseFloat(lastDonationAmount);
 };
 
+const filterByDate = (filter, donation) => {
+  switch (filter) {
+    case "day":
+      if (donation.donated_at_ms > yesterday) return true;
+      return false;
+    case "week":
+      if (donation.donated_at_ms > lastWeek) return true;
+      return false;
+    case "month":
+      if (donation.donated_at_ms > lastMonth) return true;
+      return false;
+    case "all":
+      return true;
+
+    default:
+      return true;
+  }
+};
+
 return {
   getTimePassed,
+  filterByDate,
   _address,
   reverseArr,
   calcDonations,
