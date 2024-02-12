@@ -519,7 +519,7 @@ return (
           <>
             <ModalTitle>
               Enter matching pool contribution amount in NEAR
-              {min_matching_pool_donation_amount === "1"
+              {["0", "1"].includes(min_matching_pool_donation_amount)
                 ? "(no minimum)"
                 : `(Min. ${props.yoctosToNear(min_matching_pool_donation_amount)})`}
             </ModalTitle>
