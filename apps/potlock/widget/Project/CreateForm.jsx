@@ -287,7 +287,7 @@ State.init({
   daoAddressTemp: "", // used while input is focused
   daoAddress: "", // set on input blur
   daoAddressError: "",
-  // existingSocialData: {},
+  existingSocialData: {},
   backgroundImage: {
     ipfs_cid: DEFAULT_BANNER_IMAGE_CID,
   },
@@ -429,8 +429,10 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
+// console.log("state: ", state);
+
 const setSocialData = (accountId, shouldSetTeamMembers) => {
-  Near.asyncView("social.near", "get", { keys: [`${accountId}/profile/**`] })
+  Near.asyncView("social.near", "get", { keys: [`${accountId}/**`] })
     .then((socialData) => {
       // console.log("socialData: ", socialData);
       if (!socialData || !socialData[accountId].profile) {
@@ -452,16 +454,11 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const backgroundImage = profileData.backgroundImage;
       const profileImage = profileData.image || "";
       const description = profileData.description || "";
-      const publicGoodReason = profileData.potlockPublicGoodReason || "";
+      const publicGoodReason = profileData.plPublicGoodReason || "";
       let categories = [];
-      if (profileData.potlockCategories) {
-        // if (typeof profileData.potlockCategories === "object") {
-        categories = Object.keys(profileData.potlockCategories);
-        // } else {
-        //   categories = JSON.parse(profileData.potlockCategories);
-        // }
+      if (profileData.plCategories) {
+        categories = JSON.parse(profileData.plCategories);
       } else if (profileData.category) {
-        // console.log("profileData.category: ", profileData.category);
         // old/deprecated version
         if (typeof profileData.category == "string") {
           const availableCategory =
@@ -471,8 +468,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
           }
         }
       }
-      const smartContracts = profileData.potlockSmartContracts
-        ? Object.entries(profileData.potlockSmartContracts).reduce(
+      const smartContracts = profileData.plSmartContracts
+        ? Object.entries(JSON.parse(profileData.plSmartContracts)).reduce(
             (accumulator, [chain, contracts]) => {
               // Iterate over each contract address in the current chain
               const contractsForChain = Object.keys(contracts).map((contractAddress) => {
@@ -485,22 +482,13 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
           )
         : [];
       const hasSmartContracts = smartContracts.length > 0;
-      smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
-      const githubRepos = profileData.potlockGithubRepos
-        ? // ? typeof profileData.potlockGithubRepos === "object"
-          Object.keys(profileData.potlockGithubRepos)
-            .filter((key) => obj[key] === "")
-            .map((key) => [key])
-        : // : JSON.parse(profileData.potlockGithubRepos)
-          [];
+      const githubRepos = profileData.plGithubRepos
+        ? JSON.parse(profileData.plGithubRepos).map((repo) => [repo])
+        : [];
       const originalGithubRepos = githubRepos;
-      githubRepos.push([""]); // Add an empty entry for the user to add a new repo (if they want to add one)
-
-      const fundingSources = profileData.potlockFundingSources
-        ? // ? typeof profileData.potlockFundingSources === "object"
-          Object.values(profileData.potlockFundingSources).filter((val) => val)
-        : // : JSON.parse(profileData.potlockFundingSources)
-          [];
+      const fundingSources = profileData.plFundingSources
+        ? JSON.parse(profileData.plFundingSources)
+        : [];
       const hasReceivedFunding = fundingSources.length > 0;
 
       const linktree = profileData.linktree || {};
@@ -511,7 +499,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const team = profileData.team || {};
       // update state
       const stateUpdates = {
-        // existingSocialData: socialData[accountId],
+        existingSocialData: socialData[accountId],
         backgroundImage,
         profileImage,
         name: profileData?.name || "",
@@ -586,6 +574,38 @@ const isCreateProjectDisabled =
   !state.categories.length ||
   state.categoriesError;
 
+const deepObjectDiff = (objOriginal, objUpdated) => {
+  if (!objUpdated) objUpdated = {};
+  let diff = {};
+
+  function findDiff(original, updated, diffObj) {
+    Object.keys(updated).forEach((key) => {
+      const updatedValue = updated[key];
+      const originalValue = original ? original[key] : undefined;
+
+      // If both values are objects, recurse.
+      if (
+        typeof updatedValue === "object" &&
+        updatedValue !== null &&
+        (originalValue === undefined ||
+          (typeof originalValue === "object" && originalValue !== null))
+      ) {
+        const nestedDiff = originalValue ? findDiff(originalValue, updatedValue, {}) : updatedValue;
+        if (Object.keys(nestedDiff).length > 0) {
+          diffObj[key] = nestedDiff;
+        }
+      } else if (updatedValue !== originalValue) {
+        // Direct comparison for string values.
+        diffObj[key] = updatedValue;
+      }
+    });
+
+    return diffObj;
+  }
+
+  return findDiff(objOriginal, objUpdated, diff);
+};
+
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
   const daoAddressValid = state.isDao ? props.validateNearAddress(state.daoAddress) : true;
@@ -595,18 +615,6 @@ const handleCreateOrUpdateProject = (e) => {
     });
     return;
   }
-
-  // format categories
-  const formattedCategories = state.categories.reduce((acc, cur) => {
-    acc[cur] = "";
-    return acc;
-  }, {});
-  // if the user removed a category, we need to remove it from the formattedCategories by setting its value to null
-  state.originalCategories.forEach((category) => {
-    if (!formattedCategories.hasOwnProperty(category)) {
-      formattedCategories[category] = null;
-    }
-  });
 
   // format smart contracts
   const formattedSmartContracts = state.smartContracts.reduce(
@@ -621,112 +629,79 @@ const handleCreateOrUpdateProject = (e) => {
     },
     {}
   );
-  // if the user removed a smart contract, we need to remove it from the smartContracts by setting its value to null
-  state.originalSmartContracts.forEach(([chain, contractAddress]) => {
-    if (
-      chain &&
-      contractAddress &&
-      !formattedSmartContracts[chain]?.hasOwnProperty(contractAddress)
-    ) {
-      formattedSmartContracts[chain][contractAddress] = null;
-    }
-  });
 
-  // format github repos
-  // const formattedGithubRepos = JSON.stringify(state.githubRepos);
-  const formattedGithubRepos = state.githubRepos.reduce((acc, cur) => {
-    if (cur[0]) {
-      acc[cur[0]] = "";
-    }
-    return acc;
-  }, {});
-  // if the user removed a github repo, we need to remove it from the formattedGithubRepos by setting its value to null
-  // console.log("state.originalGithubRepos: ", state.originalGithubRepos);
-  // const reposToRemove = state.originalGithubRepos.filter(
-  //   (repo) => !formattedGithubRepos.includes(repo)
-  // );
-  state.originalGithubRepos.forEach((repo) => {
-    if (repo[0] && !formattedGithubRepos.hasOwnProperty(repo)) {
-      formattedGithubRepos[repo] = null;
-    }
-  });
-
-  // format funding (stringify)
-  // const formattedFundingSources = JSON.stringify(state.fundingSources);
-  const formattedFundingSources = state.fundingSources.reduce(
-    (accumulator, currentObject, index) => {
-      accumulator[index] = currentObject; // Set the current index as the key and the current object as the value
-      return accumulator;
+  const socialData = {
+    // basic profile details
+    profile: {
+      name: state.name,
+      plCategories: JSON.stringify(state.categories),
+      description: state.description,
+      plPublicGoodReason: state.publicGoodReason,
+      plSmartContracts: state.hasSmartContracts ? JSON.stringify(formattedSmartContracts) : null,
+      plGithubRepos: JSON.stringify(state.githubRepos.map((repo) => repo[0])),
+      plFundingSources: JSON.stringify(state.fundingSources),
+      linktree: {
+        website: state.website,
+        twitter: state.twitter,
+        telegram: state.telegram,
+        github: state.github,
+      },
+      team: state.teamMembers.reduce(
+        (acc, tm) => ({ ...acc, [tm.accountId]: tm.remove ? null : "" }),
+        {}
+      ),
     },
-    {}
-  );
-
-  const socialArgs = {
-    data: {
-      [accountId]: {
-        // basic profile details
-        profile: {
-          name: state.name,
-          potlockCategories: formattedCategories,
-          description: state.description,
-          potlockPublicGoodReason: state.publicGoodReason,
-          potlockSmartContracts: state.hasSmartContracts ? formattedSmartContracts : null,
-          potlockGithubRepos: formattedGithubRepos,
-          potlockFundingSources: formattedFundingSources,
-          linktree: {
-            website: state.website,
-            twitter: state.twitter,
-            telegram: state.telegram,
-            github: state.github,
-          },
-          team: state.teamMembers.reduce(
-            (acc, tm) => ({ ...acc, [tm.accountId]: tm.remove ? null : "" }),
-            {}
-          ),
+    // follow & star Potlock
+    index: {
+      star: {
+        key: {
+          type: "social",
+          path: `${ownerId}/widget/Index`,
         },
-        // follow & star Potlock
-        index: {
-          star: {
-            key: {
-              type: "social",
-              path: `${ownerId}/widget/Index`,
-            },
-            value: {
-              type: "star",
-            },
-          },
-          notify: {
-            key: ownerId,
-            value: {
-              type: "star",
-              item: {
-                type: "social",
-                path: `${ownerId}/widget/Index`,
-              },
-            },
-          },
+        value: {
+          type: "star",
         },
-        graph: {
-          star: {
-            [ownerId]: {
-              widget: {
-                Index: "",
-              },
-            },
-          },
-          follow: {
-            [ownerId]: "",
+      },
+      notify: {
+        key: ownerId,
+        value: {
+          type: "star",
+          item: {
+            type: "social",
+            path: `${ownerId}/widget/Index`,
           },
         },
       },
     },
+    graph: {
+      star: {
+        [ownerId]: {
+          widget: {
+            Index: "",
+          },
+        },
+      },
+      follow: {
+        [ownerId]: "",
+      },
+    },
   };
+
   if (state.backgroundImage) {
-    socialArgs.data[accountId].profile.backgroundImage = state.backgroundImage;
+    socialData.profile.backgroundImage = state.backgroundImage;
   }
   if (state.profileImage) {
-    socialArgs.data[accountId].profile.image = state.profileImage;
+    socialData.profile.image = state.profileImage;
   }
+
+  const diff = deepObjectDiff(state.existingSocialData, socialData);
+
+  const socialArgs = {
+    data: {
+      [accountId]: diff,
+    },
+  };
+
   const potlockRegistryArgs = {};
   const horizonArgs = { account_id: state.isDao ? state.daoAddress : context.accountId };
 
