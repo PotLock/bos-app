@@ -398,6 +398,19 @@ const props = {
     }
     return href;
   },
+  yoctosToUsdWithFallback: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  },
+  yoctosToUsd: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : null;
+  },
+  yoctosToNear: (amountYoctos) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  },
   formatDate: (timestamp) => {
     const months = [
       "Jan",

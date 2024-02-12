@@ -6,7 +6,7 @@ const getButtonBackground = () => {
     return "#dd3345";
   } else if (props.type === "secondary") {
     // TODO: handle disabled
-    return "#FCE9D5";
+    return "#FEF6EE";
   } else if (props.type === "tertiary") {
     return "white";
   }
