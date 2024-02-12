@@ -125,6 +125,10 @@ if (state.potDetail === null) {
 const noPot = state.potDetail === undefined;
 const loading = state.potDetail === null;
 
+if (loading) return "Loading...";
+
+if (noPot) return "No pot found";
+
 // these will be passed down to child components
 props.navOptions = [
   {
@@ -158,7 +162,7 @@ props.navOptions = [
   {
     label: "Payouts",
     id: "payouts",
-    disabled: false,
+    disabled: !state.potDetail.payouts.length,
     source: `${ownerId}/widget/Pots.Payouts`,
     href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=payouts`),
   },
@@ -208,10 +212,6 @@ const handleSendApplication = () => {
     });
   }, pollIntervalMs);
 };
-
-if (loading) return "Loading...";
-
-if (noPot) return "No pot found";
 
 return (
   <Wrapper>
