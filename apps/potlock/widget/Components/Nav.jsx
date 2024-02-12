@@ -337,6 +337,7 @@ const tabOptions = [
     link: "pots",
     disabled: false,
   },
+  { text: "Donors", link: "donors", disabled: false },
   // { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
 ];
 
