@@ -103,7 +103,7 @@ return (
                   accountId: donor_id,
                   children: (
                     <a
-                      href={"https://near.org/near/widget/ProfilePage?accountId=" + donor_id}
+                      href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + donor_id}
                       className="address"
                       target="_blank"
                     >
@@ -123,7 +123,9 @@ return (
                   accountId: recipient_id,
                   children: (
                     <a
-                      href={"https://near.org/near/widget/ProfilePage?accountId=" + recipient_id}
+                      href={
+                        "https://app.potlock.org/near/widget/ProfilePage?accountId=" + recipient_id
+                      }
                       className="address"
                       target="_blank"
                     >
