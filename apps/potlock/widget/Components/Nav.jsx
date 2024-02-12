@@ -337,6 +337,7 @@ const tabOptions = [
     link: "pots",
     disabled: props.env !== "staging" && !props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId),
   },
+  { text: "Donors", link: "donors", disabled: false },
   // { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
 ];
 
