@@ -4,6 +4,7 @@ const { calcDonations, reverseArr } = VM.require(`${ownerId}/widget/Components.D
 const [totalDonations, setDonations] = useState([]);
 const [index, setIndex] = useState(0);
 const [page, setPage] = useState(0);
+const [currentTab, setTab] = useState("Leaderboard");
 
 const perPage = 30; // need to be less than 50
 
@@ -51,25 +52,10 @@ const uniqueDonations = donations.reduce((accumulator, currentDonation) => {
 const sortedDonations = uniqueDonations.sort((a, b) => b.amount - a.amount);
 
 const Container = styled.div`
-  --primary-color: #9f1239;
-  .donations {
-    display: flex;
-    flex-direction: column;
-    .header {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 0;
-      gap: 1rem;
-      background: var(--primary-color);
-      color: white;
-      margin-bottom: 1rem;
-      div {
-        text-align: center;
-      }
-    }
-  }
+  --primary-color: #dd3345;
+  display: flex;
+  flex-direction: column;
+
   .leaderboard {
     width: 100%;
     h1 {
@@ -102,6 +88,46 @@ const Container = styled.div`
           width: 100%;
         }
       }
+    }
+  }
+`;
+
+const Transactions = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: scroll;
+  .header {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    gap: 1rem;
+    background: var(--primary-color);
+    color: white;
+    margin-bottom: 1rem;
+    min-width: 600px;
+    div {
+      text-align: center;
+    }
+  }
+`;
+const Tabs = styled.div`
+  display: flex;
+  gap: 2rem;
+  font-size: 14px;
+  color: rgb(123, 123, 123);
+  margin-bottom: 2rem;
+  div {
+    transition: all 300ms;
+    cursor: pointer;
+    font-weight: 500;
+    :hover {
+      color: black;
+    }
+    &.active {
+      color: black;
     }
   }
 `;
@@ -148,33 +174,61 @@ const leaderboard = [
   },
 ];
 
-console.log(reverseArr(donations).slice(page * perPage, (page + 1) * perPage));
+const tabs = ["Leaderboard", "Transactions"];
 
 return (
   <Container>
-    <div className="donations">
-      <div className="leaderboard">
-        <h1>Donors Leaderboard</h1>
-        <div className="cards">
-          {leaderboard.map((donation) => (
-            <Widget
-              key={donation.id}
-              src={`${ownerId}/widget/Components.DonorsCard`}
-              props={{ donation, ownerId }}
-            />
-          ))}
+    <div className="leaderboard">
+      <h1>Donors Leaderboard</h1>
+      <div className="cards">
+        {leaderboard.map((donation) => (
+          <Widget
+            key={donation.id}
+            src={`${ownerId}/widget/Components.DonorsCard`}
+            props={{ donation, ownerId }}
+          />
+        ))}
+      </div>
+    </div>
+    <Tabs>
+      {tabs.map((tab) => (
+        <div key={tab} className={currentTab === tab && "active"} onClick={() => setTab(tab)}>
+          {tab}
         </div>
-      </div>
-      <div className="header">
-        <div>ID</div>
-        <div>Donor ID</div>
-        <div>Amount</div>
-        <div>Project ID</div>
-        <div>Date</div>
-      </div>
-      {reverseArr(donations)
-        .slice(page * perPage, (page + 1) * perPage)
-        .map((donation) => {
+      ))}
+    </Tabs>
+    {currentTab === "Transactions" && (
+      <Transactions>
+        <div className="header">
+          <div>ID</div>
+          <div>Donor ID</div>
+          <div>Amount</div>
+          <div>Project ID</div>
+          <div>Date</div>
+        </div>
+        {reverseArr(donations)
+          .slice(page * perPage, (page + 1) * perPage)
+          .map((donation) => {
+            return (
+              <Widget
+                key={donation.id}
+                src={`${ownerId}/widget/Components.DonorsRow`}
+                props={{ donation, ownerId }}
+              />
+            );
+          })}
+      </Transactions>
+    )}
+    {currentTab === "Leaderboard" && (
+      <Transactions>
+        <div className="header">
+          <div>Rank</div>
+          <div>Name</div>
+          <div>Amount</div>
+          <div>Amount (USD)</div>
+          <div>Percentage Share</div>
+        </div>
+        {setDonations.slice(page * perPage, (page + 1) * perPage).map((donation) => {
           return (
             <Widget
               key={donation.id}
@@ -183,7 +237,8 @@ return (
             />
           );
         })}
-    </div>
+      </Transactions>
+    )}
     <Widget
       src="baam25.near/widget/pagination"
       props={{

@@ -1,5 +1,5 @@
 const { donation, ownerId } = props;
-const nearToUsd = props.nearToUsd || 1;
+const nearToUsd = props.nearToUsd || 2.9;
 
 const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 

@@ -16,6 +16,7 @@ const Container = styled.div`
   gap: 1rem;
   padding: 1rem 0;
   border-bottom: 1px solid #0000003e;
+  min-width: 600px;
   &:last-of-type {
     border-bottom-color: transparent;
   }
