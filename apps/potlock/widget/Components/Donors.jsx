@@ -139,9 +139,9 @@ const rank3 = Social.getr(`${sortedDonations[2].donor_id}/profile`);
 
 if (rank1 === null || rank2 === null || rank3 === null) return <Loading />;
 
-console.log("rank1", rank1);
-console.log("rank2", rank2);
-console.log("rank3", rank3);
+// console.log("rank1", rank1);
+// console.log("rank2", rank2);
+// console.log("rank3", rank3);
 
 const leaderboard = [
   {
