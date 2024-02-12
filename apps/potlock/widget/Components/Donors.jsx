@@ -11,13 +11,20 @@ const perPage = 30;
 
 const limit = 100;
 
+const LoadingWrapper = styled.div`
+  font-size: 1.5rem;
+  margin-top: 1rem;
+`;
+
+const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
+
 // Get all Donations
 const donationsPart = Near.view("donate.potlock.near", "get_donations", {
   from_index: limit * index,
   limit: limit,
 });
 
-if (donationsPart === null) return "loading...";
+if (donationsPart === null) return <Loading />;
 
 if (
   donationsPart.length === limit &&
@@ -25,7 +32,7 @@ if (
 ) {
   setIndex(index + 1);
   setDonations([...totalDonations, ...donationsPart]);
-  return "loading...";
+  return <Loading />;
 }
 let donations = [...totalDonations];
 
@@ -130,7 +137,7 @@ const rank1 = Social.getr(`${sortedDonations[0].donor_id}/profile`);
 const rank2 = Social.getr(`${sortedDonations[1].donor_id}/profile`);
 const rank3 = Social.getr(`${sortedDonations[2].donor_id}/profile`);
 
-if (rank1 === null || rank2 === null || rank3 === null) return "loading...";
+if (rank1 === null || rank2 === null || rank3 === null) return <Loading />;
 
 console.log("rank1", rank1);
 console.log("rank2", rank2);
