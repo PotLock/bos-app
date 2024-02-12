@@ -468,7 +468,7 @@ return (
             handleRemoveAccount: handleRemoveAdmin,
           }}
         />
-        {userIsOwner && (
+        {(!isUpdate || userIsOwner) && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
@@ -494,7 +494,7 @@ return (
               });
             },
             error: state.nameError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
         <Widget
@@ -514,7 +514,7 @@ return (
               });
             },
             error: state.descriptionError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
         <Row>
@@ -537,7 +537,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -559,7 +559,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -598,7 +598,7 @@ return (
                 });
               },
               error: state.applicationStartDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -622,7 +622,7 @@ return (
                 });
               },
               error: state.applicationEndDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -666,7 +666,7 @@ return (
                 State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
               },
               error: state.matchingRoundEndDateError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -684,7 +684,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.referrerFeeMatchingPoolPercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -708,7 +708,7 @@ return (
                 State.update({ chefError: valid ? "" : "Invalid NEAR account ID" });
               },
               error: state.chefError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
@@ -730,7 +730,7 @@ return (
                 // **CALLED ON BLUR**
               },
               error: state.chefFeePercentError,
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
         </Row>
@@ -753,7 +753,7 @@ return (
               State.update({ maxProjectsError: valid ? "" : `Maximum ${MAX_MAX_PROJECTS}` });
             },
             error: state.maxProjectsError,
-            disabled: !isAdminOrGreater,
+            disabled: isUpdate ? !isAdminOrGreater : false,
           }}
         />
       </FormSectionRightDiv>
@@ -772,7 +772,7 @@ return (
                   usePotlockRegistry: e.target.checked,
                 });
               },
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
@@ -793,7 +793,7 @@ return (
                   useNadabotSybil: e.target.checked,
                 });
               },
-              disabled: !isAdminOrGreater,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
