@@ -287,6 +287,7 @@ State.init({
   daoAddressTemp: "", // used while input is focused
   daoAddress: "", // set on input blur
   daoAddressError: "",
+  // existingSocialData: {},
   backgroundImage: {
     ipfs_cid: DEFAULT_BANNER_IMAGE_CID,
   },
@@ -454,7 +455,11 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const publicGoodReason = profileData.potlockPublicGoodReason || "";
       let categories = [];
       if (profileData.potlockCategories) {
+        // if (typeof profileData.potlockCategories === "object") {
         categories = Object.keys(profileData.potlockCategories);
+        // } else {
+        //   categories = JSON.parse(profileData.potlockCategories);
+        // }
       } else if (profileData.category) {
         // console.log("profileData.category: ", profileData.category);
         // old/deprecated version
@@ -482,15 +487,20 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const hasSmartContracts = smartContracts.length > 0;
       smartContracts.push(["", ""]); // Add an empty entry for the user to add a new contract (if they want to add one)
       const githubRepos = profileData.potlockGithubRepos
-        ? Object.keys(profileData.potlockGithubRepos)
+        ? // ? typeof profileData.potlockGithubRepos === "object"
+          Object.keys(profileData.potlockGithubRepos)
             .filter((key) => obj[key] === "")
             .map((key) => [key])
-        : [];
+        : // : JSON.parse(profileData.potlockGithubRepos)
+          [];
+      const originalGithubRepos = githubRepos;
       githubRepos.push([""]); // Add an empty entry for the user to add a new repo (if they want to add one)
 
       const fundingSources = profileData.potlockFundingSources
-        ? Object.values(profileData.potlockFundingSources)
-        : [];
+        ? // ? typeof profileData.potlockFundingSources === "object"
+          Object.values(profileData.potlockFundingSources).filter((val) => val)
+        : // : JSON.parse(profileData.potlockFundingSources)
+          [];
       const hasReceivedFunding = fundingSources.length > 0;
 
       const linktree = profileData.linktree || {};
@@ -501,6 +511,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const team = profileData.team || {};
       // update state
       const stateUpdates = {
+        // existingSocialData: socialData[accountId],
         backgroundImage,
         profileImage,
         name: profileData?.name || "",
@@ -511,7 +522,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         hasSmartContracts,
         originalSmartContracts: smartContracts,
         smartContracts,
-        originalGithubRepos: githubRepos,
+        originalGithubRepos,
         githubRepos,
         hasReceivedFunding,
         originalFundingSources: fundingSources,
@@ -622,13 +633,20 @@ const handleCreateOrUpdateProject = (e) => {
   });
 
   // format github repos
+  // const formattedGithubRepos = JSON.stringify(state.githubRepos);
   const formattedGithubRepos = state.githubRepos.reduce((acc, cur) => {
-    acc[cur[0]] = "";
+    if (cur[0]) {
+      acc[cur[0]] = "";
+    }
     return acc;
   }, {});
   // if the user removed a github repo, we need to remove it from the formattedGithubRepos by setting its value to null
+  // console.log("state.originalGithubRepos: ", state.originalGithubRepos);
+  // const reposToRemove = state.originalGithubRepos.filter(
+  //   (repo) => !formattedGithubRepos.includes(repo)
+  // );
   state.originalGithubRepos.forEach((repo) => {
-    if (repo && !formattedGithubRepos.hasOwnProperty(repo)) {
+    if (repo[0] && !formattedGithubRepos.hasOwnProperty(repo)) {
       formattedGithubRepos[repo] = null;
     }
   });
