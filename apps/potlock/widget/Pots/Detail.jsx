@@ -1,4 +1,9 @@
-const { potId, ownerId, doesUserHaveDaoFunctionCallProposalPermissions } = props;
+const {
+  potId,
+  ownerId,
+  doesUserHaveDaoFunctionCallProposalPermissions,
+  SUPPORTED_FTS: { NEAR },
+} = props;
 
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
@@ -175,7 +180,7 @@ const handleSendApplication = () => {
   const args = {
     message: state.applicationMessage,
   };
-  const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
+  const deposit = NEAR.toIndivisible("0.01");
   const transactions = [
     {
       contractName: potId,
