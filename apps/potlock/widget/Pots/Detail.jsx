@@ -207,7 +207,7 @@ const handleSendApplication = () => {
         methodName: "add_proposal",
         args: {
           proposal: {
-            description: `Application to PotLock pot: ${state.potDetail.name} (${potId})`,
+            description: `Application to PotLock pot: ${state.potDetail.pot_name} (${potId})`,
             kind: {
               FunctionCall: {
                 receiver_id: tx.contractName,
