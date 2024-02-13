@@ -303,9 +303,9 @@ State.init({
   publicGoodReasonError: "",
   hasSmartContracts: false,
   originalSmartContracts: [], // to keep track of removals
-  smartContracts: [],
+  smartContracts: [["", ""]], // [chain, contractAddress]
   originalGithubRepos: [], // to keep track of removals
-  githubRepos: [],
+  githubRepos: [[""]],
   hasReceivedFunding: false,
   fundingSourceIndex: null,
   originalFundingSources: [], // to keep track of removals
@@ -331,7 +331,7 @@ State.init({
   alertMessage: "",
 });
 
-// console.log("state in create form: ", state);
+console.log("state in create form: ", state);
 
 const CATEGORY_MAPPINGS = {
   SOCIAL_IMPACT: "Social Impact",
@@ -434,7 +434,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 const setSocialData = (accountId, shouldSetTeamMembers) => {
   Near.asyncView("social.near", "get", { keys: [`${accountId}/**`] })
     .then((socialData) => {
-      // console.log("socialData: ", socialData);
+      console.log("socialData: ", socialData);
       if (!socialData || !socialData[accountId].profile) {
         State.update({
           socialDataFetched: true,
@@ -1528,7 +1528,10 @@ return (
                 props={{
                   type: "tertiary",
                   text: "Add funding source",
-                  disabled: !state.smartContracts[state.smartContracts.length - 1],
+                  disabled: state.fundingSources.some(
+                    (fs) =>
+                      !fs.investorName || !fs.amountReceived || !fs.denomination || !fs.description
+                  ),
                   onClick: () => {
                     // add new funding source obj & set index
                     const updatedFundingSources = [
