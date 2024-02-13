@@ -184,10 +184,6 @@ const protocolConfigContractId = protocol_config_provider.split(":")[0];
 const protocolConfigViewMethodName = protocol_config_provider.split(":")[1];
 const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
 
-const minmatchingPoolDonationAmountNear = props.SUPPORTED_FTS[
-  base_currency.toUpperCase()
-].fromIndivisible(min_matching_pool_donation_amount);
-
 const now = Date.now();
 const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
@@ -237,6 +233,7 @@ const handleMatchingPoolDonation = () => {
     message: state.matchingPoolDonationMessage,
     matching_pool: true,
     referrer_id: referrerId || null,
+    bypass_protocol_fee: state.bypassProtocolFee,
   };
   // const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
   const amountFloat = parseFloat(matchingPoolDonationAmountNear || 0);
@@ -524,9 +521,9 @@ return (
           <>
             <ModalTitle>
               Enter matching pool contribution amount in NEAR
-              {min_matching_pool_donation_amount === "1"
+              {["0", "1"].includes(min_matching_pool_donation_amount)
                 ? "(no minimum)"
-                : `(Min. ${totalMatchingPoolAmount} ${base_currency.toUpperCase()})`}
+                : `(Min. ${props.yoctosToNear(min_matching_pool_donation_amount)})`}
             </ModalTitle>
             <Widget
               src={`${ownerId}/widget/Inputs.Text`}

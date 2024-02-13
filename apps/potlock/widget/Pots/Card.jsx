@@ -73,13 +73,13 @@ const {
   pot_description,
   base_currency,
   public_donations_count,
-  total_public_donations,
+  matching_pool_balance,
   application_start_ms,
   application_end_ms,
   public_round_start_ms,
   public_round_end_ms,
 } = potConfig;
-//console.log("potConfig", potConfig);
+console.log("potConfig", potConfig);
 
 // const totalAmount =
 //   props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_public_donations);
@@ -104,8 +104,8 @@ const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_m
 // const publicRoundOpen = true;
 const publicRoundClosed = now >= public_round_end_ms;
 
-const amountNear = yoctosToNear(total_public_donations);
-const amountUsd = yoctosToUsd(total_public_donations);
+const amountNear = yoctosToNear(matching_pool_balance);
+const amountUsd = yoctosToUsd(matching_pool_balance);
 
 return (
   <Card href={props.hrefWithEnv(`?tab=pot&potId=${potId}`)}>
@@ -119,7 +119,7 @@ return (
         {amountUsd && (
           <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
         )}
-        <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>Matched</span>
+        <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>Matching Pool</span>
       </Title>
       {/* Application tag */}
       {applicationOpen && (

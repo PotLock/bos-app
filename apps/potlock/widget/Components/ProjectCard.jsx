@@ -1,4 +1,4 @@
-const { id, review_notes, status, totalAmount } = props;
+const { id, review_notes, status, totalAmount, getTagsFromSocialProfileData } = props;
 const donationContractId = "donate.potlock.near";
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const cardData = Social.getr(`${id}/profile`);
@@ -173,6 +173,8 @@ if (props.transactionHashes) {
 
 const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${id}`);
 
+const tags = getTagsFromSocialProfileData(cardData);
+
 return (
   <>
     <Card href={projectUrl}>
@@ -200,11 +202,9 @@ return (
             : cardData.description}
         </CardDescription>
         <CardTagContainer>
-          <CardTag>
-            {cardData && typeof cardData?.category === "object"
-              ? getCategory(cardData.category.value)
-              : getCategory(cardData.category)}
-          </CardTag>
+          {tags.map((tag) => (
+            <CardTag key={tag}>{tag}</CardTag>
+          ))}
         </CardTagContainer>
       </CardBody>
       <CardFooter>
