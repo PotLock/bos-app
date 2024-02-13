@@ -1,5 +1,5 @@
 const { ownerId } = props;
-const { name, description } = props.profile;
+const { name, description, plPublicGoodReason } = props.profile;
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +44,17 @@ const About = () => (
   />
 );
 
+const PublicGoodReason = () => (
+  <Widget
+    src={`${ownerId}/widget/Project.AboutItem`}
+    props={{
+      ...props,
+      title: "Public Good Reason",
+      text: plPublicGoodReason || "None provided",
+    }}
+  />
+);
+
 const Team = () => (
   <Widget
     src={`${ownerId}/widget/Project.Team`}
@@ -61,6 +72,7 @@ return (
       <DonationsInfo />
     </HeaderContainer>
     <About />
+    <PublicGoodReason />
     <Team />
   </Container>
 );
