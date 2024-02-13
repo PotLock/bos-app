@@ -184,7 +184,7 @@ const handleUpdateStatus = () => {
   ]);
 };
 
-console.log("props.project: ", props.project);
+// console.log("props.project: ", props.project);
 
 return (
   <BodyContainer>

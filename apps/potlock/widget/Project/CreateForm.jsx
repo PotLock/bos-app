@@ -873,7 +873,6 @@ const handleAddTeamMember = () => {
         console.log("error getting social data: ", e);
       })
       .finally(() => {
-        console.log("full team member: ", fullTeamMember);
         State.update({
           teamMembers: [...state.teamMembers, fullTeamMember],
           teamMember: "",
@@ -929,7 +928,7 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-console.log("state.funding sources: ", state.fundingSources);
+// console.log("state.funding sources: ", state.fundingSources);
 
 return (
   <Container>
@@ -1041,7 +1040,6 @@ return (
                       accountIds: state.teamMembers
                         .filter((teamMember) => !teamMember.remove)
                         .map((tm) => {
-                          console.log("tm: ", tm);
                           return tm.accountId;
                         }),
                       sendToBack: state.isModalOpen,
@@ -1680,11 +1678,11 @@ return (
             isModalOpen: state.fundingSourceIndex !== null,
             onClose: () => {
               // remove any funding sources with all empty values
-              console.log("state.fundingSources line 1660: ", state.fundingSources);
+              // console.log("state.fundingSources line 1660: ", state.fundingSources);
               const updatedFundingSources = state.fundingSources.filter(
                 (fs) => fs.investorName && fs.amountReceived && fs.denomination && fs.description
               );
-              console.log("updatedFundingSources: ", updatedFundingSources);
+              // console.log("updatedFundingSources: ", updatedFundingSources);
               State.update({
                 fundingSources: updatedFundingSources,
                 fundingSourceIndex: null,

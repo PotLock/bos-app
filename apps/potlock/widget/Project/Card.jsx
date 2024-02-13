@@ -83,7 +83,7 @@ const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
-console.log("project profile: ", projectProfile);
+// console.log("project profile: ", projectProfile);
 
 const MAX_DESCRIPTION_LENGTH = 80;
 

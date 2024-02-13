@@ -74,44 +74,29 @@ const Row = styled.div`
 
 State.init({
   potDetail: null,
-  canApply: null,
+  // canApply: null,
   isApplicationModalOpen: false,
   applicationMessage: "",
   applicationMessageError: "",
   applicationSuccess: false,
   sybilRequirementMet: null,
+  isDAO: false,
+  daoAddress: "",
+  daoAddressError: "",
+  isOnRegistry: false,
 });
 
 if (state.potDetail === null) {
   Near.asyncView(potId, "get_config", {})
     .then((potDetail) => {
-      // check for registration requirement
-      // potDetail.registryProvider = "registry.potlock.near:is_registered"; // TODO: REMOVE THIS
-      if (potDetail.registryProvider) {
-        const [registryId, registryMethod] = potDetail.registryProvider.split(":");
-        if (registryId && registryMethod) {
-          Near.asyncView(registryId, registryMethod, { account_id: context.accountId })
-            .then((canApply) => {
-              State.update({ canApply, potDetail });
-            })
-            .catch((e) => {
-              console.log("error getting registry: ", e);
-              State.update({ potDetail, canApply: true });
-            });
-        } else {
-          State.update({ potDetail, canApply: true });
-        }
-      } else {
-        State.update({ potDetail, canApply: true });
-      }
       if (potDetail.sybil_wrapper_provider) {
         const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
         Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((result) => {
-          console.log("sybil result: ", result);
-          State.update({ sybilRequirementMet: result });
+          // console.log("sybil result: ", result);
+          State.update({ potDetail, sybilRequirementMet: result });
         });
       } else {
-        State.update({ sybilRequirementMet: true });
+        State.update({ potDetail, sybilRequirementMet: true });
       }
     })
     .catch((e) => {
@@ -213,11 +198,28 @@ const handleSendApplication = () => {
   }, pollIntervalMs);
 };
 
+const verifyIsOnRegistry = (address) => {
+  const { registry_provider } = state.potDetail;
+  if (registry_provider) {
+    const [registryId, registryMethod] = registry_provider.split(":");
+    if (registryId && registryMethod) {
+      Near.asyncView(registryId, registryMethod, { account_id: address })
+        .then((isOnRegistry) => {
+          State.update({ isOnRegistry });
+        })
+        .catch((e) => {
+          console.log("error getting registry: ", e);
+        });
+    }
+  }
+};
+
+const registryRequirementMet = state.isOnRegistry || !state.potDetail.registry_provider;
+
+const isError = state.applicationMessageError || state.daoAddressError;
+
 return (
   <Wrapper>
-    {/* {!registeredProject ? (
-      <div style={{ textAlign: "center", paddingTop: "12px" }}>Project not found</div>
-    ) : ( */}
     <>
       <Widget
         src={`${ownerId}/widget/Pots.Header`}
@@ -291,13 +293,64 @@ return (
                 error: state.applicationMessageError,
               }}
             />
+            <Row style={{ margin: "12px 0px" }}>
+              <Widget
+                src={`${ownerId}/widget/Inputs.Checkbox`}
+                props={{
+                  id: "isDaoSelector",
+                  checked: state.isDAO,
+                  onClick: (e) => {
+                    State.update({
+                      isDAO: e.target.checked,
+                    });
+                    if (!e.target.checked) {
+                      // check current account ID against registry
+                      verifyIsOnRegistry(context.accountId);
+                    }
+                  },
+                  label: "I'm applying as a DAO",
+                }}
+              />
+            </Row>
+            {state.isDAO && (
+              <Widget
+                src={`${ownerId}/widget/Inputs.Text`}
+                props={{
+                  label: "DAO address *",
+                  placeholder: "E.g. mydao.sputnikdao.near",
+                  value: state.daoAddress,
+                  onChange: (daoAddress) => State.update({ daoAddress, daoAddressError: "" }),
+                  validate: () => {
+                    // **CALLED ON BLUR**
+                    Near.asyncView(state.daoAddress, "get_policy", {})
+                      .then((policy) => {
+                        State.update({
+                          daoAddressError: policy ? "" : "Invalid DAO address",
+                        });
+                        // check registry
+                        verifyIsOnRegistry(state.daoAddress);
+                      })
+                      .catch((e) => {
+                        State.update({
+                          daoAddressError: "Invalid DAO address",
+                        });
+                      });
+                  },
+                  error: state.daoAddressError,
+                  disabled: isUpdate ? !isAdminOrGreater : false,
+                }}
+              />
+            )}
             <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
               <Widget
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: "Send application",
-                  onClick: handleSendApplication,
+                  text: registryRequirementMet ? "Send application" : "Register to apply",
+                  onClick: registryRequirementMet ? handleSendApplication : null,
+                  disabled: isError,
+                  href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
+                  target: registryRequirementMet ? "_self" : "_blank",
                 }}
               />
             </Row>
