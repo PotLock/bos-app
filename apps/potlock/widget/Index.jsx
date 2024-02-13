@@ -97,7 +97,7 @@ if (!state.nearToUsd) {
   } else if (nearUsdCache) {
     // valid cache value
     console.log("using cached near to usd rate");
-    State.update({ nearToUsd: nearUsdCache });
+    State.update({ nearToUsd: nearUsdCache.rate });
   }
 }
 
