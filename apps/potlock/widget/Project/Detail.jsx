@@ -15,7 +15,6 @@ if (project == undefined) {
 const name = profile.name || "No-name profile";
 const image = profile.image;
 const backgroundImage = profile.backgroundImage;
-const tags = Object.keys(profile.tags ?? {});
 
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
