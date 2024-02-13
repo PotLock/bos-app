@@ -392,7 +392,7 @@ const props = {
     // Convert time difference from milliseconds to days
     const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
     return differenceInDays === 0
-      ? "Just now"
+      ? "< 1 day ago"
       : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
   daysUntil: (timestamp) => {
