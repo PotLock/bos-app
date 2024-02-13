@@ -481,11 +481,15 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             []
           )
         : [];
+      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
       const hasSmartContracts = smartContracts.length > 0;
+
       const githubRepos = profileData.plGithubRepos
         ? JSON.parse(profileData.plGithubRepos).map((repo) => [repo])
         : [];
       const originalGithubRepos = githubRepos;
+      githubRepos.push([""]); // Add an empty string to the end of the array to allow for adding new repos
+
       const fundingSources = profileData.plFundingSources
         ? JSON.parse(profileData.plFundingSources)
         : [];
@@ -619,6 +623,7 @@ const handleCreateOrUpdateProject = (e) => {
   // format smart contracts
   const formattedSmartContracts = state.smartContracts.reduce(
     (accumulator, [chain, contractAddress]) => {
+      if (!chain || !contractAddress) return accumulator; // Skip empty entries
       // If the chain doesn't exist in the accumulator, initialize it with an empty object
       if (!accumulator[chain]) {
         accumulator[chain] = {};
@@ -638,7 +643,7 @@ const handleCreateOrUpdateProject = (e) => {
       description: state.description,
       plPublicGoodReason: state.publicGoodReason,
       plSmartContracts: state.hasSmartContracts ? JSON.stringify(formattedSmartContracts) : null,
-      plGithubRepos: JSON.stringify(state.githubRepos.map((repo) => repo[0])),
+      plGithubRepos: JSON.stringify(state.githubRepos.map((repo) => repo[0]).filter((val) => val)),
       plFundingSources: JSON.stringify(state.fundingSources),
       linktree: {
         website: state.website,
