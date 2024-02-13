@@ -1,8 +1,6 @@
-const { donation, ownerId } = props;
+const { donation, ownerId, nearToUsd } = props;
 const { id, rank, className, donor_id, amount, profile } = donation;
 const { name, backgroundImage, description } = profile;
-
-const nearToUsd = props.nearToUsd || 1;
 
 const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 

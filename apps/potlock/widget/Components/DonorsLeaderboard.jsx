@@ -1,5 +1,4 @@
-const { ownerId, donations } = props;
-const nearToUsd = props.nearToUsd || 1;
+const { ownerId, donations, nearToUsd } = props;
 
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50

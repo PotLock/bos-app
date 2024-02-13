@@ -74,14 +74,31 @@ State.init({
   // isSybilModalOpen: false,
 });
 
+const NEAR_USD_CACHE_KEY = "NEAR_USD";
+const nearUsdCache = Storage.get(NEAR_USD_CACHE_KEY);
+const EXCHANGE_RATE_VALIDITY_MS = 1000 * 60 * 60; // 1 hour
+
 if (!state.nearToUsd) {
-  asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
-    (res) => {
-      if (res.ok) {
-        State.update({ nearToUsd: res.body.near.usd });
+  if (
+    nearUsdCache === undefined ||
+    (nearUsdCache && nearUsdCache.ts < Date.now() - EXCHANGE_RATE_VALIDITY_MS)
+  ) {
+    // undefined means it's not in the cache
+    // this case handles the first time fetching the rate, and also if the rate is expired
+    console.log("fetching near to usd rate");
+    asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
+      (res) => {
+        if (res.ok) {
+          State.update({ nearToUsd: res.body.near.usd });
+          Storage.set(NEAR_USD_CACHE_KEY, { rate: res.body.near.usd, ts: Date.now() });
+        }
       }
-    }
-  );
+    );
+  } else if (nearUsdCache) {
+    // valid cache value
+    console.log("using cached near to usd rate");
+    State.update({ nearToUsd: nearUsdCache });
+  }
 }
 
 // console.log("state in Index: ", state);
@@ -348,8 +365,8 @@ const props = {
       ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
       : null;
   },
-  yoctosToNear: (amountYoctos) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  yoctosToNear: (amountYoctos, abbreviate) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : "NEAR");
   },
   formatDate: (timestamp) => {
     const months = [
