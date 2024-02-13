@@ -1,4 +1,4 @@
-const { ownerId, potId, potDetail, NADA_BOT_URL } = props;
+const { ownerId, potId, potDetail, NADA_BOT_URL, getTagsFromSocialProfileData } = props;
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
@@ -83,16 +83,15 @@ const projectId = props.project.id || props.projectId || context.accountId;
 const projectProfile = Social.getr(`${projectId}/profile`);
 
 if (!projectProfile) return "";
-console.log("project profile: ", projectProfile);
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
-const { name, description, category } = projectProfile;
+const { name, description, plCategories } = projectProfile;
 // const name = projectProfile?.name || "No name";
 // const description = projectProfile?.description || "No description";
 // const category = projectProfile?.category || "No category";
 
-const tags = [category.text ?? props.CATEGORY_MAPPINGS[category] ?? ""];
+const tags = getTagsFromSocialProfileData(projectProfile);
 
 const donationsForProject = Near.view(
   potId || donationContractId,
