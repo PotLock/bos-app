@@ -1,6 +1,11 @@
-const { potId, ownerId } = props;
+const { potId, ownerId, doesUserHaveDaoFunctionCallProposalPermissions } = props;
 
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
+
+Big.PE = 100;
+const FIFTY_TGAS = "50000000000000";
+const THREE_HUNDRED_TGAS = "300000000000000";
+const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 // const registeredProject = projects.find(
 //   (project) => project.id == props.projectId && project.status == "Approved"
@@ -80,9 +85,10 @@ State.init({
   applicationMessageError: "",
   applicationSuccess: false,
   sybilRequirementMet: null,
-  isDAO: false,
+  isDao: false,
   daoAddress: "",
   daoAddressError: "",
+  daoPolicy: null,
   isOnRegistry: false,
 });
 
@@ -179,6 +185,38 @@ const handleSendApplication = () => {
       gas: props.ONE_TGAS.mul(100),
     },
   ];
+
+  // if it is a DAO, we need to convert transactions to DAO function call proposals
+  if (state.isDao) {
+    const clonedTransactions = JSON.parse(JSON.stringify(transactions));
+    transactions = clonedTransactions.map((tx) => {
+      const action = {
+        method_name: tx.methodName,
+        gas: FIFTY_TGAS,
+        deposit: tx.deposit ? tx.deposit.toString() : "0",
+        args: Buffer.from(JSON.stringify(tx.args), "utf-8").toString("base64"),
+      };
+      return {
+        ...tx,
+        contractName: state.daoAddress,
+        methodName: "add_proposal",
+        args: {
+          proposal: {
+            description: `Application to PotLock pot: ${state.potDetail.name} (${potId})`,
+            kind: {
+              FunctionCall: {
+                receiver_id: tx.contractName,
+                actions: [action],
+              },
+            },
+          },
+        },
+        deposit: state.daoPolicy.proposal_bond || MIN_PROPOSAL_DEPOSIT_FALLBACK,
+        gas: THREE_HUNDRED_TGAS,
+      };
+    });
+  }
+
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <---- EXTENSION WALLET HANDLING ---->
@@ -188,7 +226,8 @@ const handleSendApplication = () => {
   const pollId = setInterval(() => {
     Near.asyncView(potId, "get_applications", {}).then((applications) => {
       const application = applications.find(
-        (application) => application.project_id === context.accountId
+        (application) =>
+          application.project_id === (state.isDao ? state.daoAddress : context.accountId)
       );
       if (application) {
         clearInterval(pollId);
@@ -298,10 +337,10 @@ return (
                 src={`${ownerId}/widget/Inputs.Checkbox`}
                 props={{
                   id: "isDaoSelector",
-                  checked: state.isDAO,
+                  checked: state.isDao,
                   onClick: (e) => {
                     State.update({
-                      isDAO: e.target.checked,
+                      isDao: e.target.checked,
                     });
                     if (!e.target.checked) {
                       // check current account ID against registry
@@ -312,7 +351,7 @@ return (
                 }}
               />
             </Row>
-            {state.isDAO && (
+            {state.isDao && (
               <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
@@ -324,8 +363,14 @@ return (
                     // **CALLED ON BLUR**
                     Near.asyncView(state.daoAddress, "get_policy", {})
                       .then((policy) => {
+                        const hasPermissions = !policy
+                          ? false
+                          : doesUserHaveDaoFunctionCallProposalPermissions(policy);
                         State.update({
-                          daoAddressError: policy ? "" : "Invalid DAO address",
+                          daoAddressError: hasPermissions
+                            ? ""
+                            : "You don't have required permissions to submit proposals to this DAO.",
+                          daoPolicy: policy,
                         });
                         // check registry
                         verifyIsOnRegistry(state.daoAddress);
@@ -346,7 +391,11 @@ return (
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: registryRequirementMet ? "Send application" : "Register to apply",
+                  text: registryRequirementMet
+                    ? state.isDao
+                      ? "Propose to Send Application"
+                      : "Send application"
+                    : "Register to apply",
                   onClick: registryRequirementMet ? handleSendApplication : null,
                   disabled: isError,
                   href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),

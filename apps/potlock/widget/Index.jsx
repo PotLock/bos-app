@@ -429,6 +429,25 @@ const props = {
       : [];
     return tags;
   },
+  doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
+    // TODO: break this out (NB: duplicated in Project.CreateForm)
+    const userRoles = policy.roles.filter((role) => {
+      if (role.kind === "Everyone") return true;
+      return role.kind.Group && role.kind.Group.includes(context.accountId);
+    });
+    const kind = "call";
+    const action = "AddProposal";
+    // Check if the user is allowed to perform the action
+    const allowed = userRoles.some(({ permissions }) => {
+      return (
+        permissions.includes(`${kind}:${action}`) ||
+        permissions.includes(`${kind}:*`) ||
+        permissions.includes(`*:${action}`) ||
+        permissions.includes("*:*")
+      );
+    });
+    return allowed;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
