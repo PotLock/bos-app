@@ -392,7 +392,7 @@ const props = {
     // Convert time difference from milliseconds to days
     const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
     return differenceInDays === 0
-      ? "Just now"
+      ? "< 1 day ago"
       : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
   daysUntil: (timestamp) => {
@@ -428,6 +428,25 @@ const props = {
       ? [profileData.category.text ?? DEPRECATED_CATEGORY_MAPPINGS[profileData.category] ?? ""]
       : [];
     return tags;
+  },
+  doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
+    // TODO: break this out (NB: duplicated in Project.CreateForm)
+    const userRoles = policy.roles.filter((role) => {
+      if (role.kind === "Everyone") return true;
+      return role.kind.Group && role.kind.Group.includes(context.accountId);
+    });
+    const kind = "call";
+    const action = "AddProposal";
+    // Check if the user is allowed to perform the action
+    const allowed = userRoles.some(({ permissions }) => {
+      return (
+        permissions.includes(`${kind}:${action}`) ||
+        permissions.includes(`${kind}:*`) ||
+        permissions.includes(`*:${action}`) ||
+        permissions.includes("*:*")
+      );
+    });
+    return allowed;
   },
 };
 

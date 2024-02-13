@@ -1,7 +1,7 @@
 const { ownerId } = props;
 const existsInCart = props.cart && !!props.cart[props.projectId];
 
-console.log("props in AddToCart: ", props);
+// console.log("props in AddToCart: ", props);
 // console.log("existsInCart: ", props);
 return (
   <Widget

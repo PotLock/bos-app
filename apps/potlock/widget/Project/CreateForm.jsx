@@ -4,6 +4,7 @@ const {
   validateNearAddress,
   validateEVMAddress,
   validateGithubRepoUrl,
+  doesUserHaveDaoFunctionCallProposalPermissions,
 } = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
@@ -11,7 +12,7 @@ const SOCIAL_CONTRACT_ID = "social.near";
 Big.PE = 100;
 const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
-const MIN_PROPOSAL_DEPOSIT = "100000000000000000000000"; // 0.1N
+const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
@@ -392,23 +393,7 @@ const policy = Near.view(accountId, "get_policy", {});
 
 const userHasPermissions = useMemo(() => {
   if (!policy) return true;
-  // TODO: break this out (NB: duplicated in Project.CreateForm)
-  const userRoles = policy.roles.filter((role) => {
-    if (role.kind === "Everyone") return true;
-    return role.kind.Group && role.kind.Group.includes(context.accountId);
-  });
-  const kind = "call";
-  const action = "AddProposal";
-  // Check if the user is allowed to perform the action
-  const allowed = userRoles.some(({ permissions }) => {
-    return (
-      permissions.includes(`${kind}:${action}`) ||
-      permissions.includes(`${kind}:*`) ||
-      permissions.includes(`*:${action}`) ||
-      permissions.includes("*:*")
-    );
-  });
-  return allowed;
+  return doesUserHaveDaoFunctionCallProposalPermissions(policy);
 }, [policy]);
 
 const getImageUrlFromSocialImage = (image) => {
@@ -778,7 +763,7 @@ const handleCreateOrUpdateProject = (e) => {
               },
             },
           },
-          deposit: policy.proposal_bond || MIN_PROPOSAL_DEPOSIT,
+          deposit: policy.proposal_bond || MIN_PROPOSAL_DEPOSIT_FALLBACK,
           gas: THREE_HUNDRED_TGAS,
         };
       });
@@ -871,7 +856,6 @@ const handleAddTeamMember = () => {
         console.log("error getting social data: ", e);
       })
       .finally(() => {
-        console.log("full team member: ", fullTeamMember);
         State.update({
           teamMembers: [...state.teamMembers, fullTeamMember],
           teamMember: "",
@@ -927,7 +911,7 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-console.log("state.funding sources: ", state.fundingSources);
+// console.log("state.funding sources: ", state.fundingSources);
 
 return (
   <Container>
@@ -1039,7 +1023,6 @@ return (
                       accountIds: state.teamMembers
                         .filter((teamMember) => !teamMember.remove)
                         .map((tm) => {
-                          console.log("tm: ", tm);
                           return tm.accountId;
                         }),
                       sendToBack: state.isModalOpen,
@@ -1681,41 +1664,16 @@ return (
             isModalOpen: state.fundingSourceIndex !== null,
             onClose: () => {
               // remove any funding sources with all empty values
-              console.log("state.fundingSources line 1660: ", state.fundingSources);
+              // console.log("state.fundingSources line 1660: ", state.fundingSources);
               const updatedFundingSources = state.fundingSources.filter(
                 (fs) => fs.investorName && fs.amountReceived && fs.denomination && fs.description
               );
-              console.log("updatedFundingSources: ", updatedFundingSources);
+              // console.log("updatedFundingSources: ", updatedFundingSources);
               State.update({
                 fundingSources: updatedFundingSources,
                 fundingSourceIndex: null,
               });
             },
-            // investorName,
-            // setInvestorName,
-            // investorNameError,
-            // setInvestorNameError,
-            // description,
-            // setDescription,
-            // descriptionError,
-            // setDescriptionError,
-            // amountDenomination,
-            // setAmountDenomination,
-            // amountDenominationError,
-            // setAmountDenominationError,
-            // amountReceived,
-            // setAmountReceived,
-            // amountReceivedError,
-            // setAmountReceivedError,
-            // handleAddFundingSource,
-            // investorName: state.fundingSources[state.fundingSourceIndex]?.investorName,
-            // description: state.fundingSources[state.fundingSourceIndex]?.description,
-            // amountDenomination: state.fundingSources[state.fundingSourceIndex]?.denomination,
-            // amountDenominationError:
-            //   state.fundingSources[state.fundingSourceIndex]?.denominationError,
-            // amountReceived: state.fundingSources[state.fundingSourceIndex]?.amountReceived,
-            // amountReceivedError:
-            //   state.fundingSources[state.fundingSourceIndex]?.amountReceivedError,
             fundingSources: state.fundingSources,
             fundingSourceIndex: state.fundingSourceIndex,
             handleAddFundingSource: ({
