@@ -13,6 +13,7 @@ const POTS_TAB = "pots";
 const DEPLOY_POT_TAB = "deploypot";
 const POT_DETAIL_TAB = "pot";
 const DONORS_TAB = "donors";
+const PROFILE_TAB = "profile";
 
 const Theme = styled.div`
   position: relative;
@@ -171,6 +172,7 @@ const tabContentWidget = {
   [DEPLOY_POT_TAB]: "Pots.Deploy",
   [POT_DETAIL_TAB]: "Pots.Detail",
   [DONORS_TAB]: "Components.Donors",
+  [PROFILE_TAB]: "Components.ProfilePage",
 };
 
 const getTabWidget = (tab) => {

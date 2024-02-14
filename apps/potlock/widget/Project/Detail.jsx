@@ -11,6 +11,13 @@ if (!profile || project == null) {
 if (project == undefined) {
   return "Project not found";
 }
+const donations = Near.view("donate.potlock.near", "get_donations_for_recipient", {
+  recipient_id: projectId,
+});
+console.log("donations", donations);
+
+props.donations = donations;
+props.showProject = false;
 
 const name = profile.name || "No-name profile";
 const image = profile.image;
@@ -51,6 +58,7 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 1;
+  --primary-color: #dd3345;
 `;
 
 const Banner = styled.div`
@@ -112,6 +120,13 @@ props.navOptions = [
     disabled: false,
     source: `${ownerId}/widget/Project.Feed`,
     href: props.hrefWithEnv(`?tab=project&projectId=${projectId}&nav=feed`),
+  },
+  {
+    label: "Donations",
+    id: "donations",
+    disabled: false,
+    source: `${ownerId}/widget/Components.DonorsTrx`,
+    href: props.hrefWithEnv(`?tab=project&projectId=${projectId}&nav=donations`),
   },
   {
     label: "Pots",

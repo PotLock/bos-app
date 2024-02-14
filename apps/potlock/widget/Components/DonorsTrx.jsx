@@ -1,6 +1,9 @@
 const { ownerId, donations } = props;
+const showDonor = props.showDonor !== undefined ? props.showDonor : true;
+const showProject = props.showProject !== undefined ? props.showProject : true;
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
+console.log(donations);
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
@@ -84,9 +87,9 @@ return (
     <div className="transcation">
       <div className="header">
         <div>ID</div>
-        <div>Donor ID</div>
+        {showDonor && <div>Donor ID</div>}
         <div>Amount</div>
-        <div>Project ID</div>
+        {showProject && <div>Project ID</div>}
         <div>Date</div>
       </div>
       {reverseArr(donations)
@@ -97,43 +100,45 @@ return (
           return (
             <TrRow>
               <div>{id}</div>
-              <Widget
-                src="near/widget/AccountProfileOverlay"
-                props={{
-                  accountId: donor_id,
-                  children: (
-                    <a
-                      href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + donor_id}
-                      className="address"
-                      target="_blank"
-                    >
-                      {_address(donor_id)}{" "}
-                    </a>
-                  ),
-                }}
-              />
+              {showDonor && (
+                <Widget
+                  src="near/widget/AccountProfileOverlay"
+                  props={{
+                    accountId: donor_id,
+                    children: (
+                      <a
+                        href={`/${ownerId}/widget/Index?tab=profile&accountId=${donor_id}`}
+                        className="address"
+                        target="_blank"
+                      >
+                        {_address(donor_id)}{" "}
+                      </a>
+                    ),
+                  }}
+                />
+              )}
               <div className="price">
                 {calcDonations(donation).toFixed(2)}
 
                 <img src={nearLogo} alt="NEAR" />
               </div>
-              <Widget
-                src="near/widget/AccountProfileOverlay"
-                props={{
-                  accountId: recipient_id,
-                  children: (
-                    <a
-                      href={
-                        "https://app.potlock.org/near/widget/ProfilePage?accountId=" + recipient_id
-                      }
-                      className="address"
-                      target="_blank"
-                    >
-                      {_address(recipient_id)}
-                    </a>
-                  ),
-                }}
-              />
+              {showProject && (
+                <Widget
+                  src="near/widget/AccountProfileOverlay"
+                  props={{
+                    accountId: recipient_id,
+                    children: (
+                      <a
+                        href={`/${ownerId}/widget/Index?tab=project&projectId=` + recipient_id}
+                        className="address"
+                        target="_blank"
+                      >
+                        {_address(recipient_id)}
+                      </a>
+                    ),
+                  }}
+                />
+              )}
               <div>{getTimePassed(donated_at_ms)} ago</div>
             </TrRow>
           );

@@ -1,5 +1,5 @@
 const accountId = props.accountId;
-
+const ownerId = props.ownerId;
 if (!accountId) {
   return "";
 }
@@ -17,14 +17,13 @@ const followers = Social.keys(`*/graph/follow/${accountId}`, "final", {
 const numFollowing = following ? Object.keys(following[accountId].graph.follow || {}).length : null;
 const numFollowers = followers ? Object.keys(followers || {}).length : null;
 
+const profileLink = `/${ownerId}/widget/Index?tab=profile&accountId=${accountId}`;
+
 return (
   <div>
     <div className="d-flex flex-row">
       <div className="me-4">
-        <a
-          href={`#/mob.near/widget/FollowPage?accountId=${accountId}&tab=following`}
-          className="text-dark"
-        >
+        <a href={`${profileLink}&nav=following`} className="text-dark">
           <span style={{ fontWeight: 500 }} className="me-2">
             Following
           </span>
@@ -32,10 +31,7 @@ return (
         </a>
       </div>
       <div>
-        <a
-          href={`#/mob.near/widget/FollowPage?accountId=${accountId}&tab=followers`}
-          className="text-dark"
-        >
+        <a href={`${profileLink}&nav=followers`} className="text-dark">
           <span style={{ fontWeight: 500 }} className="me-2">
             Follower{numFollowers !== 1 && "s"}
           </span>

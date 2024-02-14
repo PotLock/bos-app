@@ -1,3 +1,5 @@
+const showDonate = props.showDonate !== undefined ? props.showDonate : true;
+
 const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [isModalDonationSucessOpen, setIsModalDonationSucessOpen] = useState(false);
 
@@ -91,35 +93,37 @@ return (
     <SubRow1>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}
-        props={{ accountId: props.projectId }}
+        props={{ ...props, accountId: props.projectId }}
       />
       <Widget
         src={`${ownerId}/widget/Project.FollowButton`}
         props={{ accountId: props.projectId }}
       />
     </SubRow1>
-    <SubRow2>
-      <DonationButton
-        onClick={(e) => {
-          e.preventDefault();
-          setIsModalDonationOpen(true);
-        }}
-      >
-        Donate
-      </DonationButton>
-      <Widget
-        src={`${props.ownerId}/widget/Components.ModalDonation`}
-        props={{
-          ...props,
-          transactionHashes: props.transactionHashes,
-          ownerId: props.ownerId,
-          projectId: props.projectId,
-          isModalDonationOpen: isModalDonationOpen,
-          isModalDonationSucessOpen: isModalDonationSucessOpen,
-          onClose: () => setIsModalDonationOpen(false),
-        }}
-      />
-      {/* <Widget src={`${ownerId}/widget/Cart.AddToCart`} props={{ ...props, showModal: true }} /> */}
-    </SubRow2>
+    {showDonate && (
+      <SubRow2>
+        <DonationButton
+          onClick={(e) => {
+            e.preventDefault();
+            setIsModalDonationOpen(true);
+          }}
+        >
+          Donate
+        </DonationButton>
+        <Widget
+          src={`${props.ownerId}/widget/Components.ModalDonation`}
+          props={{
+            ...props,
+            transactionHashes: props.transactionHashes,
+            ownerId: props.ownerId,
+            projectId: props.projectId,
+            isModalDonationOpen: isModalDonationOpen,
+            isModalDonationSucessOpen: isModalDonationSucessOpen,
+            onClose: () => setIsModalDonationOpen(false),
+          }}
+        />
+        {/* <Widget src={`${ownerId}/widget/Cart.AddToCart`} props={{ ...props, showModal: true }} /> */}
+      </SubRow2>
+    )}
   </Container>
 );

@@ -9,7 +9,7 @@ const [filter, setFilter] = useState("");
 
 const perPage = 30;
 
-const limit = 100;
+const limit = 500;
 
 const LoadingWrapper = styled.div`
   font-size: 1.5rem;
