@@ -27,7 +27,7 @@ const BreakdownSummary = styled.div`
   cursor: pointer;
 `;
 
-const BreakdownSummaryRight = styled.div`
+const Header = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -129,12 +129,12 @@ return (
     style={props.containerStyle || {}}
     onClick={() => State.update({ showBreakdown: !state.showBreakdown })}
   >
-    <BreakdownSummaryRight>
+    <Header style={props.headerStyle || {}}>
       <BreakdownTitle style={{ fontSize: "14px", lineHeight: "16px" }}>
         {state.showBreakdown ? "Hide" : "Show"} breakdown
       </BreakdownTitle>
       <ChevronIcon src={state.showBreakdown ? CHEVRON_UP_URL : CHEVRON_DOWN_URL} />
-    </BreakdownSummaryRight>
+    </Header>
     {state.showBreakdown && (
       <BreakdownDetails>
         {!bypassProtocolFee && (

@@ -78,6 +78,7 @@ State.init({
     potId: null,
     potDetail: null,
   },
+  donationSuccessModalIsOpen: props.tab === PROJECTS_LIST_TAB && props.transactionHashes,
 });
 
 const NEAR_USD_CACHE_KEY = "NEAR_USD";
@@ -319,7 +320,7 @@ const props = {
   SUPPORTED_FTS: {
     // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
-      iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
+      iconUrl: IPFS_BASE_URL + "bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
       fromIndivisible: (amount, decimals) =>
         Big(amount)
@@ -484,6 +485,7 @@ const props = {
   basisPointsToPercent: (basisPoints) => {
     return basisPoints / 100;
   },
+  IPFS_BASE_URL: "https://nftstorage.link/ipfs/",
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
@@ -591,6 +593,17 @@ return (
         recipientId: state.donateToProjectModal.recipientId,
         referrerId: state.donateToProjectModal.referrerId,
         potId: state.donateToProjectModal.potId,
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+      props={{
+        ...props,
+        isModalOpen: state.donationSuccessModalIsOpen,
+        onClose: () =>
+          State.update({
+            donationSuccessModalIsOpen: false,
+          }),
       }}
     />
   </Theme>
