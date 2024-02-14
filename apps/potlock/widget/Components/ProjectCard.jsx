@@ -142,10 +142,7 @@ const ButtonGroup = styled.div`
   gap: 10px;
   align-items: center;
 `;
-State.init({
-  isModalDonationOpen: false,
-  isModalDonationSucessOpen: false,
-});
+
 const getCategory = (category) => {
   switch (category) {
     case "social-impact":
@@ -166,10 +163,6 @@ const getCategory = (category) => {
       return "Education";
   }
 };
-if (props.transactionHashes) {
-  State.update({ isModalDonationOpen: false });
-  state.isModalDonationSucessOpen = true;
-}
 
 const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${id}`);
 
@@ -237,7 +230,7 @@ return (
           <DonationButton
             onClick={(e) => {
               e.preventDefault();
-              State.update({ isModalDonationOpen: true });
+              props.openDonateToProjectModal(props.id);
             }}
           >
             Donate
@@ -245,17 +238,5 @@ return (
         </ButtonGroup>
       </CardFooter>
     </Card>
-    <Widget
-      src={`${props.ownerId}/widget/Components.ModalDonation`}
-      props={{
-        ...props,
-        transactionHashes: props.transactionHashes,
-        ownerId: props.ownerId,
-        projectId: props.id,
-        isModalDonationOpen: state.isModalDonationOpen,
-        isModalDonationSucessOpen: state.isModalDonationSucessOpen,
-        onClose: () => State.update({ isModalDonationOpen: false }),
-      }}
-    />
   </>
 );

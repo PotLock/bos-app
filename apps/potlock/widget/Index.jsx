@@ -54,7 +54,6 @@ const Theme = styled.div`
 const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
 State.init({
-  registeredProjects: null,
   cart: null,
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
@@ -72,6 +71,13 @@ State.init({
   referrerId: null,
   currency: null,
   // isSybilModalOpen: false,
+  donateToProjectModal: {
+    isOpen: false,
+    recipientId: null,
+    referrerId: null,
+    potId: null,
+    potDetail: null,
+  },
 });
 
 const NEAR_USD_CACHE_KEY = "NEAR_USD";
@@ -470,6 +476,14 @@ const props = {
     });
     return allowed;
   },
+  openDonateToProjectModal: (recipientId, referrerId, potId, potDetail) => {
+    State.update({
+      donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
+    });
+  },
+  basisPointsToPercent: (basisPoints) => {
+    return basisPoints / 100;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
@@ -559,13 +573,25 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
-    {/* <Widget
-      src={`${ownerId}/widget/Pots.ModalSybil`}
+    <Widget
+      src={`${ownerId}/widget/Project.ModalDonation`}
       props={{
         ...props,
-        isModalOpen: state.isSybilModalOpen,
-        onClose: () => State.update({ isSybilModalOpen: false }),
+        isModalOpen: state.donateToProjectModal.isOpen,
+        onClose: () =>
+          State.update({
+            donateToProjectModal: {
+              isOpen: false,
+              recipientId: null,
+              referrerId: null,
+              potId: null,
+              potDetail: null,
+            },
+          }),
+        recipientId: state.donateToProjectModal.recipientId,
+        referrerId: state.donateToProjectModal.referrerId,
+        potId: state.donateToProjectModal.potId,
       }}
-    /> */}
+    />
   </Theme>
 );

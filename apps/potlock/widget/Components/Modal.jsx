@@ -10,6 +10,7 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   // padding-top: 30vh;
+  z-index: 1000;
 `;
 
 const ModalContent = styled.div`

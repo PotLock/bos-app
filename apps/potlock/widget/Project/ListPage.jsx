@@ -123,6 +123,11 @@ const [totalDonations, totalDonors] = useMemo(() => {
   return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
 }, [props.donations]);
 
+const handleDonateRandomly = (e) => {
+  e.preventDefault();
+  props.openDonateToProjectModal();
+};
+
 return (
   <>
     <HeroContainer>
@@ -144,17 +149,18 @@ return (
             background:
               "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
           },
-          // buttonPrimary: (
-          //   <Widget
-          //     src={`${ownerId}/widget/Components.Button`}
-          //     props={{
-          //       type: "primary",
-          //       text: "Explore projects",
-          //       disabled: false,
-          //       style: { padding: "16px 24px" },
-          //     }}
-          //   />
-          // ),
+          buttonPrimary: (
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: "primary",
+                text: "Donate Randomly",
+                disabled: false,
+                style: { padding: "16px 24px" },
+                onClick: handleDonateRandomly,
+              }}
+            />
+          ),
           buttonSecondary: (
             <Widget
               src={`${ownerId}/widget/Components.Button`}
