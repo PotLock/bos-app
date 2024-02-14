@@ -3,6 +3,7 @@ const {
   REGISTRY_CONTRACT_ID,
   userIsRegistryAdmin,
   SUPPORTED_FTS: { NEAR },
+  getTagsFromSocialProfileData,
 } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -13,8 +14,7 @@ if (!profile) return "Loading...";
 
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
-// const tags = Object.keys(profile.tags ?? {});
-const tags = [profile.category.text ?? props.CATEGORY_MAPPINGS[profile.category] ?? ""];
+const tags = getTagsFromSocialProfileData(profile);
 
 const BodyContainer = styled.div`
   display: flex;
@@ -184,7 +184,7 @@ const handleUpdateStatus = () => {
   ]);
 };
 
-console.log("props.project: ", props.project);
+// console.log("props.project: ", props.project);
 
 return (
   <BodyContainer>

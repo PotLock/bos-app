@@ -1,8 +1,5 @@
-const { donation, ownerId } = props;
-const { id, rank, className, donor_id, amount, profile } = donation;
-const { name, backgroundImage, description } = profile;
-
-const nearToUsd = props.nearToUsd || 1;
+const { donor, ownerId, nearToUsdWithFallback } = props;
+const { id, rank, className, amount } = donor;
 
 const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 
@@ -53,37 +50,47 @@ const Container = styled.div`
   }
 `;
 
+const profile = Social.getr(`${id}/profile`);
+
 return (
   <div key={donation} className={className || ""}>
     <Container>
-      <Widget
-        src="mob.near/widget/Image"
-        props={{
-          image: backgroundImage,
-          className: "background",
-          alt: name,
-          fallbackUrl:
-            "https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi",
-        }}
-      />
-      <div className="tag">{rank}</div>
-      <Widget
-        src="mob.near/widget/ProfileImage"
-        props={{
-          profile,
-          style: { width: "4rem", height: "4rem" },
-          className: "profile",
-        }}
-      />{" "}
-      <a
-        href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + id}
-        className="name"
-        target="_blank"
-      >
-        {name ? _address(name) : id}
-      </a>
-      <div className="description">{description ? _address(description, 20) : "-"}</div>
-      <div className="amount">${(amount * nearToUsd).toFixed(2)} Donated</div>
+      {profile === null ? (
+        <div class="spinner-border text-secondary" role="status" />
+      ) : (
+        <>
+          <Widget
+            src="mob.near/widget/Image"
+            props={{
+              image: profile.backgroundImage,
+              className: "background",
+              alt: profile.name,
+              fallbackUrl:
+                "https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi",
+            }}
+          />
+          <div className="tag">{rank}</div>
+          <Widget
+            src="mob.near/widget/ProfileImage"
+            props={{
+              profile,
+              style: { width: "4rem", height: "4rem" },
+              className: "profile",
+            }}
+          />{" "}
+          <a
+            href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + id}
+            className="name"
+            target="_blank"
+          >
+            {profile.name ? _address(profile.name) : id}
+          </a>
+          <div className="description">
+            {profile.description ? _address(profile.description, 20) : "-"}
+          </div>
+          <div className="amount">{nearToUsdWithFallback(amount)} Donated</div>
+        </>
+      )}
     </Container>
   </div>
 );

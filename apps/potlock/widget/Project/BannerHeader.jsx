@@ -24,7 +24,6 @@ const name = profile.name || "No-name profile";
 const image = profile.image;
 const backgroundImage = props.backgroundImage || profile.backgroundImage;
 const profileImage = props.profileImage || image;
-const tags = Object.keys(profile.tags ?? {});
 const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};

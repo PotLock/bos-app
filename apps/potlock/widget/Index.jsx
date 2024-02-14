@@ -75,14 +75,31 @@ State.init({
   // isSybilModalOpen: false,
 });
 
+const NEAR_USD_CACHE_KEY = "NEAR_USD";
+const nearUsdCache = Storage.get(NEAR_USD_CACHE_KEY);
+const EXCHANGE_RATE_VALIDITY_MS = 1000 * 60 * 60; // 1 hour
+
 if (!state.nearToUsd) {
-  asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
-    (res) => {
-      if (res.ok) {
-        State.update({ nearToUsd: res.body.near.usd });
+  if (
+    nearUsdCache === undefined ||
+    (nearUsdCache && nearUsdCache.ts < Date.now() - EXCHANGE_RATE_VALIDITY_MS)
+  ) {
+    // undefined means it's not in the cache
+    // this case handles the first time fetching the rate, and also if the rate is expired
+    console.log("fetching near to usd rate");
+    asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
+      (res) => {
+        if (res.ok) {
+          State.update({ nearToUsd: res.body.near.usd });
+          Storage.set(NEAR_USD_CACHE_KEY, { rate: res.body.near.usd, ts: Date.now() });
+        }
       }
-    }
-  );
+    );
+  } else if (nearUsdCache) {
+    // valid cache value
+    console.log("using cached near to usd rate");
+    State.update({ nearToUsd: nearUsdCache.rate });
+  }
 }
 
 // console.log("state in Index: ", state);
@@ -294,16 +311,6 @@ const props = {
       /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
     return githubRepoUrlPattern.test(url);
   },
-  CATEGORY_MAPPINGS: {
-    "social-impact": "Social Impact",
-    "non-profit": "NonProfit",
-    climate: "Climate",
-    "public-good": "Public Good",
-    "de-sci": "DeSci",
-    "open-source": "Open Source",
-    community: "Community",
-    education: "Education",
-  },
   PROJECT_STATUSES: ["Pending", "Approved", "Rejected", "Graylisted", "Blacklisted"],
   SUPPORTED_FTS: {
     // TODO: move this to state to handle selected FT once we support multiple FTs
@@ -324,7 +331,7 @@ const props = {
           .toFixed(decimals || 2),
     },
   },
-  // POT_FACTORY_CONTRACT_ID: "potfactory.staging.potlock.near",
+  DONATION_CONTRACT_ID: donationContractId,
   REGISTRY_CONTRACT_ID: registryContractId,
   POT_FACTORY_CONTRACT_ID:
     props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
@@ -350,6 +357,11 @@ const props = {
     }
     return href;
   },
+  nearToUsdWithFallback: (amountNear) => {
+    return state.nearToUsd
+      ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
+      : amountNear + " NEAR";
+  },
   yoctosToUsdWithFallback: (amountYoctos) => {
     return state.nearToUsd
       ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
@@ -360,8 +372,8 @@ const props = {
       ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
       : null;
   },
-  yoctosToNear: (amountYoctos) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  yoctosToNear: (amountYoctos, abbreviate) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : "NEAR");
   },
   formatDate: (timestamp) => {
     const months = [
@@ -404,7 +416,7 @@ const props = {
     // Convert time difference from milliseconds to days
     const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
     return differenceInDays === 0
-      ? "Just now"
+      ? "< 1 day ago"
       : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
   },
   daysUntil: (timestamp) => {
@@ -421,6 +433,45 @@ const props = {
   // openSybilModal: () => {
   //   State.update({ isSybilModalOpen: true });
   // },
+  getTagsFromSocialProfileData: (profileData) => {
+    // first try to get tags from plCategories, then category (deprecated/old format), then default to empty array
+    if (!profileData) return [];
+    const DEPRECATED_CATEGORY_MAPPINGS = {
+      "social-impact": "Social Impact",
+      "non-profit": "NonProfit",
+      climate: "Climate",
+      "public-good": "Public Good",
+      "de-sci": "DeSci",
+      "open-source": "Open Source",
+      community: "Community",
+      education: "Education",
+    };
+    const tags = profileData.plCategories
+      ? JSON.parse(profileData.plCategories)
+      : profileData.category
+      ? [profileData.category.text ?? DEPRECATED_CATEGORY_MAPPINGS[profileData.category] ?? ""]
+      : [];
+    return tags;
+  },
+  doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
+    // TODO: break this out (NB: duplicated in Project.CreateForm)
+    const userRoles = policy.roles.filter((role) => {
+      if (role.kind === "Everyone") return true;
+      return role.kind.Group && role.kind.Group.includes(context.accountId);
+    });
+    const kind = "call";
+    const action = "AddProposal";
+    // Check if the user is allowed to perform the action
+    const allowed = userRoles.some(({ permissions }) => {
+      return (
+        permissions.includes(`${kind}:${action}`) ||
+        permissions.includes(`${kind}:*`) ||
+        permissions.includes(`*:${action}`) ||
+        permissions.includes("*:*")
+      );
+    });
+    return allowed;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {

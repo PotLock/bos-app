@@ -4,6 +4,7 @@ const {
   validateNearAddress,
   validateEVMAddress,
   validateGithubRepoUrl,
+  doesUserHaveDaoFunctionCallProposalPermissions,
 } = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
@@ -11,7 +12,7 @@ const SOCIAL_CONTRACT_ID = "social.near";
 Big.PE = 100;
 const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
-const MIN_PROPOSAL_DEPOSIT = "100000000000000000000000"; // 0.1N
+const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
@@ -303,9 +304,9 @@ State.init({
   publicGoodReasonError: "",
   hasSmartContracts: false,
   originalSmartContracts: [], // to keep track of removals
-  smartContracts: [],
+  smartContracts: [["", ""]], // [chain, contractAddress]
   originalGithubRepos: [], // to keep track of removals
-  githubRepos: [],
+  githubRepos: [[""]],
   hasReceivedFunding: false,
   fundingSourceIndex: null,
   originalFundingSources: [], // to keep track of removals
@@ -331,7 +332,7 @@ State.init({
   alertMessage: "",
 });
 
-// console.log("state in create form: ", state);
+console.log("state in create form: ", state);
 
 const CATEGORY_MAPPINGS = {
   SOCIAL_IMPACT: "Social Impact",
@@ -392,23 +393,7 @@ const policy = Near.view(accountId, "get_policy", {});
 
 const userHasPermissions = useMemo(() => {
   if (!policy) return true;
-  // TODO: break this out (NB: duplicated in Project.CreateForm)
-  const userRoles = policy.roles.filter((role) => {
-    if (role.kind === "Everyone") return true;
-    return role.kind.Group && role.kind.Group.includes(context.accountId);
-  });
-  const kind = "call";
-  const action = "AddProposal";
-  // Check if the user is allowed to perform the action
-  const allowed = userRoles.some(({ permissions }) => {
-    return (
-      permissions.includes(`${kind}:${action}`) ||
-      permissions.includes(`${kind}:*`) ||
-      permissions.includes(`*:${action}`) ||
-      permissions.includes("*:*")
-    );
-  });
-  return allowed;
+  return doesUserHaveDaoFunctionCallProposalPermissions(policy);
 }, [policy]);
 
 const getImageUrlFromSocialImage = (image) => {
@@ -434,7 +419,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 const setSocialData = (accountId, shouldSetTeamMembers) => {
   Near.asyncView("social.near", "get", { keys: [`${accountId}/**`] })
     .then((socialData) => {
-      // console.log("socialData: ", socialData);
+      console.log("socialData: ", socialData);
       if (!socialData || !socialData[accountId].profile) {
         State.update({
           socialDataFetched: true,
@@ -481,11 +466,15 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             []
           )
         : [];
+      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
       const hasSmartContracts = smartContracts.length > 0;
+
       const githubRepos = profileData.plGithubRepos
         ? JSON.parse(profileData.plGithubRepos).map((repo) => [repo])
         : [];
       const originalGithubRepos = githubRepos;
+      githubRepos.push([""]); // Add an empty string to the end of the array to allow for adding new repos
+
       const fundingSources = profileData.plFundingSources
         ? JSON.parse(profileData.plFundingSources)
         : [];
@@ -619,6 +608,7 @@ const handleCreateOrUpdateProject = (e) => {
   // format smart contracts
   const formattedSmartContracts = state.smartContracts.reduce(
     (accumulator, [chain, contractAddress]) => {
+      if (!chain || !contractAddress) return accumulator; // Skip empty entries
       // If the chain doesn't exist in the accumulator, initialize it with an empty object
       if (!accumulator[chain]) {
         accumulator[chain] = {};
@@ -638,7 +628,7 @@ const handleCreateOrUpdateProject = (e) => {
       description: state.description,
       plPublicGoodReason: state.publicGoodReason,
       plSmartContracts: state.hasSmartContracts ? JSON.stringify(formattedSmartContracts) : null,
-      plGithubRepos: JSON.stringify(state.githubRepos.map((repo) => repo[0])),
+      plGithubRepos: JSON.stringify(state.githubRepos.map((repo) => repo[0]).filter((val) => val)),
       plFundingSources: JSON.stringify(state.fundingSources),
       linktree: {
         website: state.website,
@@ -773,7 +763,7 @@ const handleCreateOrUpdateProject = (e) => {
               },
             },
           },
-          deposit: policy.proposal_bond || MIN_PROPOSAL_DEPOSIT,
+          deposit: policy.proposal_bond || MIN_PROPOSAL_DEPOSIT_FALLBACK,
           gas: THREE_HUNDRED_TGAS,
         };
       });
@@ -866,7 +856,6 @@ const handleAddTeamMember = () => {
         console.log("error getting social data: ", e);
       })
       .finally(() => {
-        console.log("full team member: ", fullTeamMember);
         State.update({
           teamMembers: [...state.teamMembers, fullTeamMember],
           teamMember: "",
@@ -922,7 +911,7 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-console.log("state.funding sources: ", state.fundingSources);
+// console.log("state.funding sources: ", state.fundingSources);
 
 return (
   <Container>
@@ -1034,7 +1023,6 @@ return (
                       accountIds: state.teamMembers
                         .filter((teamMember) => !teamMember.remove)
                         .map((tm) => {
-                          console.log("tm: ", tm);
                           return tm.accountId;
                         }),
                       sendToBack: state.isModalOpen,
@@ -1523,7 +1511,10 @@ return (
                 props={{
                   type: "tertiary",
                   text: "Add funding source",
-                  disabled: !state.smartContracts[state.smartContracts.length - 1],
+                  disabled: state.fundingSources.some(
+                    (fs) =>
+                      !fs.investorName || !fs.amountReceived || !fs.denomination || !fs.description
+                  ),
                   onClick: () => {
                     // add new funding source obj & set index
                     const updatedFundingSources = [
@@ -1673,41 +1664,16 @@ return (
             isModalOpen: state.fundingSourceIndex !== null,
             onClose: () => {
               // remove any funding sources with all empty values
-              console.log("state.fundingSources line 1660: ", state.fundingSources);
+              // console.log("state.fundingSources line 1660: ", state.fundingSources);
               const updatedFundingSources = state.fundingSources.filter(
                 (fs) => fs.investorName && fs.amountReceived && fs.denomination && fs.description
               );
-              console.log("updatedFundingSources: ", updatedFundingSources);
+              // console.log("updatedFundingSources: ", updatedFundingSources);
               State.update({
                 fundingSources: updatedFundingSources,
                 fundingSourceIndex: null,
               });
             },
-            // investorName,
-            // setInvestorName,
-            // investorNameError,
-            // setInvestorNameError,
-            // description,
-            // setDescription,
-            // descriptionError,
-            // setDescriptionError,
-            // amountDenomination,
-            // setAmountDenomination,
-            // amountDenominationError,
-            // setAmountDenominationError,
-            // amountReceived,
-            // setAmountReceived,
-            // amountReceivedError,
-            // setAmountReceivedError,
-            // handleAddFundingSource,
-            // investorName: state.fundingSources[state.fundingSourceIndex]?.investorName,
-            // description: state.fundingSources[state.fundingSourceIndex]?.description,
-            // amountDenomination: state.fundingSources[state.fundingSourceIndex]?.denomination,
-            // amountDenominationError:
-            //   state.fundingSources[state.fundingSourceIndex]?.denominationError,
-            // amountReceived: state.fundingSources[state.fundingSourceIndex]?.amountReceived,
-            // amountReceivedError:
-            //   state.fundingSources[state.fundingSourceIndex]?.amountReceivedError,
             fundingSources: state.fundingSources,
             fundingSourceIndex: state.fundingSourceIndex,
             handleAddFundingSource: ({

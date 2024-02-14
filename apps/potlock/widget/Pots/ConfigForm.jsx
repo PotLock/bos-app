@@ -9,7 +9,7 @@ const {
   SUPPORTED_FTS: { NEAR },
 } = props;
 
-console.log("props in config form: ", props);
+// console.log("props in config form: ", props);
 
 const DEFAULT_REGISTRY_PROVIDER = `${REGISTRY_CONTRACT_ID}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:is_human`;
@@ -283,13 +283,13 @@ const canDeploy = useMemo(() => {
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getPotDetailArgsFromState();
-  console.log("deployArgs: ", deployArgs);
+  // console.log("deployArgs: ", deployArgs);
   // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
 
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
     args: deployArgs,
   }).then((amount) => {
-    console.log("amount: ", amount);
+    // console.log("amount: ", amount);
     const amountYoctos = Big(amount).plus(Big("20000000000000000000000")); // add extra 0.02 NEAR as buffer
     const transactions = [
       {
@@ -325,7 +325,7 @@ const handleDeploy = () => {
 const handleUpdate = () => {
   // create update pot args
   const updateArgs = getPotDetailArgsFromState();
-  console.log("updateArgs: ", updateArgs);
+  // console.log("updateArgs: ", updateArgs);
   const depositFloat = JSON.stringify(updateArgs).length * 0.00003;
   const deposit = Big(depositFloat).mul(Big(10).pow(24));
   const transactions = [
@@ -397,7 +397,7 @@ const handleAddAdmin = () => {
       // imageUrl: profileImageUrl,
     };
     const admins = [...state.admins, newAdmin];
-    console.log("admins: ", admins);
+    // console.log("admins: ", admins);
     State.update({
       admins,
       admin: "",

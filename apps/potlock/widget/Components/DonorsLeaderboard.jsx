@@ -1,5 +1,4 @@
-const { ownerId, donations } = props;
-const nearToUsd = props.nearToUsd || 1;
+const { ownerId, donations, nearToUsd } = props;
 
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
@@ -7,7 +6,7 @@ const perPage = 30; // need to be less than 50
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
 
-const { getTimePassed, _address, calcDonations, reverseArr } = VM.require(
+const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );
 

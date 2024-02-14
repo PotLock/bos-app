@@ -8,7 +8,7 @@ console.log(donations);
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
 
-const { getTimePassed, _address, calcDonations, reverseArr } = VM.require(
+const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );
 
@@ -118,7 +118,7 @@ return (
                 />
               )}
               <div className="price">
-                {calcDonations(donation).toFixed(2)}
+                {calcNetDonationAmount(donation).toFixed(2)}
 
                 <img src={nearLogo} alt="NEAR" />
               </div>

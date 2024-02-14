@@ -149,7 +149,7 @@ State.init({
   matchingPoolDonationMessage: "",
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
-  isOnRegistry: false,
+  // isOnRegistry: false,
 });
 
 // console.log("props in header: ", props);
@@ -203,16 +203,16 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
 
-if (registry_provider) {
-  const [contractId, methodName] = registry_provider.split(":");
-  Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
-    State.update({ isOnRegistry });
-  });
-}
+// if (registry_provider) {
+//   const [contractId, methodName] = registry_provider.split(":");
+//   Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
+//     State.update({ isOnRegistry });
+//   });
+// }
 
 const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
 
-const registryRequirementMet = state.isOnRegistry || !registry_provider;
+// const registryRequirementMet = state.isOnRegistry || !registry_provider;
 
 // const publicRoundOpen = true;
 
@@ -453,10 +453,12 @@ return (
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
-              text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              onClick: registryRequirementMet ? handleApplyToPot : null,
-              href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
-              target: "_self",
+              // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
+              text: "Apply to pot",
+              // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
+              onClick: handleApplyToPot,
+              // href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
+              // target: "_self",
             }}
           />
         )}
