@@ -1,278 +1,185 @@
-const { ownerId, yoctosToNear } = props;
-const donationContractId = "donate.potlock.near";
+const {
+  basisPointsToPercent,
+  referrerId,
+  amountNear,
+  bypassProtocolFee,
+  DONATION_CONTRACT_ID,
+  recipientId,
+} = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-Big.PE = 100;
+const CHEVRON_DOWN_URL =
+  IPFS_BASE_URL + "bafkreiabkwyfxq6pcc2db7u4ldweld5xcjesylfuhocnfz7y3n6jw7dptm";
+const CHEVRON_UP_URL =
+  IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 20px;
-  width: 380px;
-  //   background: white;
-
-  @media screen and (max-width: 768px) {
-    width: 100%;
-    margin-bottom: 50px;
-  }
-`;
-
-const Title = styled.div`
-  color: #2e2e2e;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-  word-wrap: break-word;
-`;
-
-const CurrencyHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  border-radius: 5px;
-  background: #f0f0f0;
-`;
-
-const CurrencyHeaderText = styled.div`
-  color: #7b7b7b;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 14px;
-  word-wrap: break-word;
-`;
-
-const BreakdownItemContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-`;
-
-const BreakdownItemLeft = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 50%;
-  gap: 8px;
-`;
-
-const BreakdownItemRight = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-const BreakdownItemText = styled.div`
-  color: #2e2e2e;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  word-wrap: break-word;
-`;
-
-const CurrencyIcon = styled.img`
+const FtIcon = styled.img`
   width: 20px;
   height: 20px;
 `;
 
-const TotalContainer = styled.div`
+const BreakdownSummary = styled.div`
+  display: flex;
+  flex-direction: column;
+  // justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  // background: pink;
+  width: 100%;
+`;
+
+const BreakdownTitle = styled.div`
+  color: #2e2e2e;
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 600;
+  word-wrap: break-word;
+`;
+
+const ChevronIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+`;
+
+const BreakdownDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 8px;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px #dbdbdb solid;
+  background: #fafafa;
+`;
+
+const BreakdownItem = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
-  border-top: 1px #7b7b7b solid;
+  gap: 16px;
 `;
 
-const TotalText = styled.div`
+const BreakdownItemLeft = styled.div`
+  color: #7b7b7b;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  word-wrap: break-word;
+`;
+
+const BreakdownItemRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  // justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+`;
+
+const BreakdownAmount = styled.div`
   color: #2e2e2e;
   font-size: 14px;
-  font-weight: 600;
   line-height: 20px;
+  font-weight: 500;
   word-wrap: break-word;
 `;
 
-const ErrorText = styled.div`
-  color: #dd3345;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  word-wrap: break-word;
-  width: 100%;
-  text-align: center;
-`;
+State.init({
+  showBreakdown: false,
+});
 
-const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
+const donationContractConfig = Near.view(DONATION_CONTRACT_ID, "get_config", {});
 
-const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
-  const amountsByFt = {};
-  let donationTooSmall = false;
-  Object.entries(props.cart || {}).forEach(([projectId, { ft, amount }]) => {
-    if (!amountsByFt[ft]) amountsByFt[ft] = 0;
-    amountsByFt[ft] += parseFloat(amount || 0);
-    if (amountsByFt[ft] < MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT) donationTooSmall = true;
-  });
-  const totalAmount = Object.values(amountsByFt).reduce((acc, amount) => acc + amount, 0);
-  return [amountsByFt, totalAmount, donationTooSmall];
-}, [props]);
+if (!donationContractConfig) return "";
 
-const handleDonate = () => {
-  // const transactions = [
-  //     // set data on social.near
-  //     {
-  //       contractName: "social.near",
-  //       methodName: "set",
-  //       deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
-  //       args: socialArgs,
-  //     },
-  //   ];
-  //   if (!props.edit) {
-  //     transactions.push(
-  //       // register project on potlock
-  //       {
-  //         contractName: registryId,
-  //         methodName: "register",
-  //         deposit: Big(0.05).mul(Big(10).pow(24)),
-  //         args: potlockRegistryArgs,
-  //       }
-  //     );
-  //     if (!existingHorizonProject) {
-  //       transactions.push(
-  //         // register on NEAR Horizon
-  //         {
-  //           contractName: horizonId,
-  //           methodName: "add_project",
-  //           args: horizonArgs,
-  //         }
-  //       );
-  //     }
-  //   }
-  const transactions = [];
+const {
+  protocol_fee_basis_points: protocolFeeBasisPoints,
+  referral_fee_basis_points: referralFeeBasisPoints,
+  protocol_fee_recipient_account: protocolFeeRecipientAccount,
+} = donationContractConfig;
 
-  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
-    const amountFloat = 0;
-    if (ft == "NEAR") {
-      amountFloat = parseFloat(amount || 0);
-    } else {
-      amountFloat = parseFloat((amount / props.cart[props.projectId]?.price).toFixed(2) || 0);
-    }
-    const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
-    const donateContractArgs = {};
-    const potContractArgs = {};
-    if (potId) {
-      potContractArgs.project_id = projectId;
-      potContractArgs.referrer_id = referrerId;
-    } else {
-      donateContractArgs.recipient_id = projectId;
-      donateContractArgs.referrer_id = referrerId;
-      donateContractArgs.message = note;
-    }
-    transactions.push({
-      contractName: potId ?? donationContractId,
-      methodName: "donate",
-      args: potId ? potContractArgs : donateContractArgs,
-      deposit: amountIndivisible.toString(),
-      gas: "300000000000000",
-    });
-  });
+const TOTAL_BASIS_POINTS = 10_000;
+let projectAllocationBasisPoints =
+  TOTAL_BASIS_POINTS - (bypassProtocolFee ? 0 : protocolFeeBasisPoints);
+if (referrerId) {
+  projectAllocationBasisPoints -= referralFeeBasisPoints;
+}
+const projectAllocationPercent = basisPointsToPercent(projectAllocationBasisPoints);
+const projectAllocationAmount =
+  (parseFloat(amountNear) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
+const protocolFeePercent = basisPointsToPercent(protocolFeeBasisPoints);
+const protocolFeeAmount = (parseFloat(amountNear) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
+const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
+const referrerFeeAmount = (parseFloat(amountNear) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
-  const now = Date.now();
-  Near.call(transactions);
-  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
-  // <-------- EXTENSION WALLET HANDLING -------->
-  // poll for updates
-  // TODO: update this to also poll Pot contract
-  const pollIntervalMs = 1000;
-  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
-  const pollId = setInterval(() => {
-    Near.asyncView(donationContractId, "get_donations_for_donor", {
-      donor_id: context.accountId,
-      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
-    }).then((donations) => {
-      // for each project, there should be a matching donation that occurred since now()
-      const foundDonations = [];
-      // go through donations, add to foundDonations list
-      for (const donation of donations) {
-        const { recipient_id: projectId, donated_at_ms, total_amount } = donation;
-        const matchingCartItem = props.cart[projectId];
-        const ft_id = props.cart[projectId]?.ft == "NEAR" ? "NEAR" : "USD"; // TODO: remove hardcoding to support other FTs
-        if (
-          matchingCartItem &&
-          donated_at_ms > now &&
-          props.SUPPORTED_FTS[ft_id].toIndivisible(matchingCartItem.amount).toString() ==
-            total_amount
-        ) {
-          foundDonations.push(donation);
-        }
-      }
-      if (foundDonations.length === Object.keys(props.cart).length) {
-        // all donations found
-        // display success message & clear cart
-        clearInterval(pollId);
-        props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
-        props.setCheckoutSuccess(true);
-        props.clearCart();
-      }
-    });
-  }, pollIntervalMs);
-};
-// console.log("props", props);
+const nearIconUrl = props.SUPPORTED_FTS.NEAR.iconUrl;
+
 return (
-  <Container>
-    <Title>Breakdown summary</Title>
-    <CurrencyHeader>
-      <CurrencyHeaderText>Currency</CurrencyHeaderText>
-      <CurrencyHeaderText>
-        {props.cart[props.projectId]?.ft == "USD" ? "USD" : "NEAR"}
-      </CurrencyHeaderText>
-    </CurrencyHeader>
-    {Object.entries(amountsByFt).map(([ft, amount]) => {
-      const amountFloat = parseFloat(amount || 0);
-      return (
-        <BreakdownItemContainer>
+  <BreakdownSummary
+    style={props.containerStyle || {}}
+    onClick={() => State.update({ showBreakdown: !state.showBreakdown })}
+  >
+    <Header style={props.headerStyle || {}}>
+      <BreakdownTitle style={{ fontSize: "14px", lineHeight: "16px" }}>
+        {state.showBreakdown ? "Hide" : "Show"} breakdown
+      </BreakdownTitle>
+      <ChevronIcon src={state.showBreakdown ? CHEVRON_UP_URL : CHEVRON_DOWN_URL} />
+    </Header>
+    {state.showBreakdown && (
+      <BreakdownDetails>
+        {!bypassProtocolFee && (
+          <BreakdownItem>
+            <BreakdownItemLeft>
+              Protocol fee ({protocolFeePercent}% to {protocolFeeRecipientAccount})
+            </BreakdownItemLeft>
+            <BreakdownItemRight>
+              <BreakdownAmount>
+                {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
+              </BreakdownAmount>
+              <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+            </BreakdownItemRight>
+          </BreakdownItem>
+        )}
+        {cartItem?.referrerId && (
+          <BreakdownItem>
+            <BreakdownItemLeft>
+              Referrer fee ({referrerFeePercent}% to {cartItem?.referrerId})
+            </BreakdownItemLeft>
+            <BreakdownItemRight>
+              <BreakdownAmount>
+                {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
+              </BreakdownAmount>
+              <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+            </BreakdownItemRight>
+          </BreakdownItem>
+        )}
+        <BreakdownItem>
+          <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
+          <BreakdownItemRight>
+            <BreakdownAmount>{"<0.01"}</BreakdownAmount>
+            <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+          </BreakdownItemRight>
+        </BreakdownItem>
+        <BreakdownItem>
           <BreakdownItemLeft>
-            {props.cart[props.projectId]?.ft == "NEAR" ? (
-              <CurrencyIcon src={props.SUPPORTED_FTS[ft].iconUrl} />
-            ) : (
-              "$"
-            )}
-            <BreakdownItemText>{amountFloat.toFixed(2)}</BreakdownItemText>
+            Project allocation (~{projectAllocationPercent}% to {recipientId || "project"})
           </BreakdownItemLeft>
           <BreakdownItemRight>
-            <BreakdownItemText>{amountFloat.toFixed(2)} N</BreakdownItemText>
+            <BreakdownAmount>~{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
+            <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
           </BreakdownItemRight>
-        </BreakdownItemContainer>
-      );
-    })}
-    <TotalContainer>
-      <TotalText>Total</TotalText>
-      <TotalText>{totalAmount.toFixed(2)} N</TotalText>
-    </TotalContainer>
-    <Widget
-      src={`${ownerId}/widget/Components.Button`}
-      props={{
-        type: "primary",
-        // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
-        text: `Donate ${`${totalAmount.toFixed(2)} N`}`,
-        disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
-        onClick: handleDonate,
-        style: {
-          width: "100%",
-        },
-      }}
-    />
-    {donationTooSmall && (
-      <ErrorText>
-        Minimum required donation per project is {MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT} N
-      </ErrorText>
+        </BreakdownItem>
+      </BreakdownDetails>
     )}
-    {!context.accountId && <ErrorText>Please sign in to donate</ErrorText>}
-  </Container>
+  </BreakdownSummary>
 );

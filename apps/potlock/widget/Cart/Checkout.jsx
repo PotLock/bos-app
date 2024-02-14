@@ -378,7 +378,7 @@ return (
         </ColumnLeft>
         <ColumnRight>
           <Widget
-            src={`${ownerId}/widget/Cart.BreakdownSummary`}
+            src={`${ownerId}/widget/Cart.CheckoutBreakdown`}
             props={{
               ...props,
               projectId: projectId,
