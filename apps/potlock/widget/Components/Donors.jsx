@@ -1,67 +1,7 @@
-const { ownerId } = props;
-const { calcDonations, filterByDate } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
-
-const [totalDonations, setDonations] = useState([]);
-const [index, setIndex] = useState(0);
-const [page, setPage] = useState(0);
-const [currentTab, setTab] = useState("Leaderboard");
-const [filter, setFilter] = useState("");
-
-const perPage = 30;
-
-const limit = 100;
-
-const LoadingWrapper = styled.div`
-  font-size: 1.5rem;
-  margin-top: 1rem;
-`;
-
-const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
-
-// Get all Donations
-const donationsPart = Near.view("donate.potlock.near", "get_donations", {
-  from_index: limit * index,
-  limit: limit,
-});
-
-if (donationsPart === null) return <Loading />;
-
-if (
-  donationsPart.length === limit &&
-  totalDonations[totalDonations.length - 1].id !== donationsPart[donationsPart.length - 1].id
-) {
-  setIndex(index + 1);
-  setDonations([...totalDonations, ...donationsPart]);
-  return <Loading />;
-}
-let donations = [...totalDonations];
-
-if (donationsPart.length < limit) {
-  donations.push(...donationsPart);
-}
-
-// Filter Donation
-donations = donations.filter((donation) => filterByDate(filter.value, donation));
-
-const uniqueDonations = donations.reduce((accumulator, currentDonation) => {
-  const existingDonation = accumulator.find((item) => item.donor_id === currentDonation.donor_id);
-
-  if (existingDonation) {
-    // Update the total amount if the donor_id already exists
-    existingDonation.amount += calcDonations(currentDonation);
-  } else {
-    // Add a new entry if the donor_id doesn't exist
-    accumulator.push({
-      ...currentDonation,
-      amount: calcDonations(currentDonation),
-    });
-  }
-
-  return accumulator;
-}, []);
-
-// Sorted Unique Donors according to amount
-const sortedDonations = uniqueDonations.sort((a, b) => b.amount - a.amount);
+const { ownerId, DONATION_CONTRACT_ID } = props;
+const { calcNetDonationAmount, filterByDate } = VM.require(
+  `${ownerId}/widget/Components.DonorsUtils`
+);
 
 const Container = styled.div`
   --primary-color: #dd3345;
@@ -133,22 +73,83 @@ const NoResult = styled.div`
   text-align: center;
 `;
 
-const rank1 = Social.getr(`${sortedDonations[0].donor_id}/profile`);
-const rank2 = Social.getr(`${sortedDonations[1].donor_id}/profile`);
-const rank3 = Social.getr(`${sortedDonations[2].donor_id}/profile`);
+const LoadingWrapper = styled.div`
+  font-size: 1.5rem;
+  margin-top: 1rem;
+`;
 
-if (rank1 === null || rank2 === null || rank3 === null) return <Loading />;
+const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
 
-// console.log("rank1", rank1);
-// console.log("rank2", rank2);
-// console.log("rank3", rank3);
+const [totalDonations, setDonations] = useState([]);
+const [index, setIndex] = useState(0);
+const [currentTab, setTab] = useState("Leaderboard");
+const [filter, setFilter] = useState("");
+const [allDonationsFetched, setAllDonationsFetched] = useState(false);
+const [donationsByPage, setDonationsByPage] = useState({});
+const [fetchDonationsError, setFetchDonationsError] = useState("");
+
+const limit = 900;
+const cachedDonationsValidityPeriod = 1000 * 60 * 5; // 5 minutes
+
+if (!allDonationsFetched && !donationsByPage[index]) {
+  // first, try to get from cache
+  const cacheKey = `donationsByPage-${index}-${limit}`;
+  const cachedDonations = Storage.get(cacheKey);
+  if (cachedDonations && cachedDonations.ts > Date.now() - cachedDonationsValidityPeriod) {
+    console.log("using cached donations for page ", index);
+    setDonationsByPage({ ...donationsByPage, [index]: cachedDonations.val });
+    if (cachedDonations.val.length === limit) {
+      setIndex(index + 1);
+    } else {
+      setAllDonationsFetched(true);
+    }
+  } else if (cachedDonations !== null) {
+    // null means it's loading (async)
+    console.log("fetching donations for page", index);
+    const startTime = Date.now();
+    Near.asyncView(DONATION_CONTRACT_ID, "get_donations", {
+      from_index: limit * index,
+      limit: limit,
+    })
+      .then((donationsPart) => {
+        const endTime = Date.now();
+        console.log("fetched donations for index", index, "in", endTime - startTime, "ms");
+        // cache the result
+        Storage.set(cacheKey, { val: donationsPart, ts: Date.now() });
+        setDonationsByPage({ ...donationsByPage, [index]: donationsPart });
+        if (donationsPart.length === limit) {
+          setIndex(index + 1);
+        } else {
+          setAllDonationsFetched(true);
+        }
+      })
+      .catch((e) => {
+        setFetchDonationsError(e);
+      });
+  }
+}
+
+const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
+  if (!allDonationsFetched) return [[], {}, []];
+  const donations = Object.values(donationsByPage).flat();
+  const totalsByDonor = donations.reduce((accumulator, currentDonation) => {
+    accumulator[currentDonation.donor_id] = {
+      amount:
+        (accumulator[currentDonation.donor_id].amount || 0) +
+        calcNetDonationAmount(currentDonation),
+      ...currentDonation,
+    };
+    return accumulator;
+  }, {});
+  const sortedDonations = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
+  return [donations, totalsByDonor, sortedDonations];
+}, [donationsByPage, allDonationsFetched]);
 
 const leaderboard = [
   {
     rank: "#2",
     id: sortedDonations[1].donor_id,
     amount: sortedDonations[1].amount,
-    profile: rank2,
   },
   {
     rank: (
@@ -158,16 +159,13 @@ const leaderboard = [
       />
     ),
     id: sortedDonations[0].donor_id,
-    name: rank1.name || sortedDonations[0].donor_id,
     className: "top",
     amount: sortedDonations[0].amount,
-    profile: rank1,
   },
   {
     rank: "#3",
     id: sortedDonations[2].donor_id,
     amount: sortedDonations[2].amount,
-    profile: rank3,
   },
 ];
 
@@ -175,61 +173,72 @@ const tabs = ["Leaderboard", "Transactions"];
 
 return (
   <Container>
-    <div className="leaderboard">
-      <h1>Donors Leaderboard</h1>
-      <div className="cards">
-        {leaderboard.map((donation) => (
-          <Widget
-            key={donation.id}
-            src={`${ownerId}/widget/Components.DonorsCard`}
-            props={{ ...props, donation }}
-          />
-        ))}
+    {fetchDonationsError ? (
+      <div>
+        <h1>Error fetching donations</h1>
+        <p>{fetchDonationsError}</p>
       </div>
-    </div>
-    <Tabs>
-      {tabs.map((tab) => (
-        <div key={tab} className={currentTab === tab && "active"} onClick={() => setTab(tab)}>
-          {tab}
+    ) : !allDonationsFetched ? (
+      <Loading />
+    ) : (
+      <>
+        <div className="leaderboard">
+          <h1>Donors Leaderboard</h1>
+          <div className="cards">
+            {leaderboard.map((donor) => (
+              <Widget
+                key={donor.id}
+                src={`${ownerId}/widget/Components.DonorsCard`}
+                props={{ ...props, donor }}
+              />
+            ))}
+          </div>
         </div>
-      ))}
-      <Widget
-        src={`${ownerId}/widget/Inputs.Select`}
-        props={{
-          noLabel: true,
-          placeholder: "Filter",
-          containerStyles: { width: "fit-content", marginLeft: "auto", color: "black" },
-          options: [
-            { text: "Today", value: "day" },
-            { text: "Last Week", value: "week" },
-            { text: "Last Month", value: "month" },
-            { text: "All Time", value: "all" },
-          ],
-          value: filter,
-          onChange: (filter) => {
-            setFilter(filter);
-          },
-        }}
-      />
-    </Tabs>
+        <Tabs>
+          {tabs.map((tab) => (
+            <div key={tab} className={currentTab === tab && "active"} onClick={() => setTab(tab)}>
+              {tab}
+            </div>
+          ))}
+          <Widget
+            src={`${ownerId}/widget/Inputs.Select`}
+            props={{
+              noLabel: true,
+              placeholder: "Filter",
+              containerStyles: { width: "fit-content", marginLeft: "auto", color: "black" },
+              options: [
+                { text: "Today", value: "day" },
+                { text: "Last Week", value: "week" },
+                { text: "Last Month", value: "month" },
+                { text: "All Time", value: "all" },
+              ],
+              value: filter,
+              onChange: (filter) => {
+                setFilter(filter);
+              },
+            }}
+          />
+        </Tabs>
 
-    {currentTab === "Transactions" &&
-      (donations.length ? (
-        <Widget
-          src={`${ownerId}/widget/Components.DonorsTrx`}
-          props={{ ...props, donations: donations }}
-        />
-      ) : (
-        <NoResult>No Donations</NoResult>
-      ))}
-    {currentTab === "Leaderboard" &&
-      (sortedDonations.length ? (
-        <Widget
-          src={`${ownerId}/widget/Components.DonorsLeaderboard`}
-          props={{ ...props, donations: sortedDonations }}
-        />
-      ) : (
-        <NoResult>No Donations</NoResult>
-      ))}
+        {currentTab === "Transactions" &&
+          (allDonations.length ? (
+            <Widget
+              src={`${ownerId}/widget/Components.DonorsTrx`}
+              props={{ ...props, donations: allDonations }}
+            />
+          ) : (
+            <NoResult>No Donations</NoResult>
+          ))}
+        {currentTab === "Leaderboard" &&
+          (sortedDonations.length ? (
+            <Widget
+              src={`${ownerId}/widget/Components.DonorsLeaderboard`}
+              props={{ ...props, donations: sortedDonations }}
+            />
+          ) : (
+            <NoResult>No Donations</NoResult>
+          ))}
+      </>
+    )}
   </Container>
 );

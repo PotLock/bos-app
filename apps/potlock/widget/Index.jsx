@@ -329,7 +329,7 @@ const props = {
           .toFixed(decimals || 2),
     },
   },
-  // POT_FACTORY_CONTRACT_ID: "potfactory.staging.potlock.near",
+  DONATION_CONTRACT_ID: donationContractId,
   REGISTRY_CONTRACT_ID: registryContractId,
   POT_FACTORY_CONTRACT_ID:
     props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
@@ -354,6 +354,11 @@ const props = {
       return `${href}${href.includes("?") ? "&" : "?"}env=staging`;
     }
     return href;
+  },
+  nearToUsdWithFallback: (amountNear) => {
+    return state.nearToUsd
+      ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
+      : amountNear + " NEAR";
   },
   yoctosToUsdWithFallback: (amountYoctos) => {
     return state.nearToUsd

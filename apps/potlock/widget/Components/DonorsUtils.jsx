@@ -51,7 +51,7 @@ const reverseArr = (input) => {
   return ret;
 };
 
-const calcDonations = (donation) => {
+const calcNetDonationAmount = (donation) => {
   const lastDonationAmount = Big(
     donation.total_amount - (donation.referrer_fee || 0) - (donation.protocol_fee || 0)
   ).div(Big(1e24));
@@ -82,5 +82,5 @@ return {
   filterByDate,
   _address,
   reverseArr,
-  calcDonations,
+  calcNetDonationAmount,
 };
