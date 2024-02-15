@@ -52,6 +52,8 @@ const ModalFooter = styled.div`
   background: #f6f5f3;
   gap: 12px;
   padding: 28px 36px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
 `;
 
 const HeaderIcon = styled.img`
