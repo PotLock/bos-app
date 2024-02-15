@@ -17,8 +17,6 @@ const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
 const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
 
-const profile = Social.getr(`${recipientId}/profile`);
-
 const Column = styled.div`
   display: flex;
   flex-direction: column;
@@ -98,6 +96,19 @@ const UserChip = styled.div`
   background: #ebebeb;
 `;
 
+const UserChipLink = styled.a`
+  display: flex;
+  flex-direction: row;
+  padding: 2px 12px;
+  gap: 4px;
+  border-radius: 32px;
+  background: #ebebeb;
+
+  &:hover {
+    text-decoration: none;
+  }
+`;
+
 const ShareText = styled.div`
   color: #7b7b7b;
   font-size: 14px;
@@ -115,47 +126,46 @@ const SocialIcon = styled.img`
 State.init({
   showBreakdown: false,
   successfulDonation: null,
-  recipientProfile: null,
-  donorProfile: null,
 });
 
-if (props.isModalOpen && props.transactionHashes && !state.successfulDonation) {
-  const body = JSON.stringify({
-    jsonrpc: "2.0",
-    id: "dontcare",
-    method: "tx",
-    params: [props.transactionHashes, context.accountId],
-  });
-  const res = fetch("https://rpc.mainnet.near.org", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body,
-  });
-  // console.log("tx res: ", res);
-  if (res.ok) {
-    const successVal = res.body.result.status?.SuccessValue;
-    let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-    decoded = JSON.parse(decoded);
-    const { donor_id, recipient_id } = decoded;
+if (props.isModalOpen && !state.successfulDonation) {
+  let successfulDonation = props.successfulDonation;
+  if (!successfulDonation && props.transactionHashes) {
+    const body = JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "tx",
+      params: [props.transactionHashes, context.accountId],
+    });
+    const res = fetch("https://rpc.mainnet.near.org", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+    // console.log("tx res: ", res);
+    if (res.ok) {
+      const successVal = res.body.result.status?.SuccessValue;
+      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
+      successfulDonation = JSON.parse(decoded);
+    }
+  }
+  const { donor_id, recipient_id } = successfulDonation;
+  Near.asyncView("social.near", "get", {
+    keys: [`${recipient_id}/profile/**`],
+  }).then((recipientData) => {
     Near.asyncView("social.near", "get", {
-      keys: [`${recipient_id}/profile/**`],
-    }).then((recipientData) => {
-      Near.asyncView("social.near", "get", {
-        keys: [`${donor_id}/profile/**`],
-      }).then((donorData) => {
-        State.update({
-          successfulDonation: decoded,
-          recipientProfile: recipientData[recipient_id]?.profile || {},
-          donorProfile: donorData[donor_id]?.profile || {},
-        });
+      keys: [`${donor_id}/profile/**`],
+    }).then((donorData) => {
+      State.update({
+        successfulDonation,
+        recipientProfile: recipientData[recipient_id]?.profile || {},
+        donorProfile: donorData[donor_id]?.profile || {},
       });
     });
-  }
+  });
 }
-
-console.log("state in success: ", state);
 
 const twitterIntent = useMemo(() => {
   if (!state.recipientProfile) return;
@@ -206,7 +216,12 @@ return (
             </Column>
             <Row style={{ gap: "8px" }}>
               <TextBold>Has been donated to</TextBold>
-              <UserChip>
+              <UserChipLink
+                href={props.hrefWithEnv(
+                  `?tab=project&projectId=${state.successfulDonation.recipient_id}`
+                )}
+                target="_blank"
+              >
                 {state.successfulDonation && (
                   <Widget
                     src={`${ownerId}/widget/Project.ProfileImage`}
@@ -221,7 +236,7 @@ return (
                   />
                 )}
                 <TextBold>{state.recipientProfile?.name || "-"}</TextBold>
-              </UserChip>
+              </UserChipLink>
             </Row>
             <Widget
               src={`${ownerId}/widget/Cart.BreakdownSummary`}
