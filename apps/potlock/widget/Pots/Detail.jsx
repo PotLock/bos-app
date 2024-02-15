@@ -171,7 +171,44 @@ props.navOptions = [
   },
 ];
 
-if (!props.nav) props.nav = "projects"; // default to home tab
+const potDetail = state.potDetail;
+const now = Date.now();
+const applicationNotStarted = now < potDetail.application_start_ms;
+const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
+const publicRoundNotStarted = now < potDetail.public_round_start_ms;
+const publicRoundOpen =
+  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
+const publicRoundClosed = now >= potDetail.public_round_end_ms;
+
+const userIsAdminOrGreater =
+  potDetail.admins.includes(context.accountId) || ownerId === context.accountId;
+const userIsChefOrGreater = userIsAdminOrGreater || potDetail.chef === context.accountId;
+
+const canPayoutsBeSet = publicRoundClosed && userIsChefOrGreater && !potDetail.cooldown_end_ms;
+const canPayoutsBeProcessed =
+  publicRoundClosed &&
+  userIsAdminOrGreater &&
+  now >= potDetail.cooldown_end_ms &&
+  !potDetail.all_paid_out;
+const cooldownPeriodInProgress = publicRoundClosed && now < potDetail.cooldown_end_ms;
+const potComplete = potDetail.all_paid_out;
+//console.log("state", canPayoutsBeSet);
+
+if (!props.nav) {
+  let nav;
+  applicationNotStarted
+    ? (nav = "sponsors")
+    : applicationOpen
+    ? (nav = "applications")
+    : publicRoundOpen
+    ? (nav = "projects")
+    : canPayoutsBeSet
+    ? (nav = "donations")
+    : cooldownPeriodInProgress
+    ? (nav = "payouts")
+    : (nav = "sponsors");
+  props.nav = nav;
+} // default to home tab
 
 // const imageHeightPx = 120;
 // const profileImageTranslateYPx = 220;
