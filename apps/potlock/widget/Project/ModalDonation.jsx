@@ -184,8 +184,11 @@ const handleAddToCart = () => {
   ]);
 };
 
+const amountNear =
+  state.denomination === "NEAR" ? state.amount : (state.amount / props.nearToUsd).toFixed(2);
+
 const handleDonate = () => {
-  const amountIndivisible = props.SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(state.amount));
+  const amountIndivisible = props.SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
   // TODO: get projectId for random donation
   let projectId = recipientId;
   if (!projectId) {
@@ -248,6 +251,10 @@ return (
     src={`${ownerId}/widget/Components.Modal`}
     props={{
       ...props,
+      onClose: () => {
+        resetState();
+        onClose();
+      },
       contentStyle: {
         padding: "0px",
       },
@@ -378,7 +385,7 @@ return (
               props={{
                 ...props,
                 referrerId,
-                amountNear: state.amount,
+                amountNear,
                 bypassProtocolFee: state.bypassProtocolFee,
               }}
             />
