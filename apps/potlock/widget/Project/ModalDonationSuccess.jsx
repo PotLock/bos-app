@@ -228,7 +228,9 @@ return (
               props={{
                 ...props,
                 referrerId: state.successfulDonation?.referrer_id,
-                amountNear: NEAR.fromIndivisible(state.successfulDonation?.total_amount).toString(),
+                amountNear: NEAR.fromIndivisible(
+                  state.successfulDonation?.total_amount || "0"
+                ).toString(),
                 bypassProtocolFee:
                   !state.successfulDonation?.protocol_fee ||
                   state.successfulDonation?.protocol_fee === "0", // TODO: allow user to choose
