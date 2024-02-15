@@ -78,7 +78,10 @@ State.init({
     potId: null,
     potDetail: null,
   },
-  donationSuccessModalIsOpen: props.tab === PROJECTS_LIST_TAB && props.transactionHashes,
+  donationSuccessModal: {
+    isOpen: (!props.tab || props.tab === PROJECTS_LIST_TAB) && props.transactionHashes,
+    successfulDonation: null,
+  },
 });
 
 const NEAR_USD_CACHE_KEY = "NEAR_USD";
@@ -482,6 +485,15 @@ const props = {
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
     });
   },
+  openDonationSuccessModal: (successfulDonation) => {
+    console.log("opening success modal with donation data: ", successfulDonation);
+    State.update({
+      donationSuccessModal: {
+        isOpen: true,
+        successfulDonation,
+      },
+    });
+  },
   basisPointsToPercent: (basisPoints) => {
     return basisPoints / 100;
   },
@@ -599,10 +611,14 @@ return (
       src={`${ownerId}/widget/Project.ModalDonationSuccess`}
       props={{
         ...props,
-        isModalOpen: state.donationSuccessModalIsOpen,
+        successfulDonation: state.donationSuccessModal.successfulDonation,
+        isModalOpen: state.donationSuccessModal.isOpen,
         onClose: () =>
           State.update({
-            donationSuccessModalIsOpen: false,
+            donationSuccessModal: {
+              isOpen: false,
+              successfulDonation: null,
+            },
           }),
       }}
     />

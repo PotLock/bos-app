@@ -236,10 +236,7 @@ const handleDonate = () => {
         if (recipient_id === projectId && donated_at_ms > now) {
           // display success message & clear cart
           clearInterval(pollId);
-          // TODO: handle success
-          // props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
-          // props.setCheckoutSuccess(true);
-          // props.clearCart();
+          props.openDonationSuccessModal(donation);
         }
       }
     });

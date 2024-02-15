@@ -166,7 +166,7 @@ return (
               src={`${ownerId}/widget/Components.Button`}
               props={{
                 type: "secondary",
-                text: "Create project",
+                text: "Register Your Project",
                 disabled: false,
                 href: props.hrefWithEnv(`?tab=createproject`),
                 style: { padding: "16px 24px" },
