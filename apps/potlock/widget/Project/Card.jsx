@@ -80,18 +80,28 @@ const DonationsInfoItem = styled.div`
 `;
 
 const projectId = props.project.id || props.projectId || context.accountId;
-const projectProfile = Social.getr(`${projectId}/profile`);
+const profile = Social.getr(`${projectId}/profile`);
 
-if (!projectProfile) return "";
+if (!profile) return "";
+
+if (profile.image.nft) {
+  console.log("profile with NFT: ", profile);
+}
+
+// console.log("project profile: ", profile);
+if (projectId === "herdao.near") {
+  const apiProfile = socialGetr(`${projectId}/magic/img/account`);
+  console.log("apiProfile: ", apiProfile);
+}
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
-const { name, description, plCategories } = projectProfile;
-// const name = projectProfile?.name || "No name";
-// const description = projectProfile?.description || "No description";
-// const category = projectProfile?.category || "No category";
+const { name, description, plCategories } = profile;
+// const name = profile?.name || "No name";
+// const description = profile?.description || "No description";
+// const category = profile?.category || "No category";
 
-const tags = getTagsFromSocialProfileData(projectProfile);
+const tags = getTagsFromSocialProfileData(profile);
 
 const donationsForProject = Near.view(
   potId || donationContractId,
@@ -128,7 +138,7 @@ return (
       props={{
         ...props,
         projectId,
-        profile: projectProfile,
+        profile: profile,
         profileImageTranslateYPx: 145,
         profileImageTranslateYPxMobile: 122,
         containerStyle: {
@@ -150,6 +160,43 @@ return (
         },
       }}
     />
+    {/* <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
+      <BackgroundImageContainer>
+        {
+          profile.backgroundImage ? <Widget
+          src="mob.near/widget/Image"
+          props={{
+            image: profile.backgroundImage,
+            alt: "profile background",
+            className: "position-absolute w-100",
+            style: { ...backgroundStyle, pointerEvents: "none" },
+            fallbackUrl:
+              "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+          }}
+        /> : 
+        }
+      </BackgroundImageContainer>
+      <ProfileImageContainer
+        class="profile-picture d-inline-block"
+        profileImageTranslateYPx={props.profileImageTranslateYPx}
+        profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
+      >
+        <Widget
+          src={`${ownerId}/widget/Project.ProfileImage`}
+          // image={profileImage}
+          props={{
+            profile,
+            accountId,
+            style: { ...imageStyle },
+            // imageStyle: { ...imageStyle },
+            className: "mb-2",
+            imageClassName: "rounded-circle w-100 img-thumbnail d-block",
+            thumbnail: false,
+            image: profileImage,
+          }}
+        />
+      </ProfileImageContainer>
+    </Container> */}
     <Info>
       <Title>{name}</Title>
       <SubTitle>
