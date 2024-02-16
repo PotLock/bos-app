@@ -10,7 +10,7 @@ const {
   handleAddAccount,
   handleRemoveAccount,
   accountError,
-  accounts,
+  accountIds,
 } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -125,15 +125,13 @@ return (
           />
           <Space height={24} />
           <MembersText>
-            <MembersCount>{accounts.filter((account) => !account.remove).length} </MembersCount>
-            {accounts.filter((account) => !account.remove).length == 1 ? unitText : `${unitText}s`}
+            <MembersCount>{accountIds.length} </MembersCount>
+            {accountIds.length == 1 ? unitText : `${unitText}s`}
           </MembersText>
           <Widget
             src={`${ownerId}/widget/Components.AccountsList`}
             props={{
-              accountIds: accounts
-                .filter((account) => !account.remove)
-                .map((account) => account.accountId),
+              accountIds,
               allowRemove: true,
               handleRemoveAccount,
             }}

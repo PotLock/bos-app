@@ -216,13 +216,13 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
 }
 
 const getPotDetailArgsFromState = () => {
-  return {
+  const args = {
     owner: state.owner,
     admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
-    chef: state.chef,
+    chef: state.chef || null,
     pot_name: state.name,
     pot_description: state.description,
-    max_projects: parseInt(state.maxProjects),
+    max_projects: parseInt(state.maxProjects) || null,
     application_start_ms: convertToUTCTimestamp(state.applicationStartDate),
     application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
@@ -250,7 +250,10 @@ const getPotDetailArgsFromState = () => {
           link: SOURCE_CODE_LINK,
         },
   };
+  return args;
 };
+
+// console.log("state; ", state);
 
 const canDeploy = useMemo(() => {
   if (
@@ -285,8 +288,7 @@ const canDeploy = useMemo(() => {
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getPotDetailArgsFromState();
-  // console.log("deployArgs: ", deployArgs);
-  // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
+  console.log("deployArgs: ", deployArgs);
 
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
     args: deployArgs,

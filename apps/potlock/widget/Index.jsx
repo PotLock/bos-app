@@ -502,6 +502,17 @@ const props = {
   ipfsUrlFromCid: (cid) => {
     return `${IPFS_BASE_URL}${cid}`;
   },
+  getTeamMembersFromSocialProfileData: (profileData) => {
+    if (!profileData) return [];
+    const team = profileData.plTeam
+      ? JSON.parse(profileData.plTeam)
+      : profileData.team
+      ? Object.entries(profileData.team)
+          .filter(([_, v]) => v !== null)
+          .map(([k, _]) => k)
+      : [];
+    return team;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
