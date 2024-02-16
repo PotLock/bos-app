@@ -467,8 +467,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             []
           )
         : [];
-      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
       const hasSmartContracts = smartContracts.length > 0;
+      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
 
       const githubRepos = profileData.plGithubRepos
         ? JSON.parse(profileData.plGithubRepos).map((repo) => [repo])
@@ -870,7 +870,8 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
-if (props.edit && (!registeredProject || !userHasPermissions)) {
+// if (props.edit && (!registeredProject || !userHasPermissions)) { // TODO: ADD THIS BACK IN
+if (props.edit && !userHasPermissions) {
   return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
 }
 
