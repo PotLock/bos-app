@@ -116,7 +116,7 @@ return (
     </HeaderContent>
     {state.pots && (
       <Widget
-        src={`${ownerId}/widget/Components.ListSection`}
+        src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
           items: state.pots,

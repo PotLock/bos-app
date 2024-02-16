@@ -1,44 +1,72 @@
 const {
   ownerId,
-  removeProjectsFromCart,
-  addProjectsToCart,
-  setIsCartModalOpen,
+  // removeProjectsFromCart,
+  // addProjectsToCart,
+  // setIsCartModalOpen,
   tab,
-  setAmount,
-  setProjectId,
-  setNote,
-  setReferrerId,
-  setCurrency,
-  donnorProjectId,
-  amount,
-  referrerId,
-  currency,
-  note,
+  // setAmount,
+  // setProjectId,
+  // setNote,
+  // setReferrerId,
+  // setCurrency,
+  // donnorProjectId,
+  // amount,
+  // referrerId,
+  // currency,
+  // note,
 } = props;
 
 console.log("props in list section: ", props);
 
-// const sortList = [
-//   "Newest to Oldest",
-//   "Oldest to Newest",
-//   "Most to Least Donations",
-//   "Least to Most Donations",
-// ];
+const shouldShuffle = true;
+
+const items = useMemo(() => {
+  if (shouldShuffle) {
+    return [...props.items].sort(() => Math.random() - 0.5);
+  }
+  return props.items;
+}, [props.items, shouldShuffle]);
+
+const sortList = [
+  "Newest to Oldest",
+  "Oldest to Newest",
+  "Most to Least Donations",
+  "Least to Most Donations",
+];
+
+const SORT_FILTERS = {
+  ALL: "All",
+  NEW_TO_OLD: "Newest to Oldest",
+  OLD_TO_NEW: "Oldest to Newest",
+  MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
+  LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
+};
 
 const PAGE_SIZE = 9;
+
+const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjects = useMemo(
+  () => props.items.filter((project) => featuredProjectIds.includes(project.id)),
+  props.items
+);
+
+const [allProjects, setAllProjects] = useState(items);
+const [filteredProjects, setFilteredProjects] = useState([]);
+const [searchTerm, setSearchTerm] = useState("");
+
 // const [elements, setElements] = useState(
 //   props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
 // );
 // console.log("elements: ", elements);
 // console.log("num of elements: ", elements.length);
 
-const loadMore = () => {
-  const newElements = props.items
-    .slice(elements.length, elements.length + PAGE_SIZE)
-    .map(props.renderItem);
-  setElements([...elements, ...newElements]);
-};
-const [page, setPage] = useState(1);
+// const loadMore = () => {
+//   const newElements = props.items
+//     .slice(elements.length, elements.length + PAGE_SIZE)
+//     .map(props.renderItem);
+//   setElements([...elements, ...newElements]);
+// };
+// const [page, setPage] = useState(1);
 // const [lastNumberOfProject, setLastNumberOfProject] = useState(PAGE_SIZE);
 // const donationContractId = "donate.potlock.near";
 // const [totalProjects, setTotalProjects] = useState(props.items);
@@ -424,6 +452,39 @@ const [page, setPage] = useState(1);
 //   }
 // };
 
+const searchProjects = (searchTerm) => {
+  // filter projects that match the search term (just id for now)
+  const filteredProjects = allProjects.filter((project) => {
+    const { id } = project;
+    const searchFields = [id];
+    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
+  return filteredProjects;
+};
+
+const sortProjects = (sortVal) => {
+  if (sortVal === SORT_FILTERS.ALL) {
+    return searchApplications(searchTerm);
+  } else if (sortVal === SORT_FILTERS.NEW_TO_OLD) {
+    const sorted = { ...allProjects };
+    sorted.sort((a, b) => b.submitted_ms - a.submitted_ms);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.OLD_TO_NEW) {
+    const sorted = { ...allProjects };
+    sorted.sort((a, b) => a.submitted_ms - b.submitted_ms);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.MOST_TO_LEAST_DONATIONS) {
+    const sorted = { ...allProjects };
+    sorted.sort((a, b) => b.total - a.total);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.LEAST_TO_MOST_DONATIONS) {
+    const sorted = { ...allProjects };
+    sorted.sort((a, b) => a.total - b.total);
+    return sorted;
+  }
+  return filtered;
+};
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -505,92 +566,48 @@ const OnBottom = styled.div`
   padding: 20px 0;
 `;
 
-const elements = props.items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(props.renderItem);
-console.log("elements: ", elements);
+// const elements = props.items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(props.renderItem);
+// console.log("elements: ", elements);
 
 return (
   <>
-    {/* {tab != "pots" && tab != "pot" && (
+    {tab != "pots" && tab != "pot" && (
       <Container>
         <Header>
           <Title>Featured projects</Title>
         </Header>
 
-        <ProjectList>
-          {featuredProjects.map((item) => (
-            <Widget
-              src={`${ownerId}/widget/Components.ProjectCard`}
-              props={{
-                ...props,
-                ...item,
-                referrerId: props.referrerId,
-                ownerId: ownerId,
-                showModal: true,
-                transactionHashes: props.transactionHashes,
-                isExistedInCart: props.cart && !!props.cart[item.id],
-                donnorProjectId: donnorProjectId,
-                amount: amount,
-                referrerId: referrerId,
-                currency: currency,
-                note: note,
-                removeProjectsFromCart: (projectId) => {
-                  removeProjectsFromCart(projectId);
-                },
-                addProjectsToCart: (project) => {
-                  addProjectsToCart(project);
-                },
-                setIsCartModalOpen: (isOpen) => {
-                  setIsCartModalOpen(isOpen);
-                },
-                setAmount: (value) => {
-                  setAmount(value);
-                },
-                setProjectId: (id) => {
-                  setProjectId(id);
-                },
-                setNote: (note) => {
-                  setNote(note);
-                },
-                setReferrerId: (ref) => {
-                  setReferrerId(ref);
-                },
-                setCurrency: (cur) => {
-                  setCurrency(cur);
-                },
-                totalAmount: (donations) => totalAmount(donations),
-              }}
-              key={key}
-            />
-          ))}
-        </ProjectList>
+        <ProjectList>{featuredProjects.map(props.renderItem)}</ProjectList>
         <OnBottom></OnBottom>
       </Container>
-    )} */}
+    )}
     <Container style={{ paddingBottom: "32px" }}>
-      {/* <Header>
+      <Header>
         <Title>
           all {tab == "pots" ? "pots" : "projects"}
           <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
-            {totalProjects.length}
+            {props.items.length}
           </span>
         </Title>
-        <Widget
+        {/* <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
             title: "Sort",
             tab: tab,
-            numItems: totalProjects.length,
+            numItems: filteredProjects.length,
             itemName: tab == "pots" ? "pot" : "project",
-            sortList,
+            sortList: Object.values(SORT_FILTERS),
             setSearchTerm: (value) => {
-              tab == "pots"
+              const results = tab == "pots"
                 ? searchByWordsPots(totalProjects, value)
                 : tab == "pot"
                 ? searchByWordsPot(totalProjects, value)
                 : searchByWords(totalProjects, value);
               setSearchTerm(value);
+              setFilteredProjects(results);
             },
             handleSortChange: (filter) => {
+              const sorted = 
               handleSortChange(filter);
             },
           }}
@@ -624,8 +641,8 @@ return (
               </Tag>
             ))}
           </TagsWrapper>
-        )}
-      </Header> */}
+        )} */}
+      </Header>
       {/* <Widget
         src={`${ownerId}/widget/Components.Pagination`}
         props={{
@@ -636,7 +653,7 @@ return (
           bgColor: "#dd3345",
         }}
       /> */}
-      <ProjectList>{props.items.map(props.renderItem)}</ProjectList>
+      <ProjectList>{items.map(props.renderItem)}</ProjectList>
       {/* <Widget
         src={`${ownerId}/widget/Components.Pagination`}
         props={{

@@ -202,7 +202,7 @@ return (
     </HeroContainer>
     <ProjectsContainer>
       <Widget
-        src={`${ownerId}/widget/Components.ListSection`}
+        src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
           items: projects,
