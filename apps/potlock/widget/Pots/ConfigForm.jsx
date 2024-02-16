@@ -154,6 +154,8 @@ State.init({
   isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
+  customHandle: isUpdate ? potId.split(`.${POT_FACTORY_CONTRACT_ID}`)[0] : "",
+  customHandleError: "",
   description: isUpdate ? potDetail.pot_description : "",
   descriptionError: "",
   // referrerFeeMatchingPoolPercent * 100: isUpdate
@@ -283,6 +285,9 @@ const canDeploy = useMemo(() => {
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getPotDetailArgsFromState();
+  if (state.customHandle) {
+    deployArgs.pot_handle = state.customHandle;
+  }
   // console.log("deployArgs: ", deployArgs);
   // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
 
@@ -491,6 +496,34 @@ return (
             },
             error: state.nameError,
             disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Text`}
+          props={{
+            label: "Custom handle (optional - will slugify name by default)",
+            placeholder: "e.g. my-pot-handle",
+            value: state.customHandle,
+            onChange: (customHandle) => State.update({ customHandle, customHandleError: "" }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              const suffix = `.${POT_FACTORY_CONTRACT_ID}`;
+              const fullAddress = `${state.customHandle}${suffix}`;
+              let customHandleError = "";
+              if (fullAddress.length > 64) {
+                customHandleError = `Handle must be ${64 - suffix.length} characters or less`;
+              } else {
+                const valid = validateNearAddress(fullAddress);
+                customHandleError = valid
+                  ? ""
+                  : `Invalid handle (can only contain lowercase alphanumeric symbols +  _ or -)`;
+              }
+              State.update({
+                customHandleError,
+              });
+            },
+            error: state.customHandleError,
+            disabled: isUpdate,
           }}
         />
         <Widget
