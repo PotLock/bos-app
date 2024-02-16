@@ -643,27 +643,7 @@ return (
           </TagsWrapper>
         )} */}
       </Header>
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Pagination`}
-        props={{
-          setPage,
-          data: props.items,
-          page,
-          perPage: PAGE_SIZE,
-          bgColor: "#dd3345",
-        }}
-      /> */}
       <ProjectList>{items.map(props.renderItem)}</ProjectList>
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Pagination`}
-        props={{
-          setPage,
-          data: props.items,
-          page,
-          perPage: PAGE_SIZE,
-          bgColor: "#dd3345",
-        }}
-      /> */}
       {/* <InfiniteScroll
         // loadMore={tab == "pots" || tab == "pot" ? loadPotProjects : loadProjects}
         loadMore={loadMore}
