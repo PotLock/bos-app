@@ -218,36 +218,7 @@ return (
           />
         )}
       </BackgroundImageContainer>
-      // <BackgroundImageContainer>
-      //   <CameraSvg height={48} />
-      //   {editable && (
-      //     <Files
-      //       multiple={false}
-      //       accepts={["image/*"]}
-      //       minFileSize={1}
-      //       style={{
-      //         width: "100%",
-      //         height: backgroundStyle.height ?? "100%",
-      //       }}
-      //       clickable
-      //       onChange={props.bgImageOnChange}
-      //     >
-      //       <Widget
-      //         src="mob.near/widget/Image"
-      //         props={{
-      //           image: backgroundImage,
-      //           alt: "profile background",
-      //           className: "position-absolute w-100",
-      //           style: { ...backgroundStyle },
-      //           fallbackUrl:
-      //             "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-      //         }}
-      //       />
-      //     </Files>
-      //   )}
-      // </BackgroundImageContainer>
     )}
-    {/* "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm"; */}
     <ProfileImageContainer
       class="profile-picture d-inline-block"
       profileImageTranslateYPx={props.profileImageTranslateYPx}
@@ -267,18 +238,6 @@ return (
         clickable
         onChange={props.profileImageOnChange}
       >
-        {/* <Widget
-          src="mob.near/widget/Image"
-          props={{
-            image: profileImage,
-            alt: "profile avatar",
-            className:
-              "position-absolute w-100 rounded-circle w-100 img-thumbnail d-block overflow-hidden mb-2",
-            style: { ...imageStyle },
-            fallbackUrl:
-              "https://ipfs.near.social/ipfs/bafkreibmiy4ozblcgv3fm3gc6q62s55em33vconbavfd2ekkuliznaq3zm",
-          }}
-        /> */}
         <Widget
           src={`${ownerId}/widget/Project.ProfileImage`}
           // image={profileImage}

@@ -251,7 +251,9 @@ return (
     src={`${ownerId}/widget/Components.Modal`}
     props={{
       ...props,
-      onClose: () => {
+      onClose: (e) => {
+        // e.preventDefault();
+        e.stopPropagation();
         resetState();
         onClose();
       },

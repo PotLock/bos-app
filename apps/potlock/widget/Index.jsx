@@ -125,7 +125,7 @@ if (!state.donations) {
   });
 }
 
-const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
@@ -497,7 +497,10 @@ const props = {
   basisPointsToPercent: (basisPoints) => {
     return basisPoints / 100;
   },
-  IPFS_BASE_URL: "https://nftstorage.link/ipfs/",
+  IPFS_BASE_URL,
+  ipfsUrlFromCid: (cid) => {
+    return `${IPFS_BASE_URL}${cid}`;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
