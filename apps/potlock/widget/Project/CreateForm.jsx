@@ -333,8 +333,6 @@ State.init({
   alertMessage: "",
 });
 
-console.log("state in create form: ", state);
-
 const CATEGORY_MAPPINGS = {
   SOCIAL_IMPACT: "Social Impact",
   NON_PROFIT: "NonProfit",
@@ -1516,7 +1514,7 @@ return (
                   preInputChildren: <InputPrefix>twitter.com/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.twitter,
-                  onChange: (twitter) => State.update({ twitter }),
+                  onChange: (twitter) => State.update({ twitter: twitter.trim() }),
                   validate: () => {
                     if (state.twitter.length > 15) {
                       State.update({
@@ -1537,7 +1535,7 @@ return (
                   preInputChildren: <InputPrefix>t.me/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.telegram,
-                  onChange: (telegram) => State.update({ telegram }),
+                  onChange: (telegram) => State.update({ telegram: telegram.trim() }),
                   validate: () => {
                     // TODO: add validation?
                   },
@@ -1552,7 +1550,7 @@ return (
                   preInputChildren: <InputPrefix>github.com/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.github,
-                  onChange: (github) => State.update({ github }),
+                  onChange: (github) => State.update({ github: github.trim() }),
                   validate: () => {
                     // TODO: add validation
                   },
@@ -1567,7 +1565,7 @@ return (
                   preInputChildren: <InputPrefix>https://</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.website,
-                  onChange: (website) => State.update({ website }),
+                  onChange: (website) => State.update({ website: website.trim() }),
                   validate: () => {
                     // TODO: add validation
                   },
