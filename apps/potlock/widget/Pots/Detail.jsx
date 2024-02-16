@@ -102,10 +102,13 @@ if (state.potDetail === null) {
     .then((potDetail) => {
       if (potDetail.sybil_wrapper_provider) {
         const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
-        Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((result) => {
-          // console.log("sybil result: ", result);
-          State.update({ potDetail, sybilRequirementMet: result });
-        });
+        Near.asyncView(contractId, methodName, { account_id: context.accountId })
+          .then((result) => {
+            State.update({ potDetail, sybilRequirementMet: result });
+          })
+          .catch((e) => {
+            State.update({ potDetail, sybilRequirementMet: false });
+          });
       } else {
         State.update({ potDetail, sybilRequirementMet: true });
       }
