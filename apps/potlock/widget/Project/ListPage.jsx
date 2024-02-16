@@ -226,6 +226,7 @@ return (
                   ...props,
                   // potId,
                   projectId: project.id,
+                  allowDonate: true,
                   // allowDonate:
                   //   sybilRequirementMet &&
                   //   publicRoundOpen &&

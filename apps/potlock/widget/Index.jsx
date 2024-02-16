@@ -382,7 +382,7 @@ const props = {
       : null;
   },
   yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : "NEAR");
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
   },
   formatDate: (timestamp) => {
     const months = [

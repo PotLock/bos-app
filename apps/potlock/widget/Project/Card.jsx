@@ -191,20 +191,10 @@ const openDonateModal = () => {
   });
 };
 
-const projectId = props.project.id || props.projectId || context.accountId;
+const projectId = props.project.id || props.projectId;
 const profile = Social.getr(`${projectId}/profile`);
 
 if (!profile) return "";
-
-if (profile.image.nft) {
-  console.log("profile with NFT: ", profile);
-}
-
-// console.log("project profile: ", profile);
-if (projectId === "herdao.near") {
-  const apiProfile = socialGetr(`${projectId}/magic/img/account`);
-  console.log("apiProfile: ", apiProfile);
-}
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
@@ -215,13 +205,12 @@ const { name, description, plCategories } = profile;
 
 const tags = getTagsFromSocialProfileData(profile);
 
-const donationsForProject = Near.view(
-  potId || donationContractId,
-  potId ? "get_donations_for_project" : "get_donations_for_recipient",
-  potId ? { project_id: projectId } : { recipient_id: projectId }
-);
-
-// console.log(donationsForProject);
+const donationsForProject =
+  Near.view(
+    potId || donationContractId,
+    potId ? "get_donations_for_project" : "get_donations_for_recipient",
+    potId ? { project_id: projectId } : { recipient_id: projectId }
+  ) || [];
 
 const [totalAmount, totalDonors] = useMemo(() => {
   if (!donationsForProject) return [null, null];
@@ -392,15 +381,17 @@ return (
         <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
-      <DonationButton
-        onClick={(e) => {
-          e.preventDefault();
-          openDonateModal();
-        }}
-        disabled={!context.accountId}
-      >
-        {context.accountId ? "Donate" : "Sign in to donate"}
-      </DonationButton>
+      {props.allowDonate && (
+        <DonationButton
+          onClick={(e) => {
+            e.preventDefault();
+            openDonateModal();
+          }}
+          disabled={!context.accountId}
+        >
+          {context.accountId ? "Donate" : "Sign in to donate"}
+        </DonationButton>
+      )}
       {/* <Widget
         src={`${ownerId}/widget/Components.Button`}
         props={{
@@ -416,7 +407,7 @@ return (
         <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
       </DonationsInfoItem> */}
     </DonationsInfoContainer>
-    {props.allowDonate && (
+    {/* {props.allowDonate && (
       <Widget
         src={`${ownerId}/widget/Cart.AddToCart`}
         props={{
@@ -431,7 +422,7 @@ return (
           showModal: false,
         }}
       />
-    )}
+    )} */}
     {props.requireVerification && (
       <Widget
         src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
