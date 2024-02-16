@@ -240,12 +240,10 @@ return (
       >
         <Widget
           src={`${ownerId}/widget/Project.ProfileImage`}
-          // image={profileImage}
           props={{
             profile,
             accountId,
             style: { ...imageStyle },
-            // imageStyle: { ...imageStyle },
             className: "mb-2",
             imageClassName: "rounded-circle w-100 img-thumbnail d-block",
             thumbnail: false,
