@@ -150,10 +150,10 @@ return (
             </BreakdownItemRight>
           </BreakdownItem>
         )}
-        {cartItem?.referrerId && (
+        {referrerId && (
           <BreakdownItem>
             <BreakdownItemLeft>
-              Referrer fee ({referrerFeePercent}% to {cartItem?.referrerId})
+              Referrer fee ({referrerFeePercent}% to {referrerId})
             </BreakdownItemLeft>
             <BreakdownItemRight>
               <BreakdownAmount>

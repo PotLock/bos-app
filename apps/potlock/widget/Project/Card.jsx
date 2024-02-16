@@ -263,45 +263,8 @@ const profileImageStyle = {
   pointerEvents: "none",
 };
 
-// if (!props.tags || props.tags.length === 0) return "No tags";
-
-// return (
-//   <Tags>
-//     {props.tags.map((tag, tagIndex) => (
-//       <Tag key={tagIndex}>{tag}</Tag>
-//     ))}
-//   </Tags>
-// );
-
 return (
   <Card key={projectId}>
-    {/* <Widget
-      src={`${ownerId}/widget/Project.BannerHeader`}
-      props={{
-        ...props,
-        projectId,
-        profile: profile,
-        profileImageTranslateYPx: 145,
-        profileImageTranslateYPxMobile: 122,
-        containerStyle: {
-          paddingLeft: "16px",
-        },
-        backgroundStyle: {
-          objectFit: "cover",
-          left: 0,
-          top: 0,
-          height: "168px",
-          borderRadius: "6px 6px 0px 0px",
-        },
-        imageStyle: {
-          width: "40px",
-          height: "40px",
-          position: "absolute",
-          bottom: "-10px",
-          left: "14px",
-        },
-      }}
-    /> */}
     <HeaderContainer href={projectUrl} className="pt-0 position-relative">
       <BackgroundImageContainer>
         {profile.backgroundImage?.nft ? (
@@ -455,8 +418,8 @@ return (
               },
             }),
           recipientId: state.donateModal.recipientId,
-          referrerId: state.donateModal.referrerId,
-          potId: state.donateModal.potId,
+          referrerId: props.referrerId,
+          potId,
         }}
       />
     )}

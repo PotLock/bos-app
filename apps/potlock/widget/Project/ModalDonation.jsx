@@ -16,6 +16,13 @@ const projectIds = useMemo(
   [projects]
 );
 
+// console.log("pot id in modal: ", potId);
+
+const protocolConfigContractId = potDetail?.protocol_config_provider.split(":")[0];
+const protocolConfigViewMethodName = potDetail?.protocol_config_provider.split(":")[1];
+const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
+// console.log("protocolConfig: ", protocolConfig);
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CLOSE_ICON_URL =
   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
@@ -136,6 +143,35 @@ const Label = styled.label`
   line-height: 16px;
   word-wrap: break-word;
   color: #2e2e2e;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+const UserChipLink = styled.a`
+  display: flex;
+  flex-direction: row;
+  // align-items: center;
+  // justify-content: center;
+  padding: 2px 12px;
+  margin: 0px 4px;
+  gap: 4px;
+  border-radius: 32px;
+  background: #ebebeb;
+
+  &:hover {
+    text-decoration: none;
+  }
+`;
+
+const TextBold = styled.div`
+  color: #292929;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  word-wrap: break-word;
+  text-align: center;
 `;
 
 const DENOMINATION_OPTIONS = [
@@ -152,6 +188,7 @@ State.init({
   denomination: DENOMINATION_OPTIONS[0].value,
   showBreakdown: false,
   bypassProtocolFee: false,
+  bypassChefFee: false,
   addNote: false,
   donationNote: "",
   donationNoteError: "",
@@ -202,6 +239,9 @@ const handleDonate = () => {
     bypass_protocol_fee: state.bypassProtocolFee,
     message: state.donationNote,
   };
+  if (state.bypassChefFee) {
+    args.custom_chef_fee_basis_points = 0;
+  }
   if (potId) {
     args.project_id = projectId;
     if (state.bypassChefFee) {
@@ -381,9 +421,32 @@ return (
                   },
                 }}
               />
-              <Label htmlFor="bypassProtocolFeeSelector">Bypass protocol fee</Label>
+              {/* <Label htmlFor="bypassProtocolFeeSelector">Bypass protocol fee</Label>
+               */}
+              <Label htmlFor="bypassProtocolFeeSelector">
+                Bypass {protocolConfig?.basis_points / 100 || "-"}% protocol fee to{" "}
+                <UserChipLink
+                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolConfig?.account_id}`}
+                  target="_blank"
+                >
+                  <Widget
+                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    props={{
+                      ...props,
+                      accountId: protocolConfig?.account_id,
+                      style: {
+                        height: "12px",
+                        width: "12px",
+                      },
+                    }}
+                  />
+                  <TextBold>
+                    {protocolFeeRecipientProfile?.name || protocolConfig?.account_id}
+                  </TextBold>
+                </UserChipLink>
+              </Label>
             </Row>
-            {potId && (
+            {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
               <Row style={{ padding: "0px", gap: "0px" }}>
                 <Widget
                   src={`${ownerId}/widget/Inputs.Checkbox`}
@@ -395,7 +458,26 @@ return (
                     },
                   }}
                 />
-                <Label htmlFor="bypassChefFeeSelector">Bypass chef fee</Label>
+                <Label htmlFor="bypassChefFeeSelector">
+                  Bypass {potDetail?.chef_fee_basis_points / 100 || "-"}% chef fee to{" "}
+                  <UserChipLink
+                    href={`https://near.social/mob.near/widget/ProfilePage?accountId=${potDetail?.chef}`}
+                    target="_blank"
+                  >
+                    <Widget
+                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      props={{
+                        ...props,
+                        accountId: potDetail?.chef,
+                        style: {
+                          height: "12px",
+                          width: "12px",
+                        },
+                      }}
+                    />
+                    <TextBold>{chefProfile?.name || potDetail?.chef}</TextBold>
+                  </UserChipLink>
+                </Label>
               </Row>
             )}
             <Widget

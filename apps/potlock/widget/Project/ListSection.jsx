@@ -16,9 +16,9 @@ const {
   // note,
 } = props;
 
-console.log("props in list section: ", props);
+// console.log("props in list section: ", props);
 
-const shouldShuffle = true;
+const shouldShuffle = tab === "projects";
 
 const items = useMemo(() => {
   if (shouldShuffle) {

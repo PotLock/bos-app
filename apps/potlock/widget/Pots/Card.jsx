@@ -79,7 +79,7 @@ const {
   public_round_start_ms,
   public_round_end_ms,
 } = potConfig;
-console.log("potConfig", potConfig);
+// console.log("potConfig", potConfig);
 
 // const totalAmount =
 //   props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_public_donations);

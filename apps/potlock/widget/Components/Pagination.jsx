@@ -7,11 +7,11 @@ const MAX_PAGE_DISPLAY_COUNT = props.maxPageDisplayCount || 5;
 
 // Calculate the total number of pages
 const totalPages = Math.ceil(data?.length / perPage) - 1;
-console.log("totalPages: ", totalPages);
+// console.log("totalPages: ", totalPages);
 
 // Generate an array of page numbers starting from 1
 const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
-console.log("pageNumbers: ", pageNumbers);
+// console.log("pageNumbers: ", pageNumbers);
 let lastPageNumber = pageNumbers[pageNumbers.length - 1];
 
 const handlePaginate = (to) => {
