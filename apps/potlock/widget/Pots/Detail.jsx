@@ -171,7 +171,32 @@ props.navOptions = [
   },
 ];
 
-if (!props.nav) props.nav = "projects"; // default to home tab
+const potDetail = state.potDetail;
+const now = Date.now();
+const applicationNotStarted = now < potDetail.application_start_ms;
+const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
+
+const publicRoundOpen =
+  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
+const publicRoundClosed = now >= potDetail.public_round_end_ms;
+
+const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
+
+//console.log("state", canPayoutsBeSet);
+
+if (!props.nav) {
+  let nav;
+  applicationNotStarted
+    ? (nav = "sponsors")
+    : applicationOpen
+    ? (nav = "applications")
+    : publicRoundOpen
+    ? (nav = "projects")
+    : !payoutsPending
+    ? (nav = "donations")
+    : (nav = "payouts");
+  props.nav = nav;
+} // default to home tab
 
 // const imageHeightPx = 120;
 // const profileImageTranslateYPx = 220;
