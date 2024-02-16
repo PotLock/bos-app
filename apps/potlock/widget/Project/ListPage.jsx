@@ -151,13 +151,9 @@ return (
           },
           buttonPrimary: (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
               props={{
-                type: "primary",
-                text: "Donate Randomly",
-                disabled: false,
-                style: { padding: "16px 24px" },
-                onClick: handleDonateRandomly,
+                ...props,
               }}
             />
           ),

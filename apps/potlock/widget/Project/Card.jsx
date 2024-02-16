@@ -397,8 +397,9 @@ return (
           e.preventDefault();
           openDonateModal();
         }}
+        disabled={!context.accountId}
       >
-        Donate
+        {context.accountId ? "Donate" : "Sign in to donate"}
       </DonationButton>
       {/* <Widget
         src={`${ownerId}/widget/Components.Button`}
