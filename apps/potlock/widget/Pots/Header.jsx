@@ -9,6 +9,8 @@ const {
   NADA_BOT_URL,
 } = props;
 
+// console.log("pot detail: ", potDetail);
+
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 Big.PE = 100;
@@ -123,6 +125,10 @@ const Label = styled.label`
   line-height: 16px;
   word-wrap: break-word;
   color: #2e2e2e;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 const FeeText = styled.div`
@@ -131,6 +137,10 @@ const FeeText = styled.div`
   font-weight: 400;
   line-height: 20px;
   word-wrap: break-word;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 const TotalsSubtext = styled.div`
@@ -142,6 +152,41 @@ const TotalsSubtext = styled.div`
   text-transform: uppercase;
 `;
 
+const UserChipLink = styled.a`
+  display: flex;
+  flex-direction: row;
+  // align-items: center;
+  // justify-content: center;
+  padding: 2px 12px;
+  margin: 0px 4px;
+  gap: 4px;
+  border-radius: 32px;
+  background: #ebebeb;
+
+  &:hover {
+    text-decoration: none;
+  }
+`;
+
+const TextBold = styled.div`
+  color: #292929;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  word-wrap: break-word;
+  text-align: center;
+`;
+
+const ShareIconContainer = styled.svg`
+  width: 24px;
+  height: 24px;
+
+  @media screen and (max-width: 768px) {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 State.init({
   isMatchingPoolModalOpen: false,
   matchingPoolDonationAmountNear: "",
@@ -149,6 +194,7 @@ State.init({
   matchingPoolDonationMessage: "",
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
+  bypassChefFee: false,
   // isOnRegistry: false,
 });
 
@@ -183,6 +229,9 @@ const {
 const protocolConfigContractId = protocol_config_provider.split(":")[0];
 const protocolConfigViewMethodName = protocol_config_provider.split(":")[1];
 const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
+
+const chefProfile = Social.getr(`${potDetail?.chef}/profile`);
+const protocolFeeRecipientProfile = Social.getr(`${protocolConfig?.account_id}/profile`);
 
 const now = Date.now();
 const applicationNotStarted = now < application_start_ms;
@@ -235,6 +284,9 @@ const handleMatchingPoolDonation = () => {
     referrer_id: referrerId || null,
     bypass_protocol_fee: state.bypassProtocolFee,
   };
+  if (state.bypassChefFee) {
+    args.custom_chef_fee_basis_points = 0;
+  }
   // const deposit = Big(JSON.stringify(args).length * 0.00003).plus(Big("10000000000000000000000")); // add extra 0.01 NEAR as buffer
   const amountFloat = parseFloat(matchingPoolDonationAmountNear || 0);
   if (!amountFloat) {
@@ -280,6 +332,10 @@ const protocolFeeAmountNear = state.bypassProtocolFee
   ? 0
   : (state.matchingPoolDonationAmountNear * protocolConfig?.basis_points) / 10_000 || 0;
 
+const chefFeeAmountNear = state.bypassChefFee
+  ? 0
+  : (state.matchingPoolDonationAmountNear * potDetail?.chef_fee_basis_points) / 10_000 || 0;
+
 const referrerFeeAmountNear = referrerId
   ? (state.matchingPoolDonationAmountNear * referral_fee_matching_pool_basis_points) / 10_000 || 0
   : 0;
@@ -295,6 +351,27 @@ const getMatchingRoundTagText = () => {
   if (publicRoundOpen) return props.daysUntil(public_round_end_ms) + " left in round";
   else return "Matching Round Ended";
 };
+
+const ShareIcon = (
+  <ShareIconContainer>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100%"
+      height="100%"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      strokeWidth="0.363"
+    >
+      <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z" />
+      <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z" />
+    </svg>
+  </ShareIconContainer>
+);
+
+const potLink = `https://bos.potlock.io/?tab=pot&potId=${potId}${
+  context.accountId && `&referrerId=${context.accountId}`
+}`;
 
 return (
   <Container>
@@ -447,7 +524,7 @@ return (
           </Row>
         )}
       </ColumnRightSegment>
-      <Row style={{ gap: "24px" }}>
+      <Row>
         {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
@@ -459,18 +536,30 @@ return (
               onClick: handleApplyToPot,
               // href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
               // target: "_self",
+              style: { marginRight: "24px" },
             }}
           />
         )}
         {now < public_round_end_ms && (
-          <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: publicRoundOpen || canApply ? "secondary" : "primary",
-              text: "Fund matching pool",
-              onClick: handleFundMatchingPool,
-            }}
-          />
+          <>
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: publicRoundOpen || canApply ? "secondary" : "primary",
+                text: "Fund matching pool",
+                onClick: handleFundMatchingPool,
+                style: { marginRight: "6px" },
+              }}
+            />
+            <Widget
+              src={`${ownerId}/widget/Project.Share`}
+              props={{
+                text: potLink,
+                // label: "Share",
+                clipboardIcon: ShareIcon,
+              }}
+            />
+          </>
         )}
         {publicRoundOpen && (
           <Widget
@@ -572,22 +661,78 @@ return (
               <Widget
                 src={`${ownerId}/widget/Inputs.Checkbox`}
                 props={{
-                  id: "bypassFeeSelector",
+                  id: "bypassProtocolFeeSelector",
                   checked: state.bypassProtocolFee,
                   onClick: (e) => {
                     State.update({ bypassProtocolFee: e.target.checked });
                   },
                 }}
               />
-              <Label htmlFor="bypassFeeSelector">
-                Bypass protocol fee ({protocolConfig?.basis_points / 100 || "-"}%)
+              <Label htmlFor="bypassProtocolFeeSelector">
+                Bypass {protocolConfig?.basis_points / 100 || "-"}% protocol fee to{" "}
+                <UserChipLink
+                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolConfig?.account_id}`}
+                  target="_blank"
+                >
+                  <Widget
+                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    props={{
+                      ...props,
+                      accountId: protocolConfig?.account_id,
+                      style: {
+                        height: "12px",
+                        width: "12px",
+                      },
+                    }}
+                  />
+                  <TextBold>
+                    {protocolFeeRecipientProfile?.name || protocolConfig?.account_id}
+                  </TextBold>
+                </UserChipLink>
               </Label>
             </Row>
+            {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
+              <Row style={{ marginTop: "6px" }}>
+                <Widget
+                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  props={{
+                    id: "bypassChefFeeSelector",
+                    checked: state.bypassChefFee,
+                    onClick: (e) => {
+                      State.update({ bypassChefFee: e.target.checked });
+                    },
+                  }}
+                />
+                <Label htmlFor="bypassChefFeeSelector">
+                  Bypass {potDetail?.chef_fee_basis_points / 100 || "-"}% chef fee to{" "}
+                  <UserChipLink
+                    href={`https://near.social/mob.near/widget/ProfilePage?accountId=${potDetail?.chef}`}
+                    target="_blank"
+                  >
+                    <Widget
+                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      props={{
+                        ...props,
+                        accountId: potDetail?.chef,
+                        style: {
+                          height: "12px",
+                          width: "12px",
+                        },
+                      }}
+                    />
+                    <TextBold>{chefProfile?.name || potDetail?.chef}</TextBold>
+                  </UserChipLink>
+                </Label>
+              </Row>
+            )}
             <Row style={{ marginTop: "12px" }}>
-              <FeeText>
-                Protocol fee (to {protocolConfig?.account_id}): {protocolFeeAmountNear} NEAR
-              </FeeText>
+              <FeeText>Protocol fee: {protocolFeeAmountNear} NEAR</FeeText>
             </Row>
+            {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
+              <Row style={{ marginTop: "12px" }}>
+                <FeeText>Chef fee: {chefFeeAmountNear} NEAR</FeeText>
+              </Row>
+            )}
             <Row style={{ marginTop: "6px" }}>
               {referrerId && (
                 <FeeText>
@@ -600,6 +745,7 @@ return (
                 Net donation amount:{" "}
                 {state.matchingPoolDonationAmountNear -
                   protocolFeeAmountNear -
+                  chefFeeAmountNear -
                   referrerFeeAmountNear}{" "}
                 NEAR
               </FeeText>

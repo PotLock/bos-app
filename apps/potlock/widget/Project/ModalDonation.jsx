@@ -163,6 +163,7 @@ const resetState = () => {
     denomination: DENOMINATION_OPTIONS[0].value,
     showBreakdown: false,
     bypassProtocolFee: false,
+    bypassChefFee: false,
     addNote: false,
     donationNote: "",
     donationNoteError: "",
@@ -194,11 +195,8 @@ const handleDonate = () => {
   if (!projectId) {
     // get random project
     const randomIndex = Math.floor(Math.random() * projects.length);
-    console.log("randomIndex: ", randomIndex);
-    console.log("projects.length: ", projects.length);
     projectId = projects[randomIndex].id;
   }
-  console.log("projectId: ", projectId);
   const args = {
     referrer_id: referrerId,
     bypass_protocol_fee: state.bypassProtocolFee,
@@ -206,6 +204,9 @@ const handleDonate = () => {
   };
   if (potId) {
     args.project_id = projectId;
+    if (state.bypassChefFee) {
+      args.custom_chef_fee_basis_points = 0;
+    }
   } else {
     args.recipient_id = projectId;
   }
@@ -373,15 +374,30 @@ return (
               <Widget
                 src={`${ownerId}/widget/Inputs.Checkbox`}
                 props={{
-                  id: "bypassFeeSelector",
+                  id: "bypassProtocolFeeSelector",
                   checked: state.bypassProtocolFee,
                   onClick: (e) => {
                     State.update({ bypassProtocolFee: e.target.checked });
                   },
                 }}
               />
-              <Label htmlFor="bypassFeeSelector">Bypass protocol fee</Label>
+              <Label htmlFor="bypassProtocolFeeSelector">Bypass protocol fee</Label>
             </Row>
+            {potId && (
+              <Row style={{ padding: "0px", gap: "0px" }}>
+                <Widget
+                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  props={{
+                    id: "bypassChefFeeSelector",
+                    checked: state.bypassChefFee,
+                    onClick: (e) => {
+                      State.update({ bypassChefFee: e.target.checked });
+                    },
+                  }}
+                />
+                <Label htmlFor="bypassChefFeeSelector">Bypass chef fee</Label>
+              </Row>
+            )}
             <Widget
               src={`${ownerId}/widget/Cart.BreakdownSummary`}
               props={{
