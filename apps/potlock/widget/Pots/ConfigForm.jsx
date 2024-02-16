@@ -285,9 +285,6 @@ const canDeploy = useMemo(() => {
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getPotDetailArgsFromState();
-  if (state.customHandle) {
-    deployArgs.pot_handle = state.customHandle;
-  }
   // console.log("deployArgs: ", deployArgs);
   // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
 
@@ -296,12 +293,16 @@ const handleDeploy = () => {
   }).then((amount) => {
     // console.log("amount: ", amount);
     const amountYoctos = Big(amount).plus(Big("20000000000000000000000")); // add extra 0.02 NEAR as buffer
+    const args = { pot_args: deployArgs };
+    if (state.customHandle) {
+      args.pot_handle = state.customHandle;
+    }
     const transactions = [
       {
         contractName: POT_FACTORY_CONTRACT_ID,
         methodName: "deploy_pot",
         deposit: amountYoctos,
-        args: { pot_args: deployArgs },
+        args,
         gas: props.ONE_TGAS.mul(300),
       },
     ];
