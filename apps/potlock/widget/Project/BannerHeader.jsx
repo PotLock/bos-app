@@ -152,12 +152,6 @@ const BackgroundImageContainer = styled.div`
   `}
 `;
 
-// console.log("state in banner header: ", state);
-// console.log("props in banner header: ", props);
-// console.log("background image: ", backgroundImage);
-// console.log("image style: ", imageStyle);
-// console.log("profile image: ", profileImage);
-
 const CameraSvg = ({ height }) => (
   <svg
     width={height}
