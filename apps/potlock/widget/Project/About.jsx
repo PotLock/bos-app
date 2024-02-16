@@ -1,4 +1,4 @@
-const { ownerId } = props;
+const { ownerId, getTeamMembersFromSocialProfileData } = props;
 const { name, description, plPublicGoodReason } = props.profile;
 
 const Container = styled.div`
@@ -60,7 +60,7 @@ const Team = () => (
     src={`${ownerId}/widget/Project.Team`}
     props={{
       ...props,
-      team: Object.keys(props.profile.team ?? {}),
+      team: getTeamMembersFromSocialProfileData(props.profile),
     }}
   />
 );

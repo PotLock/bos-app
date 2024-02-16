@@ -462,6 +462,17 @@ const props = {
       : [];
     return tags;
   },
+  getTeamMembersFromSocialProfileData: (profileData) => {
+    if (!profileData) return [];
+    const team = profileData.plTeam
+      ? JSON.parse(profileData.plTeam)
+      : profileData.team
+      ? Object.entries(profileData.team)
+          .filter(([_, v]) => v !== null)
+          .map(([k, _]) => k)
+      : [];
+    return team;
+  },
   doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
     // TODO: break this out (NB: duplicated in Project.CreateForm)
     const userRoles = policy.roles.filter((role) => {
