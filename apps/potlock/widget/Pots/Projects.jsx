@@ -11,7 +11,7 @@ const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_m
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.ListSection`}
+    src={`${ownerId}/widget/Project.ListSection`}
     props={{
       ...props,
       maxCols: 2,

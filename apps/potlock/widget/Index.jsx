@@ -125,7 +125,7 @@ if (!state.donations) {
   });
 }
 
-const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
@@ -323,7 +323,8 @@ const props = {
   SUPPORTED_FTS: {
     // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
-      iconUrl: IPFS_BASE_URL + "bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
+      iconUrl:
+        "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
       fromIndivisible: (amount, decimals) =>
         Big(amount)
@@ -381,7 +382,7 @@ const props = {
       : null;
   },
   yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : "NEAR");
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
   },
   formatDate: (timestamp) => {
     const months = [
@@ -485,19 +486,22 @@ const props = {
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
     });
   },
-  openDonationSuccessModal: (successfulDonation) => {
-    console.log("opening success modal with donation data: ", successfulDonation);
-    State.update({
-      donationSuccessModal: {
-        isOpen: true,
-        successfulDonation,
-      },
-    });
-  },
+  // openDonationSuccessModal: (successfulDonation) => {
+  //   console.log("opening success modal with donation data: ", successfulDonation);
+  //   State.update({
+  //     donationSuccessModal: {
+  //       isOpen: true,
+  //       successfulDonation,
+  //     },
+  //   });
+  // },
   basisPointsToPercent: (basisPoints) => {
     return basisPoints / 100;
   },
-  IPFS_BASE_URL: "https://nftstorage.link/ipfs/",
+  IPFS_BASE_URL,
+  ipfsUrlFromCid: (cid) => {
+    return `${IPFS_BASE_URL}${cid}`;
+  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
@@ -587,26 +591,28 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
-    <Widget
-      src={`${ownerId}/widget/Project.ModalDonation`}
-      props={{
-        ...props,
-        isModalOpen: state.donateToProjectModal.isOpen,
-        onClose: () =>
-          State.update({
-            donateToProjectModal: {
-              isOpen: false,
-              recipientId: null,
-              referrerId: null,
-              potId: null,
-              potDetail: null,
-            },
-          }),
-        recipientId: state.donateToProjectModal.recipientId,
-        referrerId: state.donateToProjectModal.referrerId,
-        potId: state.donateToProjectModal.potId,
-      }}
-    />
+    {state.donateToProjectModal.isOpen && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalDonation`}
+        props={{
+          ...props,
+          isModalOpen: state.donateToProjectModal.isOpen,
+          onClose: () =>
+            State.update({
+              donateToProjectModal: {
+                isOpen: false,
+                recipientId: null,
+                referrerId: null,
+                potId: null,
+                potDetail: null,
+              },
+            }),
+          recipientId: state.donateToProjectModal.recipientId,
+          referrerId: state.donateToProjectModal.referrerId,
+          potId: state.donateToProjectModal.potId,
+        }}
+      />
+    )}
     <Widget
       src={`${ownerId}/widget/Project.ModalDonationSuccess`}
       props={{

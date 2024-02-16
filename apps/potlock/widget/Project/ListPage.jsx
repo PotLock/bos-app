@@ -151,13 +151,9 @@ return (
           },
           buttonPrimary: (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
               props={{
-                type: "primary",
-                text: "Donate Randomly",
-                disabled: false,
-                style: { padding: "16px 24px" },
-                onClick: handleDonateRandomly,
+                ...props,
               }}
             />
           ),
@@ -206,10 +202,40 @@ return (
     </HeroContainer>
     <ProjectsContainer>
       <Widget
-        src={`${ownerId}/widget/Components.ListSection`}
+        src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
           items: projects,
+          renderItem: (project) => {
+            return (
+              <Widget
+                src={`${ownerId}/widget/Project.Card`}
+                loading={
+                  <div
+                    style={{
+                      width: "355px",
+                      height: "455px",
+                      borderRadius: "12px",
+                      background: "white",
+                      boxShadow: "0px -2px 0px #dbdbdb inset",
+                      border: "1px solid #dbdbdb",
+                    }}
+                  />
+                }
+                props={{
+                  ...props,
+                  // potId,
+                  projectId: project.id,
+                  allowDonate: true,
+                  // allowDonate:
+                  //   sybilRequirementMet &&
+                  //   publicRoundOpen &&
+                  //   project.project_id !== context.accountId,
+                  // requireVerification: !sybilRequirementMet,
+                }}
+              />
+            );
+          },
         }}
       />
     </ProjectsContainer>
