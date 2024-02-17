@@ -286,6 +286,12 @@ const verifyIsOnRegistry = (address) => {
   }
 };
 
+useEffect(() => {
+  if (!state.isDao) {
+    verifyIsOnRegistry(context.accountId || "");
+  }
+}, []);
+
 const registryRequirementMet = state.isOnRegistry || !state.potDetail.registry_provider;
 
 const isError = state.applicationMessageError || state.daoAddressError;
