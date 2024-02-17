@@ -16,12 +16,39 @@ const projectIds = useMemo(
   [projects]
 );
 
-// console.log("pot id in modal: ", potId);
+const protocolConfigContractId = potDetail ? potDetail?.protocol_config_provider.split(":")[0] : "";
+const protocolConfigViewMethodName = potDetail
+  ? potDetail?.protocol_config_provider.split(":")[1]
+  : "";
+const protocolConfig =
+  protocolConfigContractId && protocolConfigViewMethodName
+    ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
+    : null;
 
-const protocolConfigContractId = potDetail?.protocol_config_provider.split(":")[0];
-const protocolConfigViewMethodName = potDetail?.protocol_config_provider.split(":")[1];
-const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
-// console.log("protocolConfig: ", protocolConfig);
+const donationContractConfig = !potDetail
+  ? Near.view(DONATION_CONTRACT_ID, "get_config", {})
+  : null;
+
+const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] = useMemo(
+  // if this is a pot donation, use pot config, else use donation contract config
+  () => {
+    if (protocolConfig) {
+      return [
+        protocolConfig.account_id,
+        protocolConfig.basis_points,
+        potDetail.referral_fee_public_round_basis_points,
+      ];
+    } else if (donationContractConfig) {
+      return [
+        donationContractConfig.protocol_fee_recipient_account,
+        donationContractConfig.protocol_fee_basis_points,
+        donationContractConfig.referral_fee_basis_points,
+      ];
+    } else {
+      return ["", 0, 0];
+    }
+  }
+);
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CLOSE_ICON_URL =
@@ -424,16 +451,16 @@ return (
               {/* <Label htmlFor="bypassProtocolFeeSelector">Bypass protocol fee</Label>
                */}
               <Label htmlFor="bypassProtocolFeeSelector">
-                Bypass {protocolConfig?.basis_points / 100 || "-"}% protocol fee to{" "}
+                Bypass {protocolFeeBasisPoints / 100 || "-"}% protocol fee to{" "}
                 <UserChipLink
-                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolConfig?.account_id}`}
+                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
                   target="_blank"
                 >
                   <Widget
                     src={`${ownerId}/widget/Project.ProfileImage`}
                     props={{
                       ...props,
-                      accountId: protocolConfig?.account_id,
+                      accountId: protocolFeeRecipientAccount,
                       style: {
                         height: "12px",
                         width: "12px",
@@ -441,7 +468,7 @@ return (
                     }}
                   />
                   <TextBold>
-                    {protocolFeeRecipientProfile?.name || protocolConfig?.account_id}
+                    {protocolFeeRecipientProfile?.name || protocolFeeRecipientAccount}
                   </TextBold>
                 </UserChipLink>
               </Label>
