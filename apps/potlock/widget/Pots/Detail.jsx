@@ -208,7 +208,10 @@ const handleSendApplication = () => {
   const args = {
     message: state.applicationMessage,
   };
-  const deposit = NEAR.toIndivisible("0.01");
+  let deposit = NEAR.toIndivisible("0.01");
+  const extraDeposit = Big(state.applicationMessage.length * 0.0001).mul(Big(10).pow(24));
+  deposit = deposit.plus(extraDeposit);
+
   const transactions = [
     {
       contractName: potId,
