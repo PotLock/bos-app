@@ -2,24 +2,19 @@ const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 
 const linktree = props.linktree;
 
-if (!linktree) return "Loading...";
+if (!linktree) return "";
 
 const LinktreeContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
   width: 100%;
-  padding: 0px 14px;
+  padding-right: 2rem;
 `;
 
-const LinktreeItemContainer = styled.div`
-  padding: 8px 0px;
+const LinktreeItemContainer = styled.a`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
 `;
 
 const Icon = styled.img`
@@ -57,31 +52,25 @@ return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
       return k in itemIconUrls ? (
-        <LinktreeItemContainer>
+        <LinktreeItemContainer
+          href={fullUrls[k](v)}
+          disabled={!v}
+          onClick={(e) => {
+            if (!v) {
+              e.preventDefault();
+            }
+          }}
+          target="_blank"
+        >
           <Icon src={itemIconUrls[k]} />
-          <LinkText
-            disabled={!v}
-            target="_blank"
-            href={fullUrls[k](v)}
-            onClick={(e) => {
-              if (!v) {
-                e.preventDefault();
-              }
-            }}
-          >
-            {k[0].toUpperCase() + k.slice(1)}
-          </LinkText>
         </LinktreeItemContainer>
       ) : null;
     })}
-    <LinktreeItemContainer>
+    <LinktreeItemContainer
+      target="_blank"
+      href={`https://near.social/mob.near/widget/ProfilePage?accountId=${props.projectId}`}
+    >
       <Icon src={itemIconUrls.NEAR} />
-      <LinkText
-        target="_blank"
-        href={`https://near.social/mob.near/widget/ProfilePage?accountId=${props.projectId}`}
-      >
-        NEAR
-      </LinkText>
     </LinktreeItemContainer>
   </LinktreeContainer>
 );

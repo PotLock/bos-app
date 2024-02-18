@@ -1,11 +1,9 @@
-const { accountId, tab, ownerId } = props;
+const { accountId, nav, ownerId } = props;
 if (!accountId) {
   return "";
 }
 
-const url = tab === "followers" ? `*/graph/follow/${accountId}` : `${accountId}/graph/follow/*`;
-
-console.log(tab);
+const url = nav === "followers" ? `*/graph/follow/${accountId}` : `${accountId}/graph/follow/*`;
 
 let followers = Social.keys(url, "final", {
   return_type: "BlockHeight",
@@ -15,7 +13,7 @@ let followers = Social.keys(url, "final", {
 if (followers === null) {
   return "Loading";
 }
-if (tab === "followers") {
+if (nav === "followers") {
   followers = Object.entries(followers || {});
   followers.sort((a, b) => b.graph.follow[accountId][1] - a.graph.follow[accountId][1]);
 } else {

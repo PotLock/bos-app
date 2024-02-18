@@ -1,5 +1,5 @@
-const { ownerId, tab, accountId } = props;
-console.log("tab", tab);
+const { ownerId, accountId, projectId, nav } = props;
+
 const Nav = styled.div`
   .nav-pills {
     background: #fbfbfb;
@@ -35,7 +35,7 @@ return (
         <li className="nav-item" role="presentation">
           <a
             href={`${profileLink}&nav=followers`}
-            className={`btn nav-link ${tab === "followers" ? "active" : ""}`}
+            className={`btn nav-link ${nav === "followers" ? "active" : ""}`}
             role="tab"
           >
             Followers
@@ -44,7 +44,7 @@ return (
         <li className="nav-item" role="presentation">
           <a
             href={`${profileLink}&nav=following`}
-            className={`btn nav-link ${tab === "following" ? "active" : ""}`}
+            className={`btn nav-link ${nav === "following" ? "active" : ""}`}
             role="tab"
           >
             Following
@@ -56,7 +56,7 @@ return (
       <div className="tab-pane fade in show active" role="tabpanel">
         <Widget
           src={`${ownerId}/widget/Profile.FollowersList`}
-          props={{ ...props, accountId, tab }}
+          props={{ ...props, accountId: projectId || accountId }}
         />
       </div>
     </div>

@@ -1,5 +1,3 @@
-const showDonate = props.showDonate !== undefined ? props.showDonate : true;
-
 const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [isModalDonationSucessOpen, setIsModalDonationSucessOpen] = useState(false);
 
@@ -22,7 +20,6 @@ const SubRow1 = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  // justify-content: flex-end;
   gap: 40px;
   width: 66%;
 
@@ -39,7 +36,6 @@ const SubRow2 = styled.div`
   justify-content: flex-end;
   gap: 40px;
   width: 33%;
-  // background: pink;
 
   @media screen and (max-width: 768px) {
     width: 100%;
@@ -76,8 +72,6 @@ const DonationButton = styled.button`
 //   }
 // `;
 
-// const existsInCart = props.cart && !!props.cart[props.projectId];
-
 return (
   <Container>
     {/* <FollowingMobile>
@@ -93,14 +87,11 @@ return (
     <SubRow1>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}
-        props={{ ...props, accountId: props.projectId }}
+        props={{ ...props, accountId: props.id }}
       />
-      <Widget
-        src={`${ownerId}/widget/Project.FollowButton`}
-        props={{ accountId: props.projectId }}
-      />
+      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: props.id }} />
     </SubRow1>
-    {showDonate && (
+    {props.tab === "project" && (
       <SubRow2>
         <DonationButton
           onClick={(e) => {
@@ -122,7 +113,6 @@ return (
             onClose: () => setIsModalDonationOpen(false),
           }}
         />
-        {/* <Widget src={`${ownerId}/widget/Cart.AddToCart`} props={{ ...props, showModal: true }} /> */}
       </SubRow2>
     )}
   </Container>

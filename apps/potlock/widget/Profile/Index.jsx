@@ -1,6 +1,7 @@
+const { ownerId } = props;
 const accountId = props.accountId ?? context.accountId;
 
-const { ownerId } = props;
+const { ProfileOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
 if (!accountId) {
   return "No account ID";
@@ -21,7 +22,7 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  padding: 252px 68px 68px;
+  padding-top: 252px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -29,7 +30,7 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    padding: 280px 16px 32px 16px;
+    padding-top: 240px;
   }
 `;
 
@@ -44,29 +45,7 @@ const SidebarContainer = styled.div`
 
 const profileLink = `/${ownerId}/widget/Index?tab=profile&accountId=${accountId}`;
 
-props.navOptions = [
-  {
-    label: "Social Feed",
-    id: "feed",
-    disabled: false,
-    source: "mob.near/widget/MainPage.N.Feed",
-    href: props.hrefWithEnv(`${profileLink}&nav=feed`),
-  },
-  {
-    label: "Donations",
-    id: "donations",
-    disabled: false,
-    source: `${ownerId}/widget/Pots.Donations`,
-    href: props.hrefWithEnv(`${profileLink}&nav=donations`),
-  },
-  {
-    label: "Widgets",
-    id: "widgets",
-    disabled: false,
-    source: `mob.near/widget/LastWidgets"`,
-    href: props.hrefWithEnv(`${profileLink}&nav=widgets`),
-  },
-];
+props.navOptions = ProfileOptions(props);
 
 return (
   <Wrapper>
@@ -85,25 +64,12 @@ return (
       }}
     />
     <Container>
-      <SidebarContainer>
-        <Widget
-          src={`${ownerId}/widget/Components.NavOptions`}
-          props={{
-            ...props,
-          }}
-        />
-        {profile.linktree && (
-          <Widget
-            src={`${ownerId}/widget/Project.Linktree`}
-            props={{
-              ...props,
-              linktree: profile.linktree,
-            }}
-          />
-        )}
-      </SidebarContainer>
       <Widget
-        src={`${ownerId}/widget/Profile.Body`}
+        src={`${ownerId}/widget/Project.SidebarContainer`}
+        props={{ ...props, linktree: profile.linktree }}
+      />
+      <Widget
+        src={`${ownerId}/widget/Profile.Details`}
         props={{
           ...props,
           profile,

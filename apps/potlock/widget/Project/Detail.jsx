@@ -1,129 +1,125 @@
-const { ownerId, id, userIsRegistryAdmin, REGISTRY_CONTRACT_ID, tab } = props;
+const {
+  ownerId,
+  projectId,
+  userIsRegistryAdmin,
+  REGISTRY_CONTRACT_ID,
+  tab,
+  POT_FACTORY_CONTRACT_ID,
+} = props;
 
-const projectId = id;
-props.projectId = projectId;
-const accountId = props.id ?? context.accountId;
-props.accountId = accountId;
+const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
-const { ProjectOptions, ProfileOptions } = VM.require(`${ownerId}/widget/Project.Options`);
-
-let project, donations;
-if (tab === "project") {
-  project = Near.view(REGISTRY_CONTRACT_ID, "get_project_by_id", { project_id: projectId });
-  if (!profile || project == null) {
-    return "Loading";
-  }
-
-  if (project == undefined) {
-    return "Project not found";
-  }
-  // Fetch Project Donations
-  donations = Near.view("donate.potlock.near", "get_donations_for_recipient", {
-    recipient_id: projectId,
-  });
-  props.donations = donations;
-  props.showProject = false; // hide recepientId row
-
-  if (!props.nav) props.nav = "home"; // default to home tab
+const project = Near.view(REGISTRY_CONTRACT_ID, "get_project_by_id", { project_id: projectId });
+if (!project || project == null) {
+  return "Loading";
 }
 
-const profile = Social.getr(`${id}/profile`);
+if (project == undefined) {
+  return "Project not found";
+}
+// Fetch Project Donations
+const donations = Near.view("donate.potlock.near", "get_donations_for_recipient", {
+  recipient_id: projectId,
+});
+
+props.donations = donations;
+props.navOptions = ProjectOptions(props);
+
+if (!props.nav) props.nav = "home"; // default to home tab
+
+const profile = Social.getr(`${projectId}/profile`);
 if (profile === null) {
   return "Loading";
 }
-console.log("profile", profile);
-const name = profile.name || "No-name profile";
-const image = profile.image;
-const backgroundImage = profile.backgroundImage;
+
+const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
+
+const projectLink = `https://near.social/potlock.near/widget/Index?tab=project&projectId=${
+  props.projectId
+}${context.accountId && `&referrerId=${context.accountId}`}`;
+
+const handleUpdateStatus = () => {
+  Near.call([
+    {
+      contractName: REGISTRY_CONTRACT_ID,
+      methodName: "admin_set_project_status",
+      args: {
+        project_id: props.projectId,
+        status: statusReview.newStatus,
+        review_notes: statusReview.notes,
+      },
+      deposit: NEAR.toIndivisible(0.01).toString(),
+    },
+  ]);
+};
 
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
 `;
-const SidebarContainer = styled.div`
-  width: 25%;
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-const Container = styled.div`
-  padding: 252px 68px 68px 68px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-
-  @media screen and (max-width: 768px) {
-    flex-direction: column;
-    padding: 240px 16px 32px 16px;
-  }
-`;
-const BodyContainer = styled.div`
-  flex: 1;
-  --primary-color: #dd3345;
-`;
-
-const BannerText = styled.div`
-  text-align: center;
-  color: white;
+const ModalTitle = styled.div`
+  color: #525252;
   font-size: 16px;
   font-weight: 600;
-  margin: 0 8px;
-  word-break: break-all;
-  @media screen and (max-width: 768px) {
-    font-size: 12px;
-    margin-left: 4px;
-  }
+  line-height: 20px;
+  word-wrap: break-word;
+  margin-bottom: 8px;
 `;
 
-props.navOptions = tab === "project" ? ProjectOptions(props) : ProfileOptions(props);
-const imageHeightPx = 120;
-const profileImageTranslateYPx = 220;
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 
 return (
   <Wrapper>
-    {/* {project.status !== "Approved" && (
-     
-    )} */}
     <Widget
-      src={`${ownerId}/widget/Project.BannerHeader`}
+      src={`${ownerId}/widget/Profile.Body`}
       props={{
         ...props,
         profile,
-
-        backgroundStyle: {
-          objectFit: "cover",
-          left: 0,
-          top: 0,
-          height: "280px",
-        },
+        project,
       }}
     />
-    <Container>
-      <SidebarContainer>
-        <Widget
-          src={`${ownerId}/widget/Components.NavOptions`}
-          props={{
-            ...props,
-          }}
-        />
-        <Widget
-          src={`${ownerId}/widget/Project.Linktree`}
-          props={{
-            ...props,
-            linktree: profile.linktree,
-          }}
-        />
-      </SidebarContainer>
-      <BodyContainer>
-        <Widget
-          src={`${ownerId}/widget/Project.Body`}
-          props={{
-            ...props,
-            profile,
-            project,
-          }}
-        />
-      </BodyContainer>
-    </Container>
+
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        ...props,
+        isModalOpen: statusReview.modalOpen,
+        onClose: () => setStatusReview({ ...statusReview, modalOpen: false }),
+        children: (
+          <>
+            <ModalTitle>Enter Notes for changing status to {statusReview.newStatus}</ModalTitle>
+            <Widget
+              src={`${ownerId}/widget/Inputs.TextArea`}
+              props={{
+                noLabel: true,
+                inputRows: 5,
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Your notes here...",
+                value: statusReview.notes,
+                onChange: (notes) => setStatusReview({ ...statusReview, notes }),
+                validate: () => {
+                  // none necessary
+                },
+              }}
+            />
+            <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "primary",
+                  text: "Submit",
+                  onClick: handleUpdateStatus,
+                }}
+              />
+            </Row>
+          </>
+        ),
+      }}
+    />
   </Wrapper>
 );
