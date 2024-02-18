@@ -26,6 +26,13 @@ const Container = styled.div`
   gap: 40px;
   width: 100%;
   background: #f6f5f3;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    padding: 50px 0;
+  }
 `;
 
 const Column = styled.div`
@@ -34,6 +41,11 @@ const Column = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   width: 40%;
+  @media screen and (max-width: 768px) {
+    justify-content: start;
+    width: 100%;
+    padding: 0 20px;
+  }
 `;
 
 const Title = styled.div`

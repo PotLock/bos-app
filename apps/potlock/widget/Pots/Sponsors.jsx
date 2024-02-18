@@ -114,6 +114,12 @@ const maxRowItemLength = 14;
 
 return (
   <Container>
+    <Widget
+      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      props={{
+        ...props,
+      }}
+    />
     <TableContainer>
       <Header>
         {columns.map((column, index) => (

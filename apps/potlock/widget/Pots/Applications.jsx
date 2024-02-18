@@ -160,6 +160,12 @@ const sortApplications = (sortVal) => {
 return (
   <>
     <Widget
+      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      props={{
+        ...props,
+      }}
+    />
+    <Widget
       src={`${ownerId}/widget/Project.SearchBar`}
       props={{
         title: "Filter",
