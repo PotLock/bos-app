@@ -169,7 +169,7 @@ return (
         />
       </Row>
     </HeaderContent>
-    <Content>
+    {/* <Content>
       <Title>Featured Pots</Title>
       <Icon>
         <IconArrow
@@ -205,7 +205,7 @@ return (
           }}
         />
       ))}
-    </containerStyle>
+    </containerStyle> */}
 
     {state.pots && (
       <Widget
