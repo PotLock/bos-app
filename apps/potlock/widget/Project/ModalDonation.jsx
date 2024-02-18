@@ -10,7 +10,7 @@ const {
 } = props;
 const projects = registeredProjects || [];
 
-const projectIds = useMemo(
+const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
   () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
   [projects]
@@ -258,8 +258,8 @@ const handleDonate = () => {
   let projectId = recipientId;
   if (!projectId) {
     // get random project
-    const randomIndex = Math.floor(Math.random() * projects.length);
-    projectId = projects[randomIndex].id;
+    const randomIndex = Math.floor(Math.random() * approvedProjectIds.length);
+    projectId = approvedProjectIds[randomIndex];
   }
   const args = {
     referrer_id: referrerId,
