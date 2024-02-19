@@ -138,7 +138,7 @@ return (
           title1: "Transforming",
           title2: "Funding for Public Goods",
           description:
-            "Discover impact projects, donate directly, or get automatic referral fees for raising donations",
+            "Discover impact projects, donate directly, & participate in funding rounds.",
           centered: true,
           containerStyle: {
             position: "absolute",
