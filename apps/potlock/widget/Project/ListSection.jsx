@@ -44,7 +44,7 @@ const SORT_FILTERS = {
 
 const PAGE_SIZE = 9;
 
-const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjectIds = ["sharddog.near", "openwebacademy.near", "build.sputnik-dao.near"];
 const featuredProjects = useMemo(
   () => props.items.filter((project) => featuredProjectIds.includes(project.id)),
   props.items
