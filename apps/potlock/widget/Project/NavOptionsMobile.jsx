@@ -55,6 +55,8 @@ return (
         <NavOption selected={selected} disabled={option.disabled}>
           {option.label}
         </NavOption>
+      ) : !option.label ? (
+        ""
       ) : (
         <NavOption
           selected={selected}
