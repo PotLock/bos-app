@@ -20,11 +20,30 @@ if (nav === "followers") {
   followers = Object.entries(followers[accountId].graph.follow || {});
   followers.sort((a, b) => b[1] - a[1]);
 }
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  .profile-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-primary {
+    background-color: #dd3345;
+    border: none;
+    transition: all 300ms;
+    :hover {
+      opacity: 0.8;
+    }
+  }
+`;
 
 return (
-  <>
+  <Container>
     {followers.map(([accountId], i) => (
-      <div key={i} className="d-flex justify-content-between mb-3">
+      <div className="profile-row" key={i}>
         <div className="me-4">
           <Widget src={`${ownerId}/widget/Profile.Preview`} props={{ ...props, accountId }} />
         </div>
@@ -33,5 +52,5 @@ return (
         </div>
       </div>
     ))}
-  </>
+  </Container>
 );

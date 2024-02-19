@@ -1,5 +1,12 @@
 const { ownerId, accountId, projectId, nav } = props;
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  .tab-content {
+    padding: 1rem 0;
+  }
+`;
 const Nav = styled.div`
   .nav-pills {
     background: #fbfbfb;
@@ -29,7 +36,7 @@ const Nav = styled.div`
 const profileLink = `/${ownerId}/widget/Index?tab=profile&accountId=${accountId}`;
 
 return (
-  <>
+  <Container>
     <Nav>
       <ul className="nav nav-pills nav-fill" role="tablist">
         <li className="nav-item" role="presentation">
@@ -60,5 +67,5 @@ return (
         />
       </div>
     </div>
-  </>
+  </Container>
 );

@@ -189,7 +189,7 @@ const tabContentWidget = {
   [DEPLOY_POT_TAB]: "Pots.Deploy",
   [POT_DETAIL_TAB]: "Pots.Detail",
   [DONORS_TAB]: "Components.Donors",
-  [PROFILE_TAB]: "Profile.Index",
+  [PROFILE_TAB]: "Profile.Detail",
 };
 
 const getTabWidget = (tab) => {

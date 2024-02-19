@@ -91,8 +91,6 @@ const { name, description, plCategories } = projectProfile;
 // const description = projectProfile?.description || "No description";
 // const category = projectProfile?.category || "No category";
 
-const tags = getTagsFromSocialProfileData(projectProfile);
-
 const donationsForProject = Near.view(
   potId || donationContractId,
   potId ? "get_donations_for_project" : "get_donations_for_recipient",
@@ -158,10 +156,10 @@ return (
           : description}
       </SubTitle>
       <Widget
-        src={`${ownerId}/widget/Project.Tags`}
+        src={`${ownerId}/widget/Profile.Tags`}
         props={{
           ...props,
-          tags,
+          profile: projectProfile,
         }}
       />
     </Info>

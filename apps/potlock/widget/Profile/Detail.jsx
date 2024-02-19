@@ -25,6 +25,7 @@ const getSponsorships = (potId, potDetail) => {
     const updatedDonations = donations.map((donation) => ({
       ...donation,
       base_currency: potDetail.base_currency,
+
       pot_name: potDetail.pot_name,
       pot_id: potId,
     }));

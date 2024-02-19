@@ -68,7 +68,9 @@ return (
     })}
     <LinktreeItemContainer
       target="_blank"
-      href={`https://near.social/mob.near/widget/ProfilePage?accountId=${props.projectId}`}
+      href={`https://near.social/mob.near/widget/ProfilePage?accountId=${
+        props.projectId || props.accountId
+      }`}
     >
       <Icon src={itemIconUrls.NEAR} />
     </LinktreeItemContainer>
