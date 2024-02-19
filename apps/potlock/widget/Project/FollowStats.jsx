@@ -1,4 +1,5 @@
 const accountId = props.accountId;
+const projectId = props.projectId;
 const ownerId = props.ownerId;
 if (!accountId) {
   return "";
@@ -17,7 +18,11 @@ const followers = Social.keys(`*/graph/follow/${accountId}`, "final", {
 const numFollowing = following ? Object.keys(following[accountId].graph.follow || {}).length : null;
 const numFollowers = followers ? Object.keys(followers || {}).length : null;
 
-const profileLink = `/${ownerId}/widget/Index?tab=profile&accountId=${accountId}`;
+const profileLink = props.hrefWithEnv(
+  `?tab=${projectId ? "project" : "profile"}&${projectId ? "projectId" : "accountId"}=${
+    projectId || accountId
+  }`
+);
 
 return (
   <div>

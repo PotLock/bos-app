@@ -107,7 +107,7 @@ return (
                     accountId: donor_id,
                     children: (
                       <a
-                        href={`/${ownerId}/widget/Index?tab=profile&accountId=${donor_id}`}
+                        href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
                         className="address"
                         target="_blank"
                       >
@@ -129,7 +129,7 @@ return (
                     accountId: recipient_id,
                     children: (
                       <a
-                        href={`/${ownerId}/widget/Index?tab=project&projectId=` + recipient_id}
+                        href={props.hrefWithEnv(`?tab=project&projectId=${recipient_id}`)}
                         className="address"
                         target="_blank"
                       >

@@ -33,7 +33,7 @@ const Nav = styled.div`
   margin: 0 -12px;
 `;
 
-const profileLink = `/${ownerId}/widget/Index?tab=profile&accountId=${accountId}`;
+const profileLink = props.hrefWithEnv(`?tab=profile&accountId=${accountId}`);
 
 return (
   <Container>
