@@ -127,7 +127,7 @@ return (
       src={`${ownerId}/widget/Profile.BannerHeader`}
       props={{
         ...props,
-        projectId,
+        accountId: projectId,
         profile: projectProfile,
         profileImageTranslateYPx: 145,
         profileImageTranslateYPxMobile: 122,

@@ -5,6 +5,7 @@ const {
   profileLink,
   getTagsFromSocialProfileData,
   POT_FACTORY_CONTRACT_ID,
+  DONATION_CONTRACT_ID,
   SUPPORTED_FTS: { NEAR },
 } = props;
 
@@ -33,7 +34,7 @@ const getSponsorships = (potId, potDetail) => {
 
 // Get Sponsorships
 if (!directDonations.length) {
-  Near.asyncView("donate.potlock.near", "get_donations_for_donor", {
+  Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
     donor_id: accountId,
   }).then((donations) => setDirectDonation(donations));
 }

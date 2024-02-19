@@ -1,7 +1,5 @@
 const { ownerId, accountId } = props;
 
-console.log("accountId", accountId);
-
 if (!accountId) {
   return "No account ID";
 }
