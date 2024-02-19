@@ -25,11 +25,11 @@ const Table = styled.div`
   background: white;
   box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2), 0px 2px 4px -2px rgba(82, 82, 82, 0.3);
   border: 1px solid rgba(41, 41, 41, 0.5);
-
+  padding-bottom: 1rem;
+  overflow-x: scroll;
   .transcation {
     display: grid;
     width: 100%;
-    overflow-x: scroll;
     .header {
       display: flex;
       align-items: center;
@@ -93,6 +93,7 @@ const TrRow = styled.div`
 `;
 const Stats = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 3rem;
   padding: 1rem 0;
@@ -161,7 +162,7 @@ const SearchBar = () => (
       src="https://ipfs.near.social/ipfs/bafkreiaayazawvdxdt2f4ahyh3yy3sz622bwwxdnrj32jzkoec7k7jaxza"
       alt="search-icon"
     />
-    <input type="text" placeholder="Search donors" onChange={(e) => setSearch(e.target.value)} />
+    <input type="text" placeholder="Search project" onChange={(e) => setSearch(e.target.value)} />
   </Search>
 );
 

@@ -14,7 +14,7 @@ const ProjectOptions = (props) => [
     href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=feed`),
   },
   {
-    label: "Donations",
+    label: "",
     id: "donations",
     disabled: false,
     source: `${props.ownerId}/widget/Profile.DonationsTable`,

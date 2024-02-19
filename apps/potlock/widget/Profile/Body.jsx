@@ -23,6 +23,7 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
+    gap: 1rem;
     padding-top: 240px;
   }
 `;
@@ -32,10 +33,15 @@ const Details = styled.div`
   flex-direction: column;
   gap: 2rem;
   flex: 1 1 0%;
+  width: 100%;
+  overflow-x: scroll;
   .nav-view {
     width: 100%;
     padding: 24px 50px;
     background: #f6f5f3;
+    @media screen and (max-width: 768px) {
+      padding: 24px 1rem;
+    }
   }
 `;
 
@@ -43,7 +49,10 @@ const SidebarContainer = styled.div`
   width: 15%;
   padding-left: 1rem;
   @media screen and (max-width: 768px) {
-    display: none;
+    width: fit-content;
+    > div:first-of-type {
+      display: none;
+    }
   }
 `;
 
@@ -62,8 +71,14 @@ return (
         },
       }}
     />
-    {/* Side Nav */}
     <Container>
+      {/* Side Nav */}
+      <Widget
+        src={`${ownerId}/widget/Project.NavOptionsMobile`}
+        props={{
+          ...props,
+        }}
+      />
       <SidebarContainer>
         <Widget
           src={`${ownerId}/widget/Components.NavOptions`}
@@ -78,12 +93,7 @@ return (
           }}
         />
       </SidebarContainer>
-      <Widget
-        src={`${ownerId}/widget/Project.NavOptionsMobile`}
-        props={{
-          ...props,
-        }}
-      />
+
       {/* Body */}
       <Details>
         <Widget
