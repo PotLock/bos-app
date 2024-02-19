@@ -14,8 +14,9 @@ if (!accountId) {
 
 const [pots, setPots] = useState(null);
 const [directDonations, setDirectDonation] = useState(null);
-const [sponsorship, setSponsorship] = useState(null);
+const [sponsorship, setSponsorship] = useState([]);
 const [potDonations, setPotDonations] = useState([]);
+const [isComplete, setISComplete] = useState(false);
 
 const getPotConfig = (potId) => Near.asyncView(potId, "get_config", {});
 
@@ -25,16 +26,15 @@ const getSponsorships = (potId, potDetail) => {
     const updatedDonations = donations.map((donation) => ({
       ...donation,
       base_currency: potDetail.base_currency,
-
       pot_name: potDetail.pot_name,
       pot_id: potId,
     }));
     if (updatedDonations.length) {
-      setSponsorship([...(sponsorship || []), ...updatedDonations]);
+      setSponsorship((sponsorship) => [...sponsorship, ...updatedDonations]);
+      if (potId === pots[pots.length - 1].id) setISComplete(true);
     }
   });
 };
-
 // Get Direct Donations
 if (!directDonations) {
   Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
@@ -46,7 +46,7 @@ if (!pots) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
     setPots(pots || []);
   });
-} else if (pots.length && !sponsorship) {
+} else if (pots.length && !isComplete) {
   pots.forEach((pot) => {
     getPotConfig(pot.id).then((potDetail) => {
       getSponsorships(pot.id, potDetail);
@@ -54,12 +54,8 @@ if (!pots) {
   });
 }
 
-// Get Total Donations
-const [allDonations] = useMemo(() => {
-  const allDonations = [...(sponsorship || []), ...(directDonations || [])];
-  allDonations.sort((a, b) => b.donated_at - a.donated_at);
-  return [allDonations];
-}, [directDonations, sponsorship, potDonations]);
+const allDonations = [...(directDonations || []), ...sponsorship];
+allDonations.sort((a, b) => b.donated_at - a.donated_at);
 
 props.donations = allDonations;
 

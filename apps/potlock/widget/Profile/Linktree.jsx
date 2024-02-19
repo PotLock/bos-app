@@ -47,7 +47,6 @@ const fullUrls = {
   github: (username) => `https://github.com/${username.trim()}`,
   website: (url) => (url.includes("http") ? url : `https://${url.trim()}`),
 };
-console.log(linktree);
 return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
