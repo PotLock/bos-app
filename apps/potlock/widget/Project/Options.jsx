@@ -10,14 +10,14 @@ const ProjectOptions = (props) => [
     label: "Social Feed",
     id: "feed",
     disabled: false,
-    source: `${props.ownerId}/widget/Project.Feed`,
+    source: `${props.ownerId}/widget/Profile.Feed`,
     href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=feed`),
   },
   {
     label: "Donations",
     id: "donations",
     disabled: false,
-    source: `${props.ownerId}/widget/Project.Donations`,
+    source: `${props.ownerId}/widget/Profile.DonationsTable`,
     href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=donations`),
   },
   {
@@ -35,6 +35,18 @@ const ProjectOptions = (props) => [
     id: "funding",
     disabled: true,
   },
+  {
+    label: "",
+    id: "followers",
+    disabled: false,
+    source: `${props.ownerId}/widget/Profile.FollowTabs`,
+  },
+  {
+    label: "",
+    id: "following",
+    disabled: false,
+    source: `${props.ownerId}/widget/Profile.FollowTabs`,
+  },
 ];
 
 const ProfileOptions = (props) => [
@@ -42,14 +54,14 @@ const ProfileOptions = (props) => [
     label: "Social Feed",
     id: "feed",
     disabled: false,
-    source: `mob.near/widget/MainPage.N.Feed`,
+    source: `${props.ownerId}/widget/Profile.Feed`,
     href: props.hrefWithEnv(`?tab=profile&accountId=${props.accountId}&nav=feed`),
   },
   {
     label: "Donations",
     id: "donations",
     disabled: false,
-    source: `${props.ownerId}/widget/Project.Donations`,
+    source: `${props.ownerId}/widget/Profile.DonationsTable`,
     href: props.hrefWithEnv(`?tab=profile&accountId=${props.accountId}&nav=donations`),
   },
   {

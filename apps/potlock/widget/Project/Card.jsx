@@ -124,7 +124,7 @@ const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${projectId}`);
 return (
   <Card href={projectUrl} key={projectId}>
     <Widget
-      src={`${ownerId}/widget/Project.BannerHeader`}
+      src={`${ownerId}/widget/Profile.BannerHeader`}
       props={{
         ...props,
         projectId,

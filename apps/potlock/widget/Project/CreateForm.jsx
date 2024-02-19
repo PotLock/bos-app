@@ -978,7 +978,7 @@ return (
     ) : (
       <>
         <Widget
-          src={`${ownerId}/widget/Project.BannerHeader`}
+          src={`${ownerId}/widget/Profile.BannerHeader`}
           props={{
             ...props,
             projectId: state.isDao && state.daoAddress ? state.daoAddress : context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social

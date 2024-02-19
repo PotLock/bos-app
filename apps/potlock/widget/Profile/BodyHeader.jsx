@@ -1,10 +1,11 @@
-const { profile, ownerId, accountId } = props;
+const { profile, ownerId, accountId, id, projectId } = props;
 
 const Header = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 50px;
   width: 100%;
+  gap: 0.5rem;
 `;
 const NameContainer = styled.div`
   display: flex;
@@ -96,20 +97,20 @@ return (
   <Header>
     <NameContainer>
       <Name>{profile.name}</Name>
-      {canEdit && (
+      {canEdit && projectId && (
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
             type: "secondary",
             text: "Edit profile",
             disabled: false,
-            href: props.hrefWithEnv(`?tab=editproject&projectId=${props.id}`),
+            href: props.hrefWithEnv(`?tab=editproject&projectId=${id}`),
           }}
         />
       )}
     </NameContainer>
     <AccountInfoContainer>
-      <AccountId>@{props.id}</AccountId>
+      <AccountId>@{id}</AccountId>
       <Widget
         src={`${ownerId}/widget/Project.Share`}
         props={{
@@ -128,7 +129,6 @@ return (
       src={`${ownerId}/widget/Project.Actions`}
       props={{
         ...props,
-        id: projectId || accountId,
       }}
     />
   </Header>

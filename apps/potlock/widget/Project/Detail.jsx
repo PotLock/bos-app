@@ -78,6 +78,8 @@ return (
       props={{
         ...props,
         profile,
+        accounts: [projectId],
+        projectId: projectId,
         project,
       }}
     />

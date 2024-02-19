@@ -50,9 +50,10 @@ const SidebarContainer = styled.div`
 return (
   <Wrapper>
     <Widget
-      src={`${ownerId}/widget/Project.BannerHeader`}
+      src={`${ownerId}/widget/Profile.BannerHeader`}
       props={{
         ...props,
+        accountId: projectId || accountId,
         backgroundStyle: {
           objectFit: "cover",
           left: 0,
@@ -71,7 +72,7 @@ return (
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Project.Linktree`}
+          src={`${ownerId}/widget/Profile.Linktree`}
           props={{
             ...props,
           }}
@@ -86,7 +87,7 @@ return (
       {/* Body */}
       <Details>
         <Widget
-          src={`${ownerId}/widget/Project.BodyHeader`}
+          src={`${ownerId}/widget/Profile.BodyHeader`}
           props={{
             ...props,
             id: projectId || accountId,

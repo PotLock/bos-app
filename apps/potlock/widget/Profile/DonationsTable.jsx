@@ -211,7 +211,6 @@ return (
             } = donation;
 
             const isPot = !!pot_id;
-
             const donationAmount =
               SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(total_amount);
 
