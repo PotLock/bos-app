@@ -1,6 +1,6 @@
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 
-const linktree = props.linktree;
+const linktree = props.profile?.linktree;
 
 if (!linktree) return "";
 
@@ -45,9 +45,9 @@ const itemIconUrls = {
 const fullUrls = {
   twitter: (handle) => `https://twitter.com/${handle}`,
   github: (username) => `https://github.com/${username}`,
-  website: (url) => url,
+  website: (url) => `https://${url}`,
 };
-
+console.log(linktree);
 return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
