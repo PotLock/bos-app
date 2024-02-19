@@ -318,7 +318,7 @@ return (
           onClick: (page) => {
             setPage(page);
             setTotalDonation(donations.slice(page * perPage, (page + 1) * perPage));
-            sortDonations();
+            setFilteredDonations(donations.slice(page * perPage, (page + 1) * perPage));
           },
           data: donations,
           page: page,
