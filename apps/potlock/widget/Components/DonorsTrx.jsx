@@ -1,9 +1,6 @@
 const { ownerId, donations } = props;
-const showDonor = props.showDonor !== undefined ? props.showDonor : true;
-const showProject = props.showProject !== undefined ? props.showProject : true;
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
-console.log(donations);
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
@@ -87,9 +84,9 @@ return (
     <div className="transcation">
       <div className="header">
         <div>ID</div>
-        {showDonor && <div>Donor ID</div>}
+        <div>Donor ID</div>
         <div>Amount</div>
-        {showProject && <div>Project ID</div>}
+        <div>Project ID</div>
         <div>Date</div>
       </div>
       {reverseArr(donations)
@@ -100,45 +97,41 @@ return (
           return (
             <TrRow>
               <div>{id}</div>
-              {showDonor && (
-                <Widget
-                  src="near/widget/AccountProfileOverlay"
-                  props={{
-                    accountId: donor_id,
-                    children: (
-                      <a
-                        href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
-                        className="address"
-                        target="_blank"
-                      >
-                        {_address(donor_id)}{" "}
-                      </a>
-                    ),
-                  }}
-                />
-              )}
+              <Widget
+                src="near/widget/AccountProfileOverlay"
+                props={{
+                  accountId: donor_id,
+                  children: (
+                    <a
+                      href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
+                      className="address"
+                      target="_blank"
+                    >
+                      {_address(donor_id)}{" "}
+                    </a>
+                  ),
+                }}
+              />
               <div className="price">
                 {calcNetDonationAmount(donation).toFixed(2)}
 
                 <img src={nearLogo} alt="NEAR" />
               </div>
-              {showProject && (
-                <Widget
-                  src="near/widget/AccountProfileOverlay"
-                  props={{
-                    accountId: recipient_id,
-                    children: (
-                      <a
-                        href={props.hrefWithEnv(`?tab=project&projectId=${recipient_id}`)}
-                        className="address"
-                        target="_blank"
-                      >
-                        {_address(recipient_id)}
-                      </a>
-                    ),
-                  }}
-                />
-              )}
+              <Widget
+                src="near/widget/AccountProfileOverlay"
+                props={{
+                  accountId: recipient_id,
+                  children: (
+                    <a
+                      href={props.hrefWithEnv(`?tab=project&projectId=${recipient_id}`)}
+                      Name="address"
+                      target="_blank"
+                    >
+                      {_address(recipient_id)}
+                    </a>
+                  ),
+                }}
+              />
               <div>{getTimePassed(donated_at_ms)} ago</div>
             </TrRow>
           );

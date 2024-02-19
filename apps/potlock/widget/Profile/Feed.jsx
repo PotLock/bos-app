@@ -1,4 +1,3 @@
-console.log(accounts);
 return (
   <Widget
     key="feed"
