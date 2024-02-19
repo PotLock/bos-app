@@ -43,9 +43,9 @@ const itemIconUrls = {
 };
 
 const fullUrls = {
-  twitter: (handle) => `https://twitter.com/${handle}`,
-  github: (username) => `https://github.com/${username}`,
-  website: (url) => `https://${url}`,
+  twitter: (handle) => `https://twitter.com/${handle.trim()}`,
+  github: (username) => `https://github.com/${username.trim()}`,
+  website: (url) => (url.includes("http") ? url : `https://${url.trim()}`),
 };
 console.log(linktree);
 return (
