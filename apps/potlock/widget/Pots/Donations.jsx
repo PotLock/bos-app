@@ -155,6 +155,12 @@ const searchDonations = (searchTerm) => {
 
 return (
   <Container>
+    <Widget
+      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      props={{
+        ...props,
+      }}
+    />
     <OuterTextContainer>
       <OuterText>all donations</OuterText>
       <DonationsCount>{state.allDonations.length}</DonationsCount>

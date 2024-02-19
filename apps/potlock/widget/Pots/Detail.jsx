@@ -23,7 +23,7 @@ const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
-
+  overflow-x: hidden;
   // @media screen and (max-width: 768px) {
   //   .mb-2 {
   //     width: 64px;
@@ -45,7 +45,9 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    padding: 240px 16px 32px 16px;
+    //padding: 240px 16px 32px 16px;
+    width: 100%;
+    padding: 0;
   }
 `;
 
@@ -102,10 +104,13 @@ if (state.potDetail === null) {
     .then((potDetail) => {
       if (potDetail.sybil_wrapper_provider) {
         const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
-        Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((result) => {
-          // console.log("sybil result: ", result);
-          State.update({ potDetail, sybilRequirementMet: result });
-        });
+        Near.asyncView(contractId, methodName, { account_id: context.accountId })
+          .then((result) => {
+            State.update({ potDetail, sybilRequirementMet: result });
+          })
+          .catch((e) => {
+            State.update({ potDetail, sybilRequirementMet: false });
+          });
       } else {
         State.update({ potDetail, sybilRequirementMet: true });
       }
@@ -171,7 +176,32 @@ props.navOptions = [
   },
 ];
 
-if (!props.nav) props.nav = "projects"; // default to home tab
+const potDetail = state.potDetail;
+const now = Date.now();
+const applicationNotStarted = now < potDetail.application_start_ms;
+const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
+
+const publicRoundOpen =
+  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
+const publicRoundClosed = now >= potDetail.public_round_end_ms;
+
+const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
+
+//console.log("state", canPayoutsBeSet);
+
+if (!props.nav) {
+  let nav;
+  applicationNotStarted
+    ? (nav = "sponsors")
+    : applicationOpen
+    ? (nav = "applications")
+    : publicRoundOpen
+    ? (nav = "projects")
+    : !payoutsPending
+    ? (nav = "donations")
+    : (nav = "payouts");
+  props.nav = nav;
+} // default to home tab
 
 // const imageHeightPx = 120;
 // const profileImageTranslateYPx = 220;
@@ -180,7 +210,10 @@ const handleSendApplication = () => {
   const args = {
     message: state.applicationMessage,
   };
-  const deposit = NEAR.toIndivisible("0.01");
+  let deposit = NEAR.toIndivisible("0.01");
+  const extraDeposit = Big(state.applicationMessage.length * 0.0001).mul(Big(10).pow(24));
+  deposit = deposit.plus(extraDeposit);
+
   const transactions = [
     {
       contractName: potId,
@@ -257,6 +290,12 @@ const verifyIsOnRegistry = (address) => {
     }
   }
 };
+
+useEffect(() => {
+  if (!state.isDao) {
+    verifyIsOnRegistry(context.accountId || "");
+  }
+}, []);
 
 const registryRequirementMet = state.isOnRegistry || !state.potDetail.registry_provider;
 

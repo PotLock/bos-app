@@ -5,6 +5,7 @@ const {
   validateEVMAddress,
   validateGithubRepoUrl,
   doesUserHaveDaoFunctionCallProposalPermissions,
+  getTeamMembersFromSocialProfileData,
 } = props;
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
@@ -332,8 +333,6 @@ State.init({
   alertMessage: "",
 });
 
-console.log("state in create form: ", state);
-
 const CATEGORY_MAPPINGS = {
   SOCIAL_IMPACT: "Social Impact",
   NON_PROFIT: "NonProfit",
@@ -466,8 +465,8 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
             []
           )
         : [];
-      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
       const hasSmartContracts = smartContracts.length > 0;
+      smartContracts.push(["", ""]); // Add an empty string to the end of the array to allow for adding new contracts
 
       const githubRepos = profileData.plGithubRepos
         ? JSON.parse(profileData.plGithubRepos).map((repo) => [repo])
@@ -485,7 +484,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
       const telegram = linktree.telegram || "";
       const github = linktree.github || "";
       const website = linktree.website || "";
-      const team = profileData.team || {};
+      const team = getTeamMembersFromSocialProfileData(profileData);
       // update state
       const stateUpdates = {
         existingSocialData: socialData[accountId],
@@ -514,12 +513,7 @@ const setSocialData = (accountId, shouldSetTeamMembers) => {
         stateUpdates.backgroundImage = backgroundImage;
       }
       if (shouldSetTeamMembers) {
-        stateUpdates.teamMembers = Object.entries(team)
-          .filter(([_accountId, value]) => value !== null)
-          .map(([accountId, _]) => ({
-            accountId,
-            imageUrl: DEFAULT_PROFILE_IMAGE_URL, // TODO: fetch actual image from near social. or better, move ProfileImage to its own component that handles the social data fetching
-          }));
+        stateUpdates.teamMembers = team;
       }
       State.update(stateUpdates);
     })
@@ -636,10 +630,7 @@ const handleCreateOrUpdateProject = (e) => {
         telegram: state.telegram,
         github: state.github,
       },
-      team: state.teamMembers.reduce(
-        (acc, tm) => ({ ...acc, [tm.accountId]: tm.remove ? null : "" }),
-        {}
-      ),
+      plTeam: JSON.stringify(state.teamMembers),
     },
     // follow & star Potlock
     index: {
@@ -833,35 +824,13 @@ const handleAddTeamMember = () => {
     });
     return;
   }
-  if (!state.teamMembers.find((tm) => tm.accountId == state.teamMember)) {
-    // get data from social.near
-    const profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
-    const fullTeamMember = {
-      accountId: state.teamMember.toLowerCase(),
-      imageUrl: profileImageUrl,
-    };
-    Near.asyncView("social.near", "get", { keys: [`${state.teamMember}/profile/**`] })
-      .then((socialData) => {
-        if (socialData) {
-          const profileData = socialData[state.teamMember].profile;
-          if (!profileData) return;
-          // get profile image URL
-          if (profileData.image) {
-            const imageUrl = getImageUrlFromSocialImage(profileData.image);
-            if (imageUrl) fullTeamMember.imageUrl = imageUrl;
-          }
-        }
-      })
-      .catch((e) => {
-        console.log("error getting social data: ", e);
-      })
-      .finally(() => {
-        State.update({
-          teamMembers: [...state.teamMembers, fullTeamMember],
-          teamMember: "",
-          nearAccountIdError: "",
-        });
-      });
+  if (!state.teamMembers.find((tm) => tm == state.teamMember)) {
+    // update state
+    State.update({
+      teamMembers: [...state.teamMembers, state.teamMember],
+      teamMember: "",
+      nearAccountIdError: "",
+    });
   }
 };
 
@@ -899,7 +868,8 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
-if (props.edit && (!registeredProject || !userHasPermissions)) {
+// if (props.edit && (!registeredProject || !userHasPermissions)) { // TODO: ADD THIS BACK IN
+if (props.edit && !userHasPermissions) {
   return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
 }
 
@@ -911,7 +881,7 @@ const uploadFileUpdateState = (body, callback) => {
   }).then(callback);
 };
 
-// console.log("state.funding sources: ", state.fundingSources);
+// console.log("state in create form: ", state);
 
 return (
   <Container>
@@ -1010,7 +980,7 @@ return (
             children: (
               <LowerBannerContainer>
                 <LowerBannerContainerLeft>
-                  <AddTeamMembers onClick={() => State.update({ isModalOpen: true })}>
+                  <AddTeamMembers onClick={() => State.update({ isMultiAccountModalOpen: true })}>
                     {state.teamMembers.length > 0
                       ? "Add or remove team members"
                       : "Add team members"}
@@ -1020,12 +990,8 @@ return (
                   <Widget
                     src={`${ownerId}/widget/Components.AccountsStack`}
                     props={{
-                      accountIds: state.teamMembers
-                        .filter((teamMember) => !teamMember.remove)
-                        .map((tm) => {
-                          return tm.accountId;
-                        }),
-                      sendToBack: state.isModalOpen,
+                      accountIds: state.teamMembers,
+                      sendToBack: state.isMultiAccountModalOpen,
                     }}
                   />
                 </LowerBannerContainerRight>
@@ -1113,9 +1079,7 @@ return (
                             const councilRole = policy.roles.find(
                               (role) => role.name === "council"
                             );
-                            const councilTeamMembers = (councilRole?.kind?.Group || []).map(
-                              (tm) => ({ accountId: tm })
-                            );
+                            const councilTeamMembers = councilRole?.kind?.Group || [];
                             State.update({
                               daoAddress: state.daoAddressTemp,
                               teamMembers: councilTeamMembers,
@@ -1550,7 +1514,7 @@ return (
                   preInputChildren: <InputPrefix>twitter.com/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.twitter,
-                  onChange: (twitter) => State.update({ twitter }),
+                  onChange: (twitter) => State.update({ twitter: twitter.trim() }),
                   validate: () => {
                     if (state.twitter.length > 15) {
                       State.update({
@@ -1571,7 +1535,7 @@ return (
                   preInputChildren: <InputPrefix>t.me/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.telegram,
-                  onChange: (telegram) => State.update({ telegram }),
+                  onChange: (telegram) => State.update({ telegram: telegram.trim() }),
                   validate: () => {
                     // TODO: add validation?
                   },
@@ -1586,7 +1550,7 @@ return (
                   preInputChildren: <InputPrefix>github.com/</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.github,
-                  onChange: (github) => State.update({ github }),
+                  onChange: (github) => State.update({ github: github.trim() }),
                   validate: () => {
                     // TODO: add validation
                   },
@@ -1601,7 +1565,7 @@ return (
                   preInputChildren: <InputPrefix>https://</InputPrefix>,
                   inputStyles: { borderRadius: "0px 4px 4px 0px" },
                   value: state.website,
-                  onChange: (website) => State.update({ website }),
+                  onChange: (website) => State.update({ website: website.trim() }),
                   validate: () => {
                     // TODO: add validation
                   },
@@ -1643,17 +1607,14 @@ return (
             },
             handleAddAccount: handleAddTeamMember,
             handleRemoveAccount: (accountId) => {
+              console.log("accountId: ", accountId);
+              console.log("state.teamMembers: ", state.teamMembers);
               State.update({
-                teamMembers: state.teamMembers.map((tm) => {
-                  if (tm.accountId == accountId) {
-                    return { ...tm, remove: true };
-                  }
-                  return tm;
-                }),
+                teamMembers: state.teamMembers.filter((tm) => tm != accountId),
               });
             },
             accountError: state.nearAccountIdError,
-            accounts: state.teamMembers,
+            accountIds: state.teamMembers,
             unitText: "member",
           }}
         />

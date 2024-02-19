@@ -154,6 +154,8 @@ State.init({
   isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
+  customHandle: isUpdate ? potId.split(`.${POT_FACTORY_CONTRACT_ID}`)[0] : "",
+  customHandleError: "",
   description: isUpdate ? potDetail.pot_description : "",
   descriptionError: "",
   // referrerFeeMatchingPoolPercent * 100: isUpdate
@@ -214,13 +216,13 @@ if (!isUpdate && !state.latestSourceCodeCommitHash) {
 }
 
 const getPotDetailArgsFromState = () => {
-  return {
+  const args = {
     owner: state.owner,
     admins: state.admins.filter((admin) => !admin.remove).map((admin) => admin.accountId),
-    chef: state.chef,
+    chef: state.chef || null,
     pot_name: state.name,
     pot_description: state.description,
-    max_projects: parseInt(state.maxProjects),
+    max_projects: parseInt(state.maxProjects) || null,
     application_start_ms: convertToUTCTimestamp(state.applicationStartDate),
     application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
@@ -248,7 +250,10 @@ const getPotDetailArgsFromState = () => {
           link: SOURCE_CODE_LINK,
         },
   };
+  return args;
 };
+
+// console.log("state; ", state);
 
 const canDeploy = useMemo(() => {
   if (
@@ -283,20 +288,23 @@ const canDeploy = useMemo(() => {
 const handleDeploy = () => {
   // create deploy pot args
   const deployArgs = getPotDetailArgsFromState();
-  // console.log("deployArgs: ", deployArgs);
-  // console.log("POT_FACTORY_CONTRACT_ID: ", POT_FACTORY_CONTRACT_ID);
+  console.log("deployArgs: ", deployArgs);
 
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
     args: deployArgs,
   }).then((amount) => {
     // console.log("amount: ", amount);
     const amountYoctos = Big(amount).plus(Big("20000000000000000000000")); // add extra 0.02 NEAR as buffer
+    const args = { pot_args: deployArgs };
+    if (state.customHandle) {
+      args.pot_handle = state.customHandle;
+    }
     const transactions = [
       {
         contractName: POT_FACTORY_CONTRACT_ID,
         methodName: "deploy_pot",
         deposit: amountYoctos,
-        args: { pot_args: deployArgs },
+        args,
         gas: props.ONE_TGAS.mul(300),
       },
     ];
@@ -491,6 +499,34 @@ return (
             },
             error: state.nameError,
             disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Text`}
+          props={{
+            label: "Custom handle (optional - will slugify name by default)",
+            placeholder: "e.g. my-pot-handle",
+            value: state.customHandle,
+            onChange: (customHandle) => State.update({ customHandle, customHandleError: "" }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              const suffix = `.${POT_FACTORY_CONTRACT_ID}`;
+              const fullAddress = `${state.customHandle}${suffix}`;
+              let customHandleError = "";
+              if (fullAddress.length > 64) {
+                customHandleError = `Handle must be ${64 - suffix.length} characters or less`;
+              } else {
+                const valid = validateNearAddress(fullAddress);
+                customHandleError = valid
+                  ? ""
+                  : `Invalid handle (can only contain lowercase alphanumeric symbols +  _ or -)`;
+              }
+              State.update({
+                customHandleError,
+              });
+            },
+            error: state.customHandleError,
+            disabled: isUpdate,
           }}
         />
         <Widget

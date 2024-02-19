@@ -1,5 +1,12 @@
-const { setAmount, setProjectId, setNote, setReferrerId, setCurrency } = props;
-const donationContractId = "donate.potlock.near";
+const {
+  ownerId,
+  setAmount,
+  setProjectId,
+  setNote,
+  setReferrerId,
+  setCurrency,
+  DONATION_CONTRACT_ID,
+} = props;
 const [amount, setAmounts] = useState("1");
 const [isBreakDown, setIsBreakDown] = useState(true);
 const [msg, setMsg] = useState("");
@@ -11,10 +18,11 @@ const [onSelect, setOnSelect] = useState("near");
 
 const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 const cardData = Social.getr(`${props.projectId}/profile`);
-State.init({
-  isModalDonationOpen: false,
-  isModalDonationSucessOpen: false,
-});
+
+// State.init({
+//   isModalDonationOpen: false,
+//   isModalDonationSucessOpen: false,
+// });
 
 const getBalance = () => {
   const res = fetch(`https://api.nearblocks.io/v1/account/${context.accountId}`);
@@ -569,7 +577,7 @@ const handleDonate = () => {
       donateContractArgs.message = note;
     }
     transactions.push({
-      contractName: donationContractId,
+      contractName: DONATION_CONTRACT_ID,
       methodName: "donate",
       args: donateContractArgs,
       deposit: amountIndivisible.toString(),
@@ -581,7 +589,7 @@ const handleDonate = () => {
 return (
   <>
     <ModalDonate
-      isOpen={props.isModalDonationOpen ? props.isModalDonationOpen : state.isModalDonationOpen}
+      isOpen={props.isModalDonationOpen || state.isModalDonationOpen}
       onClose={
         props.onDonationClose
           ? props.onDonationClose
@@ -622,7 +630,7 @@ return (
         </FormAmountHeader>
         <FormInputAmount>
           <Widget
-            src={`potlock.near/widget/Inputs.Select`}
+            src={`${ownerId}/widget/Inputs.Select`}
             props={{
               noLabel: true,
               placeholder: "",

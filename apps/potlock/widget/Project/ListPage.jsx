@@ -123,6 +123,11 @@ const [totalDonations, totalDonors] = useMemo(() => {
   return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
 }, [props.donations]);
 
+const handleDonateRandomly = (e) => {
+  e.preventDefault();
+  props.openDonateToProjectModal();
+};
+
 return (
   <>
     <HeroContainer>
@@ -133,7 +138,7 @@ return (
           title1: "Transforming",
           title2: "Funding for Public Goods",
           description:
-            "Discover impact projects, donate directly, or get automatic referral fees for raising donations",
+            "Discover impact projects, donate directly, & participate in funding rounds.",
           centered: true,
           containerStyle: {
             position: "absolute",
@@ -144,23 +149,20 @@ return (
             background:
               "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
           },
-          // buttonPrimary: (
-          //   <Widget
-          //     src={`${ownerId}/widget/Components.Button`}
-          //     props={{
-          //       type: "primary",
-          //       text: "Explore projects",
-          //       disabled: false,
-          //       style: { padding: "16px 24px" },
-          //     }}
-          //   />
-          // ),
+          buttonPrimary: (
+            <Widget
+              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
+              props={{
+                ...props,
+              }}
+            />
+          ),
           buttonSecondary: (
             <Widget
               src={`${ownerId}/widget/Components.Button`}
               props={{
                 type: "secondary",
-                text: "Create project",
+                text: "Register Your Project",
                 disabled: false,
                 href: props.hrefWithEnv(`?tab=createproject`),
                 style: { padding: "16px 24px" },
@@ -200,10 +202,40 @@ return (
     </HeroContainer>
     <ProjectsContainer>
       <Widget
-        src={`${ownerId}/widget/Components.ListSection`}
+        src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
           items: projects,
+          renderItem: (project) => {
+            return (
+              <Widget
+                src={`${ownerId}/widget/Project.Card`}
+                loading={
+                  <div
+                    style={{
+                      width: "355px",
+                      height: "455px",
+                      borderRadius: "12px",
+                      background: "white",
+                      boxShadow: "0px -2px 0px #dbdbdb inset",
+                      border: "1px solid #dbdbdb",
+                    }}
+                  />
+                }
+                props={{
+                  ...props,
+                  // potId,
+                  projectId: project.id,
+                  allowDonate: true,
+                  // allowDonate:
+                  //   sybilRequirementMet &&
+                  //   publicRoundOpen &&
+                  //   project.project_id !== context.accountId,
+                  // requireVerification: !sybilRequirementMet,
+                }}
+              />
+            );
+          },
         }}
       />
     </ProjectsContainer>

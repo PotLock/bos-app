@@ -55,7 +55,6 @@ const Theme = styled.div`
 const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
 State.init({
-  registeredProjects: null,
   cart: null,
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
@@ -73,6 +72,17 @@ State.init({
   referrerId: null,
   currency: null,
   // isSybilModalOpen: false,
+  donateToProjectModal: {
+    isOpen: false,
+    recipientId: null,
+    referrerId: null,
+    potId: null,
+    potDetail: null,
+  },
+  donationSuccessModal: {
+    isOpen: (!props.tab || props.tab === PROJECTS_LIST_TAB) && props.transactionHashes,
+    successfulDonation: null,
+  },
 });
 
 const NEAR_USD_CACHE_KEY = "NEAR_USD";
@@ -116,7 +126,7 @@ if (!state.donations) {
   });
 }
 
-const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
@@ -315,7 +325,8 @@ const props = {
   SUPPORTED_FTS: {
     // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
-      iconUrl: IPFS_BASE_URL + "bafkreicwkm5y7ojxnnfnmuqcs6ykftq2jvzg6nfeqznzbhctgl4w3n6eja",
+      iconUrl:
+        "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
       toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
       fromIndivisible: (amount, decimals) =>
         Big(amount)
@@ -373,7 +384,7 @@ const props = {
       : null;
   },
   yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : "NEAR");
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
   },
   formatDate: (timestamp) => {
     const months = [
@@ -453,6 +464,17 @@ const props = {
       : [];
     return tags;
   },
+  getTeamMembersFromSocialProfileData: (profileData) => {
+    if (!profileData) return [];
+    const team = profileData.plTeam
+      ? JSON.parse(profileData.plTeam)
+      : profileData.team
+      ? Object.entries(profileData.team)
+          .filter(([_, v]) => v !== null)
+          .map(([k, _]) => k)
+      : [];
+    return team;
+  },
   doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
     // TODO: break this out (NB: duplicated in Project.CreateForm)
     const userRoles = policy.roles.filter((role) => {
@@ -471,6 +493,27 @@ const props = {
       );
     });
     return allowed;
+  },
+  openDonateToProjectModal: (recipientId, referrerId, potId, potDetail) => {
+    State.update({
+      donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
+    });
+  },
+  // openDonationSuccessModal: (successfulDonation) => {
+  //   console.log("opening success modal with donation data: ", successfulDonation);
+  //   State.update({
+  //     donationSuccessModal: {
+  //       isOpen: true,
+  //       successfulDonation,
+  //     },
+  //   });
+  // },
+  basisPointsToPercent: (basisPoints) => {
+    return basisPoints / 100;
+  },
+  IPFS_BASE_URL,
+  ipfsUrlFromCid: (cid) => {
+    return `${IPFS_BASE_URL}${cid}`;
   },
 };
 
@@ -561,13 +604,42 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
-    {/* <Widget
-      src={`${ownerId}/widget/Pots.ModalSybil`}
+    {state.donateToProjectModal.isOpen && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalDonation`}
+        props={{
+          ...props,
+          isModalOpen: state.donateToProjectModal.isOpen,
+          onClose: () =>
+            State.update({
+              donateToProjectModal: {
+                isOpen: false,
+                recipientId: null,
+                referrerId: null,
+                potId: null,
+                potDetail: null,
+              },
+            }),
+          recipientId: state.donateToProjectModal.recipientId,
+          referrerId: state.donateToProjectModal.referrerId,
+          potId: state.donateToProjectModal.potId,
+        }}
+      />
+    )}
+    <Widget
+      src={`${ownerId}/widget/Project.ModalDonationSuccess`}
       props={{
         ...props,
-        isModalOpen: state.isSybilModalOpen,
-        onClose: () => State.update({ isSybilModalOpen: false }),
+        successfulDonation: state.donationSuccessModal.successfulDonation,
+        isModalOpen: state.donationSuccessModal.isOpen,
+        onClose: () =>
+          State.update({
+            donationSuccessModal: {
+              isOpen: false,
+              successfulDonation: null,
+            },
+          }),
       }}
-    /> */}
+    />
   </Theme>
 );

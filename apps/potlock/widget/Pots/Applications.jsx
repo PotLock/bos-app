@@ -60,6 +60,24 @@ const ModalFooter = styled.div`
   width: 100%;
 `;
 
+const StatusText = styled.div`
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const StatusTextMobile = styled.div`
+  display: none;
+  font-size: 14px;
+  font-weight: 500;
+  @media screen and (max-width: 768px) {
+    display: flex;
+  }
+`;
+
 const APPLICATIONS_FILTERS = {
   ALL: "All applications",
   PENDING: "Pending applications",
@@ -160,6 +178,12 @@ const sortApplications = (sortVal) => {
 return (
   <>
     <Widget
+      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      props={{
+        ...props,
+      }}
+    />
+    <Widget
       src={`${ownerId}/widget/Project.SearchBar`}
       props={{
         title: "Filter",
@@ -183,9 +207,16 @@ return (
     ) : (
       state.filteredApplications.map((application, index) => {
         const { project_id, message, status, submitted_at, review_notes } = application;
+        console.log("status: ", status);
 
         return (
-          <Row key={index}>
+          <Row
+            key={index}
+            style={{
+              background:
+                status === "Approved" ? "#F7FDE8" : status === "Rejected" ? "#FEF3F2" : "white",
+            }}
+          >
             <Widget
               src={`${ownerId}/widget/Project.ProfileImage`}
               props={{
@@ -206,8 +237,9 @@ return (
               <div style={{ fontSize: "12px", marginTop: "8px" }}>
                 Admin notes: {review_notes.length > 0 ? review_notes : "None yet"}
               </div>
+              <StatusTextMobile>{status}</StatusTextMobile>
             </Column>
-            <div>{status}</div>
+            <StatusText>{status}</StatusText>
             {isChefOrGreater && (
               <>
                 {status !== "Approved" && (
