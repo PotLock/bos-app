@@ -6,7 +6,7 @@ const {
 } = props;
 const accountId = props.accountId ?? context.accountId;
 
-const { ProfileOptions } = VM.require(`${ownerId}/widget/Project.Options`);
+const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`);
 
 if (!accountId) {
   return "No account ID";
