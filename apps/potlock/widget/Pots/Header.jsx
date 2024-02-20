@@ -15,6 +15,10 @@ const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swa
 
 Big.PE = 100;
 
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const NADABOT_ICON_URL =
+  IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
+
 // console.log("header props: ", props);
 
 const Container = styled.div`
@@ -583,6 +587,7 @@ return (
                 ? props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`)
                 : NADA_BOT_URL,
               target: sybilRequirementMet ? "_self" : "_blank",
+              iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,
             }}
           />
         )}
