@@ -698,6 +698,7 @@ return (
                 });
               },
               error: state.matchingRoundStartDateError,
+              disabled: isUpdate ? !isAdminOrGreater : false,
             }}
           />
           <Widget
