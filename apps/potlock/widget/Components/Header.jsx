@@ -110,8 +110,8 @@ return (
       {props.buttonPrimary && props.buttonPrimary}
       {props.buttonSecondary && props.buttonSecondary}
     </ButtonsContainer>
-    {props.tab == "projects" && props.ownerId && (
-      <Widget src={`${props.ownerId}/widget/Project.DonationStats`} props={{ ...props }} />
+    {props.tab == "projects" && ownerId && (
+      <Widget src={`${ownerId}/widget/Project.DonationStats`} props={{ ...props }} />
     )}
   </HeaderContainer>
 );
