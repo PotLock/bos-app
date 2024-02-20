@@ -203,14 +203,14 @@ const { name, description, plCategories } = profile;
 // const description = profile?.description || "No description";
 // const category = profile?.category || "No category";
 
-const tags = getTagsFromSocialProfileData(profile);
-
 const donationsForProject =
   Near.view(
     potId || donationContractId,
     potId ? "get_donations_for_project" : "get_donations_for_recipient",
     potId ? { project_id: projectId } : { recipient_id: projectId }
   ) || [];
+
+// console.log(donationsForProject);
 
 const [totalAmount, totalDonors] = useMemo(() => {
   if (!donationsForProject) return [null, null];
@@ -262,6 +262,8 @@ const profileImageStyle = {
   left: "14px",
   pointerEvents: "none",
 };
+
+const tags = getTagsFromSocialProfileData(profile);
 
 return (
   <Card key={projectId}>
@@ -331,13 +333,6 @@ return (
           ))}
         </Tags>
       )}
-      {/* <Widget
-        src={`${ownerId}/widget/Project.Tags`}
-        props={{
-          ...props,
-          tags,
-        }}
-      /> */}
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>

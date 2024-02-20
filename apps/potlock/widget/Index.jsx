@@ -13,6 +13,7 @@ const POTS_TAB = "pots";
 const DEPLOY_POT_TAB = "deploypot";
 const POT_DETAIL_TAB = "pot";
 const DONORS_TAB = "donors";
+const PROFILE_TAB = "profile";
 
 const Theme = styled.div`
   position: relative;
@@ -79,7 +80,9 @@ State.init({
     potDetail: null,
   },
   donationSuccessModal: {
-    isOpen: (!props.tab || props.tab === PROJECTS_LIST_TAB) && props.transactionHashes,
+    isOpen:
+      (!props.tab || props.tab === PROJECTS_LIST_TAB || props.tab === PROJECT_DETAIL_TAB) &&
+      props.transactionHashes,
     successfulDonation: null,
   },
 });
@@ -198,6 +201,7 @@ const tabContentWidget = {
   [DEPLOY_POT_TAB]: "Pots.Deploy",
   [POT_DETAIL_TAB]: "Pots.Detail",
   [DONORS_TAB]: "Components.Donors",
+  [PROFILE_TAB]: "Profile.Detail",
 };
 
 const getTabWidget = (tab) => {

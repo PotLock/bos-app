@@ -1,5 +1,5 @@
-const { ownerId } = props;
-const accountId = props.projectId;
+const { ownerId, accountId } = props;
+
 if (!accountId) {
   return "No account ID";
 }

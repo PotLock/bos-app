@@ -109,7 +109,7 @@ return (
             <div>#{idx + 1 + page * perPage}</div>
 
             <a
-              href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + donor_id}
+              href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
               className="address"
               target="_blank"
             >

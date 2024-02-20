@@ -1,3 +1,5 @@
+const { profile, getTagsFromSocialProfileData } = props;
+
 const Tags = styled.div`
   display: flex;
   gap: 8px;
@@ -12,11 +14,12 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
-if (!props.tags || props.tags.length === 0) return "No tags";
+const tags = getTagsFromSocialProfileData(profile);
+if (!tags.length) return "No tags";
 
 return (
   <Tags>
-    {props.tags.map((tag, tagIndex) => (
+    {tags.map((tag, tagIndex) => (
       <Tag key={tagIndex}>{tag}</Tag>
     ))}
   </Tags>
