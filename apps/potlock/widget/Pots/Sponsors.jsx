@@ -54,6 +54,10 @@ const TableContainer = styled.div`
   box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
   border-radius: 2px;
   width: 100%;
+  margin-top: 35px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  position: relative;
 `;
 
 const Header = styled.div`
@@ -63,6 +67,9 @@ const Header = styled.div`
   justify-content: space-between;
   background: #f6f5f3;
   width: 100%;
+  @media screen and (max-width: 768px) {
+    flex: 0 0 auto;
+  }
 `;
 
 const HeaderItem = styled.div`
@@ -71,7 +78,13 @@ const HeaderItem = styled.div`
   align-items: space-between;
   justify-content: flex-start;
   padding: 10px 20px;
-  width: ${95 / columns.length}%;
+  width: 100%;
+  @media screen and (max-width: 768px) {
+    flex: 0 0 auto;
+    width: 60%;
+    padding: 20px 40px;
+    background: #f6f5f3;
+  }
 `;
 
 const HeaderItemText = styled.div`
@@ -79,7 +92,6 @@ const HeaderItemText = styled.div`
   font-size: 14px;
   font-weight: 600;
   line-height: 24px;
-  word-wrap: break-word;
 `;
 
 const Row = styled.div`
@@ -97,7 +109,14 @@ const RowItem = styled.div`
   justify-content: flex-start;
   gap: 20px;
   padding: 20px;
-  width: ${95 / columns.length}%;
+  width: 100%;
+  @media screen and (max-width: 768px) {
+    flex: 0 0 auto;
+    width: 60%;
+    gap: 5px;
+    margin-top: -10px;
+    padding: 20px 40px;
+  }
 `;
 
 const RowText = styled.div`
@@ -105,7 +124,6 @@ const RowText = styled.div`
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
-  word-wrap: break-word;
 `;
 
 const { base_currency } = potDetail;
@@ -113,64 +131,66 @@ const { base_currency } = potDetail;
 const maxRowItemLength = 14;
 
 return (
-  <Container>
+  <>
     <Widget
       src={`${ownerId}/widget/Pots.NavOptionsMobile`}
       props={{
         ...props,
       }}
     />
-    <TableContainer>
-      <Header>
-        {columns.map((column, index) => (
-          <HeaderItem style={index === 0 ? { width: "5%" } : {}}>
-            <HeaderItemText key={index}>{column}</HeaderItemText>
-          </HeaderItem>
-        ))}
-      </Header>
-      {state.donations.length === 0 ? (
-        <Row style={{ padding: "12px" }}>No donations to display</Row>
-      ) : (
-        state.donations.map((donation, index) => {
-          const { donor_id, total_amount, donated_at, percentage_share } = donation;
-          const totalDonationAmount =
-            props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+    <Container>
+      <TableContainer>
+        <Header>
+          {columns.map((column, index) => (
+            <HeaderItem style={index === 0 ? { width: "5%" } : {}}>
+              <HeaderItemText key={index}>{column}</HeaderItemText>
+            </HeaderItem>
+          ))}
+        </Header>
+        {state.donations.length === 0 ? (
+          <Row style={{ padding: "12px" }}>No donations to display</Row>
+        ) : (
+          state.donations.map((donation, index) => {
+            const { donor_id, total_amount, donated_at, percentage_share } = donation;
+            const totalDonationAmount =
+              props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
-          return (
-            <Row key={index}>
-              <RowItem style={{ width: "5%" }}>
-                <RowText>#{index + 1}</RowText>
-              </RowItem>
-              <RowItem>
-                <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
-                  props={{
-                    ...props,
-                    accountId: donor_id,
-                    style: {
-                      height: "24px",
-                      width: "24px",
-                    },
-                  }}
-                />
-                <RowText>
-                  {donor_id.length > maxRowItemLength
-                    ? donor_id.slice(0, maxRowItemLength) + "..."
-                    : donor_id}
-                </RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>
-                  {totalDonationAmount} {base_currency.toUpperCase()}
-                </RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>{percentage_share.toFixed(0)}%</RowText>
-              </RowItem>
-            </Row>
-          );
-        })
-      )}
-    </TableContainer>
-  </Container>
+            return (
+              <Row key={index}>
+                <RowItem style={{ width: "5%" }}>
+                  <RowText>#{index + 1}</RowText>
+                </RowItem>
+                <RowItem>
+                  <Widget
+                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    props={{
+                      ...props,
+                      accountId: donor_id,
+                      style: {
+                        height: "24px",
+                        width: "24px",
+                      },
+                    }}
+                  />
+                  <RowText>
+                    {donor_id.length > maxRowItemLength
+                      ? donor_id.slice(0, maxRowItemLength) + "..."
+                      : donor_id}
+                  </RowText>
+                </RowItem>
+                <RowItem>
+                  <RowText>
+                    {totalDonationAmount} {base_currency.toUpperCase()}
+                  </RowText>
+                </RowItem>
+                <RowItem>
+                  <RowText>{percentage_share.toFixed(0)}%</RowText>
+                </RowItem>
+              </Row>
+            );
+          })
+        )}
+      </TableContainer>
+    </Container>
+  </>
 );

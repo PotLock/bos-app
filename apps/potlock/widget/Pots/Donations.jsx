@@ -30,6 +30,9 @@ const OuterTextContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
+  @media screen and (max-width: 768px) {
+    padding-right: 20px;
+  }
 `;
 
 const OuterText = styled.div`
@@ -57,6 +60,8 @@ const TableContainer = styled.div`
   box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
   border-radius: 2px;
   width: 100%;
+  overflow-x: auto;
+  flex-wrap: nowrap;
 `;
 
 const Header = styled.div`

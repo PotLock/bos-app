@@ -54,7 +54,7 @@ const FormBody = styled.div`
   width: 100%;
 
   @media screen and (max-width: 768px) {
-    padding: 320px 32px 32px 32px;
+    padding: 10px 10px;
   }
 `;
 
@@ -62,6 +62,9 @@ const FormDivider = styled.div`
   height: 2px;
   width: 100%;
   background-color: #ebebeb;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const FormSectionContainer = styled.div`
@@ -83,6 +86,9 @@ const FormSectionLeftDiv = styled.div`
   flex-direction: column;
   // background-color: yellow;
   gap: 16px;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const FormSectionRightDiv = styled.div`
@@ -90,6 +96,9 @@ const FormSectionRightDiv = styled.div`
   display: flex;
   flex-direction: column;
   gap: 26px;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const FormSectionTitle = styled.div`
@@ -112,6 +121,16 @@ const Row = styled.div`
   gap: 24px;
   align-items: center;
   justify-content: flex-start;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const Checkbox = styled.div`
+  display: flex;
+  @media screen and (max-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 const Label = styled.label`
@@ -794,20 +813,24 @@ return (
       {FormSectionLeft("Project Registration", "")}
       <FormSectionRightDiv>
         <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Checkbox`}
-            props={{
-              id: "registrationSelector",
-              checked: state.usePotlockRegistry,
-              onClick: (e) => {
-                State.update({
-                  usePotlockRegistry: e.target.checked,
-                });
-              },
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-          <Label htmlFor="sybilSelector">Require approval on PotLock registry (recommended)</Label>
+          <Checkbox>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Checkbox`}
+              props={{
+                id: "registrationSelector",
+                checked: state.usePotlockRegistry,
+                onClick: (e) => {
+                  State.update({
+                    usePotlockRegistry: e.target.checked,
+                  });
+                },
+                disabled: isUpdate ? !isAdminOrGreater : false,
+              }}
+            />
+            <Label htmlFor="sybilSelector">
+              Require approval on PotLock registry (recommended)
+            </Label>
+          </Checkbox>
         </Row>
       </FormSectionRightDiv>
     </FormSectionContainer>
@@ -815,20 +838,22 @@ return (
       {FormSectionLeft("Donor Sybil Resistance", "")}
       <FormSectionRightDiv>
         <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Checkbox`}
-            props={{
-              id: "sybilSelector",
-              checked: state.useNadabotSybil,
-              onClick: (e) => {
-                State.update({
-                  useNadabotSybil: e.target.checked,
-                });
-              },
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-          <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
+          <Checkbox>
+            <Widget
+              src={`${ownerId}/widget/Inputs.Checkbox`}
+              props={{
+                id: "sybilSelector",
+                checked: state.useNadabotSybil,
+                onClick: (e) => {
+                  State.update({
+                    useNadabotSybil: e.target.checked,
+                  });
+                },
+                disabled: isUpdate ? !isAdminOrGreater : false,
+              }}
+            />
+            <Label htmlFor="sybilSelector">🤖 nada.bot human verification (recommended)</Label>
+          </Checkbox>
         </Row>
         <Row style={{ justifyContent: "flex-end", marginTop: "36px" }}>
           {!isUpdate && isAdminOrGreater && (
