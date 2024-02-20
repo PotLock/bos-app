@@ -98,14 +98,14 @@ return (
     </SubRow1>
     {props.tab === "project" && projectIsApproved && (
       <SubRow2>
-        <DonationButton
-          onClick={(e) => {
-            e.preventDefault();
-            setIsModalDonationOpen(true);
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "primary",
+            text: "Donate",
+            onClick: () => setIsModalDonationOpen(true),
           }}
-        >
-          Donate
-        </DonationButton>
+        />
         <Widget
           src={`${ownerId}/widget/Project.ModalDonation`}
           props={{
