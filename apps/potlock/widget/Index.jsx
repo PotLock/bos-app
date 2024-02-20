@@ -80,7 +80,9 @@ State.init({
     potDetail: null,
   },
   donationSuccessModal: {
-    isOpen: (!props.tab || props.tab === PROJECTS_LIST_TAB) && props.transactionHashes,
+    isOpen:
+      (!props.tab || props.tab === PROJECTS_LIST_TAB || props.tab === PROJECT_DETAIL_TAB) &&
+      props.transactionHashes,
     successfulDonation: null,
   },
 });

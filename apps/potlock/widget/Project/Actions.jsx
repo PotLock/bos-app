@@ -1,7 +1,12 @@
 const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [isModalDonationSucessOpen, setIsModalDonationSucessOpen] = useState(false);
 
-const { ownerId } = props;
+const { ownerId, registeredProjects, projectId } = props;
+
+const projectIsApproved = useMemo(() => {
+  return registeredProjects.some((p) => p.id === projectId && p.status === "Approved");
+}, [registeredProjects, projectId]);
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -91,7 +96,7 @@ return (
       />
       <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: props.id }} />
     </SubRow1>
-    {props.tab === "project" && (
+    {props.tab === "project" && projectIsApproved && (
       <SubRow2>
         <DonationButton
           onClick={(e) => {
@@ -102,15 +107,15 @@ return (
           Donate
         </DonationButton>
         <Widget
-          src={`${props.ownerId}/widget/Components.ModalDonation`}
+          src={`${ownerId}/widget/Project.ModalDonation`}
           props={{
             ...props,
-            transactionHashes: props.transactionHashes,
-            ownerId: props.ownerId,
-            projectId: props.projectId,
-            isModalDonationOpen: isModalDonationOpen,
-            isModalDonationSucessOpen: isModalDonationSucessOpen,
+            isModalOpen: isModalDonationOpen,
             onClose: () => setIsModalDonationOpen(false),
+            recipientId: props.projectId,
+            referrerId: props.referrerId,
+            openDonateToProjectModal: () => setIsModalDonationOpen(true),
+            // potId: state.donateToProjectModal.potId, // TODO: add this in if project is in a pot?
           }}
         />
       </SubRow2>

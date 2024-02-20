@@ -1,7 +1,7 @@
 const {
   ownerId,
   registeredProjects,
-  recipientId,
+  recipientId, // TODO: change this to projectId
   referrerId,
   potId,
   potDetail,
