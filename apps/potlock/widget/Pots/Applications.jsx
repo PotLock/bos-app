@@ -207,7 +207,7 @@ return (
     ) : (
       state.filteredApplications.map((application, index) => {
         const { project_id, message, status, submitted_at, review_notes } = application;
-        console.log("status: ", status);
+        // console.log("status: ", status);
 
         return (
           <Row

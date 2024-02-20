@@ -287,7 +287,6 @@ const handleDonate = () => {
       gas: "300000000000000",
     },
   ];
-  console.log("transactions: ", transactions);
 
   const now = Date.now();
   Near.call(transactions);

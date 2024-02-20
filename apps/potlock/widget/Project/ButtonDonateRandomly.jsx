@@ -49,7 +49,6 @@ return (
               isModalOpen: false,
             }),
           openDonationSuccessModal: (donation) => {
-            console.log("openDonationSuccessModal", donation);
             State.update({
               isModalOpen: false,
               successfulDonation: donation,
