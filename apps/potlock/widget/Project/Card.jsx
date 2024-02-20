@@ -263,6 +263,8 @@ const profileImageStyle = {
   pointerEvents: "none",
 };
 
+const tags = getTagsFromSocialProfileData(profile);
+
 return (
   <Card key={projectId}>
     <HeaderContainer href={projectUrl} className="pt-0 position-relative">
@@ -322,13 +324,15 @@ return (
           ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
           : description}
       </SubTitle>
-      <Widget
-        src={`${ownerId}/widget/Profile.Tags`}
-        props={{
-          ...props,
-          profile: projectProfile,
-        }}
-      />{" "}
+      {!tags.length ? (
+        "No tags"
+      ) : (
+        <Tags>
+          {tags.map((tag, tagIndex) => (
+            <Tag key={tagIndex}>{tag}</Tag>
+          ))}
+        </Tags>
+      )}
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>

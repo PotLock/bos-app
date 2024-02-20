@@ -1,3 +1,5 @@
+const { project } = props;
+
 const Banner = styled.div`
   width: 100%;
   background: ${project.status === "Pending" ? "#E6B800" : "#dd3345"};
@@ -15,7 +17,19 @@ const Row = styled.div`
   align-items: center;
   justify-content: center;
 `;
+const BannerText = styled.div`
+  text-align: center;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 8px;
+  word-break: break-all;
 
+  @media screen and (max-width: 768px) {
+    font-size: 12px;
+    margin-left: 4px;
+  }
+`;
 const BannerAlertSvg = styled.svg`
   width: 18px;
   @media screen and (max-width: 768px) {

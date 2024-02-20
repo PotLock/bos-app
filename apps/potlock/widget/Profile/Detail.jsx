@@ -13,13 +13,14 @@ if (!accountId) {
 }
 
 const [pots, setPots] = useState(null);
-const [directDonations, setDirectDonation] = useState(null);
-const [sponsorship, setSponsorship] = useState({});
+const [directDonations, setDirectDonations] = useState(null);
+// mapping of pot IDs to array of sponsorship (matching pool) donations to this pot for this user
+const [sponsorshipDonations, setSponsorshipDonations] = useState({});
 const [potDonations, setPotDonations] = useState([]);
 
 const getPotConfig = (potId) => Near.asyncView(potId, "get_config", {});
 
-const getSponsorships = (potId, potDetail) => {
+const getSponsorshipDonations = (potId, potDetail) => {
   return Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     donations = donations.filter((donations) => donations.donor_id === accountId);
     const updatedDonations = donations.map((donation) => ({
@@ -28,9 +29,9 @@ const getSponsorships = (potId, potDetail) => {
       pot_name: potDetail.pot_name,
       pot_id: potId,
     }));
-    if (sponsorship[potId]) return "";
-    setSponsorship((sponsorship) => {
-      return { ...sponsorship, [potId]: updatedDonations };
+    if (sponsorshipDonations[potId]) return "";
+    setSponsorshipDonations((prevSponsorshipDonations) => {
+      return { ...prevSponsorshipDonations, [potId]: updatedDonations };
     });
   });
 };
@@ -39,34 +40,30 @@ const getSponsorships = (potId, potDetail) => {
 if (!directDonations) {
   Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
     donor_id: accountId,
-  }).then((donations) => setDirectDonation(donations));
+  }).then((donations) => setDirectDonations(donations));
 }
-// Get Sponsorships
+// Get Sponsorship Donations
 if (!pots) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
     setPots(pots || []);
   });
 }
-if (pots.length && !sponsorship[pots[pots.length - 1].id]) {
+if (pots.length && !sponsorshipDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
     getPotConfig(pot.id).then((potDetail) => {
-      getSponsorships(pot.id, potDetail);
+      getSponsorshipDonations(pot.id, potDetail);
     });
   });
 }
 
 const allDonations = useMemo(() => {
-  const sponsorshipsValue = Object.values(sponsorship).flat();
-  const allDonations = [...(directDonations || []), ...sponsorshipsValue];
+  const sponsorshipDonationsValue = Object.values(sponsorshipDonations).flat();
+  const allDonations = [...(directDonations || []), ...sponsorshipDonationsValue];
   allDonations.sort((a, b) => b.donated_at - a.donated_at);
   return allDonations;
-}, [sponsorship, directDonations]);
-
-props.donations = allDonations;
+}, [sponsorshipDonations, directDonations]);
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
-
-const fast = !props.profile;
 
 if (profile === null) {
   return "Loading";
@@ -77,10 +74,6 @@ const Wrapper = styled.div`
   flex-direction: column;
 `;
 
-props.navOptions = ProfileOptions(props);
-
-if (!props.nav) props.nav = "feed";
-
 return (
   <Wrapper>
     <Widget
@@ -89,6 +82,9 @@ return (
         ...props,
         profile,
         accounts: [accountId],
+        donations: allDonations,
+        nav: props.nav ?? "feed",
+        navOptions: ProfileOptions(props),
       }}
     />
   </Wrapper>

@@ -9,9 +9,7 @@ const perPage = 30; // need to be less than 50
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
-const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
-);
+const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
 
 const Container = styled.div`
   display: flex;
@@ -152,15 +150,19 @@ const Search = styled.div`
   }
 `;
 
-let total = Big(0);
-donations.forEach((donation) => {
-  total = total.plus(Big(donation.total_amount));
-});
+const total = useMemo(() => {
+  let total = Big(0);
+  donations.forEach((donation) => {
+    total = total.plus(Big(donation.total_amount));
+  });
+  return total;
+}, [donations]);
+
 const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
 
 const stats = [{ label: "Donated", amount: (totalDonationAmount * nearToUsd).toFixed(2) }];
 
-useMemo(() => {
+useEffect(() => {
   setTotalDonation(donations);
   setFilteredDonations(donations);
 }, [donations]);
