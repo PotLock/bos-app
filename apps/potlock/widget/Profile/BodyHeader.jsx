@@ -96,6 +96,11 @@ const isOwner = props.projectId === context.accountId;
 const isPermissionedMember = isDao && userHasPermissions;
 const canEdit = isOwner || isPermissionedMember;
 
+const projectLink = `https://near.social/potlock.near/widget/Index?tab=project&projectId=${projectId}${
+  context.accountId && `&referrerId=${context.accountId}`
+}`;
+const profileLink = `https://near.social/potlock.near/widget/Index?tab=profile&accountId=${accountId}`;
+
 return (
   <Header>
     <NameContainer>
@@ -117,7 +122,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Project.Share`}
         props={{
-          text: projectLink,
+          text: projectId ? projectLink : profileLink,
           clipboardIcon: ShareIcon,
         }}
       />

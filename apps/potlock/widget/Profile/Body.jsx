@@ -9,6 +9,23 @@ const {
 
 const accountId = props.accountId ?? context.accountId;
 
+const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
+
+const handleUpdateStatus = () => {
+  Near.call([
+    {
+      contractName: REGISTRY_CONTRACT_ID,
+      methodName: "admin_set_project_status",
+      args: {
+        project_id: projectId,
+        status: statusReview.newStatus,
+        review_notes: statusReview.notes,
+      },
+      deposit: NEAR.toIndivisible(0.01).toString(),
+    },
+  ]);
+};
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -54,6 +71,21 @@ const SidebarContainer = styled.div`
       display: none;
     }
   }
+`;
+
+const ModalTitle = styled.div`
+  color: #525252;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  word-wrap: break-word;
+  margin-bottom: 8px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 return (
@@ -134,5 +166,44 @@ return (
         </div>
       </Details>
     </Container>
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        ...props,
+        isModalOpen: statusReview.modalOpen,
+        onClose: () => setStatusReview({ ...statusReview, modalOpen: false }),
+        children: (
+          <>
+            <ModalTitle>Enter Notes for changing status to {statusReview.newStatus}</ModalTitle>
+            <Widget
+              src={`${ownerId}/widget/Inputs.TextArea`}
+              props={{
+                noLabel: true,
+                inputRows: 5,
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Your notes here...",
+                value: statusReview.notes,
+                onChange: (notes) => setStatusReview({ ...statusReview, notes }),
+                validate: () => {
+                  // none necessary
+                },
+              }}
+            />
+            <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "primary",
+                  text: "Submit",
+                  onClick: handleUpdateStatus,
+                }}
+              />
+            </Row>
+          </>
+        ),
+      }}
+    />
   </Wrapper>
 );
