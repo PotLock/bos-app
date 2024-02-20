@@ -1,4 +1,4 @@
-const { ownerId, userIsRegistryAdmin } = props;
+const { ownerId, userIsRegistryAdmin, tab } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
@@ -135,6 +135,8 @@ return (
       <Widget
         src={`${ownerId}/widget/Components.Header`}
         props={{
+          ownerId,
+          tab,
           title1: "Transforming",
           title2: "Funding for Public Goods",
           description:
