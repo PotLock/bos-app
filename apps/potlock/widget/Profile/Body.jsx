@@ -132,7 +132,7 @@ return (
           src={`${ownerId}/widget/Profile.BodyHeader`}
           props={{
             ...props,
-            id: projectId || accountId,
+            accountId,
           }}
         />
         {userIsRegistryAdmin && projectId && (

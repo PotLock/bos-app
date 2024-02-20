@@ -1,4 +1,4 @@
-const { profile, ownerId, accountId, id, projectId } = props;
+const { profile, ownerId, accountId, projectId } = props;
 
 const Header = styled.div`
   display: flex;
@@ -68,7 +68,7 @@ const ShareIcon = (
   />
 );
 
-const policy = Near.view(props.projectId, "get_policy", {}); // TODO: CHANGE BACK TO PROPS.PROJECT ID
+const policy = Near.view(props.projectId, "get_policy", {});
 const isDao = !!policy;
 
 const userHasPermissions = useMemo(() => {
@@ -92,7 +92,7 @@ const userHasPermissions = useMemo(() => {
   return allowed;
 }, [policy]);
 
-const isOwner = props.projectId === context.accountId;
+const isOwner = projectId === context.accountId;
 const isPermissionedMember = isDao && userHasPermissions;
 const canEdit = isOwner || isPermissionedMember;
 
@@ -105,20 +105,20 @@ return (
   <Header>
     <NameContainer>
       <Name>{profile.name}</Name>
-      {canEdit && projectId && (
+      {canEdit && (
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
             type: "secondary",
             text: "Edit profile",
             disabled: false,
-            href: props.hrefWithEnv(`?tab=editproject&projectId=${id}`),
+            href: props.hrefWithEnv(`?tab=editproject&projectId=${projectId}`),
           }}
         />
       )}
     </NameContainer>
     <AccountInfoContainer>
-      <AccountId>@{id}</AccountId>
+      <AccountId>@{projectId || accountId}</AccountId>
       <Widget
         src={`${ownerId}/widget/Project.Share`}
         props={{
