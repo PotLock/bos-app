@@ -1,3 +1,5 @@
+const { ownerId } = props;
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -118,7 +120,7 @@ return (
             if (teamMember.match(/.near/i).length > 0) {
               return (
                 <TeamMemberItem
-                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${teamMember}`}
+                  href={props.hrefWithEnv(`?tab=profile&accountId=${teamMember}`)}
                   target="_blank"
                 >
                   <Widget

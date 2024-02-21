@@ -2,6 +2,9 @@ const ownerId = "potlock.near";
 const registryContractId =
   props.env === "staging" ? "registry.staging.potlock.near" : "registry.potlock.near";
 const donationContractId = "donate.potlock.near";
+const potFactoryContractId =
+  props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near";
+const nadabotContractId = props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near";
 
 const CREATE_PROJECT_TAB = "createproject";
 const EDIT_PROJECT_TAB = "editproject";
@@ -13,6 +16,7 @@ const POTS_TAB = "pots";
 const DEPLOY_POT_TAB = "deploypot";
 const POT_DETAIL_TAB = "pot";
 const DONORS_TAB = "donors";
+const PROFILE_TAB = "profile";
 
 const Theme = styled.div`
   position: relative;
@@ -64,6 +68,7 @@ State.init({
   isNavMenuOpen: false,
   registryConfig: null,
   userIsRegistryAdmin: null,
+  allPots: null,
   registeredProjects: null,
   donnorProjectId: null,
   amount: null,
@@ -79,7 +84,9 @@ State.init({
     potDetail: null,
   },
   donationSuccessModal: {
-    isOpen: (!props.tab || props.tab === PROJECTS_LIST_TAB) && props.transactionHashes,
+    isOpen:
+      (!props.tab || props.tab === PROJECTS_LIST_TAB || props.tab === PROJECT_DETAIL_TAB) &&
+      props.transactionHashes,
     successfulDonation: null,
   },
 });
@@ -113,11 +120,27 @@ if (!state.nearToUsd) {
 
 // console.log("state in Index: ", state);
 
+if (!state.allPots) {
+  Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
+    State.update({
+      allPots: pots.reduce((acc, pot) => {
+        acc[pot.id] = {
+          detail: Near.view(pot.id, "get_config", {}),
+          approvedProjects: (Near.view(pot.id, "get_approved_applications", {}) || []).map(
+            (app) => app.project_id
+          ),
+        };
+        return acc;
+      }, {}),
+    });
+  });
+}
+
 if (!state.registeredProjects) {
   State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
 }
 
-if (!state.registeredProjects) return "";
+if (!state.registeredProjects || !state.allPots) return "";
 
 if (!state.donations) {
   State.update({
@@ -198,6 +221,7 @@ const tabContentWidget = {
   [DEPLOY_POT_TAB]: "Pots.Deploy",
   [POT_DETAIL_TAB]: "Pots.Detail",
   [DONORS_TAB]: "Components.Donors",
+  [PROFILE_TAB]: "Profile.Detail",
 };
 
 const getTabWidget = (tab) => {
@@ -342,9 +366,8 @@ const props = {
   },
   DONATION_CONTRACT_ID: donationContractId,
   REGISTRY_CONTRACT_ID: registryContractId,
-  POT_FACTORY_CONTRACT_ID:
-    props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near",
-  NADABOT_CONTRACT_ID: props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near",
+  POT_FACTORY_CONTRACT_ID: potFactoryContractId,
+  NADABOT_CONTRACT_ID: nadabotContractId,
   ToDo: styled.div`
     position: relative;
 

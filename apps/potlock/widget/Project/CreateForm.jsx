@@ -948,7 +948,7 @@ return (
     ) : (
       <>
         <Widget
-          src={`${ownerId}/widget/Project.BannerHeader`}
+          src={`${ownerId}/widget/Profile.BannerHeader`}
           props={{
             ...props,
             projectId: state.isDao && state.daoAddress ? state.daoAddress : context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social
@@ -1607,8 +1607,6 @@ return (
             },
             handleAddAccount: handleAddTeamMember,
             handleRemoveAccount: (accountId) => {
-              console.log("accountId: ", accountId);
-              console.log("state.teamMembers: ", state.teamMembers);
               State.update({
                 teamMembers: state.teamMembers.filter((tm) => tm != accountId),
               });

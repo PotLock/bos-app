@@ -49,6 +49,12 @@ const Button = styled[tag]`
   }
 `;
 
+const Icon = styled.img`
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+`;
+
 return (
   <Button
     onClick={(e) => {
@@ -61,6 +67,7 @@ return (
     style={{ ...props.style }}
     target={props.target}
   >
+    {props.iconSrc && <Icon src={props.iconSrc} />}
     {props.text}
   </Button>
 );

@@ -79,7 +79,7 @@ return (
             }}
           />{" "}
           <a
-            href={"https://app.potlock.org/near/widget/ProfilePage?accountId=" + id}
+            href={props.hrefWithEnv(`?tab=profile&accountId=${id}`)}
             className="name"
             target="_blank"
           >

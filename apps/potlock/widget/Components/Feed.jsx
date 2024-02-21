@@ -16,6 +16,6 @@ const Container = styled.div`
 
 return (
   <Container>
-    <Widget key="feed" src={`${ownerId}/widget/Project.Feed`} props={{ accounts: projectIds }} />
+    <Widget key="feed" src={`${ownerId}/widget/Profile.Feed`} props={{ accounts: projectIds }} />
   </Container>
 );
