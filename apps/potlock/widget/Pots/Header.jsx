@@ -467,9 +467,7 @@ return (
       <Description>{pot_description}</Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
-          <H3>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
-            total_public_donations
-          )}  ${base_currency.toUpperCase()}`}</H3>
+          <H3>{`${props.yoctosToUsdWithFallback(total_public_donations)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>
