@@ -62,15 +62,19 @@ const ProjectsContainer = styled.div`
   // padding: 0px 64px 96px 64px;
   // background: #fafafa;
 
-  @media screen and (max-width: 768px) {
-    margin-top: 200px;
-  }
+  // @media screen and (max-width: 768px) {
+  //   margin-top: 200px;
+  // }
 `;
 
 const HeroContainer = styled.div`
   width: 100%;
   min-height: 700px;
   position: relative;
+
+  @media screen and (max-width: 768px) {
+    min-height: 600px;
+  }
 `;
 
 const Hero = styled.img`

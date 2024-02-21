@@ -3,30 +3,37 @@ const Stats = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 70px;
+  gap: 48px;
   margin-top: 40px;
-  @media screen and (max-width: 739px) {
-    padding-top: 30px;
-    flex-direction: column;
-    gap: 20px;
+
+  @media screen and (max-width: 768px) {
+    gap: 16px;
   }
 `;
 
 const StatsTitle = styled.div`
-  font-size: 50px;
+  color: #292929;
+  font-size: 44px;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 5px;
+  align-items: baseline;
+  gap: 8px;
   font-weight: 600;
-  @media screen and (max-width: 739px) {
-    font-size: 40px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 30px;
     font-weight: 500;
+    gap: 5px;
   }
 `;
 
 const StatsSubTitle = styled.div`
-  font-size: 20px;
+  color: #525252;
+  font-size: 14px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 const [totalDonations, setDonations] = useState(0);
