@@ -10,7 +10,7 @@ const Nav = styled.div`
   width: 100%;
   display: flex;
   padding: 0 64px 0 64px;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
   align-self: stretch;
   height: ${navHeightPx}px;
@@ -23,7 +23,9 @@ const Nav = styled.div`
     padding: 24px 8px 24px 16px;
     height: ${navHeightPxMobile}px;
   }
-
+  @media screen and (max-width: 480px) {
+    padding: 24px 8px 24px 0px;
+  }
   & > a {
     width: 10rem;
   }
@@ -65,7 +67,10 @@ const NavLogo = styled.a`
   word-wrap: break-word;
   margin-right: 48px;
   text-decoration: none;
-
+  @media screen and (max-width: 480px) {
+    font-size: 20px;
+    margin-right: 1rem;
+  }
   :hover {
     text-decoration: none;
   }
