@@ -146,32 +146,31 @@ return (
         />
       )}
       {/* Matching round tag */}
-      {publicRoundOpen ||
-        (publicRoundClosed && (
-          <Widget
-            src={`${ownerId}/widget/Pots.Tag`}
-            props={{
-              ...props,
-              backgroundColor: publicRoundOpen ? "#F7FDE8" : "#EBEBEB",
-              borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
-              textColor: publicRoundOpen ? "#192C07" : "#192C07",
-              text: publicRoundOpen
-                ? props.daysUntil(public_round_end_ms) + " left in round"
-                : "Round closed",
-              textStyle: { fontWeight: 500, marginLeft: "8px" },
-              preElements: (
-                <Widget
-                  src={`${ownerId}/widget/Components.Indicator`}
-                  props={{
-                    colorOuter: publicRoundOpen ? "#D7F5A1" : "#DBDBDB",
-                    colorInner: publicRoundOpen ? "#9ADD33" : "#A6A6A6",
-                    animate: publicRoundOpen,
-                  }}
-                />
-              ),
-            }}
-          />
-        ))}
+      {publicRoundOpen && (
+        <Widget
+          src={`${ownerId}/widget/Pots.Tag`}
+          props={{
+            ...props,
+            backgroundColor: publicRoundOpen ? "#F7FDE8" : "#EBEBEB",
+            borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
+            textColor: publicRoundOpen ? "#192C07" : "#192C07",
+            text: publicRoundOpen
+              ? props.daysUntil(public_round_end_ms) + " left in round"
+              : "Round closed",
+            textStyle: { fontWeight: 500, marginLeft: "8px" },
+            preElements: (
+              <Widget
+                src={`${ownerId}/widget/Components.Indicator`}
+                props={{
+                  colorOuter: publicRoundOpen ? "#D7F5A1" : "#DBDBDB",
+                  colorInner: publicRoundOpen ? "#9ADD33" : "#A6A6A6",
+                  animate: publicRoundOpen,
+                }}
+              />
+            ),
+          }}
+        />
+      )}
     </CardSection>
   </Card>
 );

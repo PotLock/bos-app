@@ -61,9 +61,7 @@ return (
     <Widget
       src={`${ownerId}/widget/Components.InfoCard`}
       props={{
-        infoTextPrimary: props.nearToUsd
-          ? `$${(totalReferralFees * props.nearToUsd).toFixed(2)}`
-          : `${totalReferralFees} N`,
+        infoTextPrimary: props.nearToUsdWithFallback(totalReferralFees),
         infoTextSecondary: "Referral Fees",
       }}
     />

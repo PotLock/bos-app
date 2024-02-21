@@ -502,7 +502,7 @@ return (
         {/* <Ear /> */}
       </ModalHeader>
       {Object.keys(props.cart).length === 0 ? (
-        <NoProjectsText>Get shopping! 💸</NoProjectsText>
+        <NoProjectsText>Your cart is empty! 💸</NoProjectsText>
       ) : (
         Object.keys(props.cart).map((projectId) => {
           // return <CartItem projectId={projectId} Object.keys(props.cart).length={Object.keys(props.cart).length} />;

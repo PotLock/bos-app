@@ -1,5 +1,4 @@
-const { ownerId, yoctosToNear } = props;
-const donationContractId = "donate.potlock.near";
+const { ownerId, yoctosToNear, DONATION_CONTRACT_ID } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;
@@ -125,6 +124,7 @@ const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
 
 const handleDonate = () => {
   const transactions = [];
+  let potIdContained;
 
   Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
     const amountFloat = 0;
@@ -139,13 +139,14 @@ const handleDonate = () => {
     if (potId) {
       potContractArgs.project_id = projectId;
       potContractArgs.referrer_id = referrerId;
+      potIdContained = potId;
     } else {
       donateContractArgs.recipient_id = projectId;
       donateContractArgs.referrer_id = referrerId;
       donateContractArgs.message = note;
     }
     transactions.push({
-      contractName: potId ?? donationContractId,
+      contractName: potId ?? DONATION_CONTRACT_ID,
       methodName: "donate",
       args: potId ? potContractArgs : donateContractArgs,
       deposit: amountIndivisible.toString(),
@@ -155,6 +156,7 @@ const handleDonate = () => {
 
   const now = Date.now();
   Near.call(transactions);
+  console.log("props.cart: ", props.cart);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <-------- EXTENSION WALLET HANDLING -------->
   // poll for updates
@@ -162,28 +164,24 @@ const handleDonate = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(donationContractId, "get_donations_for_donor", {
+    Near.asyncView(potIdContained || DONATION_CONTRACT_ID, "get_donations_for_donor", {
       donor_id: context.accountId,
       // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
     }).then((donations) => {
       // for each project, there should be a matching donation that occurred since now()
       const foundDonations = [];
       // go through donations, add to foundDonations list
+      console.log("donations: ", donations);
       for (const donation of donations) {
-        const { recipient_id: projectId, donated_at_ms, total_amount } = donation;
-        const matchingCartItem = props.cart[projectId];
-        const ft_id = props.cart[projectId]?.ft == "NEAR" ? "NEAR" : "USD"; // TODO: remove hardcoding to support other FTs
-        if (
-          matchingCartItem &&
-          donated_at_ms > now &&
-          props.SUPPORTED_FTS[ft_id].toIndivisible(matchingCartItem.amount).toString() ==
-            total_amount
-        ) {
+        const { recipient_id, project_id, donated_at_ms, donated_at, total_amount } = donation;
+        const matchingCartItem = props.cart[project_id || recipient_id];
+        if (matchingCartItem && (donated_at_ms > now || donated_at > now)) {
           foundDonations.push(donation);
         }
       }
-      if (foundDonations.length === Object.keys(props.cart).length) {
-        // all donations found
+      console.log("foundDonations: ", foundDonations);
+      if (foundDonations.length) {
+        // donations found
         // display success message & clear cart
         clearInterval(pollId);
         props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);

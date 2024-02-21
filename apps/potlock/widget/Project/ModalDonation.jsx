@@ -335,6 +335,11 @@ if (!state.allPots) {
   });
 }
 
+const handleModalClose = () => {
+  resetState();
+  onClose();
+};
+
 console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
@@ -373,10 +378,11 @@ const handleAddToCart = () => {
       amount: state.amount,
       ft: "NEAR",
       referrerId,
-      // potId,
-      potDetail,
+      potId: activeRound ? activeRound[0] : null,
+      potDetail: activeRound ? activeRound[1].potDetail : null,
     },
   ]);
+  handleModalClose();
 };
 
 const amountNear =
@@ -456,8 +462,7 @@ return (
       onClose: (e) => {
         // e.preventDefault();
         e.stopPropagation();
-        resetState();
-        onClose();
+        handleModalClose();
       },
       contentStyle: {
         padding: "0px",
