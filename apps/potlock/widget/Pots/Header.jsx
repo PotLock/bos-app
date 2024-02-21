@@ -203,6 +203,21 @@ const ShareIconContainer = styled.svg`
   }
 `;
 
+const RefLink = styled.div`
+  color: #292929;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  word-wrap: break-word;
+  margin-top: 12px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    color: #292929;
+  }
+`;
+
 State.init({
   isMatchingPoolModalOpen: false,
   matchingPoolDonationAmountNear: "",
@@ -211,6 +226,7 @@ State.init({
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
   bypassChefFee: false,
+  referralLinkCopied: false,
   // isOnRegistry: false,
 });
 
@@ -389,6 +405,15 @@ const potLink = `https://bos.potlock.io/?tab=pot&potId=${potId}${
   context.accountId && `&referrerId=${context.accountId}`
 }`;
 
+const handleCopyReferralLink = () => {
+  clipboard.writeText(potLink).then(() => {
+    State.update({ referralLinkCopied: true });
+    setTimeout(() => {
+      State.update({ referralLinkCopied: false });
+    }, 2000);
+  });
+};
+
 return (
   <Container>
     <Column style={{ gap: "24px" }}>
@@ -557,25 +582,15 @@ return (
           />
         )}
         {now < public_round_end_ms && (
-          <>
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: publicRoundOpen || canApply ? "secondary" : "primary",
-                text: "Fund matching pool",
-                onClick: handleFundMatchingPool,
-                style: { marginRight: "6px" },
-              }}
-            />
-            <Widget
-              src={`${ownerId}/widget/Project.Share`}
-              props={{
-                text: potLink,
-                // label: "Share",
-                clipboardIcon: ShareIcon,
-              }}
-            />
-          </>
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: publicRoundOpen || canApply ? "secondary" : "primary",
+              text: "Fund matching pool",
+              onClick: handleFundMatchingPool,
+              style: { marginRight: "12px" },
+            }}
+          />
         )}
         {publicRoundOpen && (
           <Widget
@@ -616,6 +631,22 @@ return (
         )}
         {potComplete && <div style={{ color: "red" }}>Pot complete</div>}
       </Row>
+      <RefLink onClick={handleCopyReferralLink}>
+        <svg
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          style={{ width: "1em", marginTop: "-0.2em" }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect height="14" rx="2" ry="2" width="14" x="8" y="8" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </svg>
+        {state.referralLinkCopied ? "Referral link copied!" : "Earn referral fees"}
+      </RefLink>
     </Column>
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
