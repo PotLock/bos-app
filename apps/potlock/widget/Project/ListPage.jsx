@@ -139,6 +139,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Components.Header`}
         props={{
+          ...props,
           ownerId,
           tab,
           yoctosToUsd,

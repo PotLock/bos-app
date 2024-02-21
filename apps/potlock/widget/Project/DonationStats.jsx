@@ -1,3 +1,5 @@
+const { DONATION_CONTRACT_ID } = props;
+
 const Stats = styled.div`
   display: flex;
   flex-direction: row;
@@ -36,26 +38,24 @@ const StatsSubTitle = styled.div`
   }
 `;
 
-const [totalDonations, setDonations] = useState(0);
+const [totalDonations, setTotalDonations] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 
-Near.asyncView("donate.potlock.near", "get_config", {}).then((result) => {
+Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
   setTotalDonated(lastDonationAmount);
-  setDonations(result.total_donations_count);
+  setTotalDonations(result.total_donations_count);
 });
 
-return totalDonations > 0 ? (
+return (
   <Stats>
     <StatsTitle>
-      {totalDonated}
+      {totalDonated || "~"}
       <StatsSubTitle>Donated</StatsSubTitle>
     </StatsTitle>
     <StatsTitle>
-      {totalDonations > 0 && totalDonations}
+      {totalDonations || "~"}
       <StatsSubTitle>Donations</StatsSubTitle>
     </StatsTitle>
   </Stats>
-) : (
-  ""
 );
