@@ -7,7 +7,7 @@ const Stats = styled.div`
   margin-top: 40px;
   @media screen and (max-width: 739px) {
     padding-top: 30px;
-    flex-direction: row;
+    flex-direction: column;
     gap: 20px;
   }
 `;
@@ -16,7 +16,7 @@ const StatsTitle = styled.div`
   font-size: 50px;
   display: flex;
   flex-direction: row;
-  align-items: end;
+  align-items: center;
   gap: 5px;
   font-weight: 600;
   @media screen and (max-width: 739px) {
@@ -33,22 +33,22 @@ const [totalDonations, setDonations] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 
 Near.asyncView("donate.potlock.near", "get_config", {}).then((result) => {
-  const lastDonationAmount = Big(result.net_donations_amount).div(Big(1e24));
-  setDonations(parseFloat(lastDonationAmount).toFixed(2));
-  setTotalDonated(result.total_donations_count);
+  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
+  setTotalDonated(lastDonationAmount);
+  setDonations(result.total_donations_count);
 });
 
-return (
-  totalDonated > 0 && (
-    <Stats>
-      <StatsTitle>
-        ${totalDonations > 0 && totalDonations}
-        <StatsSubTitle>Donated</StatsSubTitle>
-      </StatsTitle>
-      <StatsTitle>
-        {totalDonated > 0 && totalDonated}
-        <StatsSubTitle>Donations</StatsSubTitle>
-      </StatsTitle>
-    </Stats>
-  )
+return totalDonations > 0 ? (
+  <Stats>
+    <StatsTitle>
+      {totalDonated}
+      <StatsSubTitle>Donated</StatsSubTitle>
+    </StatsTitle>
+    <StatsTitle>
+      {totalDonations > 0 && totalDonations}
+      <StatsSubTitle>Donations</StatsSubTitle>
+    </StatsTitle>
+  </Stats>
+) : (
+  ""
 );

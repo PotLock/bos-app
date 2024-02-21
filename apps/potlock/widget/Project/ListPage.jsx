@@ -1,4 +1,4 @@
-const { ownerId, userIsRegistryAdmin, tab } = props;
+const { ownerId, userIsRegistryAdmin, tab, yoctosToUsd } = props;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
@@ -137,6 +137,7 @@ return (
         props={{
           ownerId,
           tab,
+          yoctosToUsd,
           title1: "Transforming",
           title2: "Funding for Public Goods",
           description:
