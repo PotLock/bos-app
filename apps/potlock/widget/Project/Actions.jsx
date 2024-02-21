@@ -79,16 +79,6 @@ const DonationButton = styled.button`
 
 return (
   <Container>
-    {/* <FollowingMobile>
-      <Widget
-        src={`${ownerId}/widget/Project.FollowStats`}
-        props={{ accountId: props.projectId }}
-      />
-      <Widget
-        src={`${ownerId}/widget/Project.FollowButton`}
-        props={{ accountId: props.projectId }}
-      />
-    </FollowingMobile> */}
     <SubRow1>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}
@@ -98,14 +88,14 @@ return (
     </SubRow1>
     {props.tab === "project" && projectIsApproved && (
       <SubRow2>
-        <DonationButton
-          onClick={(e) => {
-            e.preventDefault();
-            setIsModalDonationOpen(true);
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "primary",
+            text: "Donate",
+            onClick: () => setIsModalDonationOpen(true),
           }}
-        >
-          Donate
-        </DonationButton>
+        />
         <Widget
           src={`${ownerId}/widget/Project.ModalDonation`}
           props={{
