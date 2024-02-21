@@ -77,6 +77,10 @@ const DonationButton = styled.button`
 //   }
 // `;
 
+State.init({
+  successfulDonation: null,
+});
+
 return (
   <Container>
     <SubRow1>
@@ -105,10 +109,30 @@ return (
             recipientId: props.projectId,
             referrerId: props.referrerId,
             openDonateToProjectModal: () => setIsModalDonationOpen(true),
+            openDonationSuccessModal: (donation) => {
+              setIsModalDonationOpen(false);
+              State.update({
+                successfulDonation: donation,
+              });
+            },
             // potId: state.donateToProjectModal.potId, // TODO: add this in if project is in a pot?
           }}
         />
       </SubRow2>
+    )}
+    {state.successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+        props={{
+          ...props,
+          successfulDonation: state.successfulDonation,
+          isModalOpen: state.successfulDonation != null,
+          onClose: () =>
+            State.update({
+              successfulDonation: null,
+            }),
+        }}
+      />
     )}
   </Container>
 );

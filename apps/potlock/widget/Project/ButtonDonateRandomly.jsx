@@ -26,6 +26,7 @@ const Button = styled.button`
 
 State.init({
   isModalOpen: false,
+  successfulDonation: null,
 });
 
 const handleDonateRandomly = () => {

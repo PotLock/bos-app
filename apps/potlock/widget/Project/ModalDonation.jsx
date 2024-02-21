@@ -434,8 +434,11 @@ const handleDonate = () => {
       // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
     }).then((donations) => {
       for (const donation of donations) {
-        const { recipient_id, project_id, donated_at_ms } = donation;
-        if ((recipient_id === projectId || project_id === projectId) && donated_at_ms > now) {
+        const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
+        if (
+          ((recipient_id === projectId || project_id === projectId) && donated_at_ms > now) ||
+          donated_at > now
+        ) {
           // display success message & clear cart
           clearInterval(pollId);
           props.openDonationSuccessModal(donation);

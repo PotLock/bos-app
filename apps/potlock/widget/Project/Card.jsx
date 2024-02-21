@@ -177,6 +177,7 @@ State.init({
     referrerId: null,
     potId: null,
     potDetail: null,
+    successfulDonation: null,
   },
 });
 
@@ -188,6 +189,7 @@ const openDonateModal = () => {
       referrerId: null,
       potId: null,
       potDetail: null,
+      successfulDonation: null,
     },
   });
 };
@@ -413,9 +415,35 @@ return (
                 potDetail: null,
               },
             }),
+          openDonationSuccessModal: (donation) => {
+            State.update({
+              donateModal: {
+                isOpen: false,
+                recipientId: null,
+                referrerId: null,
+                potId: null,
+                potDetail: null,
+              },
+              successfulDonation: donation,
+            });
+          },
           recipientId: state.donateModal.recipientId,
           referrerId: props.referrerId,
           potId,
+        }}
+      />
+    )}
+    {state.successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+        props={{
+          ...props,
+          successfulDonation: state.successfulDonation,
+          isModalOpen: state.successfulDonation != null,
+          onClose: () =>
+            State.update({
+              successfulDonation: null,
+            }),
         }}
       />
     )}
