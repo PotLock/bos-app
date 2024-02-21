@@ -24,6 +24,12 @@ const Container = styled.div`
   align-items: flex-end;
   gap: 24px;
   width: 100%;
+  @media screen and (min-width: 375px) and (max-width: 768px) {
+    width: 99%;
+  }
+  @media screen and (max-width: 390px) {
+    width: 98%;
+  }
 `;
 
 const OuterTextContainer = styled.div`
@@ -31,7 +37,7 @@ const OuterTextContainer = styled.div`
   flex-direction: row;
   gap: 10px;
   @media screen and (max-width: 768px) {
-    padding-right: 20px;
+    padding-right: 10px;
   }
 `;
 
