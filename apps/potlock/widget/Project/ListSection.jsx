@@ -491,6 +491,9 @@ const Container = styled.div`
   width: 100%;
   gap: 48px;
   padding-top: 20px;
+  @media screen and (min-width: 740px) and (max-width: 1400px) {
+    padding-top: 120px;
+  }
 `;
 
 const ProjectList = styled.div`

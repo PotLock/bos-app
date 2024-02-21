@@ -4,6 +4,7 @@ return (
     <Widget
       src={`${ownerId}/widget/Components.Header`}
       props={{
+        ...props,
         title1: props.edit ? "Edit your project" : "Create new project",
         description: `${
           props.edit ? "Update your " : "Create a "
