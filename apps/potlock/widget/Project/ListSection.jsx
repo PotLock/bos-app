@@ -492,7 +492,7 @@ const Container = styled.div`
   gap: 48px;
   padding-top: 20px;
   @media screen and (min-width: 740px) and (max-width: 1400px) {
-    padding-top: 120px;
+    ${props.tab !== "pot" && "padding-top: 120px;"}
   }
 `;
 

@@ -85,7 +85,10 @@ State.init({
   },
   donationSuccessModal: {
     isOpen:
-      (!props.tab || props.tab === PROJECTS_LIST_TAB || props.tab === PROJECT_DETAIL_TAB) &&
+      (!props.tab ||
+        props.tab === PROJECTS_LIST_TAB ||
+        props.tab === PROJECT_DETAIL_TAB ||
+        props.tab === POT_DETAIL_TAB) &&
       props.transactionHashes,
     successfulDonation: null,
   },
@@ -118,7 +121,7 @@ if (!state.nearToUsd) {
   }
 }
 
-// console.log("state in Index: ", state);
+console.log("state in Index: ", state);
 
 if (!state.allPots) {
   Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
@@ -126,9 +129,7 @@ if (!state.allPots) {
       allPots: pots.reduce((acc, pot) => {
         acc[pot.id] = {
           detail: Near.view(pot.id, "get_config", {}),
-          approvedProjects: (Near.view(pot.id, "get_approved_applications", {}) || []).map(
-            (app) => app.project_id
-          ),
+          approvedProjects: Near.view(pot.id, "get_approved_applications", {}),
         };
         return acc;
       }, {}),
@@ -368,6 +369,7 @@ const props = {
   REGISTRY_CONTRACT_ID: registryContractId,
   POT_FACTORY_CONTRACT_ID: potFactoryContractId,
   NADABOT_CONTRACT_ID: nadabotContractId,
+  NADABOT_HUMAN_METHOD: "is_human",
   ToDo: styled.div`
     position: relative;
 

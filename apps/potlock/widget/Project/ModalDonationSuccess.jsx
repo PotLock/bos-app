@@ -153,16 +153,17 @@ if (props.isModalOpen && !state.successfulDonation) {
       successfulDonation = JSON.parse(decoded);
     }
   }
-  const { donor_id, recipient_id } = successfulDonation;
+  console.log("successful donation: ", successfulDonation);
+  const { donor_id, recipient_id, project_id } = successfulDonation;
   Near.asyncView("social.near", "get", {
-    keys: [`${recipient_id}/profile/**`],
+    keys: [`${recipient_id || project_id}/profile/**`],
   }).then((recipientData) => {
     Near.asyncView("social.near", "get", {
       keys: [`${donor_id}/profile/**`],
     }).then((donorData) => {
       State.update({
         successfulDonation,
-        recipientProfile: recipientData[recipient_id]?.profile || {},
+        recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
         donorProfile: donorData[donor_id]?.profile || {},
       });
     });
@@ -220,7 +221,9 @@ return (
               <TextBold>Has been donated to</TextBold>
               <UserChipLink
                 href={props.hrefWithEnv(
-                  `?tab=project&projectId=${state.successfulDonation.recipient_id}`
+                  `?tab=project&projectId=${
+                    state.successfulDonation.recipient_id || state.successfulDonation.project_id
+                  }`
                 )}
                 target="_blank"
               >
@@ -229,7 +232,9 @@ return (
                     src={`${ownerId}/widget/Project.ProfileImage`}
                     props={{
                       ...props,
-                      accountId: state.successfulDonation.recipient_id,
+                      accountId:
+                        state.successfulDonation.recipient_id ||
+                        state.successfulDonation.project_id,
                       style: {
                         height: "17px",
                         width: "17px",

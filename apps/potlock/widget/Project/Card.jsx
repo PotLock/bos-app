@@ -7,6 +7,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 400px;
   border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
