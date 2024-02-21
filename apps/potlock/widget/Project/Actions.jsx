@@ -79,16 +79,6 @@ const DonationButton = styled.button`
 
 return (
   <Container>
-    {/* <FollowingMobile>
-      <Widget
-        src={`${ownerId}/widget/Project.FollowStats`}
-        props={{ accountId: props.projectId }}
-      />
-      <Widget
-        src={`${ownerId}/widget/Project.FollowButton`}
-        props={{ accountId: props.projectId }}
-      />
-    </FollowingMobile> */}
     <SubRow1>
       <Widget
         src={`${ownerId}/widget/Project.FollowStats`}
