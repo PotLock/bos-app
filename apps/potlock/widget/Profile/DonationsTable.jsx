@@ -1,11 +1,5 @@
 const { ownerId, projectId, donations, nearToUsd, SUPPORTED_FTS, hrefWithEnv } = props;
 
-const [page, setPage] = useState(0);
-const [totalDonations, setTotalDonation] = useState(donations);
-const [filteredDonations, setFilteredDonations] = useState(donations);
-const [search, setSearch] = useState("");
-const perPage = 30; // need to be less than 50
-
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
@@ -29,7 +23,7 @@ const Table = styled.div`
   border: 1px solid rgba(41, 41, 41, 0.5);
   padding-bottom: 1rem;
   overflow-x: scroll;
-  .transcation {
+  .transaction {
     display: grid;
     width: 100%;
     .header {
@@ -47,6 +41,10 @@ const Table = styled.div`
         justify-content: center;
         align-items: center;
       }
+    }
+
+    div {
+      margin: 8px 16px;
     }
   }
 `;
@@ -150,6 +148,25 @@ const Search = styled.div`
   }
 `;
 
+const APPLICATIONS_FILTERS = projectId
+  ? {
+      ALL: "All donations",
+      DIRECT: "Direct donations",
+      MATCHED_DONATIONS: "Matched donations",
+    }
+  : {
+      ALL: "All donations",
+      DIRECT: "Direct donations",
+      SPONSORSHIP: "Sponsorship",
+    };
+
+const [page, setPage] = useState(0);
+const [totalDonations, setTotalDonation] = useState(donations);
+const [filteredDonations, setFilteredDonations] = useState(donations);
+const [search, setSearch] = useState("");
+const [sortVal, setSortVal] = useState(APPLICATIONS_FILTERS.ALL);
+const perPage = 30; // need to be less than 50
+
 const total = useMemo(() => {
   let total = Big(0);
   donations.forEach((donation) => {
@@ -166,18 +183,6 @@ useEffect(() => {
   setTotalDonation(donations);
   setFilteredDonations(donations);
 }, [donations]);
-
-const APPLICATIONS_FILTERS = projectId
-  ? {
-      ALL: "All donations",
-      DIRECT: "Direct Donation",
-      MATCHED_DONATIONS: "Matched donation",
-    }
-  : {
-      ALL: "All donations",
-      DIRECT: "Direct Donation",
-      SPONSORSHIP: "Sponsorship",
-    };
 
 const searchDonations = (searchTerm) => {
   const filteredApplications = totalDonations.filter((item) => {
@@ -196,16 +201,16 @@ const sortDonations = (sortVal) => {
   const displayedDonations = searchDonations(search);
   let filtered;
   switch (sortVal) {
-    case APPLICATIONS_FILTERS[ALL]:
+    case APPLICATIONS_FILTERS.ALL:
       return displayedDonations;
 
-    case APPLICATIONS_FILTERS["DIRECT"]:
+    case APPLICATIONS_FILTERS.DIRECT:
       filtered = displayedDonations.filter((donation) => {
         return !donation.pot_id;
       });
       return filtered;
 
-    case APPLICATIONS_FILTERS["SPONSORSHIP"] || APPLICATIONS_FILTERS["MATCHED_DONATIONS"]:
+    case APPLICATIONS_FILTERS.SPONSORSHIP || APPLICATIONS_FILTERS.MATCHED_DONATIONS:
       filtered = displayedDonations.filter((donation) => {
         return !!donation.pot_id;
       });
@@ -226,7 +231,7 @@ return (
         </div>
       ))}
       <div className="count">
-        <div className="label">All DONATIONS</div>
+        <div className="label">ALL DONATIONS</div>
         <div className="amount">{donations.length}</div>
       </div>
     </Stats>
@@ -234,7 +239,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Project.SearchBar`}
         props={{
-          title: "Filter",
+          title: sortVal,
           tab: tab,
           numItems: donations.length,
           itemName: "donation",
@@ -247,12 +252,13 @@ return (
           handleSortChange: (sortVal) => {
             const filtered = sortDonations(sortVal);
             setFilteredDonations(filtered);
+            setSortVal(sortVal);
           },
         }}
       />
     </div>
     <Table>
-      <div className="transcation">
+      <div className="transaction">
         <div className="header">
           <div style={{ width: "200px" }}>{projectId ? "Donor" : "Project Name"}</div>
           <div>Type</div>
