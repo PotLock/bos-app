@@ -10,7 +10,9 @@ State.init({
   donations: null,
 });
 
-if (!state.allDonations) {
+const { donations, allDonations } = state;
+
+if (!allDonations) {
   Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     // sort by size)
     donations.sort(
@@ -28,7 +30,7 @@ if (!state.allDonations) {
   });
 }
 
-if (!state.donations) return "Loading...";
+if (!donations) return "Loading...";
 
 const columns = ["Rank", "Donor", "Amount", "Percentage Share"];
 
@@ -120,6 +122,13 @@ return (
         ...props,
       }}
     />
+    <Widget
+      src={`${ownerId}/widget/Pots.SponsorsBoard`}
+      props={{
+        ...props,
+        donations: donations,
+      }}
+    />
     <TableContainer>
       <Header>
         {columns.map((column, index) => (
@@ -128,10 +137,10 @@ return (
           </HeaderItem>
         ))}
       </Header>
-      {state.donations.length === 0 ? (
+      {donations.length === 0 ? (
         <Row style={{ padding: "12px" }}>No donations to display</Row>
       ) : (
-        state.donations.map((donation, index) => {
+        donations.map((donation, index) => {
           const { donor_id, total_amount, donated_at, percentage_share } = donation;
           const totalDonationAmount =
             props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
