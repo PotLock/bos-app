@@ -155,7 +155,7 @@ return (
             borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
             textColor: publicRoundOpen ? "#192C07" : "#192C07",
             text: publicRoundOpen
-              ? props.daysUntil(public_round_end_ms) + " left in round"
+              ? props.daysUntil(public_round_end_ms) + " left to donate"
               : "Round closed",
             textStyle: { fontWeight: 500, marginLeft: "8px" },
             preElements: (
