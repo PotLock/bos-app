@@ -1607,8 +1607,6 @@ return (
             },
             handleAddAccount: handleAddTeamMember,
             handleRemoveAccount: (accountId) => {
-              console.log("accountId: ", accountId);
-              console.log("state.teamMembers: ", state.teamMembers);
               State.update({
                 teamMembers: state.teamMembers.filter((tm) => tm != accountId),
               });

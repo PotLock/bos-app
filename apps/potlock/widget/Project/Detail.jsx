@@ -97,7 +97,6 @@ return (
       props={{
         ...props,
         profile,
-        accounts: [projectId],
         project,
         nav: props.nav ?? "home",
         donations: allDonations,

@@ -78,6 +78,15 @@ const StatusTextMobile = styled.div`
   }
 `;
 
+const ProjectLink = styled.a`
+  font-weight: 600;
+  color: black;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const APPLICATIONS_FILTERS = {
   ALL: "All applications",
   PENDING: "Pending applications",
@@ -207,7 +216,7 @@ return (
     ) : (
       state.filteredApplications.map((application, index) => {
         const { project_id, message, status, submitted_at, review_notes } = application;
-        console.log("status: ", status);
+        // console.log("status: ", status);
 
         return (
           <Row
@@ -230,7 +239,9 @@ return (
             />
             <Column style={{ flex: 1 }}>
               <Row style={{ borderBottom: "none", padding: "0px" }}>
-                <div style={{ fontWeight: "bold" }}>{project_id}</div>
+                <ProjectLink href={props.hrefWithEnv(`?tab=project&projectId=${project_id}`)}>
+                  {project_id}
+                </ProjectLink>
                 <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
               </Row>
               <div>{message}</div>

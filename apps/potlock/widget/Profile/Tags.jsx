@@ -1,4 +1,4 @@
-const { profile } = props;
+const { profile, getTagsFromSocialProfileData } = props;
 
 const Tags = styled.div`
   display: flex;
@@ -14,8 +14,8 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
-const tags = Object.keys(profile.tags ?? {});
-if (!tags || tags.length === 0) return "No tags";
+const tags = getTagsFromSocialProfileData(profile);
+if (!tags.length) return "No tags";
 
 return (
   <Tags>
