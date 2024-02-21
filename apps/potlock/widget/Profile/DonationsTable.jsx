@@ -1,4 +1,4 @@
-const { ownerId, donations, nearToUsd, SUPPORTED_FTS, hrefWithEnv } = props;
+const { ownerId, projectId, donations, nearToUsd, SUPPORTED_FTS, hrefWithEnv } = props;
 
 const [page, setPage] = useState(0);
 const [totalDonations, setTotalDonation] = useState(donations);
@@ -167,26 +167,28 @@ useEffect(() => {
   setFilteredDonations(donations);
 }, [donations]);
 
-const SearchBar = () => (
-  <Search>
-    <img
-      src="https://ipfs.near.social/ipfs/bafkreiaayazawvdxdt2f4ahyh3yy3sz622bwwxdnrj32jzkoec7k7jaxza"
-      alt="search-icon"
-    />
-    <input type="text" placeholder="Search project" onChange={(e) => setSearch(e.target.value)} />
-  </Search>
-);
-
-const APPLICATIONS_FILTERS = {
-  ALL: "All donations",
-  DIRECT: "Direct Donation",
-  SPONSORSHIP: "Sponsorship",
-};
+const APPLICATIONS_FILTERS = projectId
+  ? {
+      ALL: "All donations",
+      DIRECT: "Direct Donation",
+      MATCHED_DONATIONS: "Matched donation",
+    }
+  : {
+      ALL: "All donations",
+      DIRECT: "Direct Donation",
+      SPONSORSHIP: "Sponsorship",
+    };
 
 const searchDonations = (searchTerm) => {
-  const filteredApplications = totalDonations.filter((item) =>
-    (item.pot_name || item.recipient_id).toLowerCase().includes(searchTerm)
-  );
+  const filteredApplications = totalDonations.filter((item) => {
+    const searchIn = [
+      item.pot_name || "",
+      item.recipient_id || "",
+      item.donor_id || "",
+      item.pot_id || "",
+    ];
+    return searchIn.some((item) => item.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
   return filteredApplications;
 };
 
@@ -203,7 +205,7 @@ const sortDonations = (sortVal) => {
       });
       return filtered;
 
-    case APPLICATIONS_FILTERS["SPONSORSHIP"]:
+    case APPLICATIONS_FILTERS["SPONSORSHIP"] || APPLICATIONS_FILTERS["MATCHED_DONATIONS"]:
       filtered = displayedDonations.filter((donation) => {
         return !!donation.pot_id;
       });
@@ -228,7 +230,6 @@ return (
         <div className="amount">{donations.length}</div>
       </div>
     </Stats>
-    {/* <SearchBar /> */}
     <div className="search-bar">
       <Widget
         src={`${ownerId}/widget/Project.SearchBar`}
@@ -253,7 +254,7 @@ return (
     <Table>
       <div className="transcation">
         <div className="header">
-          <div style={{ width: "200px" }}>Project Name</div>
+          <div style={{ width: "200px" }}>{projectId ? "Donor" : "Project Name"}</div>
           <div>Type</div>
           <div>Amount</div>
           <div>Extra Fee</div>
@@ -262,6 +263,7 @@ return (
         {filteredDonations.map((donation) => {
           const {
             recipient_id,
+            donor_id,
             total_amount,
             pot_id,
             base_currency,
@@ -276,9 +278,14 @@ return (
           const donationAmount =
             SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(total_amount);
 
-          const projectId = recipient_id || pot_id;
-          const url = isPot ? `?tab=pot&potId=${pot_id}` : `?tab=project&projectId=${recipient_id}`;
-          const name = isPot ? pot_name : recipient_id;
+          const recepientUrl = isPot
+            ? `?tab=pot&potId=${pot_id}`
+            : `?tab=project&projectId=${recipient_id}`;
+          const profileUrl = `?tab=profile&accountId=${donor_id}`;
+          const url = projectId ? profileUrl : recepientUrl;
+
+          const projectName = isPot ? pot_name : recipient_id;
+          const name = projectId ? donor_id : projectName;
 
           const fees = SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
             referrer_fee || 0 + chef_fee || 0 + protocol_fee || 0,
@@ -296,7 +303,7 @@ return (
                 ) : (
                   <Widget
                     src="mob.near/widget/ProfileImage"
-                    props={{ accountId: projectId, style: { width: "2rem", height: "2rem" } }}
+                    props={{ accountId: name, style: { width: "2rem", height: "2rem" } }}
                   />
                 )}
                 {_address(name)}{" "}
