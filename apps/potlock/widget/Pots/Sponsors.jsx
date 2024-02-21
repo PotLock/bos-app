@@ -30,14 +30,20 @@ if (!state.allDonations) {
 
 if (!state.donations) return "Loading...";
 
-const columns = ["Rank", "Donor", "Amount", "Percentage Share"];
+const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 24px;
   width: 100%;
+  @media screen and (min-width: 375px) and (max-width: 768px) {
+    width: 99%;
+  }
+  @media screen and (max-width: 390px) {
+    width: 98%;
+  }
 `;
 
 const OuterTextContainer = styled.div`
@@ -55,9 +61,6 @@ const TableContainer = styled.div`
   border-radius: 2px;
   width: 100%;
   margin-top: 35px;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  position: relative;
 `;
 
 const Header = styled.div`
@@ -67,9 +70,6 @@ const Header = styled.div`
   justify-content: space-between;
   background: #f6f5f3;
   width: 100%;
-  @media screen and (max-width: 768px) {
-    flex: 0 0 auto;
-  }
 `;
 
 const HeaderItem = styled.div`
@@ -78,12 +78,12 @@ const HeaderItem = styled.div`
   align-items: space-between;
   justify-content: flex-start;
   padding: 10px 20px;
-  width: 100%;
-  @media screen and (max-width: 768px) {
-    flex: 0 0 auto;
-    width: 60%;
-    padding: 20px 40px;
-    background: #f6f5f3;
+  width: 24%;
+  @media screen and (min-width: 390px) and (max-width: 768px) {
+    padding: 10px 15px;
+  }
+  @media screen and (max-width: 390px) {
+    padding: 10px;
   }
 `;
 
@@ -92,6 +92,9 @@ const HeaderItemText = styled.div`
   font-size: 14px;
   font-weight: 600;
   line-height: 24px;
+  @media screen and (max-width: 390px) {
+    font-size: 12px;
+  }
 `;
 
 const Row = styled.div`
@@ -109,13 +112,14 @@ const RowItem = styled.div`
   justify-content: flex-start;
   gap: 20px;
   padding: 20px;
-  width: 100%;
-  @media screen and (max-width: 768px) {
-    flex: 0 0 auto;
-    width: 60%;
-    gap: 5px;
-    margin-top: -10px;
-    padding: 20px 40px;
+  width: 24%;
+  @media screen and (min-width: 390px) and (max-width: 768px) {
+    padding: 10px 15px;
+    gap: 10px;
+  }
+  @media screen and (max-width: 390px) {
+    padding: 10px;
+    gap: 0px;
   }
 `;
 
@@ -124,6 +128,9 @@ const RowText = styled.div`
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
+  @media screen and (max-width: 390px) {
+    font-size: 12px;
+  }
 `;
 
 const { base_currency } = potDetail;
@@ -160,15 +167,15 @@ return (
                 <RowItem style={{ width: "5%" }}>
                   <RowText>#{index + 1}</RowText>
                 </RowItem>
-                <RowItem>
+                <RowItem style={{ width: "22%" }}>
                   <Widget
                     src={`${ownerId}/widget/Project.ProfileImage`}
                     props={{
                       ...props,
                       accountId: donor_id,
                       style: {
-                        height: "24px",
-                        width: "24px",
+                        height: "25px",
+                        width: "25px",
                       },
                     }}
                   />
