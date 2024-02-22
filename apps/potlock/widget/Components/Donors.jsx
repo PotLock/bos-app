@@ -131,7 +131,8 @@ if (!allDonationsFetched && !donationsByPage[index]) {
 
 const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
   if (!allDonationsFetched) return [[], {}, []];
-  const donations = Object.values(donationsByPage).flat();
+  let donations = Object.values(donationsByPage).flat();
+  donations = donations.filter((donation) => filterByDate(filter.value, donation));
   const totalsByDonor = donations.reduce((accumulator, currentDonation) => {
     accumulator[currentDonation.donor_id] = {
       amount:
@@ -143,7 +144,7 @@ const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
   }, {});
   const sortedDonations = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
   return [donations, totalsByDonor, sortedDonations];
-}, [donationsByPage, allDonationsFetched]);
+}, [donationsByPage, allDonationsFetched, filter]);
 
 const leaderboard = [
   {
@@ -215,6 +216,7 @@ return (
               value: filter,
               onChange: (filter) => {
                 setFilter(filter);
+                setPage(0);
               },
             }}
           />
