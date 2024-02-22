@@ -7,8 +7,11 @@ const {
   referrerId,
   sybilRequirementMet,
   NADA_BOT_URL,
+  DONATION_CONTRACT_ID,
 } = props;
-
+const { calcNetDonationAmount, filterByDate } = VM.require(
+  `${ownerId}/widget/Components.DonorsUtils`
+);
 // console.log("pot detail: ", potDetail);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
@@ -227,6 +230,7 @@ State.init({
   bypassProtocolFee: false,
   bypassChefFee: false,
   referralLinkCopied: false,
+  totalUniqueDonors: 0,
   // isOnRegistry: false,
 });
 
@@ -283,7 +287,19 @@ const potComplete = all_paid_out;
 const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
-
+Near.asyncView(potId, "get_donations", {}).then((result) => {
+  const totalsByDonor = result.reduce((accumulator, currentDonation) => {
+    accumulator[currentDonation.donor_id] = {
+      amount:
+        (accumulator[currentDonation.donor_id].amount || 0) +
+        calcNetDonationAmount(currentDonation),
+      ...currentDonation,
+    };
+    return accumulator;
+  }, {});
+  const uniqueDonors = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
+  State.update({ totalUniqueDonors: uniqueDonors.length });
+});
 // if (registry_provider) {
 //   const [contractId, methodName] = registry_provider.split(":");
 //   Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
@@ -471,8 +487,8 @@ return (
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>
-          <H3>{public_donations_count}</H3>
-          <TotalsSubtext>{`Donor${public_donations_count !== 1 ? "s" : ""}`}</TotalsSubtext>
+          <H3>{state.totalUniqueDonors}</H3>
+          <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
       </Row>
     </Column>
