@@ -4,7 +4,7 @@ on:
     branches: [main]
 jobs:
   deploy-mainnet:
-    uses: NEARBuilders/bos-workspace/.github/workflows/deploy.yml@rpc-workflow
+    uses: NEARBuilders/bos-workspace/.github/workflows/deploy.yml@main
     with:
       deploy-env: "mainnet"
       app-name: "potlock"
