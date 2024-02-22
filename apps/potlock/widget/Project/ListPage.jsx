@@ -423,36 +423,126 @@ const SORT_FILTERS = {
   LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
 };
 
-const searchProjects = (searchTerm) => {
-  // filter projects that match the search term (just id for now)
-  const filteredProjects = projects.filter((project) => {
-    const { id } = project;
-    const searchFields = [id];
-    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
-  });
-  return filteredProjects;
+const sortHighestToLowest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) > 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+
+  setFilteredProjects(projects);
 };
 
-const sortProjects = (sortVal) => {
-  if (sortVal === SORT_FILTERS.ALL) {
-    return projects;
-  } else if (sortVal === SORT_FILTERS.NEW_TO_OLD) {
-    const sorted = projects;
-    sorted.sort((a, b) => b.submitted_ms - a.submitted_ms);
-    return sorted;
-  } else if (sortVal === SORT_FILTERS.OLD_TO_NEW) {
-    const sorted = projects;
-    sorted.sort((a, b) => a.submitted_ms - b.submitted_ms);
-    return sorted;
-  } else if (sortVal === SORT_FILTERS.MOST_TO_LEAST_DONATIONS) {
-    const sorted = projects;
-    sorted.sort((a, b) => b.total - a.total);
-    return sorted;
-  } else if (sortVal === SORT_FILTERS.LEAST_TO_MOST_DONATIONS) {
-    const sorted = projects;
-    sorted.sort((a, b) => a.total - b.total);
-    return sorted;
+const sortLowestToHighest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) < 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
   }
+
+  setFilteredProjects(projects);
+};
+
+const sortNewToOld = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms < projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setFilteredProjects(projects);
+};
+
+const sortOldToNew = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms > projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setFilteredProjects(projects);
+};
+
+const handleSortChange = (sortType) => {
+  switch (sortType) {
+    case "Newest to Oldest":
+      sortNewToOld(projects);
+      break;
+    case "Oldest to Newest":
+      sortOldToNew(projects);
+      break;
+    case "Most to Least Donations":
+      sortHighestToLowest(projects);
+      break;
+    case "Least to Most Donations":
+      sortLowestToHighest(projects);
+      break;
+  }
+};
+
+const searchByWords = (projects, searchTerm) => {
+  let findId = [];
+  const dataArr = projects;
+  let alldata = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.id}/profile`);
+    alldata.push(data);
+    if (data) {
+      if (
+        data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        data.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        findId.push(item.id);
+      }
+    }
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((project) => {
+    const data = Social.getr(`${project.id}/profile`);
+    findId.forEach((id) => {
+      if (tagSelected.length > 0) {
+        if (data.category == tagSelected[0]) {
+          if (project.id == id) {
+            projectFilterBySearch.push(project);
+          }
+        }
+      } else {
+        if (project.id == id) {
+          projectFilterBySearch.push(project);
+        }
+      }
+    });
+  });
+
+  setFilteredProjects(projectFilterBySearch);
 };
 
 return (
@@ -687,12 +777,10 @@ return (
           itemName: tab == "pots" ? "pot" : "project",
           sortList: Object.values(SORT_FILTERS),
           setSearchTerm: (value) => {
-            const results = searchProjects(value);
-            setFilteredProjects(results);
+            searchByWords(projects, value);
           },
           handleSortChange: (filter) => {
-            const sorted = sortProjects(filter);
-            setFilteredProjects(sorted);
+            handleSortChange(filter);
           },
         }}
       />
