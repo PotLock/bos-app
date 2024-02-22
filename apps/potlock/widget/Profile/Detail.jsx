@@ -80,7 +80,7 @@ const allDonations = useMemo(() => {
 }, [sponsorshipDonations, directDonations]);
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
-
+const tags = Object.keys(profile.tags || {});
 if (profile === null) {
   return "Loading";
 }
@@ -89,7 +89,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
 return (
   <Wrapper>
     <Widget
@@ -97,6 +96,7 @@ return (
       props={{
         ...props,
         profile,
+        tags,
         accounts: [accountId],
         donations: allDonations,
         nav: props.nav ?? "donations",
