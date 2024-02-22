@@ -31,7 +31,7 @@ const Table = styled.div`
       color: black;
       font-weight: 600;
       div {
-        width: 130px;
+        width: 90px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -41,7 +41,6 @@ const Table = styled.div`
         text-align: center;
       }
     }
-
     > div {
       display: flex;
       align-items: center;
@@ -49,6 +48,9 @@ const Table = styled.div`
       gap: 1rem;
       padding: 1rem;
       margin: 8px 16px;
+    }
+    .type {
+      width: 150px;
     }
     @media only screen and (max-width: 992px) {
       > div {
@@ -59,7 +61,6 @@ const Table = styled.div`
       }
       .header div {
         font-size: 12px;
-        width: 100px;
       }
     }
     @media only screen and (max-width: 480px) {
@@ -81,13 +82,12 @@ const Table = styled.div`
 const TrRow = styled.div`
   > div,
   > span {
-    width: 130px;
+    width: 90px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #292929;
   }
-
   .price {
     display: flex;
     gap: 1rem;
@@ -105,10 +105,14 @@ const TrRow = styled.div`
     padding: 10px;
     border-radius: 2px;
     transition: all 200ms;
+    p {
+      text-align: center;
+      margin: 0;
+    }
     .profile-image {
       margin-right: 1rem;
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
       margin-left: 0;
     }
     :hover {
@@ -119,7 +123,6 @@ const TrRow = styled.div`
     > div,
     > span {
       font-size: 12px;
-      width: 100px;
     }
     .price {
       gap: 0.5rem;
@@ -221,6 +224,7 @@ const APPLICATIONS_FILTERS = projectId
       ALL: "All donations",
       DIRECT: "Direct donations",
       SPONSORSHIP: "Sponsorship",
+      MATCHED_DONATIONS: "Matched donations",
     };
 
 const [page, setPage] = useState(0);
@@ -252,6 +256,7 @@ const searchDonations = (searchTerm) => {
     const searchIn = [
       item.pot_name || "",
       item.recipient_id || "",
+      item.project_id || "",
       item.donor_id || "",
       item.pot_id || "",
     ];
@@ -266,21 +271,43 @@ const sortDonations = (sortVal) => {
   switch (sortVal) {
     case APPLICATIONS_FILTERS.ALL:
       return displayedDonations;
-
     case APPLICATIONS_FILTERS.DIRECT:
       filtered = displayedDonations.filter((donation) => {
-        return !donation.pot_id;
+        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.DIRECT;
       });
       return filtered;
 
-    case APPLICATIONS_FILTERS.SPONSORSHIP || APPLICATIONS_FILTERS.MATCHED_DONATIONS:
+    case APPLICATIONS_FILTERS.SPONSORSHIP:
       filtered = displayedDonations.filter((donation) => {
-        return !!donation.pot_id;
+        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.SPONSORSHIP;
+      });
+      return filtered;
+    case APPLICATIONS_FILTERS.MATCHED_DONATIONS:
+      filtered = displayedDonations.filter((donation) => {
+        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.MATCHED_DONATIONS;
       });
       return filtered;
 
     default:
       return displayedDonations;
+  }
+};
+
+const getName = (donation) => {
+  switch (APPLICATIONS_FILTERS[donation.type]) {
+    case APPLICATIONS_FILTERS.DIRECT:
+      return _address(donation.recipient_id);
+    case APPLICATIONS_FILTERS.SPONSORSHIP:
+      return _address(donation.pot_name);
+    case APPLICATIONS_FILTERS.MATCHED_DONATIONS:
+      return (
+        <p>
+          &lt;{_address(donation.pot_name)}&gt;
+          <br /> {_address(donation.project_id)}
+        </p>
+      );
+    default:
+      return _address(donation.recipient_id);
   }
 };
 
@@ -324,7 +351,7 @@ return (
       <div className="transaction">
         <div className="header">
           <div className="address">{projectId ? "Donor" : "Project Name"}</div>
-          <div>Type</div>
+          <div className="type">Type</div>
           <div>Amount</div>
           <div>Extra Fee</div>
         </div>
@@ -337,10 +364,11 @@ return (
             pot_id,
             base_currency,
             ft_id,
-            pot_name,
             referrer_fee,
             chef_fee,
             protocol_fee,
+            type,
+            project_id,
           } = donation;
 
           const isPot = !!pot_id;
@@ -353,8 +381,8 @@ return (
           const profileUrl = `?tab=profile&accountId=${donor_id}`;
           const url = projectId ? profileUrl : recepientUrl;
 
-          const projectName = isPot ? pot_name : recipient_id;
-          const name = projectId ? donor_id : projectName;
+          const name = projectId ? _address(donor_id) : getName(donation);
+          const profileImg = projectId ? donor_id : project_id || recipient_id;
 
           const fees = SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
             referrer_fee || 0 + chef_fee || 0 + protocol_fee || 0,
@@ -363,7 +391,7 @@ return (
           return (
             <TrRow>
               <a href={hrefWithEnv(url)} className="address" target="_blank">
-                {isPot ? (
+                {type === "SPONSORSHIP" ? (
                   <img
                     className="profile-image"
                     src="https://ipfs.near.social/ipfs/bafkreib447lbtzgo4mbegsush6ybv5evwreeydgmlg2agn6vxlsf5gpmdq"
@@ -372,12 +400,12 @@ return (
                 ) : (
                   <Widget
                     src="mob.near/widget/ProfileImage"
-                    props={{ accountId: name, style: {} }}
+                    props={{ accountId: profileImg, style: {} }}
                   />
                 )}
-                {_address(name)}{" "}
+                {name}
               </a>
-              <div>{isPot ? "Sponsorship" : "Direct Donation"}</div>
+              <div className="type">{APPLICATIONS_FILTERS[type]}</div>
               <div className="price">
                 <img src={nearLogo} alt="NEAR" />
                 {donationAmount}
