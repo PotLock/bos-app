@@ -265,13 +265,106 @@ const StatsSubTitle = styled.div`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+`;
+
+const Title = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 1.12px;
+  text-transform: uppercase;
+`;
+
+const TagsWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+  color: #292929;
+`;
+
+const Tag = styled.div`
+  display: flex;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0px -1px 0px 0px #c7c7c7 inset, 0px 0px 0px 0.5px #c7c7c7;
+  border: 1px solid #c7c7c7;
+  &:hover {
+    background: #fef6ee;
+  }
+`;
+
+const OnBottom = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`;
+
+const ContainerHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 48px;
+  padding-top: 20px;
+  @media screen and (min-width: 740px) and (max-width: 1400px) {
+    ${props.tab !== "pot" && "padding-top: 120px;"}
+  }
+`;
+
+const ProjectList = styled.div`
+  display: grid;
+  gap: 31px;
+
+  // For mobile devices (1 column)
+  @media screen and (max-width: 739px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  // For tablet devices (2 columns)
+  @media screen and (min-width: 740px) and (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // For desktop devices (3 columns)
+  @media screen and (min-width: 1024px) {
+    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
+  }
+`;
+
 State.init({
   isModalOpen: false,
   successfulDonation: null,
 });
+const projects = useMemo(
+  () =>
+    userIsRegistryAdmin
+      ? props.registeredProjects
+      : props.registeredProjects.filter((project) => project.status === "Approved"),
+  [props.registeredProjects, userIsRegistryAdmin]
+);
 
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
+const [filteredProjects, setFilteredProjects] = useState(projects);
+const [searchTerm, setSearchTerm] = useState("");
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
@@ -286,12 +379,10 @@ const donateRandomly = () => {
   });
 };
 
-const projects = useMemo(
-  () =>
-    userIsRegistryAdmin
-      ? props.registeredProjects
-      : props.registeredProjects.filter((project) => project.status === "Approved"),
-  [props.registeredProjects, userIsRegistryAdmin]
+const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjects = useMemo(
+  () => projects.filter((project) => featuredProjectIds.includes(project.id)),
+  projects
 );
 
 const [totalDonations, totalDonors] = useMemo(() => {
@@ -322,6 +413,46 @@ const containerStyleHeader = {
   left: 0,
   marginBottom: "24px",
   background: "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
+};
+
+const SORT_FILTERS = {
+  ALL: "All",
+  NEW_TO_OLD: "Newest to Oldest",
+  OLD_TO_NEW: "Oldest to Newest",
+  MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
+  LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
+};
+
+const searchProjects = (searchTerm) => {
+  // filter projects that match the search term (just id for now)
+  const filteredProjects = projects.filter((project) => {
+    const { id } = project;
+    const searchFields = [id];
+    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+  });
+  return filteredProjects;
+};
+
+const sortProjects = (sortVal) => {
+  if (sortVal === SORT_FILTERS.ALL) {
+    return projects;
+  } else if (sortVal === SORT_FILTERS.NEW_TO_OLD) {
+    const sorted = projects;
+    sorted.sort((a, b) => b.submitted_ms - a.submitted_ms);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.OLD_TO_NEW) {
+    const sorted = projects;
+    sorted.sort((a, b) => a.submitted_ms - b.submitted_ms);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.MOST_TO_LEAST_DONATIONS) {
+    const sorted = projects;
+    sorted.sort((a, b) => b.total - a.total);
+    return sorted;
+  } else if (sortVal === SORT_FILTERS.LEAST_TO_MOST_DONATIONS) {
+    const sorted = projects;
+    sorted.sort((a, b) => a.total - b.total);
+    return sorted;
+  }
 };
 
 return (
@@ -499,12 +630,109 @@ return (
         </Stats>
       </HeaderContainer>
     </HeroContainer>
+    {props.tab != "pots" && props.tab != "pot" && (
+      <ContainerHeader>
+        <Header>
+          <Title>Featured projects</Title>
+        </Header>
+
+        <ProjectList>
+          {featuredProjects.map((project) => {
+            return (
+              <Widget
+                src={`${ownerId}/widget/Project.Card`}
+                loading={
+                  <div
+                    style={{
+                      width: "355px",
+                      height: "455px",
+                      borderRadius: "12px",
+                      background: "white",
+                      boxShadow: "0px -2px 0px #dbdbdb inset",
+                      border: "1px solid #dbdbdb",
+                    }}
+                  />
+                }
+                props={{
+                  ...props,
+                  // potId,
+                  projectId: project.id,
+                  allowDonate: true,
+                  // allowDonate:
+                  //   sybilRequirementMet &&
+                  //   publicRoundOpen &&
+                  //   project.project_id !== context.accountId,
+                  // requireVerification: !sybilRequirementMet,
+                }}
+              />
+            );
+          })}
+        </ProjectList>
+        <OnBottom></OnBottom>
+      </ContainerHeader>
+    )}
+    <Header>
+      <Title>
+        all {tab == "pots" ? "pots" : "projects"}
+        <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
+          {projects.length}
+        </span>
+      </Title>
+      <Widget
+        src={`${ownerId}/widget/Project.SearchBar`}
+        props={{
+          title: "Sort",
+          tab: tab,
+          numItems: filteredProjects.length,
+          itemName: tab == "pots" ? "pot" : "project",
+          sortList: Object.values(SORT_FILTERS),
+          setSearchTerm: (value) => {
+            const results = searchProjects(value);
+            setFilteredProjects(results);
+          },
+          handleSortChange: (filter) => {
+            const sorted = sortProjects(filter);
+            setFilteredProjects(sorted);
+          },
+        }}
+      />
+      {/* {tab != "pots" && tab != "pot" && (
+          <TagsWrapper>
+            Tags:
+            {tagsList.map((tag, key) => (
+              <Tag
+                key={key}
+                onClick={() => handleTag(key)}
+                className={`${
+                  tag.selected && "gap-2 bg-[#FEF6EE]"
+                } p-2 rounded border text-sm flex items-center  cursor-pointer`}
+              >
+                {tag.selected && (
+                  <svg
+                    width="12"
+                    height="10"
+                    viewBox="0 0 12 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
+                      fill="#F4B37D"
+                    ></path>
+                  </svg>
+                )}
+                {tag.label}
+              </Tag>
+            ))}
+          </TagsWrapper>
+        )} */}
+    </Header>
     <ProjectsContainer>
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
-          items: projects,
+          items: filteredProjects,
           renderItem: (project) => {
             return (
               <Widget
