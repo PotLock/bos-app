@@ -104,7 +104,7 @@ const Row = styled.div`
   width: 100%;
 `;
 
-const RowItem = styled.div`
+const RowItem = styled.a`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -112,6 +112,9 @@ const RowItem = styled.div`
   gap: 20px;
   padding: 20px;
   width: ${100 / columns.length}%;
+  &:hover {
+    text-decoration: none;
+  }
 `;
 
 const RowText = styled.div`
@@ -211,7 +214,7 @@ return (
 
           return (
             <Row key={index}>
-              <RowItem>
+              <RowItem href={`?tab=project&projectId=${project_id}`} target={"_blank"}>
                 <Widget
                   src={`${ownerId}/widget/Project.ProfileImage`}
                   props={{
@@ -225,7 +228,7 @@ return (
                 />
                 <RowText>{project_id}</RowText>
               </RowItem>
-              <RowItem>
+              <RowItem href={`?tab=profile&accountId=${donor_id}`} target={"_blank"}>
                 <Widget
                   src={`${ownerId}/widget/Project.ProfileImage`}
                   props={{
