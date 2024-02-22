@@ -18,11 +18,11 @@ const ProjectOptions = (props) => [
     id: "pots",
     disabled: true,
   },
-  {
-    label: "Attestations",
-    id: "attestations",
-    disabled: true,
-  },
+  // {
+  //   label: "Attestations",
+  //   id: "attestations",
+  //   disabled: true,
+  // },
   {
     label: "Funding raised",
     id: "funding",
