@@ -14,7 +14,7 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
-const tags = getTagsFromSocialProfileData(profile);
+const tags = props.tags ?? getTagsFromSocialProfileData(profile);
 if (!tags.length) return "No tags";
 
 return (

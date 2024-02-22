@@ -38,6 +38,7 @@ const getProjectRoundDonations = (potId, potDetail) => {
         base_currency: potDetail.base_currency,
         pot_name: potDetail.pot_name,
         pot_id: potId,
+        type: "MATCHED_DONATIONS",
       }));
       if (roundDonations[potId]) return "";
       setMatchingRoundDonations((prevmMatchingRoundDonations) => {
@@ -56,7 +57,13 @@ const getProjectRoundDonations = (potId, potDetail) => {
 if (!directDonations) {
   Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_recipient", {
     recipient_id: projectId,
-  }).then((donations) => setDirectDonations(donations));
+  }).then((donations) => {
+    donations = donations.map((donation) => ({
+      ...donation,
+      type: "DIRECT",
+    }));
+    setDirectDonations(donations);
+  });
 }
 if (!pots) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
@@ -74,7 +81,9 @@ if (pots.length && !matchingRoundDonations[pots[pots.length - 1].id]) {
 const allDonations = useMemo(() => {
   const RoundDonationsValue = Object.values(matchingRoundDonations).flat();
   const allDonations = [...(directDonations || []), ...RoundDonationsValue];
-  allDonations.sort((a, b) => b.donated_at - a.donated_at);
+  allDonations.sort(
+    (a, b) => (b.donated_at_ms || b.donated_at) - (a.donated_at_ms || a.donated_at)
+  );
   return allDonations;
 }, [matchingRoundDonations, directDonations]);
 
