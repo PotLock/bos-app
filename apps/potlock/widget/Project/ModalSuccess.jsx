@@ -81,6 +81,14 @@ const NearIcon = styled.img`
   height: 28px;
 `;
 
+const H1 = styled.h1`
+  color: #292929;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  word-wrap: break-word;
+`;
+
 const TextBold = styled.div`
   color: #292929;
   font-size: 14px;
@@ -132,7 +140,10 @@ State.init({
 
 if (props.isModalOpen && !state.successfulDonation) {
   let successfulDonation = props.successfulDonation;
-  if (!successfulDonation && props.transactionHashes) {
+  let successfulApplication = props.successfulApplication;
+  // if !successfulDonation and !successfulApplication, then we need to fetch the transaction
+  // once fetched, determine whether it was a donation or an application & set on state accordingly
+  if (!successfulDonation && !successfulApplication && props.transactionHashes) {
     const body = JSON.stringify({
       jsonrpc: "2.0",
       id: "dontcare",
@@ -146,28 +157,40 @@ if (props.isModalOpen && !state.successfulDonation) {
       },
       body,
     });
-    // console.log("tx res: ", res);
     if (res.ok) {
+      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
       const successVal = res.body.result.status?.SuccessValue;
-      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-      successfulDonation = JSON.parse(decoded);
+      let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+      if (methodName === "donate") {
+        // donation
+        successfulDonation = decoded;
+      } else if (methodName === "apply") {
+        // application
+        successfulApplication = decoded;
+      }
     }
   }
-  console.log("successful donation: ", successfulDonation);
-  const { donor_id, recipient_id, project_id } = successfulDonation;
-  Near.asyncView("social.near", "get", {
-    keys: [`${recipient_id || project_id}/profile/**`],
-  }).then((recipientData) => {
+  // if (successfulDonation) console.log("successful donation: ", successfulDonation);
+  if (successfulDonation) {
+    const { donor_id, recipient_id, project_id } = successfulDonation;
     Near.asyncView("social.near", "get", {
-      keys: [`${donor_id}/profile/**`],
-    }).then((donorData) => {
-      State.update({
-        successfulDonation,
-        recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
-        donorProfile: donorData[donor_id]?.profile || {},
+      keys: [`${recipient_id || project_id}/profile/**`],
+    }).then((recipientData) => {
+      Near.asyncView("social.near", "get", {
+        keys: [`${donor_id}/profile/**`],
+      }).then((donorData) => {
+        State.update({
+          successfulDonation,
+          recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
+          donorProfile: donorData[donor_id]?.profile || {},
+        });
       });
     });
-  });
+  } else if (successfulApplication) {
+    State.update({
+      successfulApplication,
+    });
+  }
 }
 
 const twitterIntent = useMemo(() => {
@@ -196,7 +219,14 @@ return (
       contentStyle: {
         padding: "0px",
       },
-      children: (
+      children: state.successfulApplication ? (
+        <>
+          <ModalMain>
+            <H1>Thank you for applying!</H1>
+            <TextBold>Your application status: {state.successfulApplication.status}</TextBold>
+          </ModalMain>
+        </>
+      ) : state.successfulDonation ? (
         <>
           <ModalMain>
             <HeaderIcon src={HEADER_ICON_URL} />
@@ -313,6 +343,8 @@ return (
             </Row>
           </ModalFooter>
         </>
+      ) : (
+        ""
       ),
     }}
   />

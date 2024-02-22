@@ -83,7 +83,7 @@ State.init({
     potId: null,
     potDetail: null,
   },
-  donationSuccessModal: {
+  successModal: {
     isOpen:
       (!props.tab ||
         props.tab === PROJECTS_LIST_TAB ||
@@ -522,15 +522,6 @@ const props = {
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
     });
   },
-  // openDonationSuccessModal: (successfulDonation) => {
-  //   console.log("opening success modal with donation data: ", successfulDonation);
-  //   State.update({
-  //     donationSuccessModal: {
-  //       isOpen: true,
-  //       successfulDonation,
-  //     },
-  //   });
-  // },
   basisPointsToPercent: (basisPoints) => {
     return basisPoints / 100;
   },
@@ -650,14 +641,14 @@ return (
       />
     )}
     <Widget
-      src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+      src={`${ownerId}/widget/Project.ModalSuccess`}
       props={{
         ...props,
-        successfulDonation: state.donationSuccessModal.successfulDonation,
-        isModalOpen: state.donationSuccessModal.isOpen,
+        successfulDonation: state.successModal.successfulDonation,
+        isModalOpen: state.successModal.isOpen,
         onClose: () =>
           State.update({
-            donationSuccessModal: {
+            successModal: {
               isOpen: false,
               successfulDonation: null,
             },

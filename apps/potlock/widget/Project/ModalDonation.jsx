@@ -447,7 +447,7 @@ const handleDonate = () => {
         ) {
           // display success message & clear cart
           clearInterval(pollId);
-          props.openDonationSuccessModal(donation);
+          props.openDonationModalSuccess(donation);
         }
       }
     });

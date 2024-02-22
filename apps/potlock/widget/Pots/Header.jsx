@@ -6,6 +6,7 @@ const {
   formatDate,
   referrerId,
   sybilRequirementMet,
+  applicationSuccess,
   NADA_BOT_URL,
   DONATION_CONTRACT_ID,
 } = props;
@@ -310,7 +311,9 @@ if (state.totalUniqueDonors === null) {
 //   });
 // }
 
-const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
+const applicationExists = existingApplication || applicationSuccess;
+
+const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
 // const registryRequirementMet = state.isOnRegistry || !registry_provider;
 
