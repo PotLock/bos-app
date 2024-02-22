@@ -230,7 +230,7 @@ State.init({
   bypassProtocolFee: false,
   bypassChefFee: false,
   referralLinkCopied: false,
-  totalUniqueDonors: 0,
+  totalUniqueDonors: null,
   // isOnRegistry: false,
 });
 
@@ -287,19 +287,22 @@ const potComplete = all_paid_out;
 const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
-Near.asyncView(potId, "get_donations", {}).then((result) => {
-  const totalsByDonor = result.reduce((accumulator, currentDonation) => {
-    accumulator[currentDonation.donor_id] = {
-      amount:
-        (accumulator[currentDonation.donor_id].amount || 0) +
-        calcNetDonationAmount(currentDonation),
-      ...currentDonation,
-    };
-    return accumulator;
-  }, {});
-  const uniqueDonors = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
-  State.update({ totalUniqueDonors: uniqueDonors.length });
-});
+
+if (state.totalUniqueDonors === null) {
+  Near.asyncView(potId, "get_donations", {}).then((result) => {
+    const totalsByDonor = result.reduce((accumulator, currentDonation) => {
+      accumulator[currentDonation.donor_id] = {
+        amount:
+          (accumulator[currentDonation.donor_id].amount || 0) +
+          calcNetDonationAmount(currentDonation),
+        ...currentDonation,
+      };
+      return accumulator;
+    }, {});
+    const uniqueDonors = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
+    State.update({ totalUniqueDonors: uniqueDonors.length });
+  });
+}
 // if (registry_provider) {
 //   const [contractId, methodName] = registry_provider.split(":");
 //   Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
@@ -487,7 +490,7 @@ return (
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>
-          <H3>{state.totalUniqueDonors}</H3>
+          <H3>{state.totalUniqueDonors !== null ? state.totalUniqueDonors : "-"}</H3>
           <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
       </Row>
