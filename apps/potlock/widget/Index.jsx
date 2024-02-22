@@ -43,17 +43,17 @@ const routes = {
   //     ...props,
   //   },
   // },
-  // projects: {
-  //   path: "potlock.near/widget/Project.ListPage",
-  //   init: {
-  //     ownerId,
-  //     registryContractId,
-  //     donationContractId,
-  //     potFactoryContractId,
-  //     nadabotContractId,
-  //     ...props,
-  //   },
-  // },
+  projects: {
+    path: "potlock.near/widget/Project.ListPage",
+    init: {
+      ownerId,
+      registryContractId,
+      donationContractId,
+      potFactoryContractId,
+      nadabotContractId,
+      ...props,
+    },
+  },
   // project: {
   //   path: "potlock.near/widget/Project.Detail",
   //   init: {
@@ -76,28 +76,28 @@ const routes = {
   //     ...props,
   //   },
   // },
-  // feed: {
-  //   path: "potlock.near/widget/Components.Feed",
-  //   init: {
-  //     ownerId,
-  //     registryContractId,
-  //     donationContractId,
-  //     potFactoryContractId,
-  //     nadabotContractId,
-  //     ...props,
-  //   },
-  // },
-  // pots: {
-  //   path: "potlock.near/widget/Pots.Home",
-  //   init: {
-  //     ownerId,
-  //     registryContractId,
-  //     donationContractId,
-  //     potFactoryContractId,
-  //     nadabotContractId,
-  //     ...props,
-  //   },
-  // },
+  feed: {
+    path: "potlock.near/widget/Components.Feed",
+    init: {
+      ownerId,
+      registryContractId,
+      donationContractId,
+      potFactoryContractId,
+      nadabotContractId,
+      ...props,
+    },
+  },
+  pots: {
+    path: "potlock.near/widget/Pots.Home",
+    init: {
+      ownerId,
+      registryContractId,
+      donationContractId,
+      potFactoryContractId,
+      nadabotContractId,
+      ...props,
+    },
+  },
   // deploypot: {
   //   path: "potlock.near/widget/Pots.Deploy",
   //   init: {
@@ -120,17 +120,17 @@ const routes = {
   //     ...props,
   //   },
   // },
-  // donors: {
-  //   path: "potlock.near/widget/Components.Donors",
-  //   init: {
-  //     ownerId,
-  //     registryContractId,
-  //     donationContractId,
-  //     potFactoryContractId,
-  //     nadabotContractId,
-  //     ...props,
-  //   },
-  // },
+  donors: {
+    path: "potlock.near/widget/Components.Donors",
+    init: {
+      ownerId,
+      registryContractId,
+      donationContractId,
+      potFactoryContractId,
+      nadabotContractId,
+      ...props,
+    },
+  },
   // profile: {
   //   path: "potlock.near/widget/Profile.Detail",
   //   init: {
@@ -220,6 +220,8 @@ return (
       routes={routes}
       depth={1}
       debug={false}
+      defaultPage="home"
+      routerParam="tab" // router config
       basePath={context.widgetSrc ?? "potlock.near/widget/Index"} // TODO: context from VM or custom component for Link
       Layout={({ children, navigate, Outlet, ownerId, ...p }) => {
         // This should just be Template
@@ -241,7 +243,7 @@ return (
             Footer={() => <></>}
             {...p}
           >
-            {/* <Outlet page={page} {...props} /> */}
+            <Outlet page={page} {...props} />
           </AppLayout>
         );
       }}
@@ -286,7 +288,6 @@ return (
     /> */}
   </Theme>
 );
-
 
 // const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 

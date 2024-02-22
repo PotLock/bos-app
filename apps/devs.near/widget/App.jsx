@@ -18,11 +18,22 @@ const Content = styled.div`
   height: 100%;
 `;
 
-const App = ({ routes, Layout, basePath, page, defaultPage, debug, depth, env, ...passProps }) => {
+const App = ({
+  routes,
+  Layout,
+  basePath,
+  page,
+  defaultPage,
+  debug,
+  depth,
+  env,
+  routerParam,
+  ...passProps
+}) => {
   if (!page) page = Object.keys(routes)[0] || defaultPage;
 
   function navigate({ param, to }) {
-    if (!param) param = "page";
+    if (!param) param = routerParam ?? "page";
     if (to === "/") to = defaultPage;
 
     return href({
@@ -47,9 +58,10 @@ const App = ({ routes, Layout, basePath, page, defaultPage, debug, depth, env, .
             <Router
               debug={debug}
               basePath={basePath}
-              active={page}
+              active={passProps[routerParam ?? "page"] ?? page}
               routes={routes}
               passProps={p}
+              routerParam={routerParam}
               depth={depth ?? 1}
               PageNotFound={() => <p>404 Not Found</p>} // routes[404]
             />

@@ -7,15 +7,7 @@ const Content = styled.div`
   height: 100%;
 `;
 
-function Router({
-  active,
-  routes,
-  depth,
-  PageNotFound,
-  page,
-  debug,
-}) {
-  if (!depth) depth = 1;
+function Router({ active, routes, PageNotFound, debug, routerParam }) {
   if (!PageNotFound) PageNotFound = () => <p>404 Not Found</p>;
 
   let currentRoute = routes[active];
@@ -37,7 +29,7 @@ function Router({
       <Content key={active}>
         <Widget
           src={currentRoute.path}
-          props={{ ...currentRoute.init, page }}
+          props={currentRoute.init}
           loading={<div style={{ height: "100%", width: "100%" }} />}
         />
       </Content>
