@@ -268,28 +268,13 @@ const searchDonations = (searchTerm) => {
 const sortDonations = (sortVal) => {
   const displayedDonations = searchDonations(search);
   let filtered;
-  switch (sortVal) {
-    case APPLICATIONS_FILTERS.ALL:
-      return displayedDonations;
-    case APPLICATIONS_FILTERS.DIRECT:
-      filtered = displayedDonations.filter((donation) => {
-        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.DIRECT;
-      });
-      return filtered;
-
-    case APPLICATIONS_FILTERS.SPONSORSHIP:
-      filtered = displayedDonations.filter((donation) => {
-        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.SPONSORSHIP;
-      });
-      return filtered;
-    case APPLICATIONS_FILTERS.MATCHED_DONATIONS:
-      filtered = displayedDonations.filter((donation) => {
-        return APPLICATIONS_FILTERS[donation.type] === APPLICATIONS_FILTERS.MATCHED_DONATIONS;
-      });
-      return filtered;
-
-    default:
-      return displayedDonations;
+  if (sortVal && sortVal !== APPLICATIONS_FILTERS.ALL) {
+    filtered = displayedDonations.filter((donation) => {
+      return APPLICATIONS_FILTERS[donation.type] === sortVal;
+    });
+    return filtered;
+  } else {
+    return displayedDonations;
   }
 };
 
