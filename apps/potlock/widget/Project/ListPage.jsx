@@ -489,11 +489,11 @@ return (
         </ButtonsContainer>
         <Stats>
           <StatsTitle>
-            {totalDonated || "~"}
+            {totalDonated || "-"}
             <StatsSubTitle>Donated</StatsSubTitle>
           </StatsTitle>
           <StatsTitle>
-            {totalDonation || "~"}
+            {totalDonation || "-"}
             <StatsSubTitle>Donations</StatsSubTitle>
           </StatsTitle>
         </Stats>
