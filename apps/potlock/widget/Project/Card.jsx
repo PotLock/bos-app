@@ -415,7 +415,7 @@ return (
                 potDetail: null,
               },
             }),
-          openDonationSuccessModal: (donation) => {
+          openDonationModalSuccess: (donation) => {
             State.update({
               donateModal: {
                 isOpen: false,
@@ -435,7 +435,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+        src={`${ownerId}/widget/Project.ModalSuccess`}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,
