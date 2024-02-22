@@ -110,6 +110,8 @@ return (
       <SearchBar
         placeholder={`Search (${numItems}) ${numItems === 1 ? itemName : itemName + "s"}`}
         onChange={onSearchChange}
+        type="text"
+        autocomplete="search"
       />
     </Row>
     <div style={{ position: "relative" }} onClick={() => setOpenFilter(!openFilter)}>
