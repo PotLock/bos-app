@@ -216,7 +216,6 @@ return (
               value: filter,
               onChange: (filter) => {
                 setFilter(filter);
-                setPage(0);
               },
             }}
           />
@@ -226,7 +225,7 @@ return (
           (allDonations.length ? (
             <Widget
               src={`${ownerId}/widget/Components.DonorsTrx`}
-              props={{ ...props, donations: allDonations }}
+              props={{ ...props, donations: allDonations, filter }}
             />
           ) : (
             <NoResult>No Donations</NoResult>
@@ -235,7 +234,7 @@ return (
           (sortedDonations.length ? (
             <Widget
               src={`${ownerId}/widget/Components.DonorsLeaderboard`}
-              props={{ ...props, donations: sortedDonations }}
+              props={{ ...props, donations: sortedDonations, filter }}
             />
           ) : (
             <NoResult>No Donations</NoResult>
