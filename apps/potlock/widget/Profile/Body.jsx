@@ -37,7 +37,7 @@ const Container = styled.div`
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-
+  overflow: hidden;
   @media screen and (max-width: 768px) {
     flex-direction: column;
     gap: 1rem;
@@ -51,7 +51,6 @@ const Details = styled.div`
   gap: 2rem;
   flex: 1 1 0%;
   width: 100%;
-  overflow-x: scroll;
   .nav-view {
     width: 100%;
     padding: 24px 50px;

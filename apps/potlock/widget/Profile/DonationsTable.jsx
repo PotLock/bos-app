@@ -22,43 +22,66 @@ const Table = styled.div`
   box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2), 0px 2px 4px -2px rgba(82, 82, 82, 0.3);
   border: 1px solid rgba(41, 41, 41, 0.5);
   padding-bottom: 1rem;
-  overflow-x: scroll;
   .transaction {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
-      gap: 1rem;
       background: #f6f5f3;
       color: black;
       font-weight: 600;
       div {
-        width: 150px;
+        width: 130px;
         display: flex;
         justify-content: center;
         align-items: center;
       }
+      .address {
+        width: 160px;
+        text-align: center;
+      }
     }
 
-    div {
+    > div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
       margin: 8px 16px;
+    }
+    @media only screen and (max-width: 992px) {
+      > div {
+        margin: 0;
+      }
+      .header .address {
+        width: 130px;
+      }
+      .header div {
+        font-size: 12px;
+        width: 100px;
+      }
+    }
+    @media only screen and (max-width: 480px) {
+      > div {
+        padding: 1rem 0.5rem;
+        gap: 0.5rem;
+      }
+      .header .address {
+        width: 120px;
+      }
+      .header div {
+        width: 50px;
+        font-size: 10px;
+      }
     }
   }
 `;
 
 const TrRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 1rem;
-  padding: 1rem;
   > div,
   > span {
-    width: 150px;
+    width: 130px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -74,20 +97,57 @@ const TrRow = styled.div`
     }
   }
   .address {
-    width: 200px;
     color: #292929;
     display: flex;
     align-items: center;
+    width: 160px;
     justify-content: flex-start;
     padding: 10px;
     border-radius: 2px;
     transition: all 200ms;
-    > .profile-image {
+    .profile-image {
       margin-right: 1rem;
+      width: 2rem;
+      height: 2rem;
       margin-left: 0;
     }
     :hover {
       background: #f6f5f3;
+    }
+  }
+  @media only screen and (max-width: 992px) {
+    > div,
+    > span {
+      font-size: 12px;
+      width: 100px;
+    }
+    .price {
+      gap: 0.5rem;
+      img {
+        width: 1rem;
+      }
+    }
+    .address {
+      font-size: 12px;
+      width: 120px;
+      padding: 4px;
+      .profile-image {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    > div,
+    > span {
+      font-size: 10px;
+      width: 50px;
+    }
+    .address {
+      font-size: 10px;
+      .profile-image {
+        margin-right: 0.5rem;
+      }
     }
   }
 `;
@@ -114,6 +174,9 @@ const Stats = styled.div`
   }
   .count .amount {
     color: #dd3345;
+  }
+  @media only screen and (max-width: 480px) {
+    font-size: 12px;
   }
 `;
 
@@ -260,7 +323,7 @@ return (
     <Table>
       <div className="transaction">
         <div className="header">
-          <div style={{ width: "200px" }}>{projectId ? "Donor" : "Project Name"}</div>
+          <div className="address">{projectId ? "Donor" : "Project Name"}</div>
           <div>Type</div>
           <div>Amount</div>
           <div>Extra Fee</div>
@@ -309,7 +372,7 @@ return (
                 ) : (
                   <Widget
                     src="mob.near/widget/ProfileImage"
-                    props={{ accountId: name, style: { width: "2rem", height: "2rem" } }}
+                    props={{ accountId: name, style: {} }}
                   />
                 )}
                 {_address(name)}{" "}
