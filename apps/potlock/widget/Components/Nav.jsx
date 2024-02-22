@@ -1,6 +1,7 @@
-const { ownerId } = props;
+const { ownerId, navigate } = props;
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
+const cartItems = props.cart && Object.keys(props.cart);
 
 const Nav = styled.div`
   // commenting out stickiness for now
@@ -58,7 +59,7 @@ const NavRightMobile = styled.div`
   }
 `;
 
-const NavLogo = styled.a`
+const NavLogo = styled("Link")`
   text-align: center;
   color: #2e2e2e;
   font-size: 23.95px;
@@ -86,7 +87,7 @@ const NavTabs = styled.div`
   }
 `;
 
-const NavTab = styled.a`
+const NavTab = styled("Link")`
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
   font-size: 14px;
@@ -397,14 +398,14 @@ return (
     )}
     <Nav>
       <NavLeft>
-        <NavLogo href={props.hrefWithEnv(`?tab=projects`)}>🫕 Potlock</NavLogo>
+        <NavLogo href={navigate({ param: "tab" })}>🫕 Potlock</NavLogo>
       </NavLeft>
       <NavRight>
         <NavTabs>
           {tabOptions.map((tab) => {
             return (
               <NavTab
-                href={tab.href ?? props.hrefWithEnv(`?tab=${tab.link}`)}
+                href={tab.href ?? navigate({ param: "tab", to: tab.link })}
                 disabled={tab.disabled}
                 target={tab.newTab ? "_blank" : ""}
                 onClick={(e) => {
@@ -431,9 +432,9 @@ return (
             }}
           >
             <CartText>Cart</CartText>
-            {Object.keys(props.cart).length > 0 && (
+            {cartItems.length > 0 && (
               <CartCountContainer>
-                <CartText style={{ fontSize: "12px" }}>{Object.keys(props.cart).length}</CartText>
+                <CartText style={{ fontSize: "12px" }}>{cartItems.length}</CartText>
               </CartCountContainer>
             )}
           </CartButton>
@@ -444,12 +445,12 @@ return (
           onClick={(e) => {
             props.setIsCartModalOpen(!props.isCartModalOpen);
           }}
-          containsItems={Object.keys(props.cart).length > 0}
+          containsItems={cartItems.length > 0}
         >
           <CartText>Cart</CartText>
-          {Object.keys(props.cart).length > 0 && (
+          {cartItems.length > 0 && (
             <CartCountContainer>
-              <CartText style={{ fontSize: "12px" }}>{Object.keys(props.cart).length}</CartText>
+              <CartText style={{ fontSize: "12px" }}>{cartItems.length}</CartText>
             </CartCountContainer>
           )}
         </CartButton>
@@ -480,7 +481,7 @@ return (
         {tabOptions.map((tab) => {
           return (
             <NavMenuItem
-              href={props.hrefWithEnv(`?tab=${tab.link}`)}
+              href={navigate({ param: "tab", to: tab.link })}
               disabled={tab.disabled}
               onClick={(e) => {
                 if (tab.disabled) e.preventDefault();
@@ -499,16 +500,17 @@ return (
       <ModalHeader>
         <ModalHeaderText>Donation cart</ModalHeaderText>
         <ModalHeaderText>
-          {Object.keys(props.cart).length}{" "}
+          {cartItems.length}{" "}
           <span style={{ fontWeight: 400, color: "#7B7B7B" }}>
-            {Object.keys(props.cart).length === 1 ? "project" : "projects"}
+            {cartItems.length === 1 ? "project" : "projects"}
           </span>
         </ModalHeaderText>
         {/* <Ear /> */}
       </ModalHeader>
-      {Object.keys(props.cart).length === 0 ? (
+      {cartItems.length === 0 ? (
         <NoProjectsText>Your cart is empty! 💸</NoProjectsText>
       ) : (
+        props.cart &&
         Object.keys(props.cart).map((projectId) => {
           // return <CartItem projectId={projectId} Object.keys(props.cart).length={Object.keys(props.cart).length} />;
           return (
@@ -534,8 +536,8 @@ return (
           props={{
             type: "primary",
             text: "Proceed to donate",
-            disabled: Object.keys(props.cart).length === 0,
-            href: props.hrefWithEnv(`?tab=cart`),
+            disabled: cartItems.length === 0,
+            href: navigate({ to: "cart", param: "tab" }),
             style: {
               width: "100%",
               marginBottom: "16px",
@@ -545,7 +547,7 @@ return (
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
-            type: Object.keys(props.cart).length === 0 ? "primary" : "secondary",
+            type: cartItems.length === 0 ? "primary" : "secondary",
             text: "Continue shopping",
             onClick: () => props.setIsCartModalOpen(false),
             style: {

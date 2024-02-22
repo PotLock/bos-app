@@ -218,24 +218,34 @@ return (
     <App
       {...props} // what else might it need?
       routes={routes}
+      depth={1}
       debug={false}
-      defaultPage={"home"}
       basePath={context.widgetSrc ?? "potlock.near/widget/Index"} // TODO: context from VM or custom component for Link
-      Layout={({ children, Outlet, ...p }) => {
+      Layout={({ children, navigate, Outlet, ownerId, ...p }) => {
+        // This should just be Template
         const { AppLayout } = VM.require(
           "every.near/widget/template.app" // choose your template
-        ) || { AppLayout: () => <>hello</> };
+        ) || { AppLayout: () => <></> };
         return (
           <AppLayout
             // populate layout's props
-            Header={({ NavLink }) => <p>Header</p>}
-            Footer={({ NavLink }) => <p>Footer</p>}
+            Header={({ page }) => {
+              return (
+                <Widget
+                  src="potlock.near/widget/Components.Nav"
+                  props={{ page, routes, navigate, ...props }}
+                  loading={<div style={{ height: "100%", width: "100%" }} />}
+                />
+              );
+            }}
+            Footer={() => <></>}
             {...p}
           >
-            <Outlet />
+            {/* <Outlet page={page} {...props} /> */}
           </AppLayout>
         );
       }}
+      Provider={({ children }) => children} // something to explore/context
     />
     {/* {state.donateToProjectModal.isOpen && (
       <Widget
@@ -277,9 +287,6 @@ return (
   </Theme>
 );
 
-// if (!state.cart || !state.registeredProjects) {
-//   return "";
-// }
 
 // const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
 
@@ -319,6 +326,10 @@ return (
 //     successfulDonation: null,
 //   },
 // });
+
+// if (!state.cart || !state.registeredProjects) {
+//   return "";
+// }
 
 // const NEAR_USD_CACHE_KEY = "NEAR_USD";
 // const nearUsdCache = Storage.get(NEAR_USD_CACHE_KEY);
