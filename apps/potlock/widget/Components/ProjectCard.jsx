@@ -164,7 +164,7 @@ const getCategory = (category) => {
   }
 };
 
-const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${id}`);
+const projectUrl = props.hrefWithParams(`?tab=project&projectId=${id}`);
 
 const tags = getTagsFromSocialProfileData(cardData);
 

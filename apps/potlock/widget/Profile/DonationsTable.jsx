@@ -1,4 +1,4 @@
-const { ownerId, projectId, donations, nearToUsd, SUPPORTED_FTS, hrefWithEnv } = props;
+const { ownerId, projectId, donations, nearToUsd, SUPPORTED_FTS, hrefWithParams } = props;
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
@@ -375,7 +375,7 @@ return (
           );
           return (
             <TrRow>
-              <a href={hrefWithEnv(url)} className="address" target="_blank">
+              <a href={hrefWithParams(url)} className="address" target="_blank">
                 {type === "SPONSORSHIP" ? (
                   <img
                     className="profile-image"

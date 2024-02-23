@@ -364,7 +364,7 @@ return (
                 type: "secondary",
                 text: "Register Your Project",
                 disabled: false,
-                href: props.hrefWithEnv(`?tab=createproject`),
+                href: props.hrefWithParams(`?tab=createproject`),
                 style: { padding: "16px 24px" },
               }}
             />
@@ -479,7 +479,7 @@ return (
               type: "secondary",
               text: "Register Your Project",
               disabled: false,
-              href: props.hrefWithEnv(`?tab=createproject`),
+              href: props.hrefWithParams(`?tab=createproject`),
               style: { padding: "16px 24px" },
             }}
           /> */}

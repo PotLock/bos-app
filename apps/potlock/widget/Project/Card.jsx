@@ -233,7 +233,7 @@ const [totalAmount, totalDonors] = useMemo(() => {
   ];
 }, [donationsForProject]);
 
-const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${projectId}`);
+const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
 
 const getImageSrc = (image) => {
   const defaultImageUrl =

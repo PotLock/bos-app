@@ -384,10 +384,13 @@ const props = {
   `,
   ONE_TGAS: Big(1_000_000_000_000),
   MAX_DONATION_MESSAGE_LENGTH: 100,
-  hrefWithEnv: (href) => {
-    // add env=staging to params
-    if (props.env === "staging") {
-      return `${href}${href.includes("?") ? "&" : "?"}env=staging`;
+  hrefWithParams: (href) => {
+    // pass env & referrerId to all links
+    if (props.env) {
+      href = `${href}${href.includes("?") ? "&" : "?"}env=${props.env}`;
+    }
+    if (props.referrerId) {
+      href = `${href}${href.includes("?") ? "&" : "?"}referrerId=${props.referrerId}`;
     }
     return href;
   },

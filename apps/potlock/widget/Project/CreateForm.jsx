@@ -929,7 +929,7 @@ return (
               type: "primary",
               text: "View your project",
               disabled: false,
-              href: props.hrefWithEnv(
+              href: props.hrefWithParams(
                 `?tab=project&projectId=${registeredProject?.id || context.accountId}`
               ),
             }}
@@ -940,7 +940,7 @@ return (
               type: "secondary",
               text: "View all projects",
               disabled: false,
-              href: props.hrefWithEnv(`?tab=projects`),
+              href: props.hrefWithParams(`?tab=projects`),
             }}
           />
         </ButtonsContainer>

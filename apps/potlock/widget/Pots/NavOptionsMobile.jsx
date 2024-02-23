@@ -59,7 +59,7 @@ return (
         <NavOption
           selected={selected}
           disabled={option.disabled}
-          href={props.hrefWithEnv(`?tab=pot&potId=${props.potId}&nav=${option.id}`)}
+          href={props.hrefWithParams(`?tab=pot&potId=${props.potId}&nav=${option.id}`)}
         >
           {option.label}
         </NavOption>
