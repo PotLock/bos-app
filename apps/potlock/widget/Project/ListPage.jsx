@@ -353,13 +353,7 @@ State.init({
   isModalOpen: false,
   successfulDonation: null,
 });
-// const projects = useMemo(
-//   () =>
-//     userIsRegistryAdmin
-//       ? props.registeredProjects
-//       : props.registeredProjects.filter((project) => project.status === "Approved"),
-//   [props.registeredProjects, userIsRegistryAdmin]
-// );
+
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
 const registry = PotlockRegistrySDK({ env: props.env });
 
@@ -368,12 +362,18 @@ const projects = registry.getProjects() || [];
 if (!registry.isRegistryAdmin(context.accountId)) {
   projects = projects.filter((project) => project.status === "Approved");
 }
+
+const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjects = useMemo(
+  () => projects.filter((project) => featuredProjectIds.includes(project.id)),
+  projects
+);
+
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 const [filteredProjects, setFilteredProjects] = useState(projects);
 const [searchTerm, setSearchTerm] = useState("");
-
-// filteredProjects.map((e) => console.log("e", e));
+const [sort, setSort] = useState("Sort");
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
@@ -387,21 +387,6 @@ const donateRandomly = () => {
     successfulDonation: null,
   });
 };
-const [totalDonations, totalDonors] = useMemo(() => {
-  if (!props.donations) {
-    return ["", "", ""];
-  }
-  let totalDonations = new Big("0");
-  let donors = {};
-  props.donations.forEach((donation) => {
-    const totalAmount = new Big(donation.total_amount);
-    const referralAmount = new Big(donation.referrer_fee || "0");
-    const protocolAmount = new Big(donation.protocol_fee || "0");
-    totalDonations = totalDonations.plus(totalAmount.minus(referralAmount).minus(protocolAmount));
-    donors[donation.donor_id] = true;
-  });
-  return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
-}, [props.donations]);
 
 const handleDonateRandomly = (e) => {
   e.preventDefault();
@@ -494,7 +479,11 @@ const sortOldToNew = (projects) => {
 };
 
 const handleSortChange = (sortType) => {
+  setSort(sortType);
   switch (sortType) {
+    case "All":
+      setFilteredProjects(projects);
+      break;
     case "Newest to Oldest":
       sortNewToOld(projects);
       break;
@@ -546,7 +535,7 @@ const searchByWords = (projects, searchTerm) => {
 
   setFilteredProjects(projectFilterBySearch);
 };
-
+// console.log("project", projects);
 return (
   <>
     <HeroContainer>
@@ -773,7 +762,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Project.SearchBar`}
         props={{
-          title: "Sort",
+          title: sort,
           tab: tab,
           numItems: filteredProjects.length,
           itemName: tab == "pots" ? "pot" : "project",
