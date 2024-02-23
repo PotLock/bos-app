@@ -1,11 +1,9 @@
 // get donations
-const {
-  ownerId,
-  potId,
-  potDetail,
-  SUPPORTED_FTS: { NEAR },
-} = props;
-
+const { potId, potDetail } = props;
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 State.init({
   donations: null,
 });
@@ -169,7 +167,7 @@ return (
           state.donations.map((donation, index) => {
             const { donor_id, total_amount, donated_at, percentage_share } = donation;
             const totalDonationAmount =
-              props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+              SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
             return (
               <Row key={index}>

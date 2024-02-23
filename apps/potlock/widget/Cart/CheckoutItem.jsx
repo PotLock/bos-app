@@ -1,5 +1,11 @@
-const { ownerId, DONATION_CONTRACT_ID, basisPointsToPercent } = props;
-
+const { basisPointsToPercent } = props;
+const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
+  "potlock.near/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 const donationContractConfig = Near.view(DONATION_CONTRACT_ID, "get_config", {});
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -210,7 +216,7 @@ return (
                   },
                   iconLeft:
                     cartItem?.ft == "NEAR" ? (
-                      <FtIcon src={props.SUPPORTED_FTS[cartItem.ft].iconUrl} />
+                      <FtIcon src={SUPPORTED_FTS[cartItem.ft].iconUrl} />
                     ) : (
                       "$"
                     ),

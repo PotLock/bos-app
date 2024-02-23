@@ -1,5 +1,4 @@
 const {
-  ownerId,
   allPots,
   recipientId, // TODO: change this to projectId
   referrerId,
@@ -7,12 +6,17 @@ const {
   // potDetail,
   onClose,
   POT_FACTORY_CONTRACT_ID,
-  DONATION_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
-  NADABOT_HUMAN_METHOD,
   POT,
 } = props;
-
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, SUPPORTED_FTS } = VM.require(
+  "potlock.near/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  NADABOT_HUMAN_METHOD: "",
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 console.log("props in donation modal: ", props);
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
@@ -394,7 +398,7 @@ const amountNear =
   state.denomination === "NEAR" ? state.amount : (state.amount / props.nearToUsd).toFixed(2);
 
 const handleDonate = () => {
-  const amountIndivisible = props.SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
+  const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
   // TODO: get projectId for random donation
   let projectId = recipientId;
   if (!projectId) {
@@ -565,7 +569,7 @@ return (
                         },
                         iconLeft:
                           state.denomination == "NEAR" ? (
-                            <Icon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+                            <Icon src={SUPPORTED_FTS.NEAR.iconUrl} />
                           ) : (
                             "$"
                           ),
@@ -580,7 +584,7 @@ return (
                   <HintText style={{ marginRight: "6px" }}>Account balance: </HintText>
                   <Icon
                     style={{ width: "14px", height: "14px", marginRight: "2px" }}
-                    src={props.SUPPORTED_FTS.NEAR.iconUrl}
+                    src={SUPPORTED_FTS.NEAR.iconUrl}
                   />
                   <HintText>-- Max</HintText>
                 </div>

@@ -1,5 +1,4 @@
 const {
-  ownerId,
   potId,
   potDetail,
   MAX_DONATION_MESSAGE_LENGTH,
@@ -7,9 +6,19 @@ const {
   referrerId,
   sybilRequirementMet,
   applicationSuccess,
-  NADA_BOT_URL,
-  DONATION_CONTRACT_ID,
 } = props;
+
+const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS, ToDo } = VM.require(
+  "potlock.near/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+  ONE_TGAS: 0,
+  NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
+  ToDo: "",
+};
+
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );
@@ -328,7 +337,7 @@ const handleApplyToPot = () => {
 };
 
 const totalMatchingPoolAmount =
-  props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(matching_pool_balance);
+  SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(matching_pool_balance);
 
 const handleMatchingPoolDonation = () => {
   const { matchingPoolDonationAmountNear } = state;
@@ -347,15 +356,14 @@ const handleMatchingPoolDonation = () => {
     State.update({ matchingPoolDonationAmountNearError: "Invalid amount" });
     return;
   }
-  const amountIndivisible =
-    props.SUPPORTED_FTS[base_currency.toUpperCase()].toIndivisible(amountFloat);
+  const amountIndivisible = SUPPORTED_FTS[base_currency.toUpperCase()].toIndivisible(amountFloat);
   const transactions = [
     {
       contractName: potId,
       methodName: "donate",
       deposit: amountIndivisible,
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -372,7 +380,7 @@ const handleProcessPayouts = () => {
       methodName: "admin_process_payouts",
       deposit: "0",
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -503,7 +511,7 @@ return (
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
         <Row style={{ gap: "8px" }}>
-          <H2>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
+          <H2>{`${SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
             matching_pool_balance
           )} ${base_currency.toUpperCase()} `}</H2>
           <Description>Matching funds available</Description>

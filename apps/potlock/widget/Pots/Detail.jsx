@@ -1,10 +1,12 @@
 const {
   potId,
-  ownerId,
   doesUserHaveDaoFunctionCallProposalPermissions,
   SUPPORTED_FTS: { NEAR },
 } = props;
-
+const { ownerId, ONE_TGAS } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  ONE_TGAS: 0,
+};
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
 Big.PE = 100;
@@ -220,7 +222,7 @@ const handleSendApplication = () => {
       methodName: "apply",
       deposit,
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
 

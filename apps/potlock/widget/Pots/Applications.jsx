@@ -1,11 +1,14 @@
 // get applications
+const { potId, potDetail } = props;
 const {
+  ONE_TGAS,
   ownerId,
-  potId,
-  potDetail,
   SUPPORTED_FTS: { NEAR },
-} = props;
-
+} = VM.require("potlock.near/widget/constants") || {
+  ONE_TGAS: 0,
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -153,7 +156,7 @@ const handleSubmit = () => {
       methodName: "chef_set_application_status",
       deposit: NEAR.toIndivisible(0.01),
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);

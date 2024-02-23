@@ -1,5 +1,8 @@
-const { ownerId, userIsRegistryAdmin, tab, yoctosToUsd, DONATION_CONTRACT_ID } = props;
-
+const { userIsRegistryAdmin, tab, yoctosToUsd } = props;
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+};
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";

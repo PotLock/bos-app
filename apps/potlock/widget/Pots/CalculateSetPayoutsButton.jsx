@@ -1,7 +1,10 @@
 // * QF/CLR logic taken from https://github.com/gitcoinco/quadratic-funding/blob/master/quadratic-funding/clr.py *
 
-const { ownerId, potId, potDetail } = props;
-
+const { potId, potDetail } = props;
+const { ONE_TGAS, ownerId } = VM.require("potlock.near/widget/constants") || {
+  ONE_TGAS: 0,
+  ownerId: "",
+};
 const convertDonationsToProjectContributions = (donations) => {
   const projectContributionsList = [];
   for (const d of donations) {
@@ -112,7 +115,7 @@ const handleCalculateAndSetPayouts = () => {
           methodName: "chef_set_payouts",
           deposit: "0",
           args,
-          gas: props.ONE_TGAS.mul(100),
+          gas: ONE_TGAS.mul(100),
         },
       ];
       Near.call(transactions);
