@@ -188,6 +188,8 @@ const props = {
   ...props,
   ...state,
   ownerId: "potlock.near",
+  POT_FACTORY_CONTRACT_ID: potFactoryContractId,
+  NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
   setCurrency: (cur) => {
     const currency = state.currency ?? cur;
