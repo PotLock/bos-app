@@ -252,6 +252,8 @@ const props = {
     State.update({ cart: {} });
     Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
   },
+  POT_FACTORY_CONTRACT_ID: potFactoryContractId,
+  NADABOT_CONTRACT_ID: nadabotContractId,
   setCheckoutSuccess: (checkoutSuccess) => {
     State.update({ checkoutSuccess });
   },
