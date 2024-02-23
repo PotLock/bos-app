@@ -2,7 +2,6 @@ const {
   ownerId,
   potDetail,
   potId,
-  REGISTRY_CONTRACT_ID,
   POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   NADABOT_HUMAN_METHOD,
@@ -12,7 +11,10 @@ const {
 
 // console.log("props in config form: ", props);
 
-const DEFAULT_REGISTRY_PROVIDER = `${REGISTRY_CONTRACT_ID}:is_registered`;
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:${NADABOT_HUMAN_METHOD}`;
 const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";

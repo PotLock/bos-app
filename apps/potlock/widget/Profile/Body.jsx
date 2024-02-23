@@ -1,7 +1,6 @@
 const {
   ownerId,
   projectId,
-  REGISTRY_CONTRACT_ID,
   userIsRegistryAdmin,
   SUPPORTED_FTS: { NEAR },
   getTagsFromSocialProfileData,
@@ -11,19 +10,11 @@ const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
 
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
 const handleUpdateStatus = () => {
-  Near.call([
-    {
-      contractName: REGISTRY_CONTRACT_ID,
-      methodName: "admin_set_project_status",
-      args: {
-        project_id: projectId,
-        status: statusReview.newStatus,
-        review_notes: statusReview.notes,
-      },
-      deposit: NEAR.toIndivisible(0.01).toString(),
-    },
-  ]);
+  registry.setProjectStatus(projectId, statusReview.newStatus, statusReview.notes);
 };
 
 const Wrapper = styled.div`

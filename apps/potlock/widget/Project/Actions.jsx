@@ -1,11 +1,12 @@
 const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [isModalDonationSucessOpen, setIsModalDonationSucessOpen] = useState(false);
 
-const { ownerId, registeredProjects, projectId } = props;
+const { ownerId, projectId } = props;
 
-const projectIsApproved = useMemo(() => {
-  return registeredProjects.some((p) => p.id === projectId && p.status === "Approved");
-}, [registeredProjects, projectId]);
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projectIsApproved = registry.isProjectApproved(projectId);
 
 const Container = styled.div`
   display: flex;
