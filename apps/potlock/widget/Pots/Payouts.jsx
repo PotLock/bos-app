@@ -1,8 +1,9 @@
 // get donations
-const { potId, potDetail, formatDate } = props;
-const { ownerId, SUPPORTED_FTS, ToDo } = VM.require("potlock.near/widget/constants") || {
+const { potId, potDetail, SUPPORTED_FTS } = props;
+const { formatDate } = VM.require("potlock.near/widget/utils") || { formatDate: () => "" };
+
+const { ownerId, ToDo } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
-  SUPPORTED_FTS: {},
   ToDo: "",
 };
 

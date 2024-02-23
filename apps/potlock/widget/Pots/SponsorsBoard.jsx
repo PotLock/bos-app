@@ -1,10 +1,9 @@
 const {
   donations,
   potDetail: { base_currency },
+  SUPPORTED_FTS,
 } = props;
-const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  SUPPORTED_FTS: {},
-};
+
 const SponsorOverlayWrapper = styled.div`
   position: absolute;
   overflow: hidden;

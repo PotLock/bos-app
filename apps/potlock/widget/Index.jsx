@@ -261,30 +261,6 @@ const props = {
   setIsNavMenuOpen: (isOpen) => {
     State.update({ isNavMenuOpen: isOpen });
   },
-  validateNearAddress: (address) => {
-    let isValid = NEAR_ACCOUNT_ID_REGEX.test(address);
-    // Additional ".near" check for IDs less than 64 characters
-    if (address.length < 64 && !address.endsWith(".near")) {
-      isValid = false;
-    }
-    return isValid;
-  },
-  validateEVMAddress: (address) => {
-    // Check if the address is defined and the length is correct (42 characters, including '0x')
-    if (!address || address.length !== 42) {
-      return false;
-    }
-    // Check if the address starts with '0x' and contains only valid hexadecimal characters after '0x'
-    const re = /^0x[a-fA-F0-9]{40}$/;
-    return re.test(address);
-  },
-  validateGithubRepoUrl: (url) => {
-    // Regular expression to match the GitHub repository URL pattern
-    // This regex checks for optional "www.", a required "github.com/", and then captures the username and repo name segments
-    const githubRepoUrlPattern =
-      /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
-    return githubRepoUrlPattern.test(url);
-  },
   hrefWithParams: (href) => {
     // pass env & referrerId to all links
     if (props.env) {
@@ -295,82 +271,6 @@ const props = {
     }
     return href;
   },
-  nearToUsdWithFallback: (amountNear) => {
-    return state.nearToUsd
-      ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
-      : amountNear + " NEAR";
-  },
-  yoctosToUsdWithFallback: (amountYoctos) => {
-    return state.nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
-      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
-  },
-  yoctosToUsd: (amountYoctos) => {
-    return state.nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
-      : null;
-  },
-  yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
-  },
-  formatDate: (timestamp) => {
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const date = new Date(timestamp);
-
-    const year = date.getFullYear();
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    let hour = date.getHours();
-    const minute = date.getMinutes();
-    const ampm = hour >= 12 ? "pm" : "am";
-
-    // Convert hour to 12-hour format
-    hour = hour % 12;
-    hour = hour ? hour : 12; // the hour '0' should be '12'
-
-    // Minutes should be two digits
-    const minuteFormatted = minute < 10 ? "0" + minute : minute;
-
-    return `${month} ${day}, ${year} ${hour}:${minuteFormatted}${ampm}`;
-  },
-  daysAgo: (timestamp) => {
-    const now = new Date();
-    const pastDate = new Date(timestamp);
-    const differenceInTime = now - pastDate;
-
-    // Convert time difference from milliseconds to days
-    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-    return differenceInDays === 0
-      ? "< 1 day ago"
-      : `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-  },
-  daysUntil: (timestamp) => {
-    const now = new Date();
-    const futureDate = new Date(timestamp);
-    const differenceInTime = futureDate - now;
-
-    // Convert time difference from milliseconds to days
-    const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
-
-    return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}`;
-  },
-  // NADA_BOT_URL: "https://app.nada.bot",
-  // openSybilModal: () => {
-  //   State.update({ isSybilModalOpen: true });
-  // },
   getTagsFromSocialProfileData: (profileData) => {
     // first try to get tags from plCategories, then category (deprecated/old format), then default to empty array
     if (!profileData) return [];
@@ -391,48 +291,50 @@ const props = {
       : [];
     return tags;
   },
-  getTeamMembersFromSocialProfileData: (profileData) => {
-    if (!profileData) return [];
-    const team = profileData.plTeam
-      ? JSON.parse(profileData.plTeam)
-      : profileData.team
-      ? Object.entries(profileData.team)
-          .filter(([_, v]) => v !== null)
-          .map(([k, _]) => k)
-      : [];
-    return team;
+  ipfsUrlFromCid: (cid) => {
+    return `https://ipfs.near.social/ipfs/${cid}`;
   },
-  doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
-    // TODO: break this out (NB: duplicated in Project.CreateForm)
-    const userRoles = policy.roles.filter((role) => {
-      if (role.kind === "Everyone") return true;
-      return role.kind.Group && role.kind.Group.includes(context.accountId);
-    });
-    const kind = "call";
-    const action = "AddProposal";
-    // Check if the user is allowed to perform the action
-    const allowed = userRoles.some(({ permissions }) => {
-      return (
-        permissions.includes(`${kind}:${action}`) ||
-        permissions.includes(`${kind}:*`) ||
-        permissions.includes(`*:${action}`) ||
-        permissions.includes("*:*")
-      );
-    });
-    return allowed;
+  SUPPORTED_FTS: {
+    // TODO: move this to state to handle selected FT once we support multiple FTs
+    NEAR: {
+      iconUrl:
+        "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
+      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
+      fromIndivisible: (amount, decimals) =>
+        Big(amount)
+          .div(Big(10).pow(24))
+          .toFixed(decimals || 2),
+    },
+    USD: {
+      iconUrl: "$",
+      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
+      fromIndivisible: (amount, decimals) =>
+        Big(amount)
+          .div(Big(10).pow(24))
+          .toFixed(decimals || 2),
+    },
+  },
+  nearToUsdWithFallback: (amountNear) => {
+    return state.nearToUsd
+      ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
+      : amountNear + " NEAR";
+  },
+  yoctosToUsdWithFallback: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+  },
+  yoctosToUsd: (amountYoctos) => {
+    return state.nearToUsd
+      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
+      : null;
   },
   openDonateToProjectModal: (recipientId, referrerId, potId, potDetail) => {
     State.update({
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
     });
   },
-  basisPointsToPercent: (basisPoints) => {
-    return basisPoints / 100;
-  },
   IPFS_BASE_URL,
-  ipfsUrlFromCid: (cid) => {
-    return `${IPFS_BASE_URL}${cid}`;
-  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {

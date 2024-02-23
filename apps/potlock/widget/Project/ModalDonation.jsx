@@ -8,14 +8,15 @@ const {
   POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   POT,
+  SUPPORTED_FTS,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, SUPPORTED_FTS } = VM.require(
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL } = VM.require(
   "potlock.near/widget/constants"
 ) || {
   DONATION_CONTRACT_ID: "",
   NADABOT_HUMAN_METHOD: "",
   ownerId: "",
-  SUPPORTED_FTS: {},
+  NADA_BOT_URL: "",
 };
 console.log("props in donation modal: ", props);
 
@@ -710,7 +711,7 @@ return (
                   <SubtitleText>
                     Verify that you are a human on nadabot to multiply the impact of your donation!
                   </SubtitleText>
-                  <VerifyLink href={props.NADA_BOT_URL} target="_blank">
+                  <VerifyLink href={NADA_BOT_URL} target="_blank">
                     Verify Now{" "}
                     <LinkSvg
                       viewBox="0 0 20 20"

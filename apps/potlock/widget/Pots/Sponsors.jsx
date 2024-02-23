@@ -1,16 +1,16 @@
 // get donations
-const { potId, potDetail } = props;
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-  SUPPORTED_FTS: {},
-};
+const {
+  ownerId,
+  potId,
+  potDetail,
+  SUPPORTED_FTS: { NEAR },
+} = props;
+
 State.init({
   donations: null,
 });
 
-const { donations, allDonations } = state;
-
-if (!allDonations) {
+if (!state.allDonations) {
   Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     // sort by size)
     donations.sort(
@@ -28,7 +28,7 @@ if (!allDonations) {
   });
 }
 
-if (!donations) return "Loading...";
+if (!state.donations) return "Loading...";
 
 const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
@@ -146,13 +146,6 @@ return (
       }}
     />
     <Container>
-      <Widget
-        src={`${ownerId}/widget/Pots.SponsorsBoard`}
-        props={{
-          ...props,
-          donations: donations.slice(0, 6),
-        }}
-      />
       <TableContainer>
         <Header>
           {columns.map((column, index) => (
@@ -167,7 +160,7 @@ return (
           state.donations.map((donation, index) => {
             const { donor_id, total_amount, donated_at, percentage_share } = donation;
             const totalDonationAmount =
-              SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+              props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
             return (
               <Row key={index}>

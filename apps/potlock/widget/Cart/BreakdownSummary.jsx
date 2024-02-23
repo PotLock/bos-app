@@ -1,7 +1,9 @@
-const { basisPointsToPercent, referrerId, amountNear, bypassProtocolFee, recipientId } = props;
-const { DONATION_CONTRACT_ID, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { referrerId, amountNear, bypassProtocolFee, recipientId, SUPPORTED_FTS } = props;
+const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+  basisPointsToPercent: () => 0,
+};
+const { DONATION_CONTRACT_ID } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
-  SUPPORTED_FTS: {},
 };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CHEVRON_DOWN_URL =

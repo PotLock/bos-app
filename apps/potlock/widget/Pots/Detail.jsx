@@ -1,8 +1,10 @@
 const {
   potId,
-  doesUserHaveDaoFunctionCallProposalPermissions,
   SUPPORTED_FTS: { NEAR },
 } = props;
+const { doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
+  "potlock.near/widget/utils"
+) || { doesUserHaveDaoFunctionCallProposalPermissions: () => "" };
 const { ownerId, ONE_TGAS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   ONE_TGAS: 0,

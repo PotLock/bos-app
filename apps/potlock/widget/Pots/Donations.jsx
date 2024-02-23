@@ -1,8 +1,8 @@
 // get donations
-const { potId, potDetail } = props;
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { potId, potDetail, SUPPORTED_FTS } = props;
+const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
-  SUPPORTED_FTS: {},
 };
 State.init({
   allDonations: null,
@@ -251,7 +251,7 @@ return (
                 </RowText>
               </RowItem>
               <RowItem>
-                <RowText>{props.daysAgo(donated_at)}</RowText>
+                <RowText>{daysAgo(donated_at)}</RowText>
               </RowItem>
             </Row>
           );

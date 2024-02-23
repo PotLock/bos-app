@@ -1,5 +1,8 @@
-const { ownerId, potId, yoctosToNear, yoctosToUsd } = props;
-
+const { ownerId, potId, yoctosToUsd } = props;
+const { daysUntil, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+  daysUntil: () => "",
+  yoctosToNear: () => "",
+};
 const MAX_DESCRIPTION_LENGTH = 100;
 const MAX_TITLE_LENGTH = 36;
 
@@ -130,7 +133,7 @@ return (
             backgroundColor: "#EFFEFA",
             borderColor: "#33DDCB",
             textColor: "#023131",
-            text: props.daysUntil(application_end_ms) + " left to apply",
+            text: daysUntil(application_end_ms) + " left to apply",
             textStyle: { fontWeight: 500, marginLeft: "8px" },
             preElements: (
               <Widget
@@ -155,7 +158,7 @@ return (
             borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
             textColor: publicRoundOpen ? "#192C07" : "#192C07",
             text: publicRoundOpen
-              ? props.daysUntil(public_round_end_ms) + " left to donate"
+              ? daysUntil(public_round_end_ms) + " left to donate"
               : "Round closed",
             textStyle: { fontWeight: 500, marginLeft: "8px" },
             preElements: (

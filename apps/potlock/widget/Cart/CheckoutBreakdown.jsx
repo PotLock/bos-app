@@ -1,10 +1,8 @@
-const { yoctosToNear } = props;
-const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
+const { SUPPORTED_FTS } = props;
+const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
-  SUPPORTED_FTS: {},
 };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;

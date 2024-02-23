@@ -1,23 +1,20 @@
-const {
-  potId,
-  potDetail,
-  MAX_DONATION_MESSAGE_LENGTH,
-  formatDate,
-  referrerId,
-  sybilRequirementMet,
-  applicationSuccess,
-} = props;
-
-const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS, ToDo } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
-  ownerId: "",
-  ONE_TGAS: 0,
-  NADA_BOT_URL: "",
-  SUPPORTED_FTS: {},
-  ToDo: "",
+const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess, SUPPORTED_FTS } =
+  props;
+const { formatDate, daysUntil, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+  formatDate: () => "",
+  daysUntil: () => "",
+  yoctosToNear: () => "",
 };
+
+const { DONATION_CONTRACT_ID, NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH } =
+  VM.require("potlock.near/widget/constants") || {
+    DONATION_CONTRACT_ID: "",
+    ownerId: "",
+    ONE_TGAS: 0,
+    NADA_BOT_URL: "",
+    ToDo: "",
+    MAX_DONATION_MESSAGE_LENGTH: 0,
+  };
 
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -404,13 +401,13 @@ const referrerFeeAmountNear = referrerId
 
 const getApplicationTagText = () => {
   if (applicationNotStarted) return "Application Round Not Started";
-  if (applicationOpen) return props.daysUntil(application_end_ms) + " left to apply";
+  if (applicationOpen) return daysUntil(application_end_ms) + " left to apply";
   else return "Application Round Ended";
 };
 
 const getMatchingRoundTagText = () => {
   if (publicRoundNotStarted) return "Matching Round Not Started";
-  if (publicRoundOpen) return props.daysUntil(public_round_end_ms) + " left in round";
+  if (publicRoundOpen) return daysUntil(public_round_end_ms) + " left in round";
   else return "Matching Round Ended";
 };
 
@@ -540,7 +537,7 @@ return (
                 <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {props.daysUntil(application_end_ms) + " to go"}
+                {daysUntil(application_end_ms) + " to go"}
               </StatusText>
             </Row>
             <H4>
@@ -571,7 +568,7 @@ return (
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {"Ends in " + props.daysUntil(public_round_end_ms)}
+                {"Ends in " + daysUntil(public_round_end_ms)}
               </StatusText>
             </Row>
             <H4>
@@ -688,7 +685,7 @@ return (
               Enter matching pool contribution amount in NEAR
               {["0", "1"].includes(min_matching_pool_donation_amount)
                 ? "(no minimum)"
-                : `(Min. ${props.yoctosToNear(min_matching_pool_donation_amount)})`}
+                : `(Min. ${yoctosToNear(min_matching_pool_donation_amount)})`}
             </ModalTitle>
             <Widget
               src={`${ownerId}/widget/Inputs.Text`}

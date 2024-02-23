@@ -1,10 +1,10 @@
-const { basisPointsToPercent } = props;
-const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
+const { SUPPORTED_FTS } = props;
+const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+  basisPointsToPercent: () => 0,
+};
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
-  SUPPORTED_FTS: {},
 };
 const donationContractConfig = Near.view(DONATION_CONTRACT_ID, "get_config", {});
 

@@ -1,15 +1,17 @@
-const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID, validateNearAddress } =
-  props;
 const {
-  NADABOT_HUMAN_METHOD,
-  ownerId,
-  ONE_TGAS,
+  potDetail,
+  potId,
+  POT_FACTORY_CONTRACT_ID,
+  NADABOT_CONTRACT_ID,
   SUPPORTED_FTS: { NEAR },
-} = VM.require("potlock.near/widget/constants") || {
+} = props;
+const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
+  validateNearAddress: () => "",
+};
+const { NADABOT_HUMAN_METHOD, ownerId, ONE_TGAS } = VM.require("potlock.near/widget/constants") || {
   NADABOT_HUMAN_METHOD: "",
   ownerId: "",
   ONE_TGAS: 0,
-  SUPPORTED_FTS: {},
 };
 // console.log("props in config form: ", props);
 
@@ -413,7 +415,7 @@ const validateAndUpdatePercentages = (percent, stateKey, errorKey, maxVal) => {
 };
 
 const handleAddAdmin = () => {
-  let isValid = props.validateNearAddress(state.admin);
+  let isValid = validateNearAddress(state.admin);
   if (!isValid) {
     State.update({
       adminsError: "Invalid NEAR account ID",
