@@ -1,10 +1,12 @@
 const { ownerId } = props;
-const projects = props.registeredProjects || [];
 
-const projectIds = useMemo(
-  () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
-  [projects]
-);
+const PotlockRegistrySDK = VM.require(`${ownerId}/widget/SDK.registry`);
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projectIds = registry
+  .getProjects()
+  .filter((project) => project.status === "Approved")
+  .map((project) => project.id);
 
 const Container = styled.div`
   padding: 24px 64px;
