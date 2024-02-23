@@ -1,6 +1,10 @@
-const { ownerId, donations } = props;
+const { ownerId, donations, filter } = props;
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
+
+useEffect(() => {
+  setPage(0);
+}, [filter]);
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";

@@ -21,26 +21,42 @@ const [potDonations, setPotDonations] = useState([]);
 const getPotConfig = (potId) => Near.asyncView(potId, "get_config", {});
 
 const getSponsorshipDonations = (potId, potDetail) => {
-  return Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
-    donations = donations.filter((donations) => donations.donor_id === accountId);
-    const updatedDonations = donations.map((donation) => ({
-      ...donation,
-      base_currency: potDetail.base_currency,
-      pot_name: potDetail.pot_name,
-      pot_id: potId,
-    }));
-    if (sponsorshipDonations[potId]) return "";
-    setSponsorshipDonations((prevSponsorshipDonations) => {
-      return { ...prevSponsorshipDonations, [potId]: updatedDonations };
+  return Near.asyncView(potId, "get_donations_for_donor", {
+    donor_id: accountId,
+  })
+    .then((donations) => {
+      donations = donations.filter((donations) => donations.donor_id === accountId);
+      const updatedDonations = donations.map((donation) => ({
+        ...donation,
+        base_currency: potDetail.base_currency,
+        pot_name: potDetail.pot_name,
+        pot_id: potId,
+        type: donation.project_id ? "MATCHED_DONATIONS" : "SPONSORSHIP",
+      }));
+      if (sponsorshipDonations[potId]) return "";
+      setSponsorshipDonations((prevSponsorshipDonations) => {
+        return { ...prevSponsorshipDonations, [potId]: updatedDonations };
+      });
+    })
+    .catch(() => {
+      if (sponsorshipDonations[potId]) return "";
+      setSponsorshipDonations((prevSponsorshipDonations) => {
+        return { ...prevSponsorshipDonations, [potId]: [] };
+      });
     });
-  });
 };
 
 // Get Direct Donations
 if (!directDonations) {
   Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
     donor_id: accountId,
-  }).then((donations) => setDirectDonations(donations));
+  }).then((donations) => {
+    donations = donations.map((donation) => ({
+      ...donation,
+      type: "DIRECT",
+    }));
+    setDirectDonations(donations);
+  });
 }
 // Get Sponsorship Donations
 if (!pots) {
@@ -64,7 +80,7 @@ const allDonations = useMemo(() => {
 }, [sponsorshipDonations, directDonations]);
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
-
+const tags = Object.keys(profile.tags || {});
 if (profile === null) {
   return "Loading";
 }
@@ -73,7 +89,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
 return (
   <Wrapper>
     <Widget
@@ -81,9 +96,10 @@ return (
       props={{
         ...props,
         profile,
+        tags,
         accounts: [accountId],
         donations: allDonations,
-        nav: props.nav ?? "feed",
+        nav: props.nav ?? "donations",
         navOptions: ProfileOptions(props),
       }}
     />

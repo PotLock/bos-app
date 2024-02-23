@@ -32,14 +32,20 @@ if (!allDonations) {
 
 if (!donations) return "Loading...";
 
-const columns = ["Rank", "Donor", "Amount", "Percentage Share"];
+const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 24px;
   width: 100%;
+  @media screen and (min-width: 375px) and (max-width: 768px) {
+    width: 99%;
+  }
+  @media screen and (max-width: 390px) {
+    width: 98%;
+  }
 `;
 
 const OuterTextContainer = styled.div`
@@ -56,6 +62,7 @@ const TableContainer = styled.div`
   box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
   border-radius: 2px;
   width: 100%;
+  margin-top: 35px;
 `;
 
 const Header = styled.div`
@@ -73,7 +80,13 @@ const HeaderItem = styled.div`
   align-items: space-between;
   justify-content: flex-start;
   padding: 10px 20px;
-  width: ${95 / columns.length}%;
+  width: 24%;
+  @media screen and (min-width: 390px) and (max-width: 768px) {
+    padding: 10px 15px;
+  }
+  @media screen and (max-width: 390px) {
+    padding: 10px;
+  }
 `;
 
 const HeaderItemText = styled.div`
@@ -81,7 +94,9 @@ const HeaderItemText = styled.div`
   font-size: 14px;
   font-weight: 600;
   line-height: 24px;
-  word-wrap: break-word;
+  @media screen and (max-width: 390px) {
+    font-size: 12px;
+  }
 `;
 
 const Row = styled.div`
@@ -99,7 +114,15 @@ const RowItem = styled.div`
   justify-content: flex-start;
   gap: 20px;
   padding: 20px;
-  width: ${95 / columns.length}%;
+  width: 24%;
+  @media screen and (min-width: 390px) and (max-width: 768px) {
+    padding: 10px 15px;
+    gap: 10px;
+  }
+  @media screen and (max-width: 390px) {
+    padding: 10px;
+    gap: 0px;
+  }
 `;
 
 const RowText = styled.div`
@@ -107,7 +130,9 @@ const RowText = styled.div`
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
-  word-wrap: break-word;
+  @media screen and (max-width: 390px) {
+    font-size: 12px;
+  }
 `;
 
 const { base_currency } = potDetail;
@@ -115,71 +140,66 @@ const { base_currency } = potDetail;
 const maxRowItemLength = 14;
 
 return (
-  <Container>
+  <>
     <Widget
       src={`${ownerId}/widget/Pots.NavOptionsMobile`}
       props={{
         ...props,
       }}
     />
-    <Widget
-      src={`${ownerId}/widget/Pots.SponsorsBoard`}
-      props={{
-        ...props,
-        donations: donations,
-      }}
-    />
-    <TableContainer>
-      <Header>
-        {columns.map((column, index) => (
-          <HeaderItem style={index === 0 ? { width: "5%" } : {}}>
-            <HeaderItemText key={index}>{column}</HeaderItemText>
-          </HeaderItem>
-        ))}
-      </Header>
-      {donations.length === 0 ? (
-        <Row style={{ padding: "12px" }}>No donations to display</Row>
-      ) : (
-        donations.map((donation, index) => {
-          const { donor_id, total_amount, donated_at, percentage_share } = donation;
-          const totalDonationAmount =
-            props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+    <Container>
+      <TableContainer>
+        <Header>
+          {columns.map((column, index) => (
+            <HeaderItem style={index === 0 ? { width: "5%" } : {}}>
+              <HeaderItemText key={index}>{column}</HeaderItemText>
+            </HeaderItem>
+          ))}
+        </Header>
+        {state.donations.length === 0 ? (
+          <Row style={{ padding: "12px" }}>No donations to display</Row>
+        ) : (
+          state.donations.map((donation, index) => {
+            const { donor_id, total_amount, donated_at, percentage_share } = donation;
+            const totalDonationAmount =
+              props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
-          return (
-            <Row key={index}>
-              <RowItem style={{ width: "5%" }}>
-                <RowText>#{index + 1}</RowText>
-              </RowItem>
-              <RowItem>
-                <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
-                  props={{
-                    ...props,
-                    accountId: donor_id,
-                    style: {
-                      height: "24px",
-                      width: "24px",
-                    },
-                  }}
-                />
-                <RowText>
-                  {donor_id.length > maxRowItemLength
-                    ? donor_id.slice(0, maxRowItemLength) + "..."
-                    : donor_id}
-                </RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>
-                  {totalDonationAmount} {base_currency.toUpperCase()}
-                </RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>{percentage_share.toFixed(0)}%</RowText>
-              </RowItem>
-            </Row>
-          );
-        })
-      )}
-    </TableContainer>
-  </Container>
+            return (
+              <Row key={index}>
+                <RowItem style={{ width: "5%" }}>
+                  <RowText>#{index + 1}</RowText>
+                </RowItem>
+                <RowItem style={{ width: "22%" }}>
+                  <Widget
+                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    props={{
+                      ...props,
+                      accountId: donor_id,
+                      style: {
+                        height: "25px",
+                        width: "25px",
+                      },
+                    }}
+                  />
+                  <RowText>
+                    {donor_id.length > maxRowItemLength
+                      ? donor_id.slice(0, maxRowItemLength) + "..."
+                      : donor_id}
+                  </RowText>
+                </RowItem>
+                <RowItem>
+                  <RowText>
+                    {totalDonationAmount} {base_currency.toUpperCase()}
+                  </RowText>
+                </RowItem>
+                <RowItem>
+                  <RowText>{percentage_share.toFixed(0)}%</RowText>
+                </RowItem>
+              </Row>
+            );
+          })
+        )}
+      </TableContainer>
+    </Container>
+  </>
 );

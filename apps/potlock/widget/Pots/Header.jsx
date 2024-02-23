@@ -6,9 +6,13 @@ const {
   formatDate,
   referrerId,
   sybilRequirementMet,
+  applicationSuccess,
   NADA_BOT_URL,
+  DONATION_CONTRACT_ID,
 } = props;
-
+const { calcNetDonationAmount, filterByDate } = VM.require(
+  `${ownerId}/widget/Components.DonorsUtils`
+);
 // console.log("pot detail: ", potDetail);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
@@ -203,6 +207,21 @@ const ShareIconContainer = styled.svg`
   }
 `;
 
+const RefLink = styled.div`
+  color: #292929;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  word-wrap: break-word;
+  margin-top: 12px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    color: #292929;
+  }
+`;
+
 State.init({
   isMatchingPoolModalOpen: false,
   matchingPoolDonationAmountNear: "",
@@ -211,6 +230,8 @@ State.init({
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
   bypassChefFee: false,
+  referralLinkCopied: false,
+  totalUniqueDonors: null,
   // isOnRegistry: false,
 });
 
@@ -268,6 +289,21 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
   project_id: context.accountId,
 });
 
+if (state.totalUniqueDonors === null) {
+  Near.asyncView(potId, "get_donations", {}).then((result) => {
+    const totalsByDonor = result.reduce((accumulator, currentDonation) => {
+      accumulator[currentDonation.donor_id] = {
+        amount:
+          (accumulator[currentDonation.donor_id].amount || 0) +
+          calcNetDonationAmount(currentDonation),
+        ...currentDonation,
+      };
+      return accumulator;
+    }, {});
+    const uniqueDonors = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
+    State.update({ totalUniqueDonors: uniqueDonors.length });
+  });
+}
 // if (registry_provider) {
 //   const [contractId, methodName] = registry_provider.split(":");
 //   Near.asyncView(contractId, methodName, { account_id: context.accountId }).then((isOnRegistry) => {
@@ -275,7 +311,9 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
 //   });
 // }
 
-const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
+const applicationExists = existingApplication || applicationSuccess;
+
+const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
 // const registryRequirementMet = state.isOnRegistry || !registry_provider;
 
@@ -389,6 +427,15 @@ const potLink = `https://bos.potlock.io/?tab=pot&potId=${potId}${
   context.accountId && `&referrerId=${context.accountId}`
 }`;
 
+const handleCopyReferralLink = () => {
+  clipboard.writeText(potLink).then(() => {
+    State.update({ referralLinkCopied: true });
+    setTimeout(() => {
+      State.update({ referralLinkCopied: false });
+    }, 2000);
+  });
+};
+
 return (
   <Container>
     <Column style={{ gap: "24px" }}>
@@ -442,14 +489,12 @@ return (
       <Description>{pot_description}</Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
-          <H3>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
-            total_public_donations
-          )}  ${base_currency.toUpperCase()}`}</H3>
+          <H3>{`${props.yoctosToUsdWithFallback(total_public_donations)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>
-          <H3>{public_donations_count}</H3>
-          <TotalsSubtext>{`Donor${public_donations_count !== 1 ? "s" : ""}`}</TotalsSubtext>
+          <H3>{state.totalUniqueDonors !== null ? state.totalUniqueDonors : "-"}</H3>
+          <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
       </Row>
     </Column>
@@ -557,25 +602,15 @@ return (
           />
         )}
         {now < public_round_end_ms && (
-          <>
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: publicRoundOpen || canApply ? "secondary" : "primary",
-                text: "Fund matching pool",
-                onClick: handleFundMatchingPool,
-                style: { marginRight: "6px" },
-              }}
-            />
-            <Widget
-              src={`${ownerId}/widget/Project.Share`}
-              props={{
-                text: potLink,
-                // label: "Share",
-                clipboardIcon: ShareIcon,
-              }}
-            />
-          </>
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: publicRoundOpen || canApply ? "secondary" : "primary",
+              text: "Fund matching pool",
+              onClick: handleFundMatchingPool,
+              style: { marginRight: "12px" },
+            }}
+          />
         )}
         {publicRoundOpen && (
           <Widget
@@ -616,6 +651,22 @@ return (
         )}
         {potComplete && <div style={{ color: "red" }}>Pot complete</div>}
       </Row>
+      <RefLink onClick={handleCopyReferralLink}>
+        <svg
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          style={{ width: "1em", marginTop: "-0.2em" }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect height="14" rx="2" ry="2" width="14" x="8" y="8" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </svg>
+        {state.referralLinkCopied ? "Referral link copied!" : "Earn referral fees"}
+      </RefLink>
     </Column>
     <Widget
       src={`${ownerId}/widget/Components.Modal`}

@@ -7,6 +7,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 400px;
   border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
@@ -176,6 +177,7 @@ State.init({
     referrerId: null,
     potId: null,
     potDetail: null,
+    successfulDonation: null,
   },
 });
 
@@ -187,6 +189,7 @@ const openDonateModal = () => {
       referrerId: null,
       potId: null,
       potDetail: null,
+      successfulDonation: null,
     },
   });
 };
@@ -412,9 +415,35 @@ return (
                 potDetail: null,
               },
             }),
+          openDonationModalSuccess: (donation) => {
+            State.update({
+              donateModal: {
+                isOpen: false,
+                recipientId: null,
+                referrerId: null,
+                potId: null,
+                potDetail: null,
+              },
+              successfulDonation: donation,
+            });
+          },
           recipientId: state.donateModal.recipientId,
           referrerId: props.referrerId,
           potId,
+        }}
+      />
+    )}
+    {state.successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalSuccess`}
+        props={{
+          ...props,
+          successfulDonation: state.successfulDonation,
+          isModalOpen: state.successfulDonation != null,
+          onClose: () =>
+            State.update({
+              successfulDonation: null,
+            }),
         }}
       />
     )}

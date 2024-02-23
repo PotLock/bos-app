@@ -74,6 +74,8 @@ const Underline = styled.div`
 
 const containerStyle = props.containerStyle ?? {};
 
+const showStats = !props.tab || props.tab == "projects";
+
 return (
   <HeaderContainer style={containerStyle}>
     <HeaderContent>
@@ -110,5 +112,6 @@ return (
       {props.buttonPrimary && props.buttonPrimary}
       {props.buttonSecondary && props.buttonSecondary}
     </ButtonsContainer>
+    {showStats && <Widget src={`${ownerId}/widget/Project.DonationStats`} props={{ ...props }} />}
   </HeaderContainer>
 );

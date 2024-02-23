@@ -44,7 +44,7 @@ const SORT_FILTERS = {
 
 const PAGE_SIZE = 9;
 
-const featuredProjectIds = ["sharddog.near", "openwebacademy.near", "build.sputnik-dao.near"];
+const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
 const featuredProjects = useMemo(
   () => props.items.filter((project) => featuredProjectIds.includes(project.id)),
   props.items
@@ -491,6 +491,9 @@ const Container = styled.div`
   width: 100%;
   gap: 48px;
   padding-top: 20px;
+  @media screen and (min-width: 740px) and (max-width: 1400px) {
+    ${props.tab !== "pot" && "padding-top: 120px;"}
+  }
 `;
 
 const ProjectList = styled.div`

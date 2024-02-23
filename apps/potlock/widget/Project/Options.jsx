@@ -14,26 +14,21 @@ const ProjectOptions = (props) => [
     href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=feed`),
   },
   {
-    label: "",
-    id: "donations",
-    disabled: false,
-    source: `${props.ownerId}/widget/Profile.DonationsTable`,
-    href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=donations`),
-  },
-  {
     label: "Pots",
     id: "pots",
     disabled: true,
   },
+  // {
+  //   label: "Attestations",
+  //   id: "attestations",
+  //   disabled: true,
+  // },
   {
-    label: "Attestations",
-    id: "attestations",
-    disabled: true,
-  },
-  {
-    label: "Funding Raised",
+    label: "Funding raised",
     id: "funding",
-    disabled: true,
+    disabled: false,
+    source: `${props.ownerId}/widget/Profile.DonationsTable`,
+    href: props.hrefWithEnv(`?tab=project&projectId=${props.projectId}&nav=funding`),
   },
   {
     label: "",

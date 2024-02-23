@@ -26,6 +26,7 @@ const Button = styled.button`
 
 State.init({
   isModalOpen: false,
+  successfulDonation: null,
 });
 
 const handleDonateRandomly = () => {
@@ -48,7 +49,7 @@ return (
             State.update({
               isModalOpen: false,
             }),
-          openDonationSuccessModal: (donation) => {
+          openDonationModalSuccess: (donation) => {
             State.update({
               isModalOpen: false,
               successfulDonation: donation,
@@ -59,7 +60,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+        src={`${ownerId}/widget/Project.ModalSuccess`}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,
