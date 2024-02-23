@@ -23,8 +23,10 @@ const SponsorOverlayWrapper = styled.div`
   z-index: -1;
   width: 0;
   gap: 10px;
+  font-size: 12px;
   .info {
     display: flex;
+    align-items: center;
     gap: 1.25rem;
     .profile-image {
       width: 50px;
@@ -59,7 +61,6 @@ const SponsorOverlayWrapper = styled.div`
     transform: translate(0%, -50%);
     width: 200%;
     right: 0;
-    font-size: 12px;
     .info {
       gap: 0.5rem;
       flex-wrap: wrap;
