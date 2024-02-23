@@ -1,6 +1,5 @@
 const {
   ownerId,
-  REGISTRY_CONTRACT_ID,
   validateNearAddress,
   validateEVMAddress,
   validateGithubRepoUrl,
@@ -41,7 +40,10 @@ const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const projects = Near.view(REGISTRY_CONTRACT_ID, "get_projects", {});
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projects = registry.getProjects() || [];
 
 const imageHeightPx = 120;
 const profileImageTranslateYPx = 220;
@@ -322,8 +324,6 @@ State.init({
   githubError: "",
   socialDataFetched: false,
   socialDataIsFetching: false,
-  registeredProjects: null,
-  getRegisteredProjectsError: "",
   isMultiAccountModalOpen: false,
   teamMember: "",
   teamMembers: [],
@@ -531,17 +531,6 @@ useEffect(() => {
   }
 }, [state.socialDataFetched, state.isDao, state.daoAddress, context.accountId]);
 
-if (context.accountId && !state.registeredProjects) {
-  Near.asyncView(REGISTRY_CONTRACT_ID, "get_projects", {})
-    .then((projects) => {
-      State.update({ registeredProjects: projects });
-    })
-    .catch((e) => {
-      console.log("error getting projects: ", e);
-      State.update({ getRegisteredProjectsError: e });
-    });
-}
-
 const isCreateProjectDisabled =
   state.daoAddressError ||
   !state.name ||
@@ -709,7 +698,7 @@ const handleCreateOrUpdateProject = (e) => {
       transactions.push(
         // register project on potlock
         {
-          contractName: REGISTRY_CONTRACT_ID,
+          contractName: registry.getContractId(),
           methodName: "register",
           deposit: Big(0.05).mul(Big(10).pow(24)),
           args: potlockRegistryArgs,
@@ -766,7 +755,8 @@ const handleCreateOrUpdateProject = (e) => {
     const pollIntervalMs = 1000;
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
-      Near.asyncView(REGISTRY_CONTRACT_ID, "get_project_by_id", {
+      // This is an async request, not converting to SDK yet
+      Near.asyncView(registry.getContractId(), "get_project_by_id", {
         project_id: context.accountId,
         // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
       }).then((_project) => {
@@ -791,12 +781,8 @@ if (props.projectId) {
 }
 
 const registeredProject = useMemo(() => {
-  return state.registeredProjects
-    ? state.registeredProjects?.find(
-        (project) => project.id == (state.isDao ? state.daoAddress : context.accountId)
-      )
-    : null;
-}, [state.registeredProjects, state.isDao, state.daoAddress]);
+  return registry.getProjectById(state.isDao ? state.daoAddress : context.accountId);
+}, [state.isDao, state.daoAddress]);
 
 // console.log("registeredProject: ", registeredProject);
 
@@ -810,7 +796,7 @@ const proposalInProgress = useMemo(() => {
   return proposals?.find((proposal) => {
     return (
       proposal.status == "InProgress" &&
-      proposal.kind.FunctionCall?.receiver_id == REGISTRY_CONTRACT_ID &&
+      proposal.kind.FunctionCall?.receiver_id == registry.getContractId() &&
       proposal.kind.FunctionCall?.actions[0]?.method_name == "register"
     );
   });
@@ -929,7 +915,7 @@ return (
               type: "primary",
               text: "View your project",
               disabled: false,
-              href: props.hrefWithEnv(
+              href: props.hrefWithParams(
                 `?tab=project&projectId=${registeredProject?.id || context.accountId}`
               ),
             }}
@@ -940,7 +926,7 @@ return (
               type: "secondary",
               text: "View all projects",
               disabled: false,
-              href: props.hrefWithEnv(`?tab=projects`),
+              href: props.hrefWithParams(`?tab=projects`),
             }}
           />
         </ButtonsContainer>

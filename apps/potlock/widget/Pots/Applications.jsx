@@ -239,7 +239,7 @@ return (
             />
             <Column style={{ flex: 1 }}>
               <Row style={{ borderBottom: "none", padding: "0px" }}>
-                <ProjectLink href={props.hrefWithEnv(`?tab=project&projectId=${project_id}`)}>
+                <ProjectLink href={props.hrefWithParams(`?tab=project&projectId=${project_id}`)}>
                   {project_id}
                 </ProjectLink>
                 <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>

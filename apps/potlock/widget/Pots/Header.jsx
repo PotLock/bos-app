@@ -6,6 +6,7 @@ const {
   formatDate,
   referrerId,
   sybilRequirementMet,
+  applicationSuccess,
   NADA_BOT_URL,
   DONATION_CONTRACT_ID,
 } = props;
@@ -310,7 +311,9 @@ if (state.totalUniqueDonors === null) {
 //   });
 // }
 
-const canApply = applicationOpen && !existingApplication && !userIsChefOrGreater;
+const applicationExists = existingApplication || applicationSuccess;
+
+const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
 // const registryRequirementMet = state.isOnRegistry || !registry_provider;
 
@@ -592,7 +595,7 @@ return (
               text: "Apply to pot",
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
               onClick: handleApplyToPot,
-              // href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
+              // href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
               // target: "_self",
               style: { marginRight: "24px" },
             }}
@@ -616,7 +619,7 @@ return (
               type: "primary",
               text: sybilRequirementMet ? "Donate to projects" : "Verify to Donate",
               href: sybilRequirementMet
-                ? props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`)
+                ? props.hrefWithParams(`?tab=pot&potId=${potId}&nav=projects`)
                 : NADA_BOT_URL,
               target: sybilRequirementMet ? "_self" : "_blank",
               iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,

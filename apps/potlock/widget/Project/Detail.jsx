@@ -2,7 +2,6 @@ const {
   ownerId,
   projectId,
   userIsRegistryAdmin,
-  REGISTRY_CONTRACT_ID,
   tab,
   POT_FACTORY_CONTRACT_ID,
   DONATION_CONTRACT_ID,
@@ -10,7 +9,10 @@ const {
 
 const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
-const project = Near.view(REGISTRY_CONTRACT_ID, "get_project_by_id", { project_id: projectId });
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const project = registry.getProjectById(projectId);
 
 if (!project || project == null) {
   return "Loading";

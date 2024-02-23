@@ -4,14 +4,14 @@ const ProfileOptions = (props) => [
     id: "feed",
     disabled: false,
     source: `${props.ownerId}/widget/Profile.Feed`,
-    href: props.hrefWithEnv(`?tab=profile&accountId=${props.accountId}&nav=feed`),
+    href: props.hrefWithParams(`?tab=profile&accountId=${props.accountId}&nav=feed`),
   },
   {
     label: "Donations",
     id: "donations",
     disabled: false,
     source: `${props.ownerId}/widget/Profile.DonationsTable`,
-    href: props.hrefWithEnv(`?tab=profile&accountId=${props.accountId}&nav=donations`),
+    href: props.hrefWithParams(`?tab=profile&accountId=${props.accountId}&nav=donations`),
   },
   {
     label: "",

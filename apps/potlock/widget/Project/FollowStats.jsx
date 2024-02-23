@@ -18,7 +18,7 @@ const followers = Social.keys(`*/graph/follow/${accountId}`, "final", {
 const numFollowing = following ? Object.keys(following[accountId].graph.follow || {}).length : null;
 const numFollowers = followers ? Object.keys(followers || {}).length : null;
 
-const profileLink = props.hrefWithEnv(
+const profileLink = props.hrefWithParams(
   `?tab=${projectId ? "project" : "profile"}&${projectId ? "projectId" : "accountId"}=${
     projectId || accountId
   }`

@@ -107,7 +107,7 @@ return (
                   accountId: donor_id,
                   children: (
                     <a
-                      href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
+                      href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
                       className="address"
                       target="_blank"
                     >
@@ -127,7 +127,7 @@ return (
                   accountId: recipient_id,
                   children: (
                     <a
-                      href={props.hrefWithEnv(`?tab=project&projectId=${recipient_id}`)}
+                      href={props.hrefWithParams(`?tab=project&projectId=${recipient_id}`)}
                       Name="address"
                       target="_blank"
                     >

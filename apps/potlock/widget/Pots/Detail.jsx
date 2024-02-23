@@ -137,42 +137,42 @@ props.navOptions = [
     id: "projects",
     disabled: false,
     source: `${ownerId}/widget/Pots.Projects`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=projects`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=projects`),
   },
   {
     label: "Applications",
     id: "applications",
     disabled: false,
     source: `${ownerId}/widget/Pots.Applications`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=applications`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=applications`),
   },
   {
     label: "Donations",
     id: "donations",
     disabled: false,
     source: `${ownerId}/widget/Pots.Donations`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=donations`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=donations`),
   },
   {
     label: "Sponsors",
     id: "sponsors",
     disabled: false,
     source: `${ownerId}/widget/Pots.Sponsors`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=sponsors`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=sponsors`),
   },
   {
     label: "Payouts",
     id: "payouts",
     disabled: !state.potDetail.payouts.length,
     source: `${ownerId}/widget/Pots.Payouts`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=payouts`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=payouts`),
   },
   {
     label: "Settings",
     id: "settings",
     disabled: false,
     source: `${ownerId}/widget/Pots.Settings`,
-    href: props.hrefWithEnv(`?tab=pot&potId=${potId}&nav=settings`),
+    href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=settings`),
   },
 ];
 
@@ -312,6 +312,7 @@ return (
           setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
           handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
+          applicationSuccess: state.applicationSuccess,
         }}
       />
       <Container>
@@ -442,7 +443,7 @@ return (
                     : "Register to apply",
                   onClick: registryRequirementMet ? handleSendApplication : null,
                   disabled: isError,
-                  href: registryRequirementMet ? null : props.hrefWithEnv(`?tab=createproject`),
+                  href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
                   target: registryRequirementMet ? "_self" : "_blank",
                 }}
               />

@@ -112,7 +112,7 @@ return (
             type: "secondary",
             text: "Edit profile",
             disabled: false,
-            href: props.hrefWithEnv(`?tab=editproject&projectId=${projectId}`),
+            href: props.hrefWithParams(`?tab=editproject&projectId=${projectId}`),
           }}
         />
       )}

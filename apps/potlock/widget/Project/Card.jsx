@@ -233,7 +233,7 @@ const [totalAmount, totalDonors] = useMemo(() => {
   ];
 }, [donationsForProject]);
 
-const projectUrl = props.hrefWithEnv(`?tab=project&projectId=${projectId}`);
+const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
 
 const getImageSrc = (image) => {
   const defaultImageUrl =
@@ -415,7 +415,7 @@ return (
                 potDetail: null,
               },
             }),
-          openDonationSuccessModal: (donation) => {
+          openDonationModalSuccess: (donation) => {
             State.update({
               donateModal: {
                 isOpen: false,
@@ -435,7 +435,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+        src={`${ownerId}/widget/Project.ModalSuccess`}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,

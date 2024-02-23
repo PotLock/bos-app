@@ -120,7 +120,7 @@ return (
             if (teamMember.match(/.near/i).length > 0) {
               return (
                 <TeamMemberItem
-                  href={props.hrefWithEnv(`?tab=profile&accountId=${teamMember}`)}
+                  href={props.hrefWithParams(`?tab=profile&accountId=${teamMember}`)}
                   target="_blank"
                 >
                   <Widget

@@ -348,18 +348,18 @@ const ProjectList = styled.div`
     grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
   }
 `;
-
+console.log("props", props);
 State.init({
   isModalOpen: false,
   successfulDonation: null,
 });
-const projects = useMemo(
-  () =>
-    userIsRegistryAdmin
-      ? props.registeredProjects
-      : props.registeredProjects.filter((project) => project.status === "Approved"),
-  [props.registeredProjects, userIsRegistryAdmin]
-);
+// const projects = useMemo(
+//   () =>
+//     userIsRegistryAdmin
+//       ? props.registeredProjects
+//       : props.registeredProjects.filter((project) => project.status === "Approved"),
+//   [props.registeredProjects, userIsRegistryAdmin]
+// );
 
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
@@ -378,13 +378,6 @@ const donateRandomly = () => {
     successfulDonation: null,
   });
 };
-
-const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
-const featuredProjects = useMemo(
-  () => projects.filter((project) => featuredProjectIds.includes(project.id)),
-  projects
-);
-
 const [totalDonations, totalDonors] = useMemo(() => {
   if (!props.donations) {
     return ["", "", ""];
@@ -585,7 +578,7 @@ return (
                 type: "secondary",
                 text: "Register Your Project",
                 disabled: false,
-                href: props.hrefWithEnv(`?tab=createproject`),
+                href: props.hrefWithParams(`?tab=createproject`),
                 style: { padding: "16px 24px" },
               }}
             />
@@ -671,7 +664,7 @@ return (
                   State.update({
                     isModalOpen: false,
                   }),
-                openDonationSuccessModal: (donation) => {
+                openDonationModalSuccess: (donation) => {
                   State.update({
                     isModalOpen: false,
                     successfulDonation: donation,
@@ -682,7 +675,7 @@ return (
           )}
           {state.successfulDonation && (
             <Widget
-              src={`${ownerId}/widget/Project.ModalDonationSuccess`}
+              src={`${ownerId}/widget/Project.ModalSuccess`}
               props={{
                 ...props,
                 successfulDonation: state.successfulDonation,
@@ -700,7 +693,7 @@ return (
               type: "secondary",
               text: "Register Your Project",
               disabled: false,
-              href: props.hrefWithEnv(`?tab=createproject`),
+              href: props.hrefWithParams(`?tab=createproject`),
               style: { padding: "16px 24px" },
             }}
           /> */}

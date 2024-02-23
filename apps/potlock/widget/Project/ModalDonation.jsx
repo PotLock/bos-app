@@ -1,6 +1,5 @@
 const {
   ownerId,
-  registeredProjects,
   allPots,
   recipientId, // TODO: change this to projectId
   referrerId,
@@ -16,7 +15,10 @@ const {
 
 console.log("props in donation modal: ", props);
 
-const projects = registeredProjects || [];
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projects = registry.getProjects() || [];
 
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
@@ -304,11 +306,14 @@ if (state.allPots && !state.activeRoundsForProject) {
     ([_id, { approvedProjects, detail }]) => {
       const { public_round_start_ms, public_round_end_ms } = detail;
       const now = Date.now();
-      return (
-        approvedProjects.filter((proj) => proj.project_id === recipientId) &&
-        public_round_start_ms < now &&
-        public_round_end_ms > now
-      );
+      const approved = approvedProjects.filter((proj) => {
+        return (
+          proj.project_id === recipientId &&
+          public_round_start_ms < now &&
+          public_round_end_ms > now
+        );
+      });
+      return approved.length > 0;
     }
   );
   State.update({
