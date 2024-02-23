@@ -1,5 +1,9 @@
 const { ownerId, userIsRegistryAdmin, tab, yoctosToUsd, DONATION_CONTRACT_ID } = props;
 
+ownerId = "potlock.near";
+const registryContractId = "registry.potlock..near";
+DONATION_CONTRACT_ID = "donate.potlock.near";
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
@@ -227,56 +231,9 @@ const ButtonRegisterProject = styled.a`
   }
 `;
 
-const Stats = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-  margin-top: 40px;
-
-  @media screen and (max-width: 768px) {
-    gap: 16px;
-  }
-`;
-
-const StatsTitle = styled.div`
-  color: #292929;
-  font-size: 44px;
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 8px;
-  font-weight: 600;
-
-  @media screen and (max-width: 768px) {
-    font-size: 30px;
-    font-weight: 500;
-    gap: 5px;
-  }
-`;
-
-const StatsSubTitle = styled.div`
-  color: #525252;
-  font-size: 14px;
-
-  @media screen and (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-
 State.init({
   isModalOpen: false,
   successfulDonation: null,
-});
-
-const [totalDonation, setTotalDonation] = useState(0);
-const [totalDonated, setTotalDonated] = useState(0);
-
-Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
-  setTotalDonated(lastDonationAmount);
-  setTotalDonation(result.total_donations_count);
 });
 
 const donateRandomly = () => {
@@ -286,13 +243,63 @@ const donateRandomly = () => {
   });
 };
 
-const projects = useMemo(
-  () =>
-    userIsRegistryAdmin
-      ? props.registeredProjects
-      : props.registeredProjects.filter((project) => project.status === "Approved"),
-  [props.registeredProjects, userIsRegistryAdmin]
-);
+// const [registeredProjects, setRegisteredProjects] = useState([]);
+
+// const projects = useCache(
+//   () =>
+//     asyncFetch("https://rpc.mainnet.near.org/status").then((res) => res.body),
+//   "mainnetRpcStatus",
+//   { subscribe: true }
+// );
+
+const registeredProjects = Near.view(registryContractId, "get_projects", {}) || [];
+
+//     .then((projects) => {
+//       // get social data for each project
+//       Near.asyncView("social.near", "get", {
+//         keys: projects.map((project) => `${project.id}/profile/**`),
+//       }).then((socialData) => {
+//         const formattedProjects = projects.map((project) => {
+//           const profileData = socialData[project.id]?.profile;
+//           let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
+//           if (profileData.image) {
+//             const imageUrl = getImageUrlFromSocialImage(profileData.image);
+//             if (imageUrl) profileImageUrl = imageUrl;
+//           }
+//           // get banner image URL
+//           let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
+//           if (profileData.backgroundImage) {
+//             const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
+//             if (imageUrl) bannerImageUrl = imageUrl;
+//           }
+//           const formatted = {
+//             id: project.id,
+//             name: profileData.name ?? "",
+//             description: profileData.description ?? "",
+//             bannerImageUrl,
+//             profileImageUrl,
+//             status: project.status,
+//             tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""],
+//           };
+//           return formatted;
+//         });
+//         State.update({
+//           registeredProjects: formattedProjects,
+//         });
+//       });
+//     })
+//     .catch((e) => {
+//       console.log("error getting projects: ", e);
+//       State.update({ getRegisteredProjectsError: e });
+//     });
+
+// const projects = useMemo(
+//   () =>
+//     userIsRegistryAdmin
+//       ? registeredProjects
+//       : registeredProjects.filter((project) => project.status === "Approved"),
+//   [registeredProjects, userIsRegistryAdmin]
+// );
 
 const [totalDonations, totalDonors] = useMemo(() => {
   if (!props.donations) {
@@ -487,16 +494,10 @@ return (
             Register Your Project
           </ButtonRegisterProject>
         </ButtonsContainer>
-        <Stats>
-          <StatsTitle>
-            {totalDonated || "-"}
-            <StatsSubTitle>Donated</StatsSubTitle>
-          </StatsTitle>
-          <StatsTitle>
-            {totalDonation || "-"}
-            <StatsSubTitle>Donations</StatsSubTitle>
-          </StatsTitle>
-        </Stats>
+        <Widget
+          src={`${ownerId}/widget/Project.DonationStats`}
+          props={{ DONATION_CONTRACT_ID: DONATION_CONTRACT_ID, yoctosToUsd: yoctosToUsd }}
+        />
       </HeaderContainer>
     </HeroContainer>
     <ProjectsContainer>

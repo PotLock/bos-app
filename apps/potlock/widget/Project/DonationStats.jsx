@@ -1,5 +1,9 @@
 const { DONATION_CONTRACT_ID } = props;
 
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || {
+  yoctosToUsd: (amount) => amount,
+};
+
 const Stats = styled.div`
   display: flex;
   flex-direction: row;
@@ -38,19 +42,14 @@ const StatsSubTitle = styled.div`
   }
 `;
 
-const [totalDonations, setTotalDonations] = useState(0);
-const [totalDonated, setTotalDonated] = useState(0);
-
-Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
-  setTotalDonated(lastDonationAmount);
-  setTotalDonations(result.total_donations_count);
-});
+const data = Near.view(DONATION_CONTRACT_ID, "get_config", {});
+const lastDonationAmount = yoctosToUsd(data.net_donations_amount);
+const totalDonations = data.total_donations_count;
 
 return (
   <Stats>
     <StatsTitle>
-      {totalDonated || "~"}
+      {lastDonationAmount || "~"}
       <StatsSubTitle>Donated</StatsSubTitle>
     </StatsTitle>
     <StatsTitle>
