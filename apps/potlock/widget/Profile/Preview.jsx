@@ -8,7 +8,7 @@ const image = profile.image;
 return (
   <div className="profile d-inline-block">
     <a
-      href={props.hrefWithEnv(`?tab=profile&accountId=${accountId}`)}
+      href={props.hrefWithParams(`?tab=profile&accountId=${accountId}`)}
       className="text-decoration-none link-dark"
     >
       <Widget

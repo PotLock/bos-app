@@ -250,7 +250,7 @@ return (
             <Row style={{ gap: "8px" }}>
               <TextBold>Has been donated to</TextBold>
               <UserChipLink
-                href={props.hrefWithEnv(
+                href={props.hrefWithParams(
                   `?tab=project&projectId=${
                     state.successfulDonation.recipient_id || state.successfulDonation.project_id
                   }`

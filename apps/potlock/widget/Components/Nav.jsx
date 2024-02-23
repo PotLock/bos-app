@@ -397,14 +397,14 @@ return (
     )}
     <Nav>
       <NavLeft>
-        <NavLogo href={props.hrefWithEnv(`?tab=projects`)}>🫕 Potlock</NavLogo>
+        <NavLogo href={props.hrefWithParams(`?tab=projects`)}>🫕 Potlock</NavLogo>
       </NavLeft>
       <NavRight>
         <NavTabs>
           {tabOptions.map((tab) => {
             return (
               <NavTab
-                href={tab.href ?? props.hrefWithEnv(`?tab=${tab.link}`)}
+                href={tab.href ?? props.hrefWithParams(`?tab=${tab.link}`)}
                 disabled={tab.disabled}
                 target={tab.newTab ? "_blank" : ""}
                 onClick={(e) => {
@@ -480,7 +480,7 @@ return (
         {tabOptions.map((tab) => {
           return (
             <NavMenuItem
-              href={props.hrefWithEnv(`?tab=${tab.link}`)}
+              href={props.hrefWithParams(`?tab=${tab.link}`)}
               disabled={tab.disabled}
               onClick={(e) => {
                 if (tab.disabled) e.preventDefault();
@@ -535,7 +535,7 @@ return (
             type: "primary",
             text: "Proceed to donate",
             disabled: Object.keys(props.cart).length === 0,
-            href: props.hrefWithEnv(`?tab=cart`),
+            href: props.hrefWithParams(`?tab=cart`),
             style: {
               width: "100%",
               marginBottom: "16px",

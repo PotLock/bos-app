@@ -79,7 +79,7 @@ return (
             }}
           />{" "}
           <a
-            href={props.hrefWithEnv(`?tab=profile&accountId=${id}`)}
+            href={props.hrefWithParams(`?tab=profile&accountId=${id}`)}
             className="name"
             target="_blank"
           >

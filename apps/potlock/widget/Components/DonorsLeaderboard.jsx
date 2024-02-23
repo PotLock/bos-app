@@ -113,7 +113,7 @@ return (
             <div>#{idx + 1 + page * perPage}</div>
 
             <a
-              href={props.hrefWithEnv(`?tab=profile&accountId=${donor_id}`)}
+              href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
               className="address"
               target="_blank"
             >

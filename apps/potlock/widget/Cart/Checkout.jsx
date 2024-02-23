@@ -264,7 +264,7 @@ return (
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
-            href: props.hrefWithEnv(`?tab=projects`),
+            href: props.hrefWithParams(`?tab=projects`),
             type: twitterIntent ? "secondary" : "primary",
             text: "Explore projects",
             style: {

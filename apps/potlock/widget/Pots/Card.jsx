@@ -108,7 +108,7 @@ const amountNear = yoctosToNear(matching_pool_balance);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
 return (
-  <Card href={props.hrefWithEnv(`?tab=pot&potId=${potId}`)}>
+  <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}>
     <CardSection>
       <Title>{title}</Title>
       <Description>{description}</Description>

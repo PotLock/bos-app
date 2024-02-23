@@ -154,7 +154,7 @@ return (
             props={{
               type: "primary",
               text: "Deploy Pot",
-              href: props.hrefWithEnv(`?tab=deploypot`),
+              href: props.hrefWithParams(`?tab=deploypot`),
             }}
           />
         )}
