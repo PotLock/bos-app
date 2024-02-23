@@ -348,7 +348,7 @@ const ProjectList = styled.div`
     grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
   }
 `;
-console.log("props", props);
+
 State.init({
   isModalOpen: false,
   successfulDonation: null,
@@ -360,11 +360,20 @@ State.init({
 //       : props.registeredProjects.filter((project) => project.status === "Approved"),
 //   [props.registeredProjects, userIsRegistryAdmin]
 // );
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
 
+const projects = registry.getProjects() || [];
+
+if (!registry.isRegistryAdmin(context.accountId)) {
+  projects = projects.filter((project) => project.status === "Approved");
+}
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 const [filteredProjects, setFilteredProjects] = useState(projects);
 const [searchTerm, setSearchTerm] = useState("");
+
+// filteredProjects.map((e) => console.log("e", e));
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
