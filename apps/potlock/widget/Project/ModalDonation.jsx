@@ -304,11 +304,14 @@ if (state.allPots && !state.activeRoundsForProject) {
     ([_id, { approvedProjects, detail }]) => {
       const { public_round_start_ms, public_round_end_ms } = detail;
       const now = Date.now();
-      return (
-        approvedProjects.filter((proj) => proj.project_id === recipientId) &&
-        public_round_start_ms < now &&
-        public_round_end_ms > now
-      );
+      const approved = approvedProjects.filter((proj) => {
+        return (
+          proj.project_id === recipientId &&
+          public_round_start_ms < now &&
+          public_round_end_ms > now
+        );
+      });
+      return approved.length > 0;
     }
   );
   State.update({
@@ -447,7 +450,7 @@ const handleDonate = () => {
         ) {
           // display success message & clear cart
           clearInterval(pollId);
-          props.openDonationModalSuccess(donation);
+          props.openDonationSuccessModal(donation);
         }
       }
     });
