@@ -10,7 +10,9 @@ State.init({
   donations: null,
 });
 
-if (!state.allDonations) {
+const { donations, allDonations } = state;
+
+if (!allDonations) {
   Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     // sort by size)
     donations.sort(
@@ -28,7 +30,7 @@ if (!state.allDonations) {
   });
 }
 
-if (!state.donations) return "Loading...";
+if (!donations) return "Loading...";
 
 const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
@@ -146,6 +148,13 @@ return (
       }}
     />
     <Container>
+      <Widget
+        src={`${ownerId}/widget/Pots.SponsorsBoard`}
+        props={{
+          ...props,
+          donations: donations.slice(0, 6),
+        }}
+      />
       <TableContainer>
         <Header>
           {columns.map((column, index) => (

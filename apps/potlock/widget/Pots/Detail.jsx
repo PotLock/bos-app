@@ -23,7 +23,7 @@ const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
   // @media screen and (max-width: 768px) {
   //   .mb-2 {
   //     width: 64px;
