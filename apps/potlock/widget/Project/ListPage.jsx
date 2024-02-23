@@ -286,13 +286,14 @@ const donateRandomly = () => {
   });
 };
 
-const projects = useMemo(
-  () =>
-    userIsRegistryAdmin
-      ? props.registeredProjects
-      : props.registeredProjects.filter((project) => project.status === "Approved"),
-  [props.registeredProjects, userIsRegistryAdmin]
-);
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projects = registry.getProjects() || [];
+
+if (!registry.isRegistryAdmin(context.accountId)) {
+  projects = projects.filter((project) => project.status === "Approved");
+}
 
 const [totalDonations, totalDonors] = useMemo(() => {
   if (!props.donations) {

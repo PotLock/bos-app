@@ -1,6 +1,4 @@
 const ownerId = "potlock.near";
-const registryContractId =
-  props.env === "staging" ? "registry.staging.potlock.near" : "registry.potlock.near";
 const donationContractId = "donate.potlock.near";
 const potFactoryContractId =
   props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near";
@@ -66,10 +64,7 @@ State.init({
   nearToUsd: null,
   isCartModalOpen: false,
   isNavMenuOpen: false,
-  registryConfig: null,
-  userIsRegistryAdmin: null,
   allPots: null,
-  registeredProjects: null,
   donnorProjectId: null,
   amount: null,
   note: null,
@@ -137,11 +132,7 @@ if (!state.allPots) {
   });
 }
 
-if (!state.registeredProjects) {
-  State.update({ registeredProjects: Near.view(registryContractId, "get_projects", {}) });
-}
-
-if (!state.registeredProjects || !state.allPots) return "";
+if (!state.allPots) return "";
 
 if (!state.donations) {
   State.update({
@@ -158,58 +149,6 @@ const getImageUrlFromSocialImage = (image) => {
     return IPFS_BASE_URL + image.ipfs_cid;
   }
 };
-
-if (!state.registeredProjects) {
-  Near.asyncView(registryContractId, "get_projects", {})
-    .then((projects) => {
-      // get social data for each project
-      Near.asyncView("social.near", "get", {
-        keys: projects.map((project) => `${project.id}/profile/**`),
-      }).then((socialData) => {
-        const formattedProjects = projects.map((project) => {
-          const profileData = socialData[project.id]?.profile;
-          let profileImageUrl = DEFAULT_PROFILE_IMAGE_URL;
-          if (profileData.image) {
-            const imageUrl = getImageUrlFromSocialImage(profileData.image);
-            if (imageUrl) profileImageUrl = imageUrl;
-          }
-          // get banner image URL
-          let bannerImageUrl = DEFAULT_BANNER_IMAGE_URL;
-          if (profileData.backgroundImage) {
-            const imageUrl = getImageUrlFromSocialImage(profileData.backgroundImage);
-            if (imageUrl) bannerImageUrl = imageUrl;
-          }
-          const formatted = {
-            id: project.id,
-            name: profileData.name ?? "",
-            description: profileData.description ?? "",
-            bannerImageUrl,
-            profileImageUrl,
-            status: project.status,
-            tags: [profileData.category.text ?? CATEGORY_MAPPINGS[profileData.category] ?? ""],
-          };
-          return formatted;
-        });
-        State.update({
-          registeredProjects: formattedProjects,
-        });
-      });
-    })
-    .catch((e) => {
-      console.log("error getting projects: ", e);
-      State.update({ getRegisteredProjectsError: e });
-    });
-}
-
-if (state.registryConfig === null) {
-  const registryConfig = Near.view(registryContractId, "get_config", {});
-  if (registryConfig) {
-    State.update({
-      registryConfig,
-      userIsRegistryAdmin: registryConfig.admins.includes(context.accountId),
-    });
-  }
-}
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
@@ -366,7 +305,6 @@ const props = {
     },
   },
   DONATION_CONTRACT_ID: donationContractId,
-  REGISTRY_CONTRACT_ID: registryContractId,
   POT_FACTORY_CONTRACT_ID: potFactoryContractId,
   NADABOT_CONTRACT_ID: nadabotContractId,
   NADABOT_HUMAN_METHOD: "is_human",
@@ -610,7 +548,7 @@ const Content = styled.div`
 
 const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
-if (!state.cart || !state.registeredProjects) {
+if (!state.cart) {
   return "";
 }
 

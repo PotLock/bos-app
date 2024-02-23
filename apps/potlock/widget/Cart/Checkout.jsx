@@ -19,6 +19,11 @@ const [projectId, setProjectId] = useState("");
 //   }
 // `;
 
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const registeredProjects = registry.getProjects();
+
 const Container = styled.div`
   background: #fafafa;
   display: flex;
@@ -172,7 +177,7 @@ const allSelected =
 //   }
 // }, [props.transactionHashes]);
 
-if (props.transactionHashes && props.registeredProjects && !state.successfulDonationRecipientId) {
+if (props.transactionHashes && registeredProjects && !state.successfulDonationRecipientId) {
   const body = JSON.stringify({
     jsonrpc: "2.0",
     id: "dontcare",
