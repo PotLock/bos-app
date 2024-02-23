@@ -129,7 +129,9 @@ return (
       </ImageContainer>
       <DetailsContainer>
         <Row>
-          <Title href={props.hrefWithEnv(`?tab=project&projectId=${projectId}`)}>
+          <Title
+            href={props.hrefWithEnv && props.hrefWithEnv(`?tab=project&projectId=${projectId}`)}
+          >
             {profile.name ?? ""}
           </Title>
           <Widget

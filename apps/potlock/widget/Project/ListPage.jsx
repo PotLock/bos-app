@@ -1,7 +1,14 @@
-const { ownerId, userIsRegistryAdmin, tab, yoctosToUsd, DONATION_CONTRACT_ID } = props;
-
+const {
+  ownerId,
+  userIsRegistryAdmin,
+  tab,
+  yoctosToUsd,
+  DONATION_CONTRACT_ID,
+  navigate,
+  hrefWithEnv,
+} = props;
 ownerId = "potlock.near";
-const registryContractId = "registry.potlock..near";
+const registryContractId = "registry.potlock.near";
 DONATION_CONTRACT_ID = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -254,6 +261,10 @@ const donateRandomly = () => {
 
 const registeredProjects = Near.view(registryContractId, "get_projects", {}) || [];
 
+if (!userIsRegistryAdmin) {
+  registeredProjects = registeredProjects.filter((project) => project.status === "Approved");
+}
+
 //     .then((projects) => {
 //       // get social data for each project
 //       Near.asyncView("social.near", "get", {
@@ -293,30 +304,6 @@ const registeredProjects = Near.view(registryContractId, "get_projects", {}) || 
 //       State.update({ getRegisteredProjectsError: e });
 //     });
 
-// const projects = useMemo(
-//   () =>
-//     userIsRegistryAdmin
-//       ? registeredProjects
-//       : registeredProjects.filter((project) => project.status === "Approved"),
-//   [registeredProjects, userIsRegistryAdmin]
-// );
-
-const [totalDonations, totalDonors] = useMemo(() => {
-  if (!props.donations) {
-    return ["", "", ""];
-  }
-  let totalDonations = new Big("0");
-  let donors = {};
-  props.donations.forEach((donation) => {
-    const totalAmount = new Big(donation.total_amount);
-    const referralAmount = new Big(donation.referrer_fee || "0");
-    const protocolAmount = new Big(donation.protocol_fee || "0");
-    totalDonations = totalDonations.plus(totalAmount.minus(referralAmount).minus(protocolAmount));
-    donors[donation.donor_id] = true;
-  });
-  return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
-}, [props.donations]);
-
 const handleDonateRandomly = (e) => {
   e.preventDefault();
   props.openDonateToProjectModal();
@@ -335,77 +322,6 @@ return (
   <>
     <HeroContainer>
       <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" />
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Header`}
-        props={{
-          ...props,
-          ownerId,
-          tab,
-          yoctosToUsd,
-          title1: "Transforming",
-          title2: "Funding for Public Goods",
-          description:
-            "Discover impact projects, donate directly, & participate in funding rounds.",
-          centered: true,
-          containerStyle: {
-            position: "absolute",
-            height: "100%",
-            top: 0,
-            left: 0,
-            marginBottom: "24px",
-            background:
-              "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
-          },
-          buttonPrimary: (
-            <Widget
-              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
-              props={{
-                ...props,
-              }}
-            />
-          ),
-          buttonSecondary: (
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "secondary",
-                text: "Register Your Project",
-                disabled: false,
-                href: props.hrefWithEnv(`?tab=createproject`),
-                style: { padding: "16px 24px" },
-              }}
-            />
-          ),
-          // TODO: refactor this
-          children: totalDonations && (
-            <InfoCardsContainer>
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.nearToUsd
-                    ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
-                    : `${totalDonations} N`,
-                  infoTextSecondary: "Total Contributed",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: totalDonors,
-                  infoTextSecondary: "Unique Donors",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.donations ? props.donations.length : "-",
-                  infoTextSecondary: "Donations",
-                }}
-              />
-            </InfoCardsContainer>
-          ),
-        }}
-      /> */}
       <HeaderContainer style={containerStyleHeader}>
         <HeaderContent>
           <HeaderTitle>
@@ -440,12 +356,6 @@ return (
         </HeaderContent>
 
         <ButtonsContainer>
-          {/* <Widget
-            src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
-            props={{
-              ...props,
-            }}
-          /> */}
           <Button onClick={donateRandomly}>Donate Randomly</Button>
           {state.isModalOpen && (
             <Widget
@@ -480,16 +390,6 @@ return (
               }}
             />
           )}
-          {/* <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: "secondary",
-              text: "Register Your Project",
-              disabled: false,
-              href: props.hrefWithEnv(`?tab=createproject`),
-              style: { padding: "16px 24px" },
-            }}
-          /> */}
           <ButtonRegisterProject href={"?tab=createproject"}>
             Register Your Project
           </ButtonRegisterProject>
@@ -505,7 +405,8 @@ return (
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
-          items: projects,
+          hrefWithEnv: hrefWithEnv,
+          items: registeredProjects,
           renderItem: (project) => {
             return (
               <Widget
@@ -527,6 +428,8 @@ return (
                   // potId,
                   projectId: project.id,
                   allowDonate: true,
+                  // navigate: navigate,
+                  hrefWithEnv: hrefWithEnv,
                   // allowDonate:
                   //   sybilRequirementMet &&
                   //   publicRoundOpen &&

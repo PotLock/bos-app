@@ -14,6 +14,7 @@ const {
   // referrerId,
   // currency,
   // note,
+  navigate,
 } = props;
 
 // console.log("props in list section: ", props);

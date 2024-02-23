@@ -1,7 +1,10 @@
-const { ownerId, potId, potDetail, NADA_BOT_URL, getTagsFromSocialProfileData, ipfsUrlFromCid } =
-  props;
+const { ownerId, potId, potDetail, NADA_BOT_URL, hrefWithEnv } = props;
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
+
+const { ipfsUrlFromCid } = VM.require("potlock.near/widget/utils") || {
+  ipfsUrlFromCid: () => "",
+};
 
 const Card = styled.div`
   display: flex;
@@ -170,30 +173,6 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
-State.init({
-  donateModal: {
-    isOpen: false,
-    recipientId: null,
-    referrerId: null,
-    potId: null,
-    potDetail: null,
-    successfulDonation: null,
-  },
-});
-
-const openDonateModal = () => {
-  State.update({
-    donateModal: {
-      isOpen: true,
-      recipientId: projectId,
-      referrerId: null,
-      potId: null,
-      potDetail: null,
-      successfulDonation: null,
-    },
-  });
-};
-
 const projectId = props.project.id || props.projectId;
 const profile = Social.getr(`${projectId}/profile`);
 
@@ -266,11 +245,35 @@ const profileImageStyle = {
   pointerEvents: "none",
 };
 
+const getTagsFromSocialProfileData = (profileData) => {
+  // first try to get tags from plCategories, then category (deprecated/old format), then default to empty array
+  if (!profileData) return [];
+  const DEPRECATED_CATEGORY_MAPPINGS = {
+    "social-impact": "Social Impact",
+    "non-profit": "NonProfit",
+    climate: "Climate",
+    "public-good": "Public Good",
+    "de-sci": "DeSci",
+    "open-source": "Open Source",
+    community: "Community",
+    education: "Education",
+  };
+  const tags = profileData.plCategories
+    ? JSON.parse(profileData.plCategories)
+    : profileData.category
+    ? [profileData.category.text ?? DEPRECATED_CATEGORY_MAPPINGS[profileData.category] ?? ""]
+    : [];
+  return tags;
+};
+
 const tags = getTagsFromSocialProfileData(profile);
 
 return (
   <Card key={projectId}>
-    <HeaderContainer href={projectUrl} className="pt-0 position-relative">
+    <HeaderContainer
+      href={navigate && navigate({ to: projectId, param: "projectId" })}
+      className="pt-0 position-relative"
+    >
       <BackgroundImageContainer>
         {profile.backgroundImage?.nft ? (
           <Widget
@@ -342,48 +345,8 @@ return (
         <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
-      {props.allowDonate && (
-        <DonationButton
-          onClick={(e) => {
-            e.preventDefault();
-            openDonateModal();
-          }}
-          disabled={!context.accountId}
-        >
-          {context.accountId ? "Donate" : "Sign in to donate"}
-        </DonationButton>
-      )}
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Button`}
-        props={{
-          type: "secondary",
-          text: "Donate",
-          onClick: () => {
-            props.openDonateToProjectModal(projectId);
-          },
-        }}
-      /> */}
-      {/* <DonationsInfoItem>
-        <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
-        <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
-      </DonationsInfoItem> */}
+      {props.allowDonate && <Widget src="potlock.near/widget/DonateButton" props={{}} />}
     </DonationsInfoContainer>
-    {/* {props.allowDonate && (
-      <Widget
-        src={`${ownerId}/widget/Cart.AddToCart`}
-        props={{
-          ...props,
-          projectId,
-          style: {
-            borderRadius: "0px 0px 6px 6px",
-            boxShadow: "0px",
-            border: "0px",
-          },
-          stopPropagation: true,
-          showModal: false,
-        }}
-      />
-    )} */}
     {props.requireVerification && (
       <Widget
         src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
@@ -395,55 +358,6 @@ return (
             border: "0px",
           },
           href: NADA_BOT_URL,
-        }}
-      />
-    )}
-    {state.donateModal.isOpen && (
-      <Widget
-        src={`${ownerId}/widget/Project.ModalDonation`}
-        loading={""}
-        props={{
-          ...props,
-          isModalOpen: state.donateModal.isOpen,
-          onClose: () =>
-            State.update({
-              donateModal: {
-                isOpen: false,
-                recipientId: null,
-                referrerId: null,
-                potId: null,
-                potDetail: null,
-              },
-            }),
-          openDonationModalSuccess: (donation) => {
-            State.update({
-              donateModal: {
-                isOpen: false,
-                recipientId: null,
-                referrerId: null,
-                potId: null,
-                potDetail: null,
-              },
-              successfulDonation: donation,
-            });
-          },
-          recipientId: state.donateModal.recipientId,
-          referrerId: props.referrerId,
-          potId,
-        }}
-      />
-    )}
-    {state.successfulDonation && (
-      <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
-        props={{
-          ...props,
-          successfulDonation: state.successfulDonation,
-          isModalOpen: state.successfulDonation != null,
-          onClose: () =>
-            State.update({
-              successfulDonation: null,
-            }),
         }}
       />
     )}
