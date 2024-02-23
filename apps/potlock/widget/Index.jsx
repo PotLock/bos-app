@@ -283,45 +283,6 @@ const props = {
       /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
     return githubRepoUrlPattern.test(url);
   },
-  PROJECT_STATUSES: ["Pending", "Approved", "Rejected", "Graylisted", "Blacklisted"],
-  SUPPORTED_FTS: {
-    // TODO: move this to state to handle selected FT once we support multiple FTs
-    NEAR: {
-      iconUrl:
-        "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
-      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount, decimals) =>
-        Big(amount)
-          .div(Big(10).pow(24))
-          .toFixed(decimals || 2),
-    },
-    USD: {
-      iconUrl: "$",
-      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount, decimals) =>
-        Big(amount)
-          .div(Big(10).pow(24))
-          .toFixed(decimals || 2),
-    },
-  },
-  DONATION_CONTRACT_ID: donationContractId,
-  POT_FACTORY_CONTRACT_ID: potFactoryContractId,
-  NADABOT_CONTRACT_ID: nadabotContractId,
-  NADABOT_HUMAN_METHOD: "is_human",
-  ToDo: styled.div`
-    position: relative;
-
-    &::before {
-      content: "TODO: ";
-      position: absolute;
-      left: 0;
-      top: 0;
-      transform: translate(-110%, 0);
-      background-color: yellow;
-    }
-  `,
-  ONE_TGAS: Big(1_000_000_000_000),
-  MAX_DONATION_MESSAGE_LENGTH: 100,
   hrefWithParams: (href) => {
     // pass env & referrerId to all links
     if (props.env) {
@@ -404,7 +365,7 @@ const props = {
 
     return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"}`;
   },
-  NADA_BOT_URL: "https://app.nada.bot",
+  // NADA_BOT_URL: "https://app.nada.bot",
   // openSybilModal: () => {
   //   State.update({ isSybilModalOpen: true });
   // },

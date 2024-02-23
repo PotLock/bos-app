@@ -1,5 +1,10 @@
 // get donations
-const { ownerId, potId, potDetail, formatDate } = props;
+const { potId, potDetail, formatDate } = props;
+const { ownerId, SUPPORTED_FTS, ToDo } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  SUPPORTED_FTS: {},
+  ToDo: "",
+};
 
 const TitleText = styled.div`
   color: #3d3d3d;
@@ -61,7 +66,7 @@ return (
         Projects will be paid out after cooldown period completes on {formatDate(cooldown_end_ms)}
       </div>
     ) : null}
-    <props.ToDo>Add total donations & total unique donor count for each row</props.ToDo>
+    <ToDo>Add total donations & total unique donor count for each row</ToDo>
     <RowOuter>
       {columns.map((column, index) => (
         <TitleText key={index}>{column}</TitleText>
@@ -69,8 +74,7 @@ return (
     </RowOuter>
     {payouts.map((payout, index) => {
       const { amount, id, paid_at, project_id } = payout;
-      const totalPayoutAmount =
-        props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(amount);
+      const totalPayoutAmount = SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(amount);
 
       return (
         <RowOuter key={index}>
@@ -96,6 +100,6 @@ return (
         </RowOuter>
       );
     })}
-    <props.ToDo>Add pagination</props.ToDo>
+    <ToDo>Add pagination</ToDo>
   </>
 );

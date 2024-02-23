@@ -1,5 +1,11 @@
-const { ownerId, yoctosToNear, DONATION_CONTRACT_ID } = props;
-
+const { yoctosToNear } = props;
+const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
+  "potlock.near/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;
 
@@ -133,7 +139,7 @@ const handleDonate = () => {
     } else {
       amountFloat = parseFloat((amount / props.cart[props.projectId]?.price).toFixed(2) || 0);
     }
-    const amountIndivisible = props.SUPPORTED_FTS[ft].toIndivisible(amountFloat);
+    const amountIndivisible = SUPPORTED_FTS[ft].toIndivisible(amountFloat);
     const donateContractArgs = {};
     const potContractArgs = {};
     if (potId) {
@@ -207,7 +213,7 @@ return (
         <BreakdownItemContainer>
           <BreakdownItemLeft>
             {props.cart[props.projectId]?.ft == "NEAR" ? (
-              <CurrencyIcon src={props.SUPPORTED_FTS[ft].iconUrl} />
+              <CurrencyIcon src={SUPPORTED_FTS[ft].iconUrl} />
             ) : (
               "$"
             )}

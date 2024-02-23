@@ -1,11 +1,11 @@
+const { projectId, userIsRegistryAdmin, getTagsFromSocialProfileData } = props;
 const {
   ownerId,
-  projectId,
-  userIsRegistryAdmin,
   SUPPORTED_FTS: { NEAR },
-  getTagsFromSocialProfileData,
-} = props;
-
+} = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
@@ -77,6 +77,9 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
 `;
+const { PROJECT_STATUSES } = VM.require("potlock.near/widget/constants") || {
+  PROJECT_STATUSES: [],
+};
 
 return (
   <Wrapper>
@@ -130,7 +133,7 @@ return (
             src={`${ownerId}/widget/Inputs.Select`}
             props={{
               noLabel: true,
-              options: props.PROJECT_STATUSES.map((status) => ({
+              options: PROJECT_STATUSES.map((status) => ({
                 value: status,
                 text: status,
               })),

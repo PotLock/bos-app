@@ -1,12 +1,8 @@
-const {
-  ownerId,
-  projectId,
-  userIsRegistryAdmin,
-  tab,
-  POT_FACTORY_CONTRACT_ID,
-  DONATION_CONTRACT_ID,
-} = props;
-
+const { projectId, userIsRegistryAdmin, tab, POT_FACTORY_CONTRACT_ID } = props;
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+};
 const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
