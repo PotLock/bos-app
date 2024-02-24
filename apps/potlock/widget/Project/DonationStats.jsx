@@ -1,6 +1,7 @@
 const { DONATION_CONTRACT_ID } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
 };
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const Stats = styled.div`
   display: flex;
   flex-direction: row;
@@ -43,7 +44,7 @@ const [totalDonations, setTotalDonations] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
+  const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
   setTotalDonated(lastDonationAmount);
   setTotalDonations(result.total_donations_count);
 });

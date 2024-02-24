@@ -1,12 +1,13 @@
-const {
-  projectId,
-  SUPPORTED_FTS: { NEAR },
-} = props;
+const { projectId } = props;
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
+const {
+  ownerId,
+  SUPPORTED_FTS: { NEAR },
+} = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
+  SUPPORTED_FTS: {},
 };
 const accountId = props.accountId ?? context.accountId;
 

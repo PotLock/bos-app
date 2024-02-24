@@ -1,8 +1,9 @@
 // get donations
-const { potId, potDetail, SUPPORTED_FTS } = props;
+const { potId, potDetail } = props;
 const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
+  SUPPORTED_FTS: {},
 };
 State.init({
   allDonations: null,

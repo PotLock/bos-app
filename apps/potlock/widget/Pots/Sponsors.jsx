@@ -1,11 +1,10 @@
 // get donations
-const {
-  ownerId,
-  potId,
-  potDetail,
-  SUPPORTED_FTS: { NEAR },
-} = props;
+const { potId, potDetail } = props;
 
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 State.init({
   donations: null,
 });
@@ -14,14 +13,16 @@ if (!state.allDonations) {
   Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     // sort by size)
     donations.sort(
-      (a, b) => NEAR.fromIndivisible(b.total_amount) - NEAR.fromIndivisible(a.total_amount)
+      (a, b) =>
+        SUPPORTED_FTS.NEAR.fromIndivisible(b.total_amount) -
+        SUPPORTED_FTS.NEAR.fromIndivisible(a.total_amount)
     );
     // add % share of total to each donation
-    const total = NEAR.fromIndivisible(potDetail.matching_pool_balance);
+    const total = SUPPORTED_FTS.NEAR.fromIndivisible(potDetail.matching_pool_balance);
     donations = donations.map((donation) => {
       return {
         ...donation,
-        percentage_share: (NEAR.fromIndivisible(donation.net_amount) / total) * 100,
+        percentage_share: (SUPPORTED_FTS.NEAR.fromIndivisible(donation.net_amount) / total) * 100,
       };
     });
     State.update({ donations });
@@ -160,7 +161,7 @@ return (
           state.donations.map((donation, index) => {
             const { donor_id, total_amount, donated_at, percentage_share } = donation;
             const totalDonationAmount =
-              props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
+              SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
             return (
               <Row key={index}>

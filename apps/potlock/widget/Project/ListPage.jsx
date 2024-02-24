@@ -1,8 +1,9 @@
-const { tab, yoctosToUsd } = props;
+const { userIsRegistryAdmin, tab } = props;
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
 };
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
@@ -277,7 +278,7 @@ const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
+  const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
   setTotalDonated(lastDonationAmount);
   setTotalDonation(result.total_donations_count);
 });

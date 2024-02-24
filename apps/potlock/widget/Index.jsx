@@ -271,49 +271,6 @@ const props = {
     }
     return href;
   },
-  getTagsFromSocialProfileData: (profileData) => {
-    // first try to get tags from plCategories, then category (deprecated/old format), then default to empty array
-    if (!profileData) return [];
-    const DEPRECATED_CATEGORY_MAPPINGS = {
-      "social-impact": "Social Impact",
-      "non-profit": "NonProfit",
-      climate: "Climate",
-      "public-good": "Public Good",
-      "de-sci": "DeSci",
-      "open-source": "Open Source",
-      community: "Community",
-      education: "Education",
-    };
-    const tags = profileData.plCategories
-      ? JSON.parse(profileData.plCategories)
-      : profileData.category
-      ? [profileData.category.text ?? DEPRECATED_CATEGORY_MAPPINGS[profileData.category] ?? ""]
-      : [];
-    return tags;
-  },
-  ipfsUrlFromCid: (cid) => {
-    return `https://ipfs.near.social/ipfs/${cid}`;
-  },
-  SUPPORTED_FTS: {
-    // TODO: move this to state to handle selected FT once we support multiple FTs
-    NEAR: {
-      iconUrl:
-        "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
-      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount, decimals) =>
-        Big(amount)
-          .div(Big(10).pow(24))
-          .toFixed(decimals || 2),
-    },
-    USD: {
-      iconUrl: "$",
-      toIndivisible: (amount) => new Big(amount).mul(new Big(10).pow(24)),
-      fromIndivisible: (amount, decimals) =>
-        Big(amount)
-          .div(Big(10).pow(24))
-          .toFixed(decimals || 2),
-    },
-  },
   nearToUsdWithFallback: (amountNear) => {
     return state.nearToUsd
       ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
@@ -334,7 +291,6 @@ const props = {
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
     });
   },
-  IPFS_BASE_URL,
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {

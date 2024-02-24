@@ -1,7 +1,11 @@
-const { ownerId, potId, yoctosToUsd } = props;
-const { daysUntil, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { potId } = props;
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
+const { daysUntil, yoctosToNear, yoctosToUsd } = VM.require("potlock.near/widget/utils") || {
   daysUntil: () => "",
   yoctosToNear: () => "",
+  yoctosToUsd: () => "",
 };
 const MAX_DESCRIPTION_LENGTH = 100;
 const MAX_TITLE_LENGTH = 36;

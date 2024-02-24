@@ -8,16 +8,15 @@ const {
   POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   POT,
-  SUPPORTED_FTS,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
-  NADABOT_HUMAN_METHOD: "",
-  ownerId: "",
-  NADA_BOT_URL: "",
-};
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
+  VM.require("potlock.near/widget/constants") || {
+    DONATION_CONTRACT_ID: "",
+    NADABOT_HUMAN_METHOD: "",
+    ownerId: "",
+    NADA_BOT_URL: "",
+    SUPPORTED_FTS: {},
+  };
 console.log("props in donation modal: ", props);
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));

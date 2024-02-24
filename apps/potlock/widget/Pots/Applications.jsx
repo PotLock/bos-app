@@ -1,13 +1,14 @@
 // get applications
-const {
-  potId,
-  potDetail,
-  SUPPORTED_FTS: { NEAR },
-} = props;
+const { potId, potDetail } = props;
 const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
-const { ONE_TGAS, ownerId } = VM.require("potlock.near/widget/constants") || {
+const {
+  ONE_TGAS,
+  ownerId,
+  SUPPORTED_FTS: { NEAR },
+} = VM.require("potlock.near/widget/constants") || {
   ONE_TGAS: 0,
   ownerId: "",
+  SUPPORTED_FTS: {},
 };
 const Row = styled.div`
   display: flex;
@@ -115,17 +116,6 @@ if (!state.allApplications) {
 }
 
 if (!state.allApplications) return "Loading...";
-
-// const daysAgo = (timestamp) => {
-//   const now = new Date();
-//   const pastDate = new Date(timestamp);
-//   const differenceInTime = now - pastDate;
-
-//   // Convert time difference from milliseconds to days
-//   const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-
-//   return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-// };
 
 const { owner, admins, chef } = potDetail;
 

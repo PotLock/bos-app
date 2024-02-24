@@ -1,10 +1,11 @@
 // get donations
-const { potId, potDetail, SUPPORTED_FTS } = props;
+const { potId, potDetail } = props;
 const { formatDate } = VM.require("potlock.near/widget/utils") || { formatDate: () => "" };
 
-const { ownerId, ToDo } = VM.require("potlock.near/widget/constants") || {
+const { ownerId, ToDo, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   ToDo: "",
+  SUPPORTED_FTS: {},
 };
 
 const TitleText = styled.div`
@@ -42,17 +43,6 @@ const RowText = styled.div`
   word-wrap: break-word;
   width: 100%;
 `;
-
-const daysAgo = (timestamp) => {
-  const now = new Date();
-  const pastDate = new Date(timestamp);
-  const differenceInTime = now - pastDate;
-
-  // Convert time difference from milliseconds to days
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-
-  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-};
 
 const { payouts, base_currency, all_paid_out, cooldown_end_ms } = potDetail;
 

@@ -1,17 +1,17 @@
-const {
-  potDetail,
-  potId,
-  POT_FACTORY_CONTRACT_ID,
-  NADABOT_CONTRACT_ID,
-  SUPPORTED_FTS: { NEAR },
-} = props;
+const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID } = props;
 const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
   validateNearAddress: () => "",
 };
-const { NADABOT_HUMAN_METHOD, ownerId, ONE_TGAS } = VM.require("potlock.near/widget/constants") || {
+const {
+  NADABOT_HUMAN_METHOD,
+  ownerId,
+  ONE_TGAS,
+  SUPPORTED_FTS: { NEAR },
+} = VM.require("potlock.near/widget/constants") || {
   NADABOT_HUMAN_METHOD: "",
   ownerId: "",
   ONE_TGAS: 0,
+  SUPPORTED_FTS: {},
 };
 // console.log("props in config form: ", props);
 

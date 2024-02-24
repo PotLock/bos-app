@@ -1,20 +1,29 @@
-const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess, SUPPORTED_FTS } =
-  props;
-const { formatDate, daysUntil, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess } = props;
+const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
+  "potlock.near/widget/utils"
+) || {
   formatDate: () => "",
   daysUntil: () => "",
   yoctosToNear: () => "",
+  yoctosToUsdWithFallback: () => "",
 };
 
-const { DONATION_CONTRACT_ID, NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH } =
-  VM.require("potlock.near/widget/constants") || {
-    DONATION_CONTRACT_ID: "",
-    ownerId: "",
-    ONE_TGAS: 0,
-    NADA_BOT_URL: "",
-    ToDo: "",
-    MAX_DONATION_MESSAGE_LENGTH: 0,
-  };
+const {
+  DONATION_CONTRACT_ID,
+  NADA_BOT_URL,
+  ownerId,
+  ToDo,
+  MAX_DONATION_MESSAGE_LENGTH,
+  SUPPORTED_FTS,
+} = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+  ONE_TGAS: 0,
+  NADA_BOT_URL: "",
+  ToDo: "",
+  MAX_DONATION_MESSAGE_LENGTH: 0,
+  SUPPORTED_FTS: {},
+};
 
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -494,7 +503,7 @@ return (
       <Description>{pot_description}</Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
-          <H3>{`${props.yoctosToUsdWithFallback(total_public_donations)}`}</H3>
+          <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>

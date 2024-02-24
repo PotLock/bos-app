@@ -1,6 +1,7 @@
-const { projectId, donations, nearToUsd, hrefWithParams, SUPPORTED_FTS } = props;
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
+const { projectId, donations, nearToUsd, hrefWithParams } = props;
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
+  SUPPORTED_FTS: {},
 };
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
