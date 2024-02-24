@@ -271,21 +271,6 @@ const props = {
     }
     return href;
   },
-  nearToUsdWithFallback: (amountNear) => {
-    return state.nearToUsd
-      ? "~$" + (amountNear * state.nearToUsd).toFixed(2)
-      : amountNear + " NEAR";
-  },
-  yoctosToUsdWithFallback: (amountYoctos) => {
-    return state.nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
-      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
-  },
-  yoctosToUsd: (amountYoctos) => {
-    return state.nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(state.nearToUsd).div(1e24).toNumber().toFixed(2)
-      : null;
-  },
   openDonateToProjectModal: (recipientId, referrerId, potId, potDetail) => {
     State.update({
       donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
