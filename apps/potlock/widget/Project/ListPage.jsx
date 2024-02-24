@@ -289,7 +289,7 @@ const donateRandomly = () => {
   });
 };
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
