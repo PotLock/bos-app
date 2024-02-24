@@ -1,4 +1,4 @@
-const { projectId, userIsRegistryAdmin, getTagsFromSocialProfileData } = props;
+const { projectId, getTagsFromSocialProfileData } = props;
 const {
   ownerId,
   SUPPORTED_FTS: { NEAR },
@@ -12,6 +12,7 @@ const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", 
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
 const registry = PotlockRegistrySDK({ env: props.env });
+const userIsRegistryAdmin = registry.isUserRegistryAdmin(context.accountId);
 
 const handleUpdateStatus = () => {
   registry.setProjectStatus(projectId, statusReview.newStatus, statusReview.notes);

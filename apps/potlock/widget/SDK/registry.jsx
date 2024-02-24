@@ -34,6 +34,9 @@ return ({ env }) => {
       const project = PotlockRegistrySDK.getProjectById(projectId);
       return project && project.status === "Approved";
     },
+    isUserRegistryAdmin: (accountId) => {
+      return PotlockRegistrySDK.isRegistryAdmin(accountId);
+    },
   };
   return PotlockRegistrySDK;
 };

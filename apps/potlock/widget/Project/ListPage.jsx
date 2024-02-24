@@ -1,4 +1,4 @@
-const { userIsRegistryAdmin, tab, yoctosToUsd } = props;
+const { tab, yoctosToUsd } = props;
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
