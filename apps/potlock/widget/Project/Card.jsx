@@ -16,6 +16,15 @@ const Card = styled.div`
   margin-right: auto;
   // height: 500px;
   pointer-events: auto;
+  @media screen and (max-width: 739px) {
+    max-width: 350px;
+  }
+  @media screen and (min-width: 1030px) and (max-width: 1050px) {
+    max-width: 315px;
+  }
+  @media screen and (min-width: 1050px) and (max-width: 1355px) {
+    max-width: 350px;
+  }
 `;
 
 const HeaderContainer = styled.a`
