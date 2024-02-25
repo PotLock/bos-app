@@ -57,7 +57,6 @@ State.init({
   cart: null,
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
-  donations: null,
   // previousCart: null,
   nearToUsd: null,
   isCartModalOpen: false,
