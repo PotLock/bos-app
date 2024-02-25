@@ -53,13 +53,10 @@ const Theme = styled.div`
   }
 `;
 
-const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
-
 State.init({
   cart: null,
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
-  donations: null,
   // previousCart: null,
   nearToUsd: null,
   isCartModalOpen: false,
@@ -106,12 +103,6 @@ if (!state.allPots) {
 }
 
 if (!state.allPots) return "";
-
-if (!state.donations) {
-  State.update({
-    donations: Near.view(donationContractId, "get_donations", {}), // TODO: ADD PAGINATION
-  });
-}
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",

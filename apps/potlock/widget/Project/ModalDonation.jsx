@@ -24,6 +24,11 @@ const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
+const PotlockDonateSDK = VM.require("potlock.near/widget/SDK.donate") || (() => ({}));
+const donate = PotlockDonateSDK({ env: props.env }) || {
+  getConfig: () => {},
+};
+
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
   () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
@@ -39,9 +44,7 @@ const protocolConfig =
     ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
     : null;
 
-const donationContractConfig = !potDetail
-  ? Near.view(DONATION_CONTRACT_ID, "get_config", {})
-  : null;
+const donationContractConfig = !potDetail ? donate.getConfig() || {} : null;
 
 const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] = useMemo(
   // if this is a pot donation, use pot config, else use donation contract config

@@ -291,33 +291,16 @@ const donateRandomly = () => {
 };
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = PotlockRegistrySDK({ env: props.env });
-
-if (!registry) {
-  return <></>;
-}
+const registry = PotlockRegistrySDK({ env: props.env }) || {
+  getProjects: () => [],
+  isRegistryAdmin: () => false,
+};
 
 const projects = registry.getProjects() || [];
 
 if (!registry.isRegistryAdmin(context.accountId)) {
   projects = projects.filter((project) => project.status === "Approved");
 }
-
-const [totalDonations, totalDonors] = useMemo(() => {
-  if (!props.donations) {
-    return ["", "", ""];
-  }
-  let totalDonations = new Big("0");
-  let donors = {};
-  props.donations.forEach((donation) => {
-    const totalAmount = new Big(donation.total_amount);
-    const referralAmount = new Big(donation.referrer_fee || "0");
-    const protocolAmount = new Big(donation.protocol_fee || "0");
-    totalDonations = totalDonations.plus(totalAmount.minus(referralAmount).minus(protocolAmount));
-    donors[donation.donor_id] = true;
-  });
-  return [totalDonations.div(1e24).toNumber().toFixed(2), Object.keys(donors).length];
-}, [props.donations]);
 
 const handleDonateRandomly = (e) => {
   e.preventDefault();
@@ -337,77 +320,6 @@ return (
   <>
     <HeroContainer>
       <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" />
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Header`}
-        props={{
-          ...props,
-          ownerId,
-          tab,
-          yoctosToUsd,
-          title1: "Transforming",
-          title2: "Funding for Public Goods",
-          description:
-            "Discover impact projects, donate directly, & participate in funding rounds.",
-          centered: true,
-          containerStyle: {
-            position: "absolute",
-            height: "100%",
-            top: 0,
-            left: 0,
-            marginBottom: "24px",
-            background:
-              "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
-          },
-          buttonPrimary: (
-            <Widget
-              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
-              props={{
-                ...props,
-              }}
-            />
-          ),
-          buttonSecondary: (
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "secondary",
-                text: "Register Your Project",
-                disabled: false,
-                href: props.hrefWithParams(`?tab=createproject`),
-                style: { padding: "16px 24px" },
-              }}
-            />
-          ),
-          // TODO: refactor this
-          children: totalDonations && (
-            <InfoCardsContainer>
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.nearToUsd
-                    ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
-                    : `${totalDonations} N`,
-                  infoTextSecondary: "Total Contributed",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: totalDonors,
-                  infoTextSecondary: "Unique Donors",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.donations ? props.donations.length : "-",
-                  infoTextSecondary: "Donations",
-                }}
-              />
-            </InfoCardsContainer>
-          ),
-        }}
-      /> */}
       <HeaderContainer style={containerStyleHeader}>
         <HeaderContent>
           <HeaderTitle>
@@ -496,16 +408,7 @@ return (
             Register Your Project
           </ButtonRegisterProject>
         </ButtonsContainer>
-        <Stats>
-          <StatsTitle>
-            {totalDonated || "-"}
-            <StatsSubTitle>Donated</StatsSubTitle>
-          </StatsTitle>
-          <StatsTitle>
-            {totalDonation || "-"}
-            <StatsSubTitle>Donations</StatsSubTitle>
-          </StatsTitle>
-        </Stats>
+        <Widget src="potlock.near/widget/Project.DonationStats" />
       </HeaderContainer>
     </HeroContainer>
     <ProjectsContainer>
