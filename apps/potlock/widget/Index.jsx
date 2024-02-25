@@ -89,33 +89,6 @@ State.init({
   },
 });
 
-const NEAR_USD_CACHE_KEY = "NEAR_USD";
-const nearUsdCache = Storage.get(NEAR_USD_CACHE_KEY);
-const EXCHANGE_RATE_VALIDITY_MS = 1000 * 60 * 60; // 1 hour
-
-if (!state.nearToUsd) {
-  if (
-    nearUsdCache === undefined ||
-    (nearUsdCache && nearUsdCache.ts < Date.now() - EXCHANGE_RATE_VALIDITY_MS)
-  ) {
-    // undefined means it's not in the cache
-    // this case handles the first time fetching the rate, and also if the rate is expired
-    console.log("fetching near to usd rate");
-    asyncFetch("https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd").then(
-      (res) => {
-        if (res.ok) {
-          State.update({ nearToUsd: res.body.near.usd });
-          Storage.set(NEAR_USD_CACHE_KEY, { rate: res.body.near.usd, ts: Date.now() });
-        }
-      }
-    );
-  } else if (nearUsdCache) {
-    // valid cache value
-    console.log("using cached near to usd rate");
-    State.update({ nearToUsd: nearUsdCache.rate });
-  }
-}
-
 console.log("state in Index: ", state);
 
 if (!state.allPots) {
@@ -139,16 +112,6 @@ if (!state.donations) {
     donations: Near.view(donationContractId, "get_donations", {}), // TODO: ADD PAGINATION
   });
 }
-
-const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
-
-const getImageUrlFromSocialImage = (image) => {
-  if (image.url) {
-    return image.url;
-  } else if (image.ipfs_cid) {
-    return IPFS_BASE_URL + image.ipfs_cid;
-  }
-};
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",

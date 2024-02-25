@@ -293,6 +293,10 @@ const donateRandomly = () => {
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
+if (!registry) {
+  return <></>;
+}
+
 const projects = registry.getProjects() || [];
 
 if (!registry.isRegistryAdmin(context.accountId)) {

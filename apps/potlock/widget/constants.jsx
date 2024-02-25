@@ -8,7 +8,6 @@ return {
   MAX_DONATION_MESSAGE_LENGTH: 100,
   NADA_BOT_URL: "https://app.nada.bot",
   SUPPORTED_FTS: {
-    // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
       iconUrl:
         "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",
