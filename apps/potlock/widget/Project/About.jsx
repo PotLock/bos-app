@@ -1,6 +1,10 @@
-const { ownerId, getTeamMembersFromSocialProfileData } = props;
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
 const { name, description, plPublicGoodReason } = props.profile;
-
+const { getTeamMembersFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+  getTeamMembersFromSocialProfileData: () => [],
+};
 const Container = styled.div`
   display: flex;
   flex-direction: column;

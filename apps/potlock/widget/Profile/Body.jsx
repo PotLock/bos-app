@@ -1,4 +1,7 @@
-const { projectId, getTagsFromSocialProfileData } = props;
+const { projectId } = props;
+const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+  getTagsFromSocialProfileData: () => [],
+};
 const {
   ownerId,
   SUPPORTED_FTS: { NEAR },

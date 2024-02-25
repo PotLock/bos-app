@@ -1,14 +1,19 @@
 const {
-  ownerId,
   validateNearAddress,
   validateEVMAddress,
   validateGithubRepoUrl,
-  doesUserHaveDaoFunctionCallProposalPermissions,
   getTeamMembersFromSocialProfileData,
-} = props;
+  doesUserHaveDaoFunctionCallProposalPermissions,
+} = VM.require("potlock.near/widget/utils") || {
+  getTeamMembersFromSocialProfileData: () => [],
+  doesUserHaveDaoFunctionCallProposalPermissions: () => "",
+  validateNearAddress: () => "",
+  validateEVMAddress: () => "",
+  validateGithubRepoUrl: () => "",
+};
 const HORIZON_CONTRACT_ID = "nearhorizon.near";
 const SOCIAL_CONTRACT_ID = "social.near";
-
+const ownerId = "potlock.near";
 Big.PE = 100;
 const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
@@ -580,7 +585,7 @@ const deepObjectDiff = (objOriginal, objUpdated) => {
 
 const handleCreateOrUpdateProject = (e) => {
   if (isCreateProjectDisabled) return;
-  const daoAddressValid = state.isDao ? props.validateNearAddress(state.daoAddress) : true;
+  const daoAddressValid = state.isDao ? validateNearAddress(state.daoAddress) : true;
   if (!daoAddressValid) {
     State.update({
       daoAddressError: "Invalid NEAR account ID",
@@ -803,7 +808,7 @@ const proposalInProgress = useMemo(() => {
 }, [state, proposals]);
 
 const handleAddTeamMember = () => {
-  let isValid = props.validateNearAddress(state.teamMember);
+  let isValid = validateNearAddress(state.teamMember);
   if (!isValid) {
     State.update({
       nearAccountIdError: "Invalid NEAR account ID",
@@ -1027,7 +1032,7 @@ return (
                   validate: () => {
                     // **CALLED ON BLUR**
                     if (state.isDao) {
-                      const isValid = props.validateNearAddress(state.daoAddressTemp);
+                      const isValid = validateNearAddress(state.daoAddressTemp);
                       if (!isValid) {
                         State.update({
                           daoAddressError: "Invalid NEAR account ID",

@@ -1,5 +1,7 @@
-const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID, validateNearAddress } =
-  props;
+const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID } = props;
+const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
+  validateNearAddress: () => "",
+};
 const {
   NADABOT_HUMAN_METHOD,
   ownerId,
@@ -413,7 +415,7 @@ const validateAndUpdatePercentages = (percent, stateKey, errorKey, maxVal) => {
 };
 
 const handleAddAdmin = () => {
-  let isValid = props.validateNearAddress(state.admin);
+  let isValid = validateNearAddress(state.admin);
   if (!isValid) {
     State.update({
       adminsError: "Invalid NEAR account ID",
