@@ -1,4 +1,7 @@
-const { ownerId, DONATION_CONTRACT_ID } = props;
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+};
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );

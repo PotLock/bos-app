@@ -1,17 +1,21 @@
+const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID } = props;
+const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
+  validateNearAddress: () => "",
+};
 const {
-  ownerId,
-  potDetail,
-  potId,
-  POT_FACTORY_CONTRACT_ID,
-  NADABOT_CONTRACT_ID,
   NADABOT_HUMAN_METHOD,
-  validateNearAddress,
+  ownerId,
+  ONE_TGAS,
   SUPPORTED_FTS: { NEAR },
-} = props;
-
+} = VM.require("potlock.near/widget/constants") || {
+  NADABOT_HUMAN_METHOD: "",
+  ownerId: "",
+  ONE_TGAS: 0,
+  SUPPORTED_FTS: {},
+};
 // console.log("props in config form: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
@@ -327,7 +331,7 @@ const handleDeploy = () => {
         methodName: "deploy_pot",
         deposit: amountYoctos,
         args,
-        gas: props.ONE_TGAS.mul(300),
+        gas: ONE_TGAS.mul(300),
       },
     ];
     const now = Date.now();
@@ -365,7 +369,7 @@ const handleUpdate = () => {
       deposit: Big(0.1).mul(Big(10).pow(24)),
       deposit,
       args: { update_args: updateArgs },
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -411,7 +415,7 @@ const validateAndUpdatePercentages = (percent, stateKey, errorKey, maxVal) => {
 };
 
 const handleAddAdmin = () => {
-  let isValid = props.validateNearAddress(state.admin);
+  let isValid = validateNearAddress(state.admin);
   if (!isValid) {
     State.update({
       adminsError: "Invalid NEAR account ID",

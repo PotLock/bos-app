@@ -1,11 +1,15 @@
 // get applications
+const { potId, potDetail } = props;
+const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
 const {
+  ONE_TGAS,
   ownerId,
-  potId,
-  potDetail,
   SUPPORTED_FTS: { NEAR },
-} = props;
-
+} = VM.require("potlock.near/widget/constants") || {
+  ONE_TGAS: 0,
+  ownerId: "",
+  SUPPORTED_FTS: {},
+};
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -113,17 +117,6 @@ if (!state.allApplications) {
 
 if (!state.allApplications) return "Loading...";
 
-const daysAgo = (timestamp) => {
-  const now = new Date();
-  const pastDate = new Date(timestamp);
-  const differenceInTime = now - pastDate;
-
-  // Convert time difference from milliseconds to days
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-
-  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-};
-
 const { owner, admins, chef } = potDetail;
 
 const isChefOrGreater =
@@ -153,7 +146,7 @@ const handleSubmit = () => {
       methodName: "chef_set_application_status",
       deposit: NEAR.toIndivisible(0.01),
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -242,7 +235,7 @@ return (
                 <ProjectLink href={props.hrefWithParams(`?tab=project&projectId=${project_id}`)}>
                   {project_id}
                 </ProjectLink>
-                <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
+                <div style={{ fontSize: "12px" }}>{daysAgo(submitted_at)}</div>
               </Row>
               <div>{message}</div>
               <div style={{ fontSize: "12px", marginTop: "8px" }}>

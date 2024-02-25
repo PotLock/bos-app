@@ -1,4 +1,7 @@
-const { id, review_notes, status, totalAmount, getTagsFromSocialProfileData } = props;
+const { id, review_notes, status, totalAmount } = props;
+const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+  getTagsFromSocialProfileData: () => [],
+};
 const donationContractId = "donate.potlock.near";
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const cardData = Social.getr(`${id}/profile`);

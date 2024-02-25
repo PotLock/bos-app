@@ -1,10 +1,16 @@
+const { potId } = props;
+const { doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
+  "potlock.near/widget/utils"
+) || { doesUserHaveDaoFunctionCallProposalPermissions: () => "" };
 const {
-  potId,
   ownerId,
-  doesUserHaveDaoFunctionCallProposalPermissions,
+  ONE_TGAS,
   SUPPORTED_FTS: { NEAR },
-} = props;
-
+} = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  ONE_TGAS: 0,
+  SUPPORTED_FTS: {},
+};
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
 Big.PE = 100;
@@ -23,7 +29,7 @@ const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
   // @media screen and (max-width: 768px) {
   //   .mb-2 {
   //     width: 64px;
@@ -220,7 +226,7 @@ const handleSendApplication = () => {
       methodName: "apply",
       deposit,
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
 

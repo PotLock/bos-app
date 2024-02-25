@@ -1,9 +1,12 @@
 const {
-  ownerId,
   POT_FACTORY_CONTRACT_ID,
-  DONATION_CONTRACT_ID,
   SUPPORTED_FTS: { NEAR },
 } = props;
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+};
+
 const accountId = props.accountId ?? context.accountId;
 
 const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`);

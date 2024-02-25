@@ -1,12 +1,11 @@
-const {
-  basisPointsToPercent,
-  referrerId,
-  amountNear,
-  bypassProtocolFee,
-  DONATION_CONTRACT_ID,
-  recipientId,
-} = props;
-
+const { referrerId, amountNear, bypassProtocolFee, recipientId } = props;
+const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+  basisPointsToPercent: () => 0,
+};
+const { DONATION_CONTRACT_ID, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  SUPPORTED_FTS: {},
+};
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CHEVRON_DOWN_URL =
   IPFS_BASE_URL + "bafkreiabkwyfxq6pcc2db7u4ldweld5xcjesylfuhocnfz7y3n6jw7dptm";
@@ -122,7 +121,7 @@ const protocolFeeAmount = (parseFloat(amountNear) * protocolFeeBasisPoints) / TO
 const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
 const referrerFeeAmount = (parseFloat(amountNear) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
-const nearIconUrl = props.SUPPORTED_FTS.NEAR.iconUrl;
+const nearIconUrl = SUPPORTED_FTS.NEAR.iconUrl;
 
 return (
   <BreakdownSummary
@@ -146,7 +145,7 @@ return (
               <BreakdownAmount>
                 {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
               </BreakdownAmount>
-              <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+              <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
             </BreakdownItemRight>
           </BreakdownItem>
         )}
@@ -159,7 +158,7 @@ return (
               <BreakdownAmount>
                 {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
               </BreakdownAmount>
-              <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+              <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
             </BreakdownItemRight>
           </BreakdownItem>
         )}
@@ -167,7 +166,7 @@ return (
           <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
           <BreakdownItemRight>
             <BreakdownAmount>{"<0.01"}</BreakdownAmount>
-            <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+            <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
           </BreakdownItemRight>
         </BreakdownItem>
         <BreakdownItem>
@@ -176,7 +175,7 @@ return (
           </BreakdownItemLeft>
           <BreakdownItemRight>
             <BreakdownAmount>~{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
-            <FtIcon src={props.SUPPORTED_FTS.NEAR.iconUrl} />
+            <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
           </BreakdownItemRight>
         </BreakdownItem>
       </BreakdownDetails>

@@ -1,15 +1,30 @@
+const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess } = props;
+const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
+  "potlock.near/widget/utils"
+) || {
+  formatDate: () => "",
+  daysUntil: () => "",
+  yoctosToNear: () => "",
+  yoctosToUsdWithFallback: () => "",
+};
+
 const {
-  ownerId,
-  potId,
-  potDetail,
-  MAX_DONATION_MESSAGE_LENGTH,
-  formatDate,
-  referrerId,
-  sybilRequirementMet,
-  applicationSuccess,
-  NADA_BOT_URL,
   DONATION_CONTRACT_ID,
-} = props;
+  NADA_BOT_URL,
+  ownerId,
+  ToDo,
+  MAX_DONATION_MESSAGE_LENGTH,
+  SUPPORTED_FTS,
+} = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+  ONE_TGAS: 0,
+  NADA_BOT_URL: "",
+  ToDo: "",
+  MAX_DONATION_MESSAGE_LENGTH: 0,
+  SUPPORTED_FTS: {},
+};
+
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );
@@ -328,7 +343,7 @@ const handleApplyToPot = () => {
 };
 
 const totalMatchingPoolAmount =
-  props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(matching_pool_balance);
+  SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(matching_pool_balance);
 
 const handleMatchingPoolDonation = () => {
   const { matchingPoolDonationAmountNear } = state;
@@ -347,15 +362,14 @@ const handleMatchingPoolDonation = () => {
     State.update({ matchingPoolDonationAmountNearError: "Invalid amount" });
     return;
   }
-  const amountIndivisible =
-    props.SUPPORTED_FTS[base_currency.toUpperCase()].toIndivisible(amountFloat);
+  const amountIndivisible = SUPPORTED_FTS[base_currency.toUpperCase()].toIndivisible(amountFloat);
   const transactions = [
     {
       contractName: potId,
       methodName: "donate",
       deposit: amountIndivisible,
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -372,7 +386,7 @@ const handleProcessPayouts = () => {
       methodName: "admin_process_payouts",
       deposit: "0",
       args,
-      gas: props.ONE_TGAS.mul(100),
+      gas: ONE_TGAS.mul(100),
     },
   ];
   Near.call(transactions);
@@ -396,13 +410,13 @@ const referrerFeeAmountNear = referrerId
 
 const getApplicationTagText = () => {
   if (applicationNotStarted) return "Application Round Not Started";
-  if (applicationOpen) return props.daysUntil(application_end_ms) + " left to apply";
+  if (applicationOpen) return daysUntil(application_end_ms) + " left to apply";
   else return "Application Round Ended";
 };
 
 const getMatchingRoundTagText = () => {
   if (publicRoundNotStarted) return "Matching Round Not Started";
-  if (publicRoundOpen) return props.daysUntil(public_round_end_ms) + " left in round";
+  if (publicRoundOpen) return daysUntil(public_round_end_ms) + " left in round";
   else return "Matching Round Ended";
 };
 
@@ -489,7 +503,7 @@ return (
       <Description>{pot_description}</Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
-          <H3>{`${props.yoctosToUsdWithFallback(total_public_donations)}`}</H3>
+          <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column style={{ width: "100%" }}>
@@ -503,7 +517,7 @@ return (
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
         <Row style={{ gap: "8px" }}>
-          <H2>{`${props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
+          <H2>{`${SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
             matching_pool_balance
           )} ${base_currency.toUpperCase()} `}</H2>
           <Description>Matching funds available</Description>
@@ -532,7 +546,7 @@ return (
                 <StatusText style={{ color: "#0B7A74" }}>All applications are open</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {props.daysUntil(application_end_ms) + " to go"}
+                {daysUntil(application_end_ms) + " to go"}
               </StatusText>
             </Row>
             <H4>
@@ -563,7 +577,7 @@ return (
                 <StatusText style={{ color: "#4A7714" }}>Matching round live</StatusText>
               </Row>
               <StatusText style={{ color: "#292929" }}>
-                {"Ends in " + props.daysUntil(public_round_end_ms)}
+                {"Ends in " + daysUntil(public_round_end_ms)}
               </StatusText>
             </Row>
             <H4>
@@ -680,7 +694,7 @@ return (
               Enter matching pool contribution amount in NEAR
               {["0", "1"].includes(min_matching_pool_donation_amount)
                 ? "(no minimum)"
-                : `(Min. ${props.yoctosToNear(min_matching_pool_donation_amount)})`}
+                : `(Min. ${yoctosToNear(min_matching_pool_donation_amount)})`}
             </ModalTitle>
             <Widget
               src={`${ownerId}/widget/Inputs.Text`}

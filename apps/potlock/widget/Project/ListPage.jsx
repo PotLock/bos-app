@@ -1,5 +1,9 @@
-const { ownerId, userIsRegistryAdmin, tab, yoctosToUsd, DONATION_CONTRACT_ID } = props;
-
+const { userIsRegistryAdmin, tab } = props;
+const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+  DONATION_CONTRACT_ID: "",
+  ownerId: "",
+};
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
@@ -376,7 +380,7 @@ const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = props.yoctosToUsd(result.net_donations_amount);
+  const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
   setTotalDonated(lastDonationAmount);
   setTotalDonation(result.total_donations_count);
 });
@@ -540,77 +544,6 @@ return (
   <>
     <HeroContainer>
       <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" />
-      {/* <Widget
-        src={`${ownerId}/widget/Components.Header`}
-        props={{
-          ...props,
-          ownerId,
-          tab,
-          yoctosToUsd,
-          title1: "Transforming",
-          title2: "Funding for Public Goods",
-          description:
-            "Discover impact projects, donate directly, & participate in funding rounds.",
-          centered: true,
-          containerStyle: {
-            position: "absolute",
-            height: "100%",
-            top: 0,
-            left: 0,
-            marginBottom: "24px",
-            background:
-              "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
-          },
-          buttonPrimary: (
-            <Widget
-              src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
-              props={{
-                ...props,
-              }}
-            />
-          ),
-          buttonSecondary: (
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "secondary",
-                text: "Register Your Project",
-                disabled: false,
-                href: props.hrefWithParams(`?tab=createproject`),
-                style: { padding: "16px 24px" },
-              }}
-            />
-          ),
-          // TODO: refactor this
-          children: totalDonations && (
-            <InfoCardsContainer>
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.nearToUsd
-                    ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
-                    : `${totalDonations} N`,
-                  infoTextSecondary: "Total Contributed",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: totalDonors,
-                  infoTextSecondary: "Unique Donors",
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.InfoCard`}
-                props={{
-                  infoTextPrimary: props.donations ? props.donations.length : "-",
-                  infoTextSecondary: "Donations",
-                }}
-              />
-            </InfoCardsContainer>
-          ),
-        }}
-      /> */}
       <HeaderContainer style={containerStyleHeader}>
         <HeaderContent>
           <HeaderTitle>
@@ -699,16 +632,7 @@ return (
             Register Your Project
           </ButtonRegisterProject>
         </ButtonsContainer>
-        <Stats>
-          <StatsTitle>
-            {totalDonated || "-"}
-            <StatsSubTitle>Donated</StatsSubTitle>
-          </StatsTitle>
-          <StatsTitle>
-            {totalDonation || "-"}
-            <StatsSubTitle>Donations</StatsSubTitle>
-          </StatsTitle>
-        </Stats>
+        <Widget src="potlock.near/widget/Project.DonationStats" />
       </HeaderContainer>
     </HeroContainer>
     {props.tab != "pots" && props.tab != "pot" && (

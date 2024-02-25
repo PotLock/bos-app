@@ -17,7 +17,7 @@ const NavOptionsContainer = styled.div`
 
   @media screen and (max-width: 768px) {
     display: flex;
-    max-width: 95vw;
+    max-width: 85vw;
     flex-shrink: 0; // Prevent the container from shrinking
   }
 `;
