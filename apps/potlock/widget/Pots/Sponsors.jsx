@@ -4,6 +4,9 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const { NEAR } = SUPPORTED_FTS;
+
 State.init({
   donations: null,
 });
