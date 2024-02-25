@@ -74,6 +74,11 @@ const FilterMenu = styled.div`
   box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
     0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
   z-index: 2;
+  @media screen and (max-width: 768px) {
+    left: 0;
+    background: #fff;
+    width: 250px;
+  }
 `;
 
 const FilterItem = styled.div`

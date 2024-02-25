@@ -539,7 +539,7 @@ const searchByWords = (projects, searchTerm) => {
 
   setFilteredProjects(projectFilterBySearch);
 };
-// console.log("project", projects);
+
 return (
   <>
     <HeroContainer>
