@@ -150,6 +150,13 @@ return (
       }}
     />
     <Container>
+      <Widget
+        src={`${ownerId}/widget/Pots.SponsorsBoard`}
+        props={{
+          donations: state.donations.slice(0, 6),
+          base_currency: base_currency,
+        }}
+      />
       <TableContainer>
         <Header>
           {columns.map((column, index) => (
