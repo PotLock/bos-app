@@ -5,6 +5,9 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const { NEAR } = SUPPORTED_FTS;
+
 State.init({
   donations: null,
 });
@@ -147,6 +150,13 @@ return (
       }}
     />
     <Container>
+      <Widget
+        src={`${ownerId}/widget/Pots.SponsorsBoard`}
+        props={{
+          donations: state.donations.slice(0, 6),
+          base_currency: base_currency,
+        }}
+      />
       <TableContainer>
         <Header>
           {columns.map((column, index) => (
