@@ -9,20 +9,25 @@ const {
   NADABOT_CONTRACT_ID,
   POT,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
-  NADABOT_HUMAN_METHOD: "",
-  ownerId: "",
-  SUPPORTED_FTS: {},
-};
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
+  VM.require("potlock.near/widget/constants") || {
+    DONATION_CONTRACT_ID: "",
+    NADABOT_HUMAN_METHOD: "",
+    ownerId: "",
+    NADA_BOT_URL: "",
+    SUPPORTED_FTS: {},
+  };
 console.log("props in donation modal: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
+
+const PotlockDonateSDK = VM.require("potlock.near/widget/SDK.donate") || (() => ({}));
+const donate = PotlockDonateSDK({ env: props.env }) || {
+  getConfig: () => {},
+};
 
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
@@ -39,9 +44,7 @@ const protocolConfig =
     ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
     : null;
 
-const donationContractConfig = !potDetail
-  ? Near.view(DONATION_CONTRACT_ID, "get_config", {})
-  : null;
+const donationContractConfig = !potDetail ? donate.getConfig() || {} : null;
 
 const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] = useMemo(
   // if this is a pot donation, use pot config, else use donation contract config
@@ -710,7 +713,7 @@ return (
                   <SubtitleText>
                     Verify that you are a human on nadabot to multiply the impact of your donation!
                   </SubtitleText>
-                  <VerifyLink href={props.NADA_BOT_URL} target="_blank">
+                  <VerifyLink href={NADA_BOT_URL} target="_blank">
                     Verify Now{" "}
                     <LinkSvg
                       viewBox="0 0 20 20"
