@@ -1,5 +1,10 @@
-const donationContractId = "donate.potlock.near";
-const { ownerId } = props;
+const { ownerId, DONATION_CONTRACT_ID } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  DONATION_CONTRACT_ID: "",
+};
+const { nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+  nearToUsdWithFallback: () => "",
+};
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
 const Container = styled.div`
@@ -17,7 +22,7 @@ const Container = styled.div`
   }
 `;
 
-const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
+const donationsForProject = Near.view(DONATION_CONTRACT_ID, "get_donations_for_recipient", {
   recipient_id: props.projectId,
 });
 
@@ -61,7 +66,7 @@ return (
     <Widget
       src={`${ownerId}/widget/Components.InfoCard`}
       props={{
-        infoTextPrimary: props.nearToUsdWithFallback(totalReferralFees),
+        infoTextPrimary: nearToUsdWithFallback(totalReferralFees),
         infoTextSecondary: "Referral Fees",
       }}
     />

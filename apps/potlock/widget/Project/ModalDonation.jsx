@@ -9,17 +9,17 @@ const {
   NADABOT_CONTRACT_ID,
   POT,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
-  NADABOT_HUMAN_METHOD: "",
-  ownerId: "",
-  SUPPORTED_FTS: {},
-};
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
+  VM.require("potlock.near/widget/constants") || {
+    DONATION_CONTRACT_ID: "",
+    NADABOT_HUMAN_METHOD: "",
+    ownerId: "",
+    NADA_BOT_URL: "",
+    SUPPORTED_FTS: {},
+  };
 console.log("props in donation modal: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
@@ -710,7 +710,7 @@ return (
                   <SubtitleText>
                     Verify that you are a human on nadabot to multiply the impact of your donation!
                   </SubtitleText>
-                  <VerifyLink href={props.NADA_BOT_URL} target="_blank">
+                  <VerifyLink href={NADA_BOT_URL} target="_blank">
                     Verify Now{" "}
                     <LinkSvg
                       viewBox="0 0 20 20"

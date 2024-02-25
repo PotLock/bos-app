@@ -1,4 +1,4 @@
-const { yoctosToNear } = props;
+const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
 const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
   "potlock.near/widget/constants"
 ) || {

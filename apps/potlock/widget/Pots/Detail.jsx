@@ -1,11 +1,15 @@
+const { potId } = props;
+const { doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
+  "potlock.near/widget/utils"
+) || { doesUserHaveDaoFunctionCallProposalPermissions: () => "" };
 const {
-  potId,
-  doesUserHaveDaoFunctionCallProposalPermissions,
+  ownerId,
+  ONE_TGAS,
   SUPPORTED_FTS: { NEAR },
-} = props;
-const { ownerId, ONE_TGAS } = VM.require("potlock.near/widget/constants") || {
+} = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   ONE_TGAS: 0,
+  SUPPORTED_FTS: {},
 };
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
