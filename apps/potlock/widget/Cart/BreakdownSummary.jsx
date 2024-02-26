@@ -1,4 +1,7 @@
-const { basisPointsToPercent, referrerId, amountNear, bypassProtocolFee, recipientId } = props;
+const { referrerId, amountNear, bypassProtocolFee, recipientId } = props;
+const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+  basisPointsToPercent: () => 0,
+};
 const { DONATION_CONTRACT_ID, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   SUPPORTED_FTS: {},

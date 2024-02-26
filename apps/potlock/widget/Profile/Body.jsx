@@ -1,4 +1,7 @@
-const { projectId, getTagsFromSocialProfileData } = props;
+const { projectId } = props;
+const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+  getTagsFromSocialProfileData: () => [],
+};
 const {
   ownerId,
   SUPPORTED_FTS: { NEAR },
@@ -10,7 +13,7 @@ const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 const userIsRegistryAdmin = registry.isUserRegistryAdmin(context.accountId);
 

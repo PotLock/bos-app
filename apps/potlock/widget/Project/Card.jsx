@@ -1,5 +1,12 @@
-const { ownerId, potId, potDetail, NADA_BOT_URL, getTagsFromSocialProfileData, ipfsUrlFromCid } =
-  props;
+const { potId, potDetail } = props;
+const { ipfsUrlFromCid } = VM.require("potlock.near/widget/utils") || { ipfsUrlFromCid: () => "" };
+const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  NADA_BOT_URL: "",
+};
+const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+  getTagsFromSocialProfileData: () => [],
+};
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 

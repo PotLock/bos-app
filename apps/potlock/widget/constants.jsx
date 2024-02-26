@@ -3,11 +3,11 @@ return {
   PROJECT_STATUSES: ["Pending", "Approved", "Rejected", "Graylisted", "Blacklisted"],
   DONATION_CONTRACT_ID: "donate.potlock.near",
   NADABOT_HUMAN_METHOD: "is_human",
+  IPFS_BASE_URL: "https://ipfs.near.social/ipfs/",
   ONE_TGAS: Big(1_000_000_000_000),
   MAX_DONATION_MESSAGE_LENGTH: 100,
   NADA_BOT_URL: "https://app.nada.bot",
   SUPPORTED_FTS: {
-    // TODO: move this to state to handle selected FT once we support multiple FTs
     NEAR: {
       iconUrl:
         "https://nftstorage.link/ipfs/bafkreidnqlap4cp5o334lzbhgbabwr6yzkj6albia62l6ipjsasokjm6mi",

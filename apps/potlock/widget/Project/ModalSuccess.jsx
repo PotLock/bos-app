@@ -1,10 +1,14 @@
+const { onClose } = props;
 const {
   ownerId,
-  onClose,
-  IPFS_BASE_URL,
   SUPPORTED_FTS: { NEAR },
-} = props;
-
+  IPFS_BASE_URL,
+} = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+  SUPPORTED_FTS: {},
+  IPFS_BASE_URL: "",
+};
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 const HEADER_ICON_URL =
@@ -243,7 +247,7 @@ return (
               </Row>
               <AmountUsd>
                 {(state.successfulDonation?.total_amount
-                  ? props.yoctosToUsd(state.successfulDonation.total_amount)
+                  ? yoctosToUsd(state.successfulDonation.total_amount)
                   : "$-") + " USD"}
               </AmountUsd>
             </Column>

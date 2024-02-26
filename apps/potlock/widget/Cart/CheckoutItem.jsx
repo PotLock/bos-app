@@ -1,4 +1,6 @@
-const { basisPointsToPercent } = props;
+const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+  basisPointsToPercent: () => 0,
+};
 const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
   "potlock.near/widget/constants"
 ) || {

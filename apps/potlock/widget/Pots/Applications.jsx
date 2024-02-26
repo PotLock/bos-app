@@ -1,5 +1,6 @@
 // get applications
 const { potId, potDetail } = props;
+const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
 const {
   ONE_TGAS,
   ownerId,
@@ -115,17 +116,6 @@ if (!state.allApplications) {
 }
 
 if (!state.allApplications) return "Loading...";
-
-const daysAgo = (timestamp) => {
-  const now = new Date();
-  const pastDate = new Date(timestamp);
-  const differenceInTime = now - pastDate;
-
-  // Convert time difference from milliseconds to days
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-
-  return `${differenceInDays} ${differenceInDays === 1 ? "day" : "days"} ago`;
-};
 
 const { owner, admins, chef } = potDetail;
 
@@ -245,7 +235,7 @@ return (
                 <ProjectLink href={props.hrefWithParams(`?tab=project&projectId=${project_id}`)}>
                   {project_id}
                 </ProjectLink>
-                <div style={{ fontSize: "12px" }}>{props.daysAgo(submitted_at)}</div>
+                <div style={{ fontSize: "12px" }}>{daysAgo(submitted_at)}</div>
               </Row>
               <div>{message}</div>
               <div style={{ fontSize: "12px", marginTop: "8px" }}>
