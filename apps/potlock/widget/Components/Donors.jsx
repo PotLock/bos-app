@@ -7,7 +7,6 @@ const { calcNetDonationAmount, filterByDate } = VM.require(
 );
 
 const Container = styled.div`
-  --primary-color: #dd3345;
   display: flex;
   flex-direction: column;
 
@@ -39,6 +38,7 @@ const Container = styled.div`
           display: flex;
         }
         .top {
+          order: -1;
           scale: 1;
           width: 100%;
         }
@@ -49,21 +49,27 @@ const Container = styled.div`
 
 const Tabs = styled.div`
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
   align-items: center;
   gap: 2rem;
   font-size: 14px;
-  color: rgb(123, 123, 123);
   margin-bottom: 2rem;
-  div {
-    transition: all 300ms;
-    cursor: pointer;
-    font-weight: 500;
-    :hover {
-      color: black;
+  .menu-item {
+    font-weight: 600;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .selected {
+    gap: 10px;
+    .label {
+      text-transform: uppercase;
+      color: #7b7b7b;
     }
-    &.active {
-      color: black;
+    .count {
+      color: #dd3345;
     }
   }
   .select {
@@ -81,11 +87,31 @@ const LoadingWrapper = styled.div`
   margin-top: 1rem;
 `;
 
+const Filter = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  .option {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    color: #292929;
+    box-shadow: 0px -1px 0px 0px #dbdbdb inset, 0px 0px 0px 0.5px #dbdbdb;
+    transition: all 300ms ease-in-out;
+    cursor: pointer;
+    .active,
+    :hover {
+      background: #292929;
+      color: white;
+    }
+  }
+`;
+
 const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
 
 const [totalDonations, setDonations] = useState([]);
 const [index, setIndex] = useState(0);
 const [currentTab, setTab] = useState("Leaderboard");
+const [title, setTitle] = useState("");
 const [filter, setFilter] = useState("");
 const [allDonationsFetched, setAllDonationsFetched] = useState(false);
 const [donationsByPage, setDonationsByPage] = useState({});
@@ -135,7 +161,7 @@ if (!allDonationsFetched && !donationsByPage[index]) {
 const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
   if (!allDonationsFetched) return [[], {}, []];
   let donations = Object.values(donationsByPage).flat();
-  donations = donations.filter((donation) => filterByDate(filter.value, donation));
+  donations = donations.filter((donation) => filterByDate(filter, donation));
   const totalsByDonor = donations.reduce((accumulator, currentDonation) => {
     accumulator[currentDonation.donor_id] = {
       amount:
@@ -158,7 +184,7 @@ const leaderboard = [
   {
     rank: (
       <img
-        src="https://ipfs.near.social/ipfs/bafkreigpq56kv3p4kjtneiclx6sne3qrxtg5jho34yq2j6nnxli3p7aboe"
+        src="https://ipfs.near.social/ipfs/bafkreicjk6oy6465ps32owoomppfkvimbjlnhbaldvf6ujuyhkjas6ghjq"
         alt="top"
       />
     ),
@@ -173,7 +199,46 @@ const leaderboard = [
   },
 ];
 
-const tabs = ["Leaderboard", "Transactions"];
+const filterOptions = [
+  { text: "All Time", value: "all" },
+  { text: "1Y", value: "year" },
+  { text: "1M", value: "month" },
+  { text: "1W", value: "week" },
+  { text: "24H", value: "day" },
+];
+
+const MenuItem = ({ count, children, className }) => (
+  <div className={`menu-item ${className || ""}`}>
+    <div className="label">{children}</div>
+    <div className="count">{count}</div>
+  </div>
+);
+
+const tabs = [
+  {
+    label: "Donor Leaderboard",
+    val: "Leaderboard",
+    count: sortedDonations.length,
+  },
+  {
+    label: "Sponsors Leaderboard",
+    val: "Sponsors",
+    count: sortedDonations.length,
+  },
+  {
+    label: "Donor Feed",
+    val: "Feed",
+    count: allDonations.length,
+  },
+];
+const sortList = tabs.map((tab) => ({
+  label: (
+    <MenuItem key={tab.val} count={tab.count}>
+      {tab.label}
+    </MenuItem>
+  ),
+  val: tab,
+}));
 
 return (
   <Container>
@@ -199,29 +264,39 @@ return (
           </div>
         </div>
         <Tabs>
-          {tabs.map((tab) => (
-            <div key={tab} className={currentTab === tab && "active"} onClick={() => setTab(tab)}>
-              {tab}
-            </div>
-          ))}
           <Widget
-            src={`${ownerId}/widget/Inputs.Select`}
+            src={`${ownerId}/widget/Inputs.Dropdown`}
             props={{
-              noLabel: true,
-              placeholder: "Filter",
-              containerStyles: { width: "fit-content", marginLeft: "auto", color: "black" },
-              options: [
-                { text: "Today", value: "day" },
-                { text: "Last Week", value: "week" },
-                { text: "Last Month", value: "month" },
-                { text: "All Time", value: "all" },
-              ],
-              value: filter,
-              onChange: (filter) => {
-                setFilter(filter);
+              sortVal: title,
+              title: (
+                <MenuItem className="selected" count={tabs[0].count}>
+                  {tabs[0].val}{" "}
+                </MenuItem>
+              ),
+              sortList: sortList,
+              FilterMenuCustomStyle: `left:0; right:auto;`,
+              handleSortChange: ({ val: option }) => {
+                console.log(option);
+                setTitle(
+                  <MenuItem className="selected" count={option.count}>
+                    {option.val}
+                  </MenuItem>
+                );
+                setTab(option.val);
               },
             }}
           />
+          <Filter>
+            {filterOptions.map((option) => (
+              <div
+                className={`option ${filter === option.value ? "active" : ""}`}
+                key={option.value}
+                onClick={() => setFilter(option.value)}
+              >
+                {option.text}
+              </div>
+            ))}
+          </Filter>
         </Tabs>
 
         {currentTab === "Transactions" &&

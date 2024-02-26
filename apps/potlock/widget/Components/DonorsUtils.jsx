@@ -11,6 +11,7 @@ const currentTimestamp = new Date().getTime();
 const yesterday = currentTimestamp - oneDayTime;
 const lastWeek = currentTimestamp - oneDayTime * 7;
 const lastMonth = currentTimestamp - oneDayTime * 30;
+const lastYear = currentTimestamp - oneDayTime * 365;
 
 const getTimePassed = (timestamp) => {
   // Calculate the difference in milliseconds
@@ -68,6 +69,9 @@ const filterByDate = (filter, donation) => {
       return false;
     case "month":
       if (donation.donated_at_ms > lastMonth) return true;
+      return false;
+    case "year":
+      if (donation.donated_at_ms > lastYear) return true;
       return false;
     case "all":
       return true;

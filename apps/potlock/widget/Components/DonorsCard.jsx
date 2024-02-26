@@ -43,6 +43,9 @@ const Container = styled.div`
   }
   > .profile {
     transform: translateY(-50%);
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
   }
   .amount {
     margin-top: 1rem;
@@ -68,24 +71,26 @@ return (
               className: "background",
               alt: profile.name,
               fallbackUrl:
-                "https://ipfs.near.social/ipfs/bafkreibiyqabm3kl24gcb2oegb7pmwdi6wwrpui62iwb44l7uomnn3lhbi",
+                "https://ipfs.near.social/ipfs/bafkreidla73cknxbeovrhgb2blax2j2qgcgcn6ibluzza3buq2mbkoqs2e",
             }}
           />
           <div className="tag">{rank}</div>
           <Widget
-            src="mob.near/widget/ProfileImage"
+            src="mob.near/widget/Image"
             props={{
-              profile,
-              style: { width: "4rem", height: "4rem" },
+              image: profile.image,
               className: "profile",
+              alt: profile.name,
+              fallbackUrl:
+                "https://ipfs.near.social/ipfs/bafkreiccpup6f2kihv7bhlkfi4omttbjpawnsns667gti7jbhqvdnj4vsm",
             }}
-          />{" "}
+          />
           <a
             href={props.hrefWithParams(`?tab=profile&accountId=${id}`)}
             className="name"
             target="_blank"
           >
-            {profile.name ? _address(profile.name) : id}
+            {_address(profile.name ? profile.name : id)}
           </a>
           <div className="description">
             {profile.description ? _address(profile.description, 20) : "-"}
