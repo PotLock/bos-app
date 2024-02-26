@@ -10,20 +10,6 @@ return ({ env }) => {
       const config = PotlockRegistrySDK.getConfig();
       return config.admins && config.admins.includes(accountId);
     },
-    setProjectStatus: (projectId, status, reviewNotes) => {
-      return Near.call([
-        {
-          contractName: contractId,
-          methodName: "admin_set_project_status",
-          args: {
-            project_id: projectId,
-            status,
-            review_notes: reviewNotes,
-          },
-          deposit: NEAR.toIndivisible(0.01).toString(),
-        },
-      ]);
-    },
     getProjects: () => {
       return Near.view(contractId, "get_projects", {});
     },
