@@ -53,10 +53,10 @@ const Container = styled.div`
         }
       }
       .address {
-        width: 80px;
+        width: 80px !important;
         justify-content: center;
         .profile-image {
-          display: none;
+          display: none !important;
         }
       }
     }

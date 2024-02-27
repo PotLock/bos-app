@@ -60,15 +60,18 @@ const Container = styled.div`
       font-size: 12px;
       .header {
         padding: 10px 0;
+        div {
+          width: 80px;
+        }
       }
-    }
-    .header div {
-      width: 800px;
     }
   }
   @media only screen and (max-width: 480px) {
     .transcation {
       font-size: 9px;
+      .address {
+        width: 120px !important;
+      }
     }
   }
 `;
@@ -155,9 +158,7 @@ return donations.length ? (
         <div className="rank">Rank</div>
         <div className="address">Donor</div>
         <div>Amount</div>
-        {/* {nearToUsd && */}
-        <div>Amount (USD)</div>
-        {/* } */}
+        {nearToUsd && <div>Amount (USD)</div>}
       </div>
       {donations.slice(page * perPage, (page + 1) * perPage).map((donation, idx) => {
         const { donor_id, amount } = donation;
@@ -180,9 +181,7 @@ return donations.length ? (
               <img src={nearLogo} alt="NEAR" />
               {amount.toFixed(2)}
             </div>
-            {/* {nearToUsd &&  */}
-            <div>~${(amount * nearToUsd).toFixed(2)}</div>
-            {/* } */}
+            {nearToUsd && <div>~${(amount * nearToUsd).toFixed(2)}</div>}
           </TrRow>
         );
       })}

@@ -51,7 +51,7 @@ const Tabs = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  align-items: end;
+  align-items: center;
   gap: 2rem;
   font-size: 14px;
   margin-bottom: 24px;
