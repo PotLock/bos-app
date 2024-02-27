@@ -20,7 +20,7 @@ const userIsRegistryAdmin = registry.isUserRegistryAdmin(context.accountId);
 const handleUpdateStatus = () => {
   Near.call([
     {
-      contractName: contractId,
+      contractName: PotlockRegistrySDK.getContractId(),
       methodName: "admin_set_project_status",
       args: {
         project_id: projectId,
