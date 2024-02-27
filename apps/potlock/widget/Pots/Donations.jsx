@@ -16,7 +16,7 @@ if (!state.allDonations) {
   });
 }
 
-if (!state.allDonations) return "Loading...";
+if (!state.allDonations) return <div class="spinner-border text-secondary" role="status" />;
 
 // console.log("donations: ", donations);
 
