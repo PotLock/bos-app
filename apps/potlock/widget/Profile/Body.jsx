@@ -18,7 +18,18 @@ const registry = PotlockRegistrySDK({ env: props.env });
 const userIsRegistryAdmin = registry.isUserRegistryAdmin(context.accountId);
 
 const handleUpdateStatus = () => {
-  registry.setProjectStatus(projectId, statusReview.newStatus, statusReview.notes);
+  Near.call([
+    {
+      contractName: registry.getContractId(),
+      methodName: "admin_set_project_status",
+      args: {
+        project_id: projectId,
+        status: statusReview.newStatus,
+        review_notes: statusReview.notes,
+      },
+      deposit: NEAR.toIndivisible(0.01).toString(),
+    },
+  ]);
 };
 
 const Wrapper = styled.div`
