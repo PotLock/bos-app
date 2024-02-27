@@ -60,18 +60,20 @@ const calcNetDonationAmount = (donation) => {
 };
 
 const filterByDate = (filter, donation) => {
+  const donateAt = donation.donated_at_ms || donation.donated_at;
+
   switch (filter) {
     case "day":
-      if (donation.donated_at_ms > yesterday) return true;
+      if (donateAt > yesterday) return true;
       return false;
     case "week":
-      if (donation.donated_at_ms > lastWeek) return true;
+      if (donateAt > lastWeek) return true;
       return false;
     case "month":
-      if (donation.donated_at_ms > lastMonth) return true;
+      if (donateAt > lastMonth) return true;
       return false;
     case "year":
-      if (donation.donated_at_ms > lastYear) return true;
+      if (donateAt > lastYear) return true;
       return false;
     case "all":
       return true;

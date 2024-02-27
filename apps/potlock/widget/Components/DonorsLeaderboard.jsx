@@ -1,4 +1,5 @@
-const { donations, filter } = props;
+const { sponsors, sortedDonations, filter, currentTab } = props;
+const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
@@ -133,6 +134,11 @@ const TrRow = styled.div`
   }
 `;
 
+const NoResult = styled.div`
+  font-size: 2rem;
+  text-align: center;
+`;
+
 const totalDonations = 0;
 donations.forEach((donation) => {
   totalDonations += donation.amount;
@@ -142,7 +148,7 @@ const ProfileImg = ({ donor_id }) => (
   <Widget src="mob.near/widget/ProfileImage" props={{ accountId: donor_id, style: {} }} />
 );
 
-return (
+return donations.length ? (
   <Container>
     <div className="transcation">
       <div className="header">
@@ -166,6 +172,7 @@ return (
               target="_blank"
             >
               <ProfileImg donor_id={donor_id} />
+
               {_address(donor_id, 15)}
             </a>
 
@@ -189,8 +196,10 @@ return (
         data: donations,
         page: page,
         perPage: perPage,
-        bgColor: "var(--primary-color)",
+        bgColor: "#292929",
       }}
     />
   </Container>
+) : (
+  <NoResult>No Donations</NoResult>
 );

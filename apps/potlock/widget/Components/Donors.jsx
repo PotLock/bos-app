@@ -51,10 +51,10 @@ const Tabs = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: end;
   gap: 2rem;
   font-size: 14px;
-  margin-bottom: 2rem;
+  margin-bottom: 24px;
   .menu-item {
     font-weight: 600;
     display: flex;
@@ -77,11 +77,6 @@ const Tabs = styled.div`
   }
 `;
 
-const NoResult = styled.div`
-  font-size: 2rem;
-  text-align: center;
-`;
-
 const LoadingWrapper = styled.div`
   font-size: 1.5rem;
   margin-top: 1rem;
@@ -92,33 +87,85 @@ const Filter = styled.div`
   flex-wrap: wrap;
   gap: 8px;
   .option {
-    padding: 0.8rem 1rem;
+    padding: 0.8em 1em;
     border-radius: 8px;
     color: #292929;
     box-shadow: 0px -1px 0px 0px #dbdbdb inset, 0px 0px 0px 0.5px #dbdbdb;
     transition: all 300ms ease-in-out;
     cursor: pointer;
-    .active,
+    &.active,
     :hover {
       background: #292929;
       color: white;
     }
   }
+  @media only screen and (max-width: 480px) {
+    font-size: 10px;
+  }
 `;
 
 const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
 
-const [totalDonations, setDonations] = useState([]);
 const [index, setIndex] = useState(0);
-const [currentTab, setTab] = useState("Leaderboard");
+const [currentTab, setTab] = useState("leaderboard");
 const [title, setTitle] = useState("");
 const [filter, setFilter] = useState("");
+const [pots, setPots] = useState(null);
 const [allDonationsFetched, setAllDonationsFetched] = useState(false);
 const [donationsByPage, setDonationsByPage] = useState({});
+const [sponsorsByPage, setSponsorsByPage] = useState({});
 const [fetchDonationsError, setFetchDonationsError] = useState("");
 
 const limit = 900;
 const cachedDonationsValidityPeriod = 1000 * 60 * 5; // 5 minutes
+
+const getSponsorshipDonations = (potId, potDetail) => {
+  return Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
+    if (sponsorsByPage[potId]) return "";
+    setSponsorsByPage((prevSponsorsByPage) => {
+      Storage.set("sponsorsByPage", {
+        val: { ...prevSponsorsByPage, [potId]: donations },
+        ts: Date.now(),
+      });
+      return { ...prevSponsorsByPage, [potId]: donations };
+    });
+  });
+};
+
+// Get Sponsorship Donations
+if (!pots) {
+  Near.asyncView("v1.potfactory.potlock.near", "get_pots", {}).then((pots) => {
+    setPots(pots || []);
+  });
+}
+if (pots.length && !sponsorsByPage[pots[pots.length - 1].id]) {
+  const cachedSponsors = Storage.get("sponsorsByPage");
+  if (cachedSponsors && cachedSponsors.ts > Date.now() - cachedDonationsValidityPeriod) {
+    console.log("using cached sponsors");
+    setSponsorsByPage(cachedSponsors.val);
+  } else if (cachedSponsors !== null) {
+    pots.forEach((pot) => {
+      getSponsorshipDonations(pot.id, potDetail);
+    });
+  }
+}
+
+const sponsors = useMemo(() => {
+  if (!sponsorsByPage[pots[pots.length - 1].id]) return [];
+  let sponsors = Object.values(sponsorsByPage).flat();
+  sponsors = sponsors.filter((donation) => filterByDate(filter, donation));
+  sponsors = sponsors.reduce((accumulator, currentDonation) => {
+    accumulator[currentDonation.donor_id] = {
+      amount:
+        (accumulator[currentDonation.donor_id].amount || 0) +
+        calcNetDonationAmount(currentDonation),
+      ...currentDonation,
+    };
+    return accumulator;
+  }, {});
+  sponsors = Object.values(sponsors).sort((a, b) => b.amount - a.amount);
+  return sponsors;
+}, [sponsorsByPage, filter]);
 
 if (!allDonationsFetched && !donationsByPage[index]) {
   // first, try to get from cache
@@ -217,20 +264,27 @@ const MenuItem = ({ count, children, className }) => (
 const tabs = [
   {
     label: "Donor Leaderboard",
-    val: "Leaderboard",
+    val: "leaderboard",
     count: sortedDonations.length,
   },
   {
     label: "Sponsors Leaderboard",
-    val: "Sponsors",
-    count: sortedDonations.length,
+    val: "sponsors",
+    count: sponsors.length,
   },
   {
     label: "Donor Feed",
-    val: "Feed",
+    val: "feed",
     count: allDonations.length,
   },
 ];
+
+const options = [
+  { tab: "feed", src: "Components.DonorsTrx" },
+  { tab: "leaderboard", src: "Components.DonorsLeaderboard" },
+  { tab: "sponsors", src: "Components.DonorsLeaderboard" },
+];
+
 const sortList = tabs.map((tab) => ({
   label: (
     <MenuItem key={tab.val} count={tab.count}>
@@ -253,15 +307,10 @@ return (
       <>
         <div className="leaderboard">
           <h1>Donors Leaderboard</h1>
-          <div className="cards">
-            {leaderboard.map((donor) => (
-              <Widget
-                key={donor.id}
-                src={`${ownerId}/widget/Components.DonorsCard`}
-                props={{ ...props, donor }}
-              />
-            ))}
-          </div>
+          <Widget
+            src={`${ownerId}/widget/Components.DonorsCards`}
+            props={{ ...props, sponsors, sortedDonations, currentTab }}
+          />
         </div>
         <Tabs>
           <Widget
@@ -276,7 +325,6 @@ return (
               sortList: sortList,
               FilterMenuCustomStyle: `left:0; right:auto;`,
               handleSortChange: ({ val: option }) => {
-                console.log(option);
                 setTitle(
                   <MenuItem className="selected" count={option.count}>
                     {option.val}
@@ -298,25 +346,17 @@ return (
             ))}
           </Filter>
         </Tabs>
-
-        {currentTab === "Transactions" &&
-          (allDonations.length ? (
-            <Widget
-              src={`${ownerId}/widget/Components.DonorsTrx`}
-              props={{ ...props, donations: allDonations, filter }}
-            />
-          ) : (
-            <NoResult>No Donations</NoResult>
-          ))}
-        {currentTab === "Leaderboard" &&
-          (sortedDonations.length ? (
-            <Widget
-              src={`${ownerId}/widget/Components.DonorsLeaderboard`}
-              props={{ ...props, donations: sortedDonations, filter }}
-            />
-          ) : (
-            <NoResult>No Donations</NoResult>
-          ))}
+        <Widget
+          src={`${ownerId}/widget/${options.find((option) => option.tab == currentTab).src}`}
+          props={{
+            ...props,
+            allDonations: allDonations,
+            filter,
+            sponsors,
+            sortedDonations,
+            currentTab,
+          }}
+        />
       </>
     )}
   </Container>
