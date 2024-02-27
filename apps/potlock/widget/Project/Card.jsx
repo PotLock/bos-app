@@ -1,8 +1,12 @@
-const { potId, potDetail } = props;
-const { ipfsUrlFromCid } = VM.require("potlock.near/widget/utils") || { ipfsUrlFromCid: () => "" };
-const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") || {
+const { potId, potDetail, payoutDetails } = props;
+const { ipfsUrlFromCid, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+  ipfsUrlFromCid: () => "",
+  yoctosToNear: () => "",
+};
+const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
 };
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
@@ -177,6 +181,33 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
+const MatchingSection = styled.div`
+  display: flex;
+  padding: 8px 24px;
+  align-items: center;
+  justify-content: space-between;
+  background: #ebebeb;
+  border-radius: 0px 0px 12px 12px;
+`;
+
+const MatchingTitle = styled.div`
+  color: #292929;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  word-wrap: break-word;
+`;
+
+const MatchingAmount = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
 State.init({
   donateModal: {
     isOpen: false,
@@ -349,6 +380,10 @@ return (
         <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
+      <DonationsInfoItem>
+        <Amount>{payoutDetails.donorCount}</Amount>
+        <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
+      </DonationsInfoItem>
       {props.allowDonate && (
         <DonationButton
           onClick={(e) => {
@@ -357,7 +392,11 @@ return (
           }}
           disabled={!context.accountId}
         >
-          {context.accountId ? "Donate" : "Sign in to donate"}
+          {!context.accountId
+            ? "Sign in to donate"
+            : props.requireVerification
+            ? "Verify to donate"
+            : "Donate"}
         </DonationButton>
       )}
       {/* <Widget
@@ -375,6 +414,12 @@ return (
         <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
       </DonationsInfoItem> */}
     </DonationsInfoContainer>
+    {payoutDetails && (
+      <MatchingSection>
+        <MatchingTitle>Estimated matched amount</MatchingTitle>
+        <MatchingAmount>{yoctosToNear(payoutDetails.matchingAmount, true) || "- N"}</MatchingAmount>
+      </MatchingSection>
+    )}
     {/* {props.allowDonate && (
       <Widget
         src={`${ownerId}/widget/Cart.AddToCart`}
@@ -391,7 +436,7 @@ return (
         }}
       />
     )} */}
-    {props.requireVerification && (
+    {/* {props.requireVerification && (
       <Widget
         src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
         props={{
@@ -404,7 +449,7 @@ return (
           href: NADA_BOT_URL,
         }}
       />
-    )}
+    )} */}
     {state.donateModal.isOpen && (
       <Widget
         src={`${ownerId}/widget/Project.ModalDonation`}
