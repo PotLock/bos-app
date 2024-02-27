@@ -733,15 +733,11 @@ return (
           </ModalBody>
           <ModalFooter>
             {recipientId && (
+              // This should be it's own button
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={`${ownerId}/widget/Cart.AddToCart`}
                 props={{
-                  type: "tertiary",
-                  text: "Add to cart",
-                  onClick: handleAddToCart,
-                  style: {
-                    padding: "12px 16px",
-                  },
+                  ownerId: ownerId, // temp
                 }}
               />
             )}

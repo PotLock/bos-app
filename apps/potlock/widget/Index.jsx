@@ -145,67 +145,6 @@ const props = {
   POT_FACTORY_CONTRACT_ID: potFactoryContractId,
   NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
-  setCurrency: (cur) => {
-    const currency = state.currency ?? cur;
-    State.update({ currency: currency });
-    Storage.set("currency", currency);
-  },
-  setNote: (n) => {
-    const note = state.note ?? n;
-    State.update({ note: note });
-    Storage.set("note", note);
-  },
-  setAmount: (value) => {
-    const amount = state.amount ?? value;
-    State.update({ amount: amount });
-    Storage.set("amount", amount);
-  },
-  setProjectId: (id) => {
-    const donnorProjectId = state.donnorProjectId ?? id;
-    State.update({ donnorProjectId: donnorProjectId });
-    Storage.set("projectId", donnorProjectId);
-  },
-  setReferrerId: (ref) => {
-    const referrerId = state.referrerId ?? ref;
-    State.update({ referrerId: referrerId });
-    Storage.set("referrerId", referrerId);
-  },
-  addProjectsToCart: (projects) => {
-    const cart = state.cart ?? {};
-    projects.forEach((item) => {
-      if (!item.ft) item.ft = "NEAR"; // default to NEAR
-      cart[item.id] = item; // default to NEAR
-    });
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  removeProjectsFromCart: (projectIds) => {
-    const cart = state.cart ?? {};
-    projectIds.forEach((projectId) => {
-      delete cart[projectId];
-    });
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  updateCartItem: ({ projectId, amount, ft, price, referrerId, potId, potDetail, note }) => {
-    const cart = state.cart ?? {};
-    const updated = {};
-    // if (amount === "") updated.amount = "0";
-    if (amount || amount === "") updated.amount = amount;
-    if (ft) updated.ft = ft;
-    if (price) updated.price = price;
-    if (referrerId) updated.referrerId = referrerId;
-    if (potId) updated.potId = potId;
-    if (potDetail) updated.potDetail = potDetail;
-    if (note) updated.note = note;
-    cart[projectId] = updated;
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  clearCart: () => {
-    State.update({ cart: {} });
-    Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
-  },
   setCheckoutSuccess: (checkoutSuccess) => {
     State.update({ checkoutSuccess });
   },
@@ -269,17 +208,6 @@ if (
   State.update({ note: StorageNote });
   State.update({ referrerId: StorageReferrerId });
 }
-
-// if (state.previousCart === null && storagePreviousCart !== null) {
-//   // previousCart hasn't been set on state yet, and storagePreviousCart has been fetched
-//   // if storagePreviousCart isn't undefined, set it on state
-//   if (storagePreviousCart && Object.keys(JSON.parse(storagePreviousCart)).length > 0) {
-//     console.log("updating previous cart");
-//     State.update({ previousCart: JSON.parse(storagePreviousCart) });
-//   }
-// }
-
-// console.log("state in Index: ", state);
 
 if (state.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
   // if checkout was successful after wallet redirect, clear cart
