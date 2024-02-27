@@ -1,4 +1,10 @@
-const { ownerId, donations, nearToUsd, filter } = props;
+const { sponsors, sortedDonations, filter, currentTab } = props;
+const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
+
+const { ownerId } = VM.require("potlock.near/widget/constants");
+const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: () => null,
+};
 
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
@@ -8,7 +14,7 @@ useEffect(() => {
 }, [filter]);
 
 const nearLogo =
-  "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
+  "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
 const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -20,22 +26,51 @@ const Container = styled.div`
   align-items: center;
   gap: 2rem;
   .transcation {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    overflow-x: scroll;
+    font-size: 14px;
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem 0;
+      padding: 10px;
       gap: 1rem;
-      background: var(--primary-color);
-      color: white;
+      background: #f6f5f3;
+      color: #292929;
       div {
-        width: 150px;
+        width: 130px;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-weight: 600;
+      }
+    }
+    .address {
+      width: 190px !important;
+      margin-right: auto;
+      justify-content: start !important;
+    }
+    .rank {
+      width: 80px !important;
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    .transcation {
+      font-size: 12px;
+      .header {
+        padding: 10px 0;
+        div {
+          width: 80px;
+        }
+      }
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    .transcation {
+      font-size: 9px;
+      .address {
+        width: 120px !important;
       }
     }
   }
@@ -47,47 +82,64 @@ const TrRow = styled.div`
   justify-content: space-between;
   width: 100%;
   gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid #0000003e;
-  &:last-of-type {
-    border-bottom-color: transparent;
-  }
+  padding: 20px 10px;
   > div,
   > span {
-    width: 150px;
+    width: 130px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: 600;
   }
 
   .price {
     display: flex;
-    gap: 4px;
+    gap: 1rem;
     align-items: center;
-    font-weight: 600;
     img {
-      width: 14px;
+      width: 1.5rem;
     }
   }
   .address {
-    width: 200px;
-    color: var(--primary-color);
+    color: #292929;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 10px;
     border-radius: 2px;
     transition: all 200ms;
-    > div {
+    .profile-image {
+      width: 2rem;
+      height: 2rem;
       margin-right: 1rem;
-      margin-left: 0;
-    }
-    :hover {
-      background: var(--primary-color);
-      color: white;
     }
   }
+  @media only screen and (max-width: 768px) {
+    padding: 10px 0;
+    > div,
+    > span {
+      width: 80px;
+    }
+    .price {
+      gap: 8px;
+      img {
+        width: 1.25rem;
+      }
+    }
+    .address .profile-image {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    .price img {
+      width: 1rem;
+    }
+  }
+`;
+
+const NoResult = styled.div`
+  font-size: 2rem;
+  text-align: center;
 `;
 
 const totalDonations = 0;
@@ -95,42 +147,41 @@ donations.forEach((donation) => {
   totalDonations += donation.amount;
 });
 
-return (
+const ProfileImg = ({ donor_id }) => (
+  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: donor_id, style: {} }} />
+);
+
+return donations.length ? (
   <Container>
     <div className="transcation">
       <div className="header">
-        <div>Rank</div>
-        <div style={{ width: "200px" }}>Address</div>
+        <div className="rank">Rank</div>
+        <div className="address">Donor</div>
         <div>Amount</div>
-        <div>Amount (USD)</div>
-        <div>Percentage Share</div>
+        {nearToUsd && <div>Amount (USD)</div>}
       </div>
       {donations.slice(page * perPage, (page + 1) * perPage).map((donation, idx) => {
         const { donor_id, amount } = donation;
 
         return (
           <TrRow>
-            <div>#{idx + 1 + page * perPage}</div>
+            <div className="rank">#{idx + 1 + page * perPage}</div>
 
             <a
               href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
               className="address"
               target="_blank"
             >
-              <Widget
-                src="mob.near/widget/ProfileImage"
-                props={{ accountId: donor_id, style: { width: "2rem", height: "2rem" } }}
-              />
-              {_address(donor_id)}{" "}
+              <ProfileImg donor_id={donor_id} />
+
+              {_address(donor_id, 15)}
             </a>
 
             <div className="price">
-              {amount.toFixed(2)}
-
               <img src={nearLogo} alt="NEAR" />
+              {amount.toFixed(2)}
             </div>
-            <div>${(amount * nearToUsd).toFixed(2)}</div>
-            <div>{((amount * 100) / totalDonations).toFixed(2)}%</div>
+            {nearToUsd && <div>~${(amount * nearToUsd).toFixed(2)}</div>}
           </TrRow>
         );
       })}
@@ -144,8 +195,10 @@ return (
         data: donations,
         page: page,
         perPage: perPage,
-        bgColor: "var(--primary-color)",
+        bgColor: "#292929",
       }}
     />
   </Container>
+) : (
+  <NoResult>No Donations</NoResult>
 );

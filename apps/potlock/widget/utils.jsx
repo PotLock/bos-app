@@ -150,6 +150,7 @@ return {
       /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+\/?$/;
     return githubRepoUrlPattern.test(url);
   },
+  nearToUsd,
   yoctosToUsd: (amount) => {
     return nearToUsd ? "~$" + new Big(amount).mul(nearToUsd).div(1e24).toNumber().toFixed(2) : null;
   },
