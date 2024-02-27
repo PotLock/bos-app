@@ -119,7 +119,7 @@ const [fetchDonationsError, setFetchDonationsError] = useState("");
 const limit = 900;
 const cachedDonationsValidityPeriod = 1000 * 60 * 5; // 5 minutes
 
-const getSponsorshipDonations = (potId, potDetail) => {
+const getSponsorshipDonations = (potId) => {
   return Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
     if (sponsorsByPage[potId]) return "";
     setSponsorsByPage((prevSponsorsByPage) => {
