@@ -67,7 +67,7 @@ return (
     <Widget
       src={`${ownerId}/widget/Components.InfoCard`}
       props={{
-        infoTextPrimary: nearToUsdWithFallback(totalReferralFees),
+        infoTextPrimary: totalReferralFees ? nearToUsdWithFallback(totalReferralFees) : "-",
         infoTextSecondary: "Referral Fees",
       }}
     />
