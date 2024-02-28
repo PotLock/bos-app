@@ -54,18 +54,18 @@ const [allProjects, setAllProjects] = useState(items);
 const [filteredProjects, setFilteredProjects] = useState([]);
 const [searchTerm, setSearchTerm] = useState("");
 
-// const [elements, setElements] = useState(
-//   props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
-// );
-// console.log("elements: ", elements);
-// console.log("num of elements: ", elements.length);
+const [elements, setElements] = useState(
+  props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
+);
+console.log("elements: ", elements);
+console.log("num of elements: ", elements.length);
 
-// const loadMore = () => {
-//   const newElements = props.items
-//     .slice(elements.length, elements.length + PAGE_SIZE)
-//     .map(props.renderItem);
-//   setElements([...elements, ...newElements]);
-// };
+const loadMore = () => {
+  const newElements = props.items
+    .slice(elements.length, elements.length + PAGE_SIZE)
+    .map(props.renderItem);
+  setElements([...elements, ...newElements]);
+};
 // const [page, setPage] = useState(1);
 // const [lastNumberOfProject, setLastNumberOfProject] = useState(PAGE_SIZE);
 // const donationContractId = "donate.potlock.near";
@@ -646,15 +646,15 @@ return (
           </TagsWrapper>
         )} */}
       </Header>
-      <ProjectList>{items.map(props.renderItem)}</ProjectList>
-      {/* <InfiniteScroll
+      {/* <ProjectList>{items.map(props.renderItem)}</ProjectList> */}
+      <InfiniteScroll
         // loadMore={tab == "pots" || tab == "pot" ? loadPotProjects : loadProjects}
         loadMore={loadMore}
         hasMore={props.items.length > elements.length}
         // useWindow={false}
       >
         <ProjectList>{elements}</ProjectList>
-      </InfiniteScroll> */}
+      </InfiniteScroll>
     </Container>
   </>
 );
