@@ -86,7 +86,7 @@ State.init({
   },
 });
 
-console.log("state in Index: ", state);
+// console.log("state in Index: ", state);
 
 if (!state.allPots) {
   Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {

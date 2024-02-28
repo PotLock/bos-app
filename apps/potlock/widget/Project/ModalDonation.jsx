@@ -29,6 +29,8 @@ const donate = PotlockDonateSDK({ env: props.env }) || {
   getConfig: () => {},
 };
 
+console.log("donate in DonationModal: ", donate);
+
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
   () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
