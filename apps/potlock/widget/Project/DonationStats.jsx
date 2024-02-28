@@ -57,11 +57,11 @@ const totalDonations = data.total_donations_count;
 return (
   <Stats>
     <StatsTitle>
-      {lastDonationAmount || "~"}
+      {lastDonationAmount || "-"}
       <StatsSubTitle>Donated</StatsSubTitle>
     </StatsTitle>
     <StatsTitle>
-      {totalDonations || "~"}
+      {totalDonations || "-"}
       <StatsSubTitle>Donations</StatsSubTitle>
     </StatsTitle>
   </Stats>
