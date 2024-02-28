@@ -2,7 +2,8 @@ const { ownerId, DONATION_CONTRACT_ID } = VM.require("potlock.near/widget/consta
   ownerId: "",
   DONATION_CONTRACT_ID: "",
 };
-const { nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: 1,
   nearToUsdWithFallback: () => "",
 };
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
@@ -57,8 +58,8 @@ return (
     <Widget
       src={`${ownerId}/widget/Components.InfoCard`}
       props={{
-        infoTextPrimary: props.nearToUsd
-          ? `$${(totalDonations * props.nearToUsd).toFixed(2)}`
+        infoTextPrimary: nearToUsd
+          ? `$${(totalDonations * nearToUsd).toFixed(2)}`
           : `${totalDonations} N`,
         infoTextSecondary: "Contributed",
       }}

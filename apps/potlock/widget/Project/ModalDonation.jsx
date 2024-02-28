@@ -35,6 +35,10 @@ const PotlockDonateSDK =
   }));
 const donate = PotlockDonateSDK({ env: props.env });
 
+const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: 1,
+};
+
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
   () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
@@ -404,7 +408,7 @@ const handleAddToCart = () => {
 };
 
 const amountNear =
-  state.denomination === "NEAR" ? state.amount : (state.amount / props.nearToUsd).toFixed(2);
+  state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
 const handleDonate = () => {
   const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
@@ -588,7 +592,7 @@ return (
                 }}
               />
               <Row style={{ justifyContent: "space-between", width: "100%", padding: "0px" }}>
-                <HintText>1 NEAR = ~${props.nearToUsd * 1} USD</HintText>
+                <HintText>1 NEAR = ~${nearToUsd} USD</HintText>
                 <div style={{ display: "flex" }}>
                   <HintText style={{ marginRight: "6px" }}>Account balance: </HintText>
                   <Icon

@@ -1,7 +1,8 @@
 const { potId, potDetail, payoutDetails } = props;
-const { ipfsUrlFromCid, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, ipfsUrlFromCid, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
   ipfsUrlFromCid: () => "",
   yoctosToNear: () => "",
+  nearToUsd: 1,
 };
 const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -264,8 +265,8 @@ const [totalAmount, totalDonors] = useMemo(() => {
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
   return [
-    props.nearToUsd
-      ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
+    nearToUsd
+      ? (nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
       : totalDonationAmount.div(1e24).toNumber().toFixed(2),
     donors.length,
   ];
@@ -377,7 +378,7 @@ return (
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>
-        <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
+        <Amount>{nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
       <DonationsInfoItem>
