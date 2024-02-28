@@ -267,13 +267,7 @@ const [totalAmount, totalDonors] = useMemo(() => {
     }
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
-  return [
-    totalDonationAmount.toString(),
-    // nearToUsd
-    //   ? (nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
-    //   : totalDonationAmount.div(1e24).toNumber().toFixed(2),
-    donors.length,
-  ];
+  return [totalDonationAmount.toString(), donors.length];
 }, [donationsForProject]);
 
 const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
@@ -382,7 +376,7 @@ return (
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>
-        <Amount>{yoctosToUsdWithFallback(totalAmount, true)}</Amount>
+        <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
       {payoutDetails && (
