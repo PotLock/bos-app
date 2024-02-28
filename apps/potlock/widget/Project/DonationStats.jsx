@@ -46,8 +46,6 @@ const PotlockDonateSDK =
   }));
 const donate = PotlockDonateSDK({ env: props.env });
 
-console.log("donate in DonationStats: ", donate);
-
 const data = donate.getConfig() || {
   net_donations_amount: 0,
   total_donations_count: 0,

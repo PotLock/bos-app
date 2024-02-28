@@ -17,19 +17,19 @@ const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPO
     NADA_BOT_URL: "",
     SUPPORTED_FTS: {},
   };
-console.log("props in donation modal: ", props);
+// console.log("props in donation modal: ", props);
 
 const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
-const PotlockDonateSDK = VM.require("potlock.near/widget/SDK.donate") || (() => ({}));
-const donate = PotlockDonateSDK({ env: props.env }) || {
-  getConfig: () => {},
-};
-
-console.log("donate in DonationModal: ", donate);
+const PotlockDonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+  }));
+const donate = PotlockDonateSDK({ env: props.env });
 
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
@@ -354,7 +354,7 @@ const handleModalClose = () => {
   onClose();
 };
 
-console.log("state in donation modal: ", state);
+// console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
   Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
