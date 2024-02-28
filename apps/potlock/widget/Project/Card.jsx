@@ -381,10 +381,12 @@ return (
         <Amount>{nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
-      <DonationsInfoItem>
-        <Amount>{payoutDetails.donorCount}</Amount>
-        <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
-      </DonationsInfoItem>
+      {payoutDetails && (
+        <DonationsInfoItem>
+          <Amount>{payoutDetails.donorCount}</Amount>
+          <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
+        </DonationsInfoItem>
+      )}
       {props.allowDonate && (
         <DonationButton
           onClick={(e) => {
