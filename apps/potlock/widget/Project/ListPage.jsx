@@ -290,11 +290,13 @@ const donateRandomly = () => {
   });
 };
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = PotlockRegistrySDK({ env: props.env }) || {
-  getProjects: () => [],
-  isRegistryAdmin: () => false,
-};
+const PotlockRegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjects: () => [],
+    isRegistryAdmin: () => false,
+  }));
+const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
