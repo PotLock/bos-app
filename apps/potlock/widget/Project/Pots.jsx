@@ -5,24 +5,22 @@ const { ownerId } = VM.require("potlock.near/widget/constants") || {
 };
 
 // ids[] of pots that approved project
-const [pots, setPots] = useState(null);
+const [potIds, setPotIds] = useState(null);
 const [potsConfig, setPotsConfig] = useState(null);
 
-const GetProjectStatus = (potId) =>
-  Near.asyncView(potId, "get_application_by_project_id", {
-    project_id: projectId,
-  })
-    .then((project) => {
-      if (project?.status === "Approved") setPots([...(pots || []), potId]);
+const getApprovedApplications = (potId) =>
+  Near.asyncView(potId, "get_approved_applications", {})
+    .then((applications) => {
+      if (applications.some((app) => app.project_id === projectId))
+        setPotIds([...(potIds || []), potId]);
     })
-    .catch((err) => console.log(`application does not exist on ${potId}`));
+    .catch((err) => console.log(`Error fetching approved applications for ${potId}`));
 
-if (!pots) {
+if (!potIds) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {})
     .then((pots) => {
-      console.log(pots);
       pots.forEach((pot) => {
-        GetProjectStatus(pot.id);
+        getApprovedApplications(pot.id);
       });
     })
     .catch((err) => console.log("error fetching pots", err));
@@ -40,14 +38,14 @@ const Container = styled.div`
   }
 `;
 
-return pots ? (
+return potIds ? (
   <Container>
     <Widget
       src={`${ownerId}/widget/Project.ListSection`}
       props={{
         ...props,
         tab: "pots",
-        items: pots,
+        items: potIds,
         itemsAll: potsConfig,
         renderItem: (pot) => (
           <Widget
