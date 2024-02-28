@@ -11,6 +11,14 @@ const nearToUsd = useCache(
   "nearToUsd"
 );
 
+const formatWithCommas = (amount) => {
+  // Convert to a number and use toLocaleString to add commas
+  return Number(amount).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 return {
   formatDate: (timestamp) => {
     const months = [
@@ -152,15 +160,19 @@ return {
   },
   nearToUsd,
   yoctosToUsd: (amount) => {
-    return nearToUsd ? "~$" + new Big(amount).mul(nearToUsd).div(1e24).toNumber().toFixed(2) : null;
+    return nearToUsd
+      ? "~$" + formatWithCommas(new Big(amount).mul(nearToUsd).div(1e24).toFixed(2))
+      : null;
   },
   nearToUsdWithFallback: (amountNear) => {
-    return nearToUsd ? "~$" + (amountNear * nearToUsd).toFixed(2) : amountNear + " NEAR";
+    return nearToUsd
+      ? "~$" + formatWithCommas((amountNear * nearToUsd).toFixed(2))
+      : formatWithCommas(amountNear) + " NEAR";
   },
   yoctosToUsdWithFallback: (amountYoctos) => {
     return nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(nearToUsd).div(1e24).toNumber().toFixed(2)
-      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+      ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
+      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + " NEAR";
   },
   calculatePayouts: (allPotDonations, totalMatchingPool) => {
     // first, flatten the list of donations into a list of contributions
