@@ -15,6 +15,7 @@ const {
   ToDo,
   MAX_DONATION_MESSAGE_LENGTH,
   SUPPORTED_FTS,
+  ONE_TGAS,
 } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",

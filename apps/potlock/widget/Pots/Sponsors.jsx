@@ -32,7 +32,7 @@ if (!state.allDonations) {
   });
 }
 
-if (!state.donations) return "Loading...";
+if (!state.donations) return <div class="spinner-border text-secondary" role="status" />;
 
 const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
