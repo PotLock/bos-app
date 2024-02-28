@@ -49,6 +49,7 @@ const PotlockRegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
+    getProjectById: () => {},
   }));
 const registry = PotlockRegistrySDK({ env: props.env });
 
@@ -793,7 +794,7 @@ const registeredProject = useMemo(() => {
   return registry.getProjectById(state.isDao ? state.daoAddress : context.accountId);
 }, [state.isDao, state.daoAddress]);
 
-// console.log("registeredProject: ", registeredProject);
+console.log("registeredProject: ", registeredProject);
 
 const proposals = Near.view(state.daoAddress, "get_proposals", {
   from_index: 0,
