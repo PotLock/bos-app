@@ -12,7 +12,6 @@ const PotlockRegistrySDK =
   }));
 
 const registry = PotlockRegistrySDK({ env: props.env });
-console.log("registry in Detail: ", registry);
 const project = registry.getProjectById(projectId);
 
 if (!project || project == null) {
