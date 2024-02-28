@@ -28,7 +28,7 @@ if (!pots) {
     .catch((err) => console.log("error fetching pots", err));
 }
 
-if (!potFactoryConfig) {
+if (!potsConfig) {
   Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_config", {}).then((potFactoryConfig) => {
     setPotsConfig(potFactoryConfig);
   });
