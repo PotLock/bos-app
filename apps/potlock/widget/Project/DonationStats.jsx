@@ -51,7 +51,9 @@ const data = donate.getConfig() || {
   total_donations_count: 0,
 };
 
-const lastDonationAmount = yoctosToUsd(data.net_donations_amount);
+const lastDonationAmount = data.net_donations_amount
+  ? yoctosToUsd(data.net_donations_amount)
+  : null;
 const totalDonations = data.total_donations_count;
 
 return (

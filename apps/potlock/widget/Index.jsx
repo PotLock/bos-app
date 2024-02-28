@@ -58,7 +58,6 @@ State.init({
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
   // previousCart: null,
-  nearToUsd: null,
   isCartModalOpen: false,
   isNavMenuOpen: false,
   allPots: null,

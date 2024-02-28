@@ -170,7 +170,6 @@ return {
       : formatWithCommas(amountNear) + (abbreviate ? " N" : " NEAR");
   },
   yoctosToUsdWithFallback: (amountYoctos, abbreviate) => {
-    console.log("amount yoctos: ", amountYoctos);
     return nearToUsd
       ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
       : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) +

@@ -4,7 +4,7 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   SUPPORTED_FTS: {},
 };
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
-  nearToUsd: 0,
+  nearToUsd: 1,
 };
 
 const nearLogo =
