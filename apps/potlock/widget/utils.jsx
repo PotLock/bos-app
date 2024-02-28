@@ -130,9 +130,6 @@ return {
   ipfsUrlFromCid: (cid) => {
     return `${IPFS_BASE_URL}${cid}`;
   },
-  yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
-  },
   validateNearAddress: (address) => {
     const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
     let isValid = NEAR_ACCOUNT_ID_REGEX.test(address);
@@ -159,20 +156,25 @@ return {
     return githubRepoUrlPattern.test(url);
   },
   nearToUsd,
+  yoctosToNear: (amountYoctos, abbreviate) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
+  },
   yoctosToUsd: (amount) => {
     return nearToUsd
       ? "~$" + formatWithCommas(new Big(amount).mul(nearToUsd).div(1e24).toFixed(2))
       : null;
   },
-  nearToUsdWithFallback: (amountNear) => {
+  nearToUsdWithFallback: (amountNear, abbreviate) => {
     return nearToUsd
       ? "~$" + formatWithCommas((amountNear * nearToUsd).toFixed(2))
-      : formatWithCommas(amountNear) + " NEAR";
+      : formatWithCommas(amountNear) + (abbreviate ? " N" : " NEAR");
   },
-  yoctosToUsdWithFallback: (amountYoctos) => {
+  yoctosToUsdWithFallback: (amountYoctos, abbreviate) => {
+    console.log("amount yoctos: ", amountYoctos);
     return nearToUsd
       ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
-      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + " NEAR";
+      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) +
+          (abbreviate ? " N" : " NEAR");
   },
   calculatePayouts: (allPotDonations, totalMatchingPool) => {
     // first, flatten the list of donations into a list of contributions
