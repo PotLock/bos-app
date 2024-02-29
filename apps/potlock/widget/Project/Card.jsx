@@ -18,7 +18,7 @@ const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils")
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
-const Card = styled.div`
+const Card = styled.a`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -31,6 +31,11 @@ const Card = styled.div`
   margin-right: auto;
   // height: 500px;
   pointer-events: auto;
+  transition: all 300ms;
+  :hover {
+    text-decoration: none;
+    transform: translateY(-1rem);
+  }
 `;
 
 const HeaderContainer = styled.a`
@@ -83,17 +88,13 @@ const ProfileImageContainer = styled.div`
   }
 `;
 
-const Info = styled.a`
+const Info = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 176px;
   padding: 16px 24px;
   gap: 16px;
   flex: 1;
-  &:hover {
-    text-decoration: none;
-    cursor: pointer;
-  }
 `;
 
 const Title = styled.div`
@@ -305,7 +306,7 @@ const profileImageStyle = {
 const tags = getTagsFromSocialProfileData(profile);
 
 return (
-  <Card key={projectId}>
+  <Card href={projectUrl} key={projectId}>
     <HeaderContainer href={projectUrl} className="pt-0 position-relative">
       <BackgroundImageContainer>
         {profile.backgroundImage?.nft ? (
@@ -356,7 +357,7 @@ return (
         )}
       </ProfileImageContainer>
     </HeaderContainer>
-    <Info href={projectUrl}>
+    <Info>
       <Title>{name}</Title>
       <SubTitle>
         {description.length > MAX_DESCRIPTION_LENGTH
