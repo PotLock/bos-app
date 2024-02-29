@@ -57,8 +57,6 @@ const [searchTerm, setSearchTerm] = useState("");
 const [elements, setElements] = useState(
   props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
 );
-console.log("elements: ", elements);
-console.log("num of elements: ", elements.length);
 
 const loadMore = () => {
   const newElements = props.items
