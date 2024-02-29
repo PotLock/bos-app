@@ -79,6 +79,7 @@ const Underline = styled.div`
   @media (max-width: 768px) {
     top: 30px;
     left: -30px;
+  }
 `;
 const containerStyle = props.containerStyle ?? {};
 

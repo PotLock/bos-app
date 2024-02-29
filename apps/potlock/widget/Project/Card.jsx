@@ -21,8 +21,9 @@ const donationContractId = "donate.potlock.near";
 const Card = styled.a`
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 400px;
+  width: 100%;
+  overflow: hidden;
   border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
@@ -38,7 +39,7 @@ const Card = styled.a`
   }
 `;
 
-const HeaderContainer = styled.a`
+const HeaderContainer = styled.div`
   padding-left: 16px;
   &:hover {
     text-decoration: none;
@@ -307,7 +308,7 @@ const tags = getTagsFromSocialProfileData(profile);
 
 return (
   <Card href={projectUrl} key={projectId}>
-    <HeaderContainer href={projectUrl} className="pt-0 position-relative">
+    <HeaderContainer className="pt-0 position-relative">
       <BackgroundImageContainer>
         {profile.backgroundImage?.nft ? (
           <Widget

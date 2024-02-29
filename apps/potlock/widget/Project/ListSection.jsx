@@ -499,7 +499,6 @@ const Container = styled.div`
 const ProjectList = styled.div`
   display: grid;
   gap: 31px;
-
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
     grid-template-columns: repeat(1, 1fr);
