@@ -1,3 +1,5 @@
+const { title, text } = props;
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -27,9 +29,12 @@ const Col1 = styled.div`
 
 const Col2 = styled.div`
   display: flex;
+  flex-direction: column;
   width: 75%;
   padding-top: 16px;
-
+  p {
+    margin: 0;
+  }
   @media screen and (max-width: 768px) {
     width: 100%;
   }
@@ -46,10 +51,10 @@ return (
   <Container>
     {/* <Column className="col-3"> */}
     <Col1>
-      <Title>{props.title}</Title>
+      <Title>{title}</Title>
       {/* </Column> */}
     </Col1>
-    {/* <Column className="col-9">{props.text}</Column> */}
-    <Col2>{props.text}</Col2>
+    {/* <Column className="col-9">{text}</Column> */}
+    <Col2>{text}</Col2>
   </Container>
 );
