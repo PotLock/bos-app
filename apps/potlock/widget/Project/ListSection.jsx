@@ -4,6 +4,7 @@ const {
   // addProjectsToCart,
   // setIsCartModalOpen,
   tab,
+  shouldShuffle,
   // setAmount,
   // setProjectId,
   // setNote,
@@ -17,8 +18,6 @@ const {
 } = props;
 
 // console.log("props in list section: ", props);
-
-const shouldShuffle = !tab || tab === "projects";
 
 const items = useMemo(() => {
   if (shouldShuffle) {
