@@ -39,10 +39,11 @@ const Container = styled.div`
 `;
 
 const ProfileImageContainer = styled.div`
-  transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 240}px);`}
+  transform: ${(props) => `translateY(${props.profileImageTranslateYPx || 240}px)`};
   width: ${props.imageStyle?.width ?? "80px"};
   height: ${props.imageStyle?.height ?? "80px"};
-
+  z-index: 6;
+  position: relative;
   img {
     width: ${props.imageStyle?.width ?? "80px"};
     height: ${props.imageStyle?.height ?? "80px"};
@@ -57,7 +58,7 @@ const ProfileImageContainer = styled.div`
 
   @media screen and (max-width: 768px) {
     // transform: translateY(248px);
-    transform: ${(props) => `translateY(${props.profileImageTranslateYPxMobile || 248}px);`}
+    transform: ${(props) => `translateY(${props.profileImageTranslateYPxMobile || 248}px)`};
 
     width: 64px;
     height: 64px;
@@ -74,9 +75,8 @@ const ProfileImageContainer = styled.div`
     pointer-events: none;
   }
 
-  ${
-    editable &&
-    `
+  ${editable &&
+  `
   &:after {
     content: "";
     position: absolute;
@@ -107,8 +107,7 @@ const ProfileImageContainer = styled.div`
       opacity: 1; // Make the image visible on hover
     }
   }
-  `
-  }
+  `}
 `;
 
 const backgroundStyleHeightPx = parseInt(backgroundStyle?.height?.replace("px", ""));

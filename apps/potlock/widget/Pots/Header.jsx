@@ -15,6 +15,7 @@ const {
   ToDo,
   MAX_DONATION_MESSAGE_LENGTH,
   SUPPORTED_FTS,
+  ONE_TGAS,
 } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
@@ -305,17 +306,9 @@ const existingApplication = Near.view(potId, "get_application_by_project_id", {
 });
 
 if (state.totalUniqueDonors === null) {
-  Near.asyncView(potId, "get_donations", {}).then((result) => {
-    const totalsByDonor = result.reduce((accumulator, currentDonation) => {
-      accumulator[currentDonation.donor_id] = {
-        amount:
-          (accumulator[currentDonation.donor_id].amount || 0) +
-          calcNetDonationAmount(currentDonation),
-        ...currentDonation,
-      };
-      return accumulator;
-    }, {});
-    const uniqueDonors = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
+  Near.asyncView(potId, "get_public_round_donations", {}).then((result) => {
+    const uniqueDonors = [...new Set(result.map((obj) => obj.donor_id))];
+
     State.update({ totalUniqueDonors: uniqueDonors.length });
   });
 }
