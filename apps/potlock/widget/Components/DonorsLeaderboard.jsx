@@ -3,7 +3,7 @@ const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
-  nearToUsd: () => null,
+  nearToUsd: 1,
 };
 
 const [page, setPage] = useState(0);

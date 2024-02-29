@@ -5,9 +5,13 @@ const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/consta
 };
 const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = PotlockRegistrySDK({ env: props.env });
+const PotlockRegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjectById: () => "",
+  }));
 
+const registry = PotlockRegistrySDK({ env: props.env });
 const project = registry.getProjectById(projectId);
 
 if (!project || project == null) {

@@ -17,16 +17,26 @@ const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPO
     NADA_BOT_URL: "",
     SUPPORTED_FTS: {},
   };
-console.log("props in donation modal: ", props);
+// console.log("props in donation modal: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+const PotlockRegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjects: () => {},
+  }));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
-const PotlockDonateSDK = VM.require("potlock.near/widget/SDK.donate") || (() => ({}));
-const donate = PotlockDonateSDK({ env: props.env }) || {
-  getConfig: () => {},
+const PotlockDonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+  }));
+const donate = PotlockDonateSDK({ env: props.env });
+
+const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: 1,
 };
 
 const approvedProjectIds = useMemo(
@@ -352,7 +362,7 @@ const handleModalClose = () => {
   onClose();
 };
 
-console.log("state in donation modal: ", state);
+// console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
   Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
@@ -398,7 +408,7 @@ const handleAddToCart = () => {
 };
 
 const amountNear =
-  state.denomination === "NEAR" ? state.amount : (state.amount / props.nearToUsd).toFixed(2);
+  state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
 const handleDonate = () => {
   const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
@@ -582,7 +592,7 @@ return (
                 }}
               />
               <Row style={{ justifyContent: "space-between", width: "100%", padding: "0px" }}>
-                <HintText>1 NEAR = ~${props.nearToUsd * 1} USD</HintText>
+                <HintText>1 NEAR = ~${nearToUsd} USD</HintText>
                 <div style={{ display: "flex" }}>
                   <HintText style={{ marginRight: "6px" }}>Account balance: </HintText>
                   <Icon

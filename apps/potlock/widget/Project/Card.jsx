@@ -1,7 +1,11 @@
 const { potId, potDetail, payoutDetails } = props;
-const { ipfsUrlFromCid, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
+  "potlock.near/widget/utils"
+) || {
   ipfsUrlFromCid: () => "",
   yoctosToNear: () => "",
+  yoctosToUsdWithFallback: () => "",
+  nearToUsd: 1,
 };
 const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -380,12 +384,7 @@ const [totalAmount, totalDonors] = useMemo(() => {
     }
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
-  return [
-    props.nearToUsd
-      ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
-      : totalDonationAmount.div(1e24).toNumber().toFixed(2),
-    donors.length,
-  ];
+  return [totalDonationAmount.toString(), donors.length];
 }, [donationsForProject]);
 
 const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
@@ -494,13 +493,15 @@ return (
     </Info>
     <DonationsInfoContainer>
       <DonationsInfoItem>
-        <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
+        <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
         <AmountDescriptor>Raised</AmountDescriptor>
       </DonationsInfoItem>
-      <DonationsInfoItem>
-        <Amount>{payoutDetails.donorCount}</Amount>
-        <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
-      </DonationsInfoItem>
+      {payoutDetails && (
+        <DonationsInfoItem>
+          <Amount>{payoutDetails.donorCount}</Amount>
+          <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
+        </DonationsInfoItem>
+      )}
       {props.allowDonate && (
         <DonationButton
           onClick={(e) => {

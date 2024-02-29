@@ -233,7 +233,6 @@ return (
       src={`${ownerId}/widget/Components.Button`}
       props={{
         type: "primary",
-        // text: `Donate $${(totalAmount * props.nearToUsd || 0).toFixed(2)}`,
         text: `Donate ${`${totalAmount.toFixed(2)} N`}`,
         disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,

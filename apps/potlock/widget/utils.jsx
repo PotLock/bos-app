@@ -11,6 +11,14 @@ const nearToUsd = useCache(
   "nearToUsd"
 );
 
+const formatWithCommas = (amount) => {
+  // Convert to a number and use toLocaleString to add commas
+  return Number(amount).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
 return {
   formatDate: (timestamp) => {
     const months = [
@@ -122,9 +130,6 @@ return {
   ipfsUrlFromCid: (cid) => {
     return `${IPFS_BASE_URL}${cid}`;
   },
-  yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
-  },
   validateNearAddress: (address) => {
     const NEAR_ACCOUNT_ID_REGEX = /^(?=.{2,64}$)(?!.*\.\.)(?!.*-$)(?!.*_$)[a-z\d._-]+$/i;
     let isValid = NEAR_ACCOUNT_ID_REGEX.test(address);
@@ -151,16 +156,24 @@ return {
     return githubRepoUrlPattern.test(url);
   },
   nearToUsd,
+  yoctosToNear: (amountYoctos, abbreviate) => {
+    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
+  },
   yoctosToUsd: (amount) => {
-    return nearToUsd ? "~$" + new Big(amount).mul(nearToUsd).div(1e24).toNumber().toFixed(2) : null;
-  },
-  nearToUsdWithFallback: (amountNear) => {
-    return nearToUsd ? "~$" + (amountNear * nearToUsd).toFixed(2) : amountNear + " NEAR";
-  },
-  yoctosToUsdWithFallback: (amountYoctos) => {
     return nearToUsd
-      ? "~$" + new Big(amountYoctos).mul(nearToUsd).div(1e24).toNumber().toFixed(2)
-      : new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + " NEAR";
+      ? "~$" + formatWithCommas(new Big(amount).mul(nearToUsd).div(1e24).toFixed(2))
+      : null;
+  },
+  nearToUsdWithFallback: (amountNear, abbreviate) => {
+    return nearToUsd
+      ? "~$" + formatWithCommas((amountNear * nearToUsd).toFixed(2))
+      : formatWithCommas(amountNear) + (abbreviate ? " N" : " NEAR");
+  },
+  yoctosToUsdWithFallback: (amountYoctos, abbreviate) => {
+    return nearToUsd
+      ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
+      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) +
+          (abbreviate ? " N" : " NEAR");
   },
   calculatePayouts: (allPotDonations, totalMatchingPool) => {
     // first, flatten the list of donations into a list of contributions
