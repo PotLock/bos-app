@@ -493,6 +493,9 @@ const Container = styled.div`
   @media screen and (min-width: 740px) and (max-width: 1400px) {
     ${props.tab !== "pot" && "padding-top: 120px;"}
   }
+  @media screen and (max-width: 739px) {
+    ${props.tab !== "pot" && "padding-top: 40px;"}
+  }
 `;
 
 const ProjectList = styled.div`
