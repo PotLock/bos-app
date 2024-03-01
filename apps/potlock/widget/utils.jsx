@@ -157,7 +157,9 @@ return {
   },
   nearToUsd,
   yoctosToNear: (amountYoctos, abbreviate) => {
-    return new Big(amountYoctos).div(1e24).toNumber().toFixed(2) + (abbreviate ? " N" : " NEAR");
+    return (
+      formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? " N" : " NEAR")
+    );
   },
   yoctosToUsd: (amount) => {
     return nearToUsd
