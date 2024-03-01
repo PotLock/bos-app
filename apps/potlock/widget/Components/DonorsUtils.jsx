@@ -27,13 +27,13 @@ const getTimePassed = (timestamp) => {
 
   // Display the time passed conditionally
   if (daysPassed > 0) {
-    time = `${daysPassed} days`;
+    time = `${daysPassed} day${daysPassed === 1 ? "" : "s"}`;
   } else if (hoursPassed > 0) {
-    time = `${hoursPassed} hours`;
+    time = `${hoursPassed} hour${hoursPassed === 1 ? "" : "s"}`;
   } else if (minutesPassed > 0) {
-    time = `${minutesPassed} minutes`;
+    time = `${minutesPassed} minute${minutesPassed === 1 ? "" : "s"}`;
   } else {
-    time = `${secondsPassed} seconds`;
+    time = `${secondsPassed} second${secondsPassed === 1 ? "" : "s"}`;
   }
   return time;
 };
