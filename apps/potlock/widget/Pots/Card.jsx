@@ -127,7 +127,7 @@ return (
     </CardSection>
     <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
       <Title>
-        {amountNear}
+        {parseFloat(amountNear).toLocaleString()}
         {amountUsd && (
           <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
         )}
