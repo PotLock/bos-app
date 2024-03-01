@@ -4,8 +4,9 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   ownerId: "",
   SUPPORTED_FTS: {},
 };
-const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
   getTimePassed: () => "",
+  _address: (address) => address,
 };
 State.init({
   allDonations: null,
@@ -232,7 +233,7 @@ return (
                     },
                   }}
                 />
-                <RowText>{project_id}</RowText>
+                <RowText>{_address(project_id)}</RowText>
               </RowItem>
               <RowItem href={`?tab=profile&accountId=${donor_id}`} target={"_blank"}>
                 <Widget
@@ -246,7 +247,7 @@ return (
                     },
                   }}
                 />
-                <RowText>{donor_id}</RowText>
+                <RowText>{_address(donor_id)}</RowText>
               </RowItem>
               <RowItem>
                 <RowText>
