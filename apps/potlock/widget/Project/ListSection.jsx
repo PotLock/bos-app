@@ -489,9 +489,9 @@ const Container = styled.div`
   width: 100%;
   gap: 48px;
   padding-top: 20px;
-  @media screen and (min-width: 740px) and (max-width: 1400px) {
-    ${props.tab !== "pot" && "padding-top: 120px;"}
-  }
+  // @media screen and (min-width: 740px) and (max-width: 1400px) {
+  //   ${props.tab !== "pot" && "padding-top: 120px;"}
+  // }
   @media screen and (max-width: 739px) {
     ${props.tab !== "pot" && "padding-top: 40px;"}
   }

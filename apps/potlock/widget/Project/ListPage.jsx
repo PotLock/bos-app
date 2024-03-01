@@ -1,3 +1,10 @@
+const { getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } = VM.require(
+  "potlock.near/widget/utils"
+) || {
+  getTagsFromSocialProfileData: () => [],
+  getTeamMembersFromSocialProfileData: () => [],
+};
+
 // Card Skeleton - Loading fallback
 const loadingSkeleton = styled.keyframes`
   0% {
@@ -505,7 +512,7 @@ useEffect(() => {
   }
 }, [projects]);
 
-console.log("filter", filteredProjects);
+// console.log("filter", filteredProjects);
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
@@ -542,8 +549,8 @@ const SORT_FILTERS = {
   ALL: "All",
   NEW_TO_OLD: "Newest to Oldest",
   OLD_TO_NEW: "Oldest to Newest",
-  MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
-  LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
+  // MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
+  // LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
 };
 
 const sortHighestToLowest = (projects) => {
@@ -645,7 +652,15 @@ const searchByWords = (projects, searchTerm) => {
     if (data) {
       if (
         data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        data.name.toLowerCase().includes(searchTerm.toLowerCase())
+        data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getTagsFromSocialProfileData(data)
+          .join("")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        getTeamMembersFromSocialProfileData(data)
+          .join("")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
       ) {
         findId.push(item.id);
       }
