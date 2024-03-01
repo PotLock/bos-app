@@ -50,7 +50,7 @@ const featuredProjects = useMemo(
 );
 
 const [allProjects, setAllProjects] = useState(items);
-const [filteredProjects, setFilteredProjects] = useState([]);
+const [filteredProjects, setFilteredProjects] = useState(items);
 const [searchTerm, setSearchTerm] = useState("");
 
 // const [elements, setElements] = useState(
@@ -489,9 +489,9 @@ const Container = styled.div`
   width: 100%;
   gap: 48px;
   padding-top: 20px;
-  @media screen and (min-width: 740px) and (max-width: 1400px) {
-    ${props.tab !== "pot" && "padding-top: 120px;"}
-  }
+  // @media screen and (min-width: 740px) and (max-width: 1400px) {
+  //   ${props.tab !== "pot" && "padding-top: 120px;"}
+  // }
   @media screen and (max-width: 739px) {
     ${props.tab !== "pot" && "padding-top: 40px;"}
   }
@@ -570,11 +570,10 @@ const OnBottom = styled.div`
 `;
 
 // const elements = props.items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(props.renderItem);
-// console.log("elements: ", elements);
 
 return (
   <>
-    {tab != "pots" && tab != "pot" && (
+    {/* {tab != "pots" && tab != "pot" && (
       <Container>
         <Header>
           <Title>Featured projects</Title>
@@ -583,16 +582,16 @@ return (
         <ProjectList>{featuredProjects.map(props.renderItem)}</ProjectList>
         <OnBottom></OnBottom>
       </Container>
-    )}
+    )} */}
     <Container style={{ paddingBottom: "32px" }}>
-      <Header>
+      {/* <Header>
         <Title>
           all {tab == "pots" ? "pots" : "projects"}
           <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
             {props.items.length}
           </span>
         </Title>
-        {/* <Widget
+        <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
             title: "Sort",
@@ -601,16 +600,11 @@ return (
             itemName: tab == "pots" ? "pot" : "project",
             sortList: Object.values(SORT_FILTERS),
             setSearchTerm: (value) => {
-              const results = tab == "pots"
-                ? searchByWordsPots(totalProjects, value)
-                : tab == "pot"
-                ? searchByWordsPot(totalProjects, value)
-                : searchByWords(totalProjects, value);
-              setSearchTerm(value);
+              const results = searchProjects(value);
               setFilteredProjects(results);
             },
             handleSortChange: (filter) => {
-              const sorted = 
+              const sorted = sortProjects(filter);
               handleSortChange(filter);
             },
           }}
@@ -644,8 +638,8 @@ return (
               </Tag>
             ))}
           </TagsWrapper>
-        )} */}
-      </Header>
+        )}
+      </Header> */}
       <ProjectList>{items.map(props.renderItem)}</ProjectList>
       {/* <InfiniteScroll
         // loadMore={tab == "pots" || tab == "pot" ? loadPotProjects : loadProjects}

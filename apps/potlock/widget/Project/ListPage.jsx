@@ -1,3 +1,10 @@
+const { getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } = VM.require(
+  "potlock.near/widget/utils"
+) || {
+  getTagsFromSocialProfileData: () => [],
+  getTeamMembersFromSocialProfileData: () => [],
+};
+
 // Card Skeleton - Loading fallback
 const loadingSkeleton = styled.keyframes`
   0% {
@@ -390,13 +397,122 @@ const StatsSubTitle = styled.div`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+`;
+
+const Title = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 1.12px;
+  text-transform: uppercase;
+`;
+
+const TagsWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+  color: #292929;
+`;
+
+const Tag = styled.div`
+  display: flex;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0px -1px 0px 0px #c7c7c7 inset, 0px 0px 0px 0.5px #c7c7c7;
+  border: 1px solid #c7c7c7;
+  &:hover {
+    background: #fef6ee;
+  }
+`;
+
+const OnBottom = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`;
+
+const ContainerHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 48px;
+  padding-top: 20px;
+  @media screen and (min-width: 740px) and (max-width: 1400px) {
+    ${props.tab !== "pot" && "padding-top: 120px;"}
+  }
+`;
+
+const ProjectList = styled.div`
+  display: grid;
+  gap: 31px;
+
+  // For mobile devices (1 column)
+  @media screen and (max-width: 739px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  // For tablet devices (2 columns)
+  @media screen and (min-width: 740px) and (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  // For desktop devices (3 columns)
+  @media screen and (min-width: 1024px) {
+    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
+  }
+`;
+
 State.init({
   isModalOpen: false,
   successfulDonation: null,
 });
 
+const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
+const registry = PotlockRegistrySDK({ env: props.env });
+
+const projects = registry.getProjects() || [];
+
+if (!registry.isRegistryAdmin(context.accountId)) {
+  projects = projects.filter((project) => project.status === "Approved");
+}
+
+const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjects = useMemo(
+  () => projects.filter((project) => featuredProjectIds.includes(project.id)),
+  projects
+);
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
+const [filteredProjects, setFilteredProjects] = useState(projects);
+const [searchTerm, setSearchTerm] = useState("");
+const [sort, setSort] = useState("Sort");
+
+useEffect(() => {
+  if (filteredProjects.length < 1) {
+    setFilteredProjects(projects);
+  }
+}, [projects]);
+
+// console.log("filter", filteredProjects);
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
@@ -411,20 +527,8 @@ const donateRandomly = () => {
   });
 };
 
-const PotlockRegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
-  (() => ({
-    getProjects: () => [],
-    isRegistryAdmin: () => false,
-  }));
-const registry = PotlockRegistrySDK({ env: props.env });
-
-const projects = registry.getProjects() || [];
-const isAdmin = registry.isRegistryAdmin(context.accountId);
-if (!isAdmin) {
+if (!registry.isRegistryAdmin(context.accountId)) {
   projects = projects.filter((project) => project.status === "Approved");
-} else {
-  projects.sort((a, b) => b.submitted_ms - a.submitted_ms);
 }
 
 const handleDonateRandomly = (e) => {
@@ -439,6 +543,148 @@ const containerStyleHeader = {
   left: 0,
   marginBottom: "24px",
   background: "radial-gradient(80% 80% at 40.82% 50%, white 25%, rgba(255, 255, 255, 0) 100%)",
+};
+
+const SORT_FILTERS = {
+  ALL: "All",
+  NEW_TO_OLD: "Newest to Oldest",
+  OLD_TO_NEW: "Oldest to Newest",
+  // MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
+  // LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
+};
+
+const sortHighestToLowest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) > 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+
+  setFilteredProjects(projects);
+};
+
+const sortLowestToHighest = (projects) => {
+  const sort = (a, b) => {
+    return parseFloat(b.total) - parseFloat(a.total);
+  };
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      if (sort(projects[j], projects[j + 1]) < 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+
+  setFilteredProjects(projects);
+};
+
+const sortNewToOld = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms < projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setFilteredProjects(projects);
+};
+
+const sortOldToNew = (projects) => {
+  const projectLength = projects.length;
+
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - i - 1; j++) {
+      if (projects[j].submitted_ms > projects[j + 1].submitted_ms) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  setFilteredProjects(projects);
+};
+
+const handleSortChange = (sortType) => {
+  setSort(sortType);
+  switch (sortType) {
+    case "All":
+      setFilteredProjects(projects);
+      break;
+    case "Newest to Oldest":
+      sortNewToOld(projects);
+      break;
+    case "Oldest to Newest":
+      sortOldToNew(projects);
+      break;
+    case "Most to Least Donations":
+      sortHighestToLowest(projects);
+      break;
+    case "Least to Most Donations":
+      sortLowestToHighest(projects);
+      break;
+  }
+};
+
+const searchByWords = (projects, searchTerm) => {
+  let findId = [];
+  const dataArr = projects;
+  let alldata = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.id}/profile`);
+    alldata.push(data);
+    if (data) {
+      if (
+        data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getTagsFromSocialProfileData(data)
+          .join("")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        getTeamMembersFromSocialProfileData(data)
+          .join("")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      ) {
+        findId.push(item.id);
+      }
+    }
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((project) => {
+    const data = Social.getr(`${project.id}/profile`);
+    findId.forEach((id) => {
+      if (tagSelected.length > 0) {
+        if (data.category == tagSelected[0]) {
+          if (project.id == id) {
+            projectFilterBySearch.push(project);
+          }
+        }
+      } else {
+        if (project.id == id) {
+          projectFilterBySearch.push(project);
+        }
+      }
+    });
+  });
+
+  setFilteredProjects(projectFilterBySearch);
 };
 
 return (
@@ -536,13 +782,77 @@ return (
         <Widget src="potlock.near/widget/Project.DonationStats" />
       </HeaderContainer>
     </HeroContainer>
+    {props.tab != "pots" && props.tab != "pot" && (
+      <ContainerHeader>
+        <Header>
+          <Title>Featured projects</Title>
+        </Header>
+
+        <ProjectList>
+          {featuredProjects.map((project) => {
+            return (
+              <Widget
+                src={`${ownerId}/widget/Project.Card`}
+                loading={
+                  <div
+                    style={{
+                      width: "355px",
+                      height: "455px",
+                      borderRadius: "12px",
+                      background: "white",
+                      boxShadow: "0px -2px 0px #dbdbdb inset",
+                      border: "1px solid #dbdbdb",
+                    }}
+                  />
+                }
+                props={{
+                  ...props,
+                  // potId,
+                  projectId: project.id,
+                  allowDonate: true,
+                  // allowDonate:
+                  //   sybilRequirementMet &&
+                  //   publicRoundOpen &&
+                  //   project.project_id !== context.accountId,
+                  // requireVerification: !sybilRequirementMet,
+                }}
+              />
+            );
+          })}
+        </ProjectList>
+        <OnBottom></OnBottom>
+      </ContainerHeader>
+    )}
+    <Header>
+      <Title>
+        all {tab == "pots" ? "pots" : "projects"}
+        <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
+          {projects.length}
+        </span>
+      </Title>
+      <Widget
+        src={`${ownerId}/widget/Project.SearchBar`}
+        props={{
+          title: sort,
+          tab: tab,
+          numItems: filteredProjects.length,
+          itemName: tab == "pots" ? "pot" : "project",
+          sortList: Object.values(SORT_FILTERS),
+          setSearchTerm: (value) => {
+            searchByWords(projects, value);
+          },
+          handleSortChange: (filter) => {
+            handleSortChange(filter);
+          },
+        }}
+      />
+    </Header>
     <ProjectsContainer>
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
-          items: projects,
-          shouldShuffle: !isAdmin,
+          items: filteredProjects,
           renderItem: (project) => {
             return (
               <Widget
