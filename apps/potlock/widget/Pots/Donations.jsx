@@ -1,9 +1,11 @@
 // get donations
 const { potId, potDetail } = props;
-const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
+};
+const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+  getTimePassed: () => "",
 };
 State.init({
   allDonations: null,
@@ -12,6 +14,7 @@ State.init({
 
 if (!state.allDonations) {
   Near.asyncView(potId, "get_public_round_donations", {}).then((donations) => {
+    donations.sort((a, b) => b.donated_at - a.donated_at);
     State.update({ filteredDonations: donations, allDonations: donations });
   });
 }
@@ -141,13 +144,12 @@ const SearchBarContainer = styled.div`
 const SearchBar = styled.input`
   background: none;
   width: 100%;
-  border-radius: 
   outline: none;
   border: none;
   color: #525252;
   &:focus {
-      outline: none;
-      border: none;
+    outline: none;
+    border: none;
   }
 `;
 
@@ -252,7 +254,7 @@ return (
                 </RowText>
               </RowItem>
               <RowItem>
-                <RowText>{daysAgo(donated_at)}</RowText>
+                <RowText>{getTimePassed(donated_at)} ago</RowText>
               </RowItem>
             </Row>
           );

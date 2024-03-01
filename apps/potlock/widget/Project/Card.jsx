@@ -18,11 +18,12 @@ const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils")
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
-const Card = styled.div`
+const Card = styled.a`
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 400px;
+  width: 100%;
+  overflow: hidden;
   border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
@@ -30,10 +31,14 @@ const Card = styled.div`
   margin-left: auto;
   margin-right: auto;
   // height: 500px;
-  pointer-events: auto;
+  transition: all 300ms;
+  :hover {
+    text-decoration: none;
+    transform: translateY(-1rem);
+  }
 `;
 
-const HeaderContainer = styled.a`
+const HeaderContainer = styled.div`
   padding-left: 16px;
   &:hover {
     text-decoration: none;
@@ -83,17 +88,13 @@ const ProfileImageContainer = styled.div`
   }
 `;
 
-const Info = styled.a`
+const Info = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 176px;
   padding: 16px 24px;
   gap: 16px;
   flex: 1;
-  &:hover {
-    text-decoration: none;
-    cursor: pointer;
-  }
 `;
 
 const Title = styled.div`
@@ -423,101 +424,104 @@ const profileImageStyle = {
 const tags = getTagsFromSocialProfileData(profile);
 
 return (
-  <Card key={projectId}>
-    <HeaderContainer href={projectUrl} className="pt-0 position-relative">
-      <BackgroundImageContainer>
-        {profile.backgroundImage?.nft ? (
-          <Widget
-            src="mob.near/widget/Image"
-            props={{
-              image: profile.backgroundImage,
-              alt: "background",
-              className: "position-absolute w-100",
-              style: backgroundImageStyle,
-              fallbackUrl:
-                "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-            }}
-          />
-        ) : (
-          <img
-            className="position-absolute w-100"
-            style={backgroundImageStyle}
-            src={getImageSrc(profile.backgroundImage)}
-            alt="background"
-          />
-        )}
-      </BackgroundImageContainer>
-      <ProfileImageContainer
-        class="profile-picture d-inline-block"
-        // profileImageTranslateYPx={props.profileImageTranslateYPx}
-        // profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
-      >
-        {profile.image?.nft ? (
-          <Widget
-            src="mob.near/widget/Image"
-            props={{
-              image: profile.image,
-              alt: "avatar",
-              className: "rounded-circle w-100 img-thumbnail d-block",
-              style: profileImageStyle,
-              fallbackUrl:
-                "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-            }}
-          />
-        ) : (
-          <img
-            className="rounded-circle w-100 img-thumbnail d-block"
-            style={profileImageStyle}
-            src={getImageSrc(profile.image)}
-            alt="avatar"
-          />
-        )}
-      </ProfileImageContainer>
-    </HeaderContainer>
-    <Info href={projectUrl}>
-      <Title>{name}</Title>
-      <SubTitle>
-        {description.length > MAX_DESCRIPTION_LENGTH
-          ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
-          : description}
-      </SubTitle>
-      {!tags.length ? (
-        "No tags"
-      ) : (
-        <Tags>
-          {tags.map((tag, tagIndex) => (
-            <Tag key={tagIndex}>{tag}</Tag>
-          ))}
-        </Tags>
-      )}
-    </Info>
-    <DonationsInfoContainer>
-      <DonationsInfoItem>
-        <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
-        <AmountDescriptor>Raised</AmountDescriptor>
-      </DonationsInfoItem>
-      {payoutDetails && (
-        <DonationsInfoItem>
-          <Amount>{payoutDetails.donorCount}</Amount>
-          <AmountDescriptor>{payoutDetails.donorCount === 1 ? "Donor" : "Donors"}</AmountDescriptor>
-        </DonationsInfoItem>
-      )}
-      {props.allowDonate && (
-        <DonationButton
-          onClick={(e) => {
-            e.preventDefault();
-            openDonateModal();
-          }}
-          disabled={!context.accountId}
+  <>
+    <Card href={projectUrl} key={projectId}>
+      <HeaderContainer className="pt-0 position-relative">
+        <BackgroundImageContainer>
+          {profile.backgroundImage?.nft ? (
+            <Widget
+              src="mob.near/widget/Image"
+              props={{
+                image: profile.backgroundImage,
+                alt: "background",
+                className: "position-absolute w-100",
+                style: backgroundImageStyle,
+                fallbackUrl:
+                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+              }}
+            />
+          ) : (
+            <img
+              className="position-absolute w-100"
+              style={backgroundImageStyle}
+              src={getImageSrc(profile.backgroundImage)}
+              alt="background"
+            />
+          )}
+        </BackgroundImageContainer>
+        <ProfileImageContainer
+          class="profile-picture d-inline-block"
+          // profileImageTranslateYPx={props.profileImageTranslateYPx}
+          // profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
         >
-          {!context.accountId
-            ? "Sign in to donate"
-            : props.requireVerification
-            ? "Verify to donate"
-            : "Donate"}
-        </DonationButton>
-      )}
-      {/* <Widget
+          {profile.image?.nft ? (
+            <Widget
+              src="mob.near/widget/Image"
+              props={{
+                image: profile.image,
+                alt: "avatar",
+                className: "rounded-circle w-100 img-thumbnail d-block",
+                style: profileImageStyle,
+                fallbackUrl:
+                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+              }}
+            />
+          ) : (
+            <img
+              className="rounded-circle w-100 img-thumbnail d-block"
+              style={profileImageStyle}
+              src={getImageSrc(profile.image)}
+              alt="avatar"
+            />
+          )}
+        </ProfileImageContainer>
+      </HeaderContainer>
+      <Info>
+        <Title>{name}</Title>
+        <SubTitle>
+          {description.length > MAX_DESCRIPTION_LENGTH
+            ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
+            : description}
+        </SubTitle>
+        {!tags.length ? (
+          "No tags"
+        ) : (
+          <Tags>
+            {tags.map((tag, tagIndex) => (
+              <Tag key={tagIndex}>{tag}</Tag>
+            ))}
+          </Tags>
+        )}
+      </Info>
+      <DonationsInfoContainer>
+        <DonationsInfoItem>
+          <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
+          <AmountDescriptor>Raised</AmountDescriptor>
+        </DonationsInfoItem>
+        {payoutDetails && (
+          <DonationsInfoItem>
+            <Amount>{payoutDetails.donorCount}</Amount>
+            <AmountDescriptor>
+              {payoutDetails.donorCount === 1 ? "Donor" : "Donors"}
+            </AmountDescriptor>
+          </DonationsInfoItem>
+        )}
+        {props.allowDonate && (
+          <DonationButton
+            onClick={(e) => {
+              e.preventDefault();
+              openDonateModal();
+            }}
+            disabled={!context.accountId}
+          >
+            {!context.accountId
+              ? "Sign in to donate"
+              : props.requireVerification
+              ? "Verify to donate"
+              : "Donate"}
+          </DonationButton>
+        )}
+        {/* <Widget
         src={`${ownerId}/widget/Components.Button`}
         props={{
           type: "secondary",
@@ -527,18 +531,20 @@ return (
           },
         }}
       /> */}
-      {/* <DonationsInfoItem>
+        {/* <DonationsInfoItem>
         <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
         <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
       </DonationsInfoItem> */}
-    </DonationsInfoContainer>
-    {payoutDetails && (
-      <MatchingSection>
-        <MatchingTitle>Estimated matched amount</MatchingTitle>
-        <MatchingAmount>{yoctosToNear(payoutDetails.matchingAmount, true) || "- N"}</MatchingAmount>
-      </MatchingSection>
-    )}
-    {/* {props.allowDonate && (
+      </DonationsInfoContainer>
+      {payoutDetails && (
+        <MatchingSection>
+          <MatchingTitle>Estimated matched amount</MatchingTitle>
+          <MatchingAmount>
+            {yoctosToNear(payoutDetails.matchingAmount, true) || "- N"}
+          </MatchingAmount>
+        </MatchingSection>
+      )}
+      {/* {props.allowDonate && (
       <Widget
         src={`${ownerId}/widget/Cart.AddToCart`}
         props={{
@@ -554,7 +560,7 @@ return (
         }}
       />
     )} */}
-    {/* {props.requireVerification && (
+      {/* {props.requireVerification && (
       <Widget
         src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
         props={{
@@ -568,6 +574,7 @@ return (
         }}
       />
     )} */}
+    </Card>
     {state.donateModal.isOpen && (
       <Widget
         src={`${ownerId}/widget/Project.ModalDonation`}
@@ -617,5 +624,5 @@ return (
         }}
       />
     )}
-  </Card>
+  </>
 );

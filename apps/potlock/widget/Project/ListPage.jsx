@@ -420,9 +420,11 @@ const PotlockRegistrySDK =
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
-
-if (!registry.isRegistryAdmin(context.accountId)) {
+const isAdmin = registry.isRegistryAdmin(context.accountId);
+if (!isAdmin) {
   projects = projects.filter((project) => project.status === "Approved");
+} else {
+  projects.sort((a, b) => b.submitted_ms - a.submitted_ms);
 }
 
 const handleDonateRandomly = (e) => {
@@ -540,6 +542,7 @@ return (
         props={{
           ...props,
           items: projects,
+          shouldShuffle: !isAdmin,
           renderItem: (project) => {
             return (
               <Widget

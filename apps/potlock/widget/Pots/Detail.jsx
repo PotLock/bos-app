@@ -67,6 +67,7 @@ const ContainerInner = styled.div`
 
 const BodyContainer = styled.div`
   flex: 1;
+  width: 100%;
 `;
 
 const Divider = styled.div`
