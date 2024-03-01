@@ -64,7 +64,7 @@ const FormBody = styled.div`
   padding: 32px 68px;
   width: 100%;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 880px) {
     padding: 10px 10px;
   }
 `;
@@ -83,7 +83,7 @@ const FormSectionContainer = styled.div`
   flex-direction: row;
   gap: 160px;
   margin: 48px 0 48px 0;
-
+  flex-wrap: wrap;
   @media screen and (max-width: 768px) {
     flex-direction: column;
     gap: 32px;
@@ -130,7 +130,7 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   gap: 24px;
-  align-items: center;
+  align-items: end;
   justify-content: flex-start;
   @media screen and (max-width: 768px) {
     flex-direction: column;
