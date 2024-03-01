@@ -170,7 +170,8 @@ props.navOptions = [
   {
     label: "Payouts",
     id: "payouts",
-    disabled: !state.potDetail.payouts.length,
+    // disabled: !state.potDetail.payouts.length, // TODO: ADD BACK IN
+    disabled: false,
     source: `${ownerId}/widget/Pots.Payouts`,
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=payouts`),
   },

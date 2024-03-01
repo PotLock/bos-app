@@ -256,6 +256,7 @@ return {
     }
     const payouts = totals.reduce((acc, t) => {
       acc[t.id] = {
+        totalAmount: t.contribution_amount_str,
         matchingAmount: t.matching_amount_str,
         donorCount: t.number_contributions,
       };
