@@ -541,42 +541,41 @@ return (
                     State.update({ amount });
                   },
                   inputStyles: {
-                    textAlign: "left",
-                    padding: "10px 20px",
-                    borderRadius: "4px",
+                    textAlign: "right",
+                    borderRadius: "0px 4px 4px 0px",
                   },
-                  // preInputChildren: (
-                  //   <Widget
-                  //     src={`${ownerId}/widget/Inputs.Select`}
-                  //     props={{
-                  //       noLabel: true,
-                  //       placeholder: "",
-                  //       options: DENOMINATION_OPTIONS,
-                  //       value: { text: state.denomination, value: state.denomination },
-                  //       onChange: ({ text, value }) => {
-                  //         State.update({ denomination: value });
-                  //       },
-                  //       containerStyles: {
-                  //         width: "auto",
-                  //       },
-                  //       inputStyles: {
-                  //         border: "none",
-                  //         borderRight: "1px #F0F0F0 solid",
-                  //         boxShadow: "none",
-                  //         borderRadius: "4px 0px 0px 4px",
-                  //         width: "auto",
-                  //         padding: "12px 16px",
-                  //         boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
-                  //       },
-                  //       iconLeft:
-                  //         state.denomination == "NEAR" ? (
-                  //           <Icon src={SUPPORTED_FTS.NEAR.iconUrl} />
-                  //         ) : (
-                  //           "$"
-                  //         ),
-                  //     }}
-                  //   />
-                  // ),
+                  preInputChildren: (
+                    <Widget
+                      src={`${ownerId}/widget/Inputs.Select`}
+                      props={{
+                        noLabel: true,
+                        placeholder: "",
+                        options: DENOMINATION_OPTIONS,
+                        value: { text: state.denomination, value: state.denomination },
+                        onChange: ({ text, value }) => {
+                          State.update({ denomination: value });
+                        },
+                        containerStyles: {
+                          width: "auto",
+                        },
+                        inputStyles: {
+                          border: "none",
+                          borderRight: "1px #F0F0F0 solid",
+                          boxShadow: "none",
+                          borderRadius: "4px 0px 0px 4px",
+                          width: "auto",
+                          padding: "12px 16px",
+                          boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
+                        },
+                        iconLeft:
+                          state.denomination == "NEAR" ? (
+                            <Icon src={SUPPORTED_FTS.NEAR.iconUrl} />
+                          ) : (
+                            "$"
+                          ),
+                      }}
+                    />
+                  ),
                 }}
               />
               <Row style={{ justifyContent: "space-between", width: "100%", padding: "0px" }}>
