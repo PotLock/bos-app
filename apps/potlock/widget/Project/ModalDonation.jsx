@@ -283,10 +283,7 @@ const LinkSvg = styled.svg`
   }
 `;
 
-const DENOMINATION_OPTIONS = [
-  { text: "NEAR", value: "NEAR" },
-  { text: "USD", value: "USD" },
-];
+const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR" }];
 
 const DEFAULT_DONATION_AMOUNT = "1";
 
