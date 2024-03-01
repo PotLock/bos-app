@@ -67,6 +67,7 @@ const ContainerInner = styled.div`
 
 const BodyContainer = styled.div`
   flex: 1;
+  width: 100%;
 `;
 
 const Divider = styled.div`
@@ -132,7 +133,7 @@ if (state.potDetail === null) {
 const noPot = state.potDetail === undefined;
 const loading = state.potDetail === null;
 
-if (loading) return "Loading...";
+if (loading) return <div class="spinner-border text-secondary" role="status" />;
 
 if (noPot) return "No pot found";
 

@@ -16,7 +16,9 @@ const ProjectOptions = (props) => [
   {
     label: "Pots",
     id: "pots",
-    disabled: true,
+    disabled: false,
+    source: `${props.ownerId}/widget/Project.Pots`,
+    href: props.hrefWithParams(`?tab=project&projectId=${props.projectId}&nav=pots`),
   },
   // {
   //   label: "Attestations",

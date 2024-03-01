@@ -11,6 +11,7 @@ const currentTimestamp = new Date().getTime();
 const yesterday = currentTimestamp - oneDayTime;
 const lastWeek = currentTimestamp - oneDayTime * 7;
 const lastMonth = currentTimestamp - oneDayTime * 30;
+const lastYear = currentTimestamp - oneDayTime * 365;
 
 const getTimePassed = (timestamp) => {
   // Calculate the difference in milliseconds
@@ -26,13 +27,13 @@ const getTimePassed = (timestamp) => {
 
   // Display the time passed conditionally
   if (daysPassed > 0) {
-    time = `${daysPassed} days`;
+    time = `${daysPassed} day${daysPassed === 1 ? "" : "s"}`;
   } else if (hoursPassed > 0) {
-    time = `${hoursPassed} hours`;
+    time = `${hoursPassed} hour${hoursPassed === 1 ? "" : "s"}`;
   } else if (minutesPassed > 0) {
-    time = `${minutesPassed} minutes`;
+    time = `${minutesPassed} minute${minutesPassed === 1 ? "" : "s"}`;
   } else {
-    time = `${secondsPassed} seconds`;
+    time = `${secondsPassed} second${secondsPassed === 1 ? "" : "s"}`;
   }
   return time;
 };
@@ -59,15 +60,20 @@ const calcNetDonationAmount = (donation) => {
 };
 
 const filterByDate = (filter, donation) => {
+  const donateAt = donation.donated_at_ms || donation.donated_at;
+
   switch (filter) {
     case "day":
-      if (donation.donated_at_ms > yesterday) return true;
+      if (donateAt > yesterday) return true;
       return false;
     case "week":
-      if (donation.donated_at_ms > lastWeek) return true;
+      if (donateAt > lastWeek) return true;
       return false;
     case "month":
-      if (donation.donated_at_ms > lastMonth) return true;
+      if (donateAt > lastMonth) return true;
+      return false;
+    case "year":
+      if (donateAt > lastYear) return true;
       return false;
     case "all":
       return true;

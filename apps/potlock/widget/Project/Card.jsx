@@ -1,8 +1,16 @@
-const { potId, potDetail } = props;
-const { ipfsUrlFromCid } = VM.require("potlock.near/widget/utils") || { ipfsUrlFromCid: () => "" };
-const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") || {
+const { potId, potDetail, payoutDetails } = props;
+const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
+  "potlock.near/widget/utils"
+) || {
+  ipfsUrlFromCid: () => "",
+  yoctosToNear: () => "",
+  yoctosToUsdWithFallback: () => "",
+  nearToUsd: 1,
+};
+const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
 };
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
@@ -10,11 +18,12 @@ const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils")
 const donationContractId = "donate.potlock.near";
 // console.log("props in Card: ", props);
 
-const Card = styled.div`
+const Card = styled.a`
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 400px;
+  width: 100%;
+  overflow: hidden;
   border-radius: 12px;
   background: white;
   box-shadow: 0px -2px 0px #dbdbdb inset;
@@ -22,10 +31,14 @@ const Card = styled.div`
   margin-left: auto;
   margin-right: auto;
   // height: 500px;
-  pointer-events: auto;
+  transition: all 300ms;
+  :hover {
+    text-decoration: none;
+    transform: translateY(-1rem);
+  }
 `;
 
-const HeaderContainer = styled.a`
+const HeaderContainer = styled.div`
   padding-left: 16px;
   &:hover {
     text-decoration: none;
@@ -75,17 +88,13 @@ const ProfileImageContainer = styled.div`
   }
 `;
 
-const Info = styled.a`
+const Info = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 176px;
   padding: 16px 24px;
   gap: 16px;
   flex: 1;
-  &:hover {
-    text-decoration: none;
-    cursor: pointer;
-  }
 `;
 
 const Title = styled.div`
@@ -177,6 +186,150 @@ const Tag = styled.span`
   color: #2e2e2e;
 `;
 
+const MatchingSection = styled.div`
+  display: flex;
+  padding: 8px 24px;
+  align-items: center;
+  justify-content: space-between;
+  background: #ebebeb;
+  border-radius: 0px 0px 12px 12px;
+`;
+
+const MatchingTitle = styled.div`
+  color: #292929;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  word-wrap: break-word;
+`;
+
+const MatchingAmount = styled.div`
+  color: #292929;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+`;
+
+// Skeleton
+const loadingSkeleton = styled.keyframes`
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const CardSkeletonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 447px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0px -2px 0px #dbdbdb inset;
+  border: 1px solid #dbdbdb;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  animation-name: ${loadingSkeleton};
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+`;
+
+const HeaderSkeleton = styled.div`
+  display: block;
+  width: 100%;
+  height: 168px;
+  background: #eee;
+`;
+
+const ProfileImageSkeleton = styled.div`
+  background: #e0e0e0;
+  margin-left: 32px;
+  transform: translateY(148px);
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  border-radius: 999px;
+`;
+
+const TitleSkeleton = styled.div`
+  width: 120px;
+  height: 24px;
+  background: #eee;
+  margin-left: 24px;
+  margin-top: 24px;
+`;
+
+const DescriptionSkeleton = styled.div`
+  width: 83%;
+  height: 48px;
+  background: #eee;
+  margin-left: 24px;
+  margin-top: 24px;
+`;
+
+const TagSkeleton = styled.div`
+  background: #eee;
+  border-radius: 4px;
+  height: 34px;
+  width: 110px;
+  margin: 24px;
+`;
+
+const FooterItemSkeleton = styled.div`
+  width: 150px;
+  height: 40px;
+  background: #eee;
+
+  @media screen and (max-width: 390px) {
+    width: 100px;
+  }
+`;
+
+const DonationsInfoContainerSkeleton = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  width: 100%;
+  border-top: 1px #f0f0f0 solid;
+`;
+
+const DonationsInfoItemSkeleton = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+`;
+
+const CardSkeleton = () => (
+  <CardSkeletonContainer>
+    <HeaderSkeleton />
+    <ProfileImageSkeleton />
+    <TitleSkeleton />
+    <DescriptionSkeleton />
+    <TagSkeleton />
+    <DonationsInfoContainerSkeleton>
+      <DonationsInfoItemSkeleton>
+        <FooterItemSkeleton />
+      </DonationsInfoItemSkeleton>
+      <DonationsInfoItemSkeleton>
+        <FooterItemSkeleton />
+      </DonationsInfoItemSkeleton>
+    </DonationsInfoContainerSkeleton>
+  </CardSkeletonContainer>
+);
+
 State.init({
   donateModal: {
     isOpen: false,
@@ -204,7 +357,7 @@ const openDonateModal = () => {
 const projectId = props.project.id || props.projectId;
 const profile = Social.getr(`${projectId}/profile`);
 
-if (!profile) return "";
+if (!profile) return <CardSkeleton />;
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
@@ -213,14 +366,14 @@ const { name, description, plCategories } = profile;
 // const description = profile?.description || "No description";
 // const category = profile?.category || "No category";
 
-const donationsForProject =
-  Near.view(
-    potId || donationContractId,
-    potId ? "get_donations_for_project" : "get_donations_for_recipient",
-    potId ? { project_id: projectId } : { recipient_id: projectId }
-  ) || [];
+const donationsForProject = Near.view(
+  potId || donationContractId,
+  potId ? "get_donations_for_project" : "get_donations_for_recipient",
+  potId ? { project_id: projectId } : { recipient_id: projectId }
+);
 
 // console.log(donationsForProject);
+if (!donationsForProject) return <CardSkeleton />;
 
 const [totalAmount, totalDonors] = useMemo(() => {
   if (!donationsForProject) return [null, null];
@@ -232,12 +385,7 @@ const [totalAmount, totalDonors] = useMemo(() => {
     }
     totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
   }
-  return [
-    props.nearToUsd
-      ? (props.nearToUsd * totalDonationAmount.div(1e24).toNumber()).toFixed(2)
-      : totalDonationAmount.div(1e24).toNumber().toFixed(2),
-    donors.length,
-  ];
+  return [totalDonationAmount.toString(), donors.length];
 }, [donationsForProject]);
 
 const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
@@ -276,91 +424,104 @@ const profileImageStyle = {
 const tags = getTagsFromSocialProfileData(profile);
 
 return (
-  <Card key={projectId}>
-    <HeaderContainer href={projectUrl} className="pt-0 position-relative">
-      <BackgroundImageContainer>
-        {profile.backgroundImage?.nft ? (
-          <Widget
-            src="mob.near/widget/Image"
-            props={{
-              image: profile.backgroundImage,
-              alt: "background",
-              className: "position-absolute w-100",
-              style: backgroundImageStyle,
-              fallbackUrl:
-                "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-            }}
-          />
-        ) : (
-          <img
-            className="position-absolute w-100"
-            style={backgroundImageStyle}
-            src={getImageSrc(profile.backgroundImage)}
-            alt="background"
-          />
-        )}
-      </BackgroundImageContainer>
-      <ProfileImageContainer
-        class="profile-picture d-inline-block"
-        // profileImageTranslateYPx={props.profileImageTranslateYPx}
-        // profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
-      >
-        {profile.image?.nft ? (
-          <Widget
-            src="mob.near/widget/Image"
-            props={{
-              image: profile.image,
-              alt: "avatar",
-              className: "rounded-circle w-100 img-thumbnail d-block",
-              style: profileImageStyle,
-              fallbackUrl:
-                "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
-            }}
-          />
-        ) : (
-          <img
-            className="rounded-circle w-100 img-thumbnail d-block"
-            style={profileImageStyle}
-            src={getImageSrc(profile.image)}
-            alt="avatar"
-          />
-        )}
-      </ProfileImageContainer>
-    </HeaderContainer>
-    <Info href={projectUrl}>
-      <Title>{name}</Title>
-      <SubTitle>
-        {description.length > MAX_DESCRIPTION_LENGTH
-          ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
-          : description}
-      </SubTitle>
-      {!tags.length ? (
-        "No tags"
-      ) : (
-        <Tags>
-          {tags.map((tag, tagIndex) => (
-            <Tag key={tagIndex}>{tag}</Tag>
-          ))}
-        </Tags>
-      )}
-    </Info>
-    <DonationsInfoContainer>
-      <DonationsInfoItem>
-        <Amount>{props.nearToUsd ? `$${totalAmount}` : `${totalAmount} N`}</Amount>
-        <AmountDescriptor>Raised</AmountDescriptor>
-      </DonationsInfoItem>
-      {props.allowDonate && (
-        <DonationButton
-          onClick={(e) => {
-            e.preventDefault();
-            openDonateModal();
-          }}
-          disabled={!context.accountId}
+  <>
+    <Card href={projectUrl} key={projectId}>
+      <HeaderContainer className="pt-0 position-relative">
+        <BackgroundImageContainer>
+          {profile.backgroundImage?.nft ? (
+            <Widget
+              src="mob.near/widget/Image"
+              props={{
+                image: profile.backgroundImage,
+                alt: "background",
+                className: "position-absolute w-100",
+                style: backgroundImageStyle,
+                fallbackUrl:
+                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+              }}
+            />
+          ) : (
+            <img
+              className="position-absolute w-100"
+              style={backgroundImageStyle}
+              src={getImageSrc(profile.backgroundImage)}
+              alt="background"
+            />
+          )}
+        </BackgroundImageContainer>
+        <ProfileImageContainer
+          class="profile-picture d-inline-block"
+          // profileImageTranslateYPx={props.profileImageTranslateYPx}
+          // profileImageTranslateYPxMobile={props.profileImageTranslateYPxMobile}
         >
-          {context.accountId ? "Donate" : "Sign in to donate"}
-        </DonationButton>
-      )}
-      {/* <Widget
+          {profile.image?.nft ? (
+            <Widget
+              src="mob.near/widget/Image"
+              props={{
+                image: profile.image,
+                alt: "avatar",
+                className: "rounded-circle w-100 img-thumbnail d-block",
+                style: profileImageStyle,
+                fallbackUrl:
+                  "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+              }}
+            />
+          ) : (
+            <img
+              className="rounded-circle w-100 img-thumbnail d-block"
+              style={profileImageStyle}
+              src={getImageSrc(profile.image)}
+              alt="avatar"
+            />
+          )}
+        </ProfileImageContainer>
+      </HeaderContainer>
+      <Info>
+        <Title>{name}</Title>
+        <SubTitle>
+          {description.length > MAX_DESCRIPTION_LENGTH
+            ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
+            : description}
+        </SubTitle>
+        {!tags.length ? (
+          "No tags"
+        ) : (
+          <Tags>
+            {tags.map((tag, tagIndex) => (
+              <Tag key={tagIndex}>{tag}</Tag>
+            ))}
+          </Tags>
+        )}
+      </Info>
+      <DonationsInfoContainer>
+        <DonationsInfoItem>
+          <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
+          <AmountDescriptor>Raised</AmountDescriptor>
+        </DonationsInfoItem>
+        {payoutDetails && (
+          <DonationsInfoItem>
+            <Amount>{payoutDetails.donorCount}</Amount>
+            <AmountDescriptor>
+              {payoutDetails.donorCount === 1 ? "Donor" : "Donors"}
+            </AmountDescriptor>
+          </DonationsInfoItem>
+        )}
+        {props.allowDonate && (
+          <DonationButton
+            onClick={(e) => {
+              e.preventDefault();
+              openDonateModal();
+            }}
+            disabled={!context.accountId}
+          >
+            {!context.accountId
+              ? "Sign in to donate"
+              : props.requireVerification
+              ? "Verify to donate"
+              : "Donate"}
+          </DonationButton>
+        )}
+        {/* <Widget
         src={`${ownerId}/widget/Components.Button`}
         props={{
           type: "secondary",
@@ -370,12 +531,20 @@ return (
           },
         }}
       /> */}
-      {/* <DonationsInfoItem>
+        {/* <DonationsInfoItem>
         <Title>{totalDonors || totalDonors === 0 ? totalDonors : "-"}</Title>
         <SubTitle>{totalDonors === 1 ? "Donor" : "Donors"}</SubTitle>
       </DonationsInfoItem> */}
-    </DonationsInfoContainer>
-    {/* {props.allowDonate && (
+      </DonationsInfoContainer>
+      {payoutDetails && (
+        <MatchingSection>
+          <MatchingTitle>Estimated matched amount</MatchingTitle>
+          <MatchingAmount>
+            {yoctosToNear(payoutDetails.matchingAmount, true) || "- N"}
+          </MatchingAmount>
+        </MatchingSection>
+      )}
+      {/* {props.allowDonate && (
       <Widget
         src={`${ownerId}/widget/Cart.AddToCart`}
         props={{
@@ -391,7 +560,7 @@ return (
         }}
       />
     )} */}
-    {props.requireVerification && (
+      {/* {props.requireVerification && (
       <Widget
         src={`${ownerId}/widget/Pots.ButtonVerifyToDonate`}
         props={{
@@ -404,7 +573,8 @@ return (
           href: NADA_BOT_URL,
         }}
       />
-    )}
+    )} */}
+    </Card>
     {state.donateModal.isOpen && (
       <Widget
         src={`${ownerId}/widget/Project.ModalDonation`}
@@ -454,5 +624,5 @@ return (
         }}
       />
     )}
-  </Card>
+  </>
 );

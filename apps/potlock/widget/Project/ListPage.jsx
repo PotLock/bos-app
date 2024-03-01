@@ -1,3 +1,122 @@
+// Card Skeleton - Loading fallback
+const loadingSkeleton = styled.keyframes`
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const CardSkeletonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 447px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0px -2px 0px #dbdbdb inset;
+  border: 1px solid #dbdbdb;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  animation-name: ${loadingSkeleton};
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+`;
+
+const HeaderSkeleton = styled.div`
+  display: block;
+  width: 100%;
+  height: 168px;
+  background: #eee;
+`;
+
+const ProfileImageSkeleton = styled.div`
+  background: #e0e0e0;
+  margin-left: 32px;
+  transform: translateY(148px);
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  border-radius: 999px;
+`;
+
+const TitleSkeleton = styled.div`
+  width: 120px;
+  height: 24px;
+  background: #eee;
+  margin-left: 24px;
+  margin-top: 24px;
+`;
+
+const DescriptionSkeleton = styled.div`
+  width: 83%;
+  height: 48px;
+  background: #eee;
+  margin-left: 24px;
+  margin-top: 24px;
+`;
+
+const TagSkeleton = styled.div`
+  background: #eee;
+  border-radius: 4px;
+  height: 34px;
+  width: 110px;
+  margin: 24px;
+`;
+
+const FooterItemSkeleton = styled.div`
+  width: 150px;
+  height: 40px;
+  background: #eee;
+
+  @media screen and (max-width: 390px) {
+    width: 100px;
+  }
+`;
+
+const DonationsInfoContainerSkeleton = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  width: 100%;
+  border-top: 1px #f0f0f0 solid;
+`;
+
+const DonationsInfoItemSkeleton = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+`;
+
+const CardSkeleton = () => (
+  <CardSkeletonContainer>
+    <HeaderSkeleton />
+    <ProfileImageSkeleton />
+    <TitleSkeleton />
+    <DescriptionSkeleton />
+    <TagSkeleton />
+    <DonationsInfoContainerSkeleton>
+      <DonationsInfoItemSkeleton>
+        <FooterItemSkeleton />
+      </DonationsInfoItemSkeleton>
+      <DonationsInfoItemSkeleton>
+        <FooterItemSkeleton />
+      </DonationsInfoItemSkeleton>
+    </DonationsInfoContainerSkeleton>
+  </CardSkeletonContainer>
+);
+
+// ListPage Content
+
 const { userIsRegistryAdmin, tab } = props;
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
@@ -79,7 +198,9 @@ const Underline = styled.div`
   @media (max-width: 768px) {
     top: 30px;
     left: -30px;
+  }
 `;
+
 const containerStyle = props.containerStyle ?? {};
 
 const showStats = !props.tab || props.tab == "projects";
@@ -372,12 +493,19 @@ const featuredProjects = useMemo(
   () => projects.filter((project) => featuredProjectIds.includes(project.id)),
   projects
 );
-
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
 const [filteredProjects, setFilteredProjects] = useState(projects);
 const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
+
+useEffect(() => {
+  if (filteredProjects.length < 1) {
+    setFilteredProjects(projects);
+  }
+}, [projects]);
+
+console.log("filter", filteredProjects);
 
 Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
   const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
@@ -391,6 +519,10 @@ const donateRandomly = () => {
     successfulDonation: null,
   });
 };
+
+if (!registry.isRegistryAdmin(context.accountId)) {
+  projects = projects.filter((project) => project.status === "Approved");
+}
 
 const handleDonateRandomly = (e) => {
   e.preventDefault();
@@ -699,36 +831,6 @@ return (
           },
         }}
       />
-      {/* {tab != "pots" && tab != "pot" && (
-          <TagsWrapper>
-            Tags:
-            {tagsList.map((tag, key) => (
-              <Tag
-                key={key}
-                onClick={() => handleTag(key)}
-                className={`${
-                  tag.selected && "gap-2 bg-[#FEF6EE]"
-                } p-2 rounded border text-sm flex items-center  cursor-pointer`}
-              >
-                {tag.selected && (
-                  <svg
-                    width="12"
-                    height="10"
-                    viewBox="0 0 12 10"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
-                      fill="#F4B37D"
-                    ></path>
-                  </svg>
-                )}
-                {tag.label}
-              </Tag>
-            ))}
-          </TagsWrapper>
-        )} */}
     </Header>
     <ProjectsContainer>
       <Widget
@@ -740,18 +842,7 @@ return (
             return (
               <Widget
                 src={`${ownerId}/widget/Project.Card`}
-                loading={
-                  <div
-                    style={{
-                      width: "355px",
-                      height: "455px",
-                      borderRadius: "12px",
-                      background: "white",
-                      boxShadow: "0px -2px 0px #dbdbdb inset",
-                      border: "1px solid #dbdbdb",
-                    }}
-                  />
-                }
+                loading={<CardSkeleton />}
                 props={{
                   ...props,
                   // potId,

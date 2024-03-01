@@ -39,27 +39,31 @@ const StatsSubTitle = styled.div`
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || {
   yoctosToUsd: (amount) => amount,
 };
-const PotlockDonateSDK = VM.require("potlock.near/widget/SDK.donate") || (() => ({}));
-const donate = PotlockDonateSDK({ env: props.env }) || {
-  getConfig: () => {},
-};
+const PotlockDonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+  }));
+const donate = PotlockDonateSDK({ env: props.env });
 
 const data = donate.getConfig() || {
   net_donations_amount: 0,
   total_donations_count: 0,
 };
 
-const lastDonationAmount = yoctosToUsd(data.net_donations_amount);
+const lastDonationAmount = data.net_donations_amount
+  ? yoctosToUsd(data.net_donations_amount)
+  : null;
 const totalDonations = data.total_donations_count;
 
 return (
   <Stats>
     <StatsTitle>
-      {lastDonationAmount || "~"}
+      {lastDonationAmount || "-"}
       <StatsSubTitle>Donated</StatsSubTitle>
     </StatsTitle>
     <StatsTitle>
-      {totalDonations || "~"}
+      {totalDonations || "-"}
       <StatsSubTitle>Donations</StatsSubTitle>
     </StatsTitle>
   </Stats>

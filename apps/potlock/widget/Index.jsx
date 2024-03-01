@@ -58,7 +58,6 @@ State.init({
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
   // previousCart: null,
-  nearToUsd: null,
   isCartModalOpen: false,
   isNavMenuOpen: false,
   allPots: null,
@@ -86,7 +85,7 @@ State.init({
   },
 });
 
-console.log("state in Index: ", state);
+// console.log("state in Index: ", state);
 
 if (!state.allPots) {
   Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {

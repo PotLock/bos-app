@@ -45,7 +45,12 @@ const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+const PotlockRegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjects: () => {},
+    getProjectById: () => {},
+  }));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
@@ -789,7 +794,7 @@ const registeredProject = useMemo(() => {
   return registry.getProjectById(state.isDao ? state.daoAddress : context.accountId);
 }, [state.isDao, state.daoAddress]);
 
-// console.log("registeredProject: ", registeredProject);
+console.log("registeredProject: ", registeredProject);
 
 const proposals = Near.view(state.daoAddress, "get_proposals", {
   from_index: 0,

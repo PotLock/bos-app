@@ -4,6 +4,7 @@ const {
   // addProjectsToCart,
   // setIsCartModalOpen,
   tab,
+  shouldShuffle,
   // setAmount,
   // setProjectId,
   // setNote,
@@ -17,8 +18,6 @@ const {
 } = props;
 
 // console.log("props in list section: ", props);
-
-const shouldShuffle = !tab || tab === "projects";
 
 const items = useMemo(() => {
   if (shouldShuffle) {
@@ -57,8 +56,6 @@ const [searchTerm, setSearchTerm] = useState("");
 // const [elements, setElements] = useState(
 //   props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
 // );
-// console.log("elements: ", elements);
-// console.log("num of elements: ", elements.length);
 
 // const loadMore = () => {
 //   const newElements = props.items
@@ -66,6 +63,7 @@ const [searchTerm, setSearchTerm] = useState("");
 //     .map(props.renderItem);
 //   setElements([...elements, ...newElements]);
 // };
+
 // const [page, setPage] = useState(1);
 // const [lastNumberOfProject, setLastNumberOfProject] = useState(PAGE_SIZE);
 // const donationContractId = "donate.potlock.near";
@@ -494,12 +492,14 @@ const Container = styled.div`
   @media screen and (min-width: 740px) and (max-width: 1400px) {
     ${props.tab !== "pot" && "padding-top: 120px;"}
   }
+  @media screen and (max-width: 739px) {
+    ${props.tab !== "pot" && "padding-top: 40px;"}
+  }
 `;
 
 const ProjectList = styled.div`
   display: grid;
   gap: 31px;
-
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
     grid-template-columns: repeat(1, 1fr);

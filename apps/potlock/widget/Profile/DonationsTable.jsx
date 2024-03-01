@@ -1,12 +1,18 @@
-const { projectId, donations, nearToUsd, hrefWithParams } = props;
+const { projectId, donations, hrefWithParams } = props;
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: 1,
+};
+
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
-const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
+const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+  _address: () => "",
+};
 
 const Container = styled.div`
   display: flex;
@@ -247,7 +253,11 @@ const total = useMemo(() => {
 
 const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
 
-const stats = [{ label: "Donated", amount: (totalDonationAmount * nearToUsd).toFixed(2) }];
+const stats = [
+  ...(nearToUsd
+    ? [{ label: "Donated", amount: (totalDonationAmount * nearToUsd).toFixed(2) }]
+    : []),
+];
 
 useEffect(() => {
   setTotalDonation(donations);

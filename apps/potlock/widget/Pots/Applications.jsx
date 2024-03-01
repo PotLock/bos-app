@@ -115,7 +115,7 @@ if (!state.allApplications) {
   });
 }
 
-if (!state.allApplications) return "Loading...";
+if (!state.allApplications) return <div class="spinner-border text-secondary" role="status" />;
 
 const { owner, admins, chef } = potDetail;
 

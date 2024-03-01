@@ -1,4 +1,4 @@
-const { ownerId, donations, filter } = props;
+const { ownerId, allDonations, filter } = props;
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
 
@@ -7,7 +7,7 @@ useEffect(() => {
 }, [filter]);
 
 const nearLogo =
-  "https://ipfs.near.social/ipfs/bafkreib2cfbayerbbnoya6z4qcywnizqrbkzt5lbqe32whm2lubw3sywr4";
+  "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
 const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -19,23 +19,51 @@ const Container = styled.div`
   align-items: center;
   gap: 2rem;
   .transcation {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    overflow-x: scroll;
+    font-size: 14px;
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem 0;
+      padding: 10px;
       gap: 1rem;
-      background: var(--primary-color);
-      color: white;
+      background: #f6f5f3;
+      color: #292929;
       div {
-        width: 150px;
+        width: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-weight: 600;
       }
+    }
+    .address {
+      width: 143px !important;
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    .transcation {
+      font-size: 12px;
+      .header {
+        padding: 10px 0;
+        div {
+          width: 80px !important;
+        }
+      }
+      .address {
+        width: 80px !important;
+        justify-content: center;
+        .profile-image {
+          display: none !important;
+        }
+      }
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    .transcation {
+      font-size: 9px;
     }
   }
 `;
@@ -45,97 +73,109 @@ const TrRow = styled.div`
   width: 100%;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid #0000003e;
-  &:last-of-type {
-    border-bottom-color: transparent;
-  }
+  padding: 20px 10px;
+
   > div,
   > span {
-    width: 150px;
+    width: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
   .price {
     display: flex;
-    gap: 4px;
+    gap: 1rem;
     align-items: center;
-    font-weight: 600;
     img {
-      width: 14px;
+      width: 1.5rem;
     }
   }
   .address {
-    color: var(--primary-color);
-    font-weight: 500;
-    height: 40px;
+    color: #292929;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 10px;
+    justify-content: flex-start;
     border-radius: 2px;
     transition: all 200ms;
-    :hover {
-      background: var(--primary-color);
-      color: white;
+    .profile-image {
+      width: 2rem;
+      height: 2rem;
+      margin-right: 1rem;
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    padding: 10px 0;
+    > div,
+    > span {
+      width: 80px;
+    }
+    .price {
+      gap: 8px;
+      img {
+        width: 1.25rem;
+      }
+    }
+    .address .profile-image {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    .price img {
+      width: 1rem;
     }
   }
 `;
 
-return (
+const NoResult = styled.div`
+  font-size: 2rem;
+  text-align: center;
+`;
+
+const ProfileImg = ({ address }) => (
+  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+);
+
+return allDonations.length ? (
   <Container>
     <div className="transcation">
       <div className="header">
-        <div>ID</div>
-        <div>Donor ID</div>
+        <div className="address">Project</div>
+        <div className="address">Donor</div>
         <div>Amount</div>
-        <div>Project ID</div>
         <div>Date</div>
       </div>
-      {reverseArr(donations)
+      {reverseArr(allDonations)
         .slice(page * perPage, (page + 1) * perPage)
         .map((donation) => {
           const { id, donor_id, recipient_id, donated_at_ms } = donation;
 
           return (
             <TrRow>
-              <div>{id}</div>
-              <Widget
-                src="near/widget/AccountProfileOverlay"
-                props={{
-                  accountId: donor_id,
-                  children: (
-                    <a
-                      href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
-                      className="address"
-                      target="_blank"
-                    >
-                      {_address(donor_id)}{" "}
-                    </a>
-                  ),
-                }}
-              />
-              <div className="price">
-                {calcNetDonationAmount(donation).toFixed(2)}
+              <a
+                href={props.hrefWithParams(`?tab=project&projectId=${recipient_id}`)}
+                className="address"
+                target="_blank"
+              >
+                <ProfileImg address={recipient_id} />
+                {_address(recipient_id)}
+              </a>
 
+              <a
+                href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
+                className="address"
+                target="_blank"
+              >
+                <ProfileImg address={donor_id} />
+                {_address(donor_id)}
+              </a>
+
+              <div className="price">
                 <img src={nearLogo} alt="NEAR" />
+                {calcNetDonationAmount(donation).toFixed(2)}
               </div>
-              <Widget
-                src="near/widget/AccountProfileOverlay"
-                props={{
-                  accountId: recipient_id,
-                  children: (
-                    <a
-                      href={props.hrefWithParams(`?tab=project&projectId=${recipient_id}`)}
-                      Name="address"
-                      target="_blank"
-                    >
-                      {_address(recipient_id)}
-                    </a>
-                  ),
-                }}
-              />
+
               <div>{getTimePassed(donated_at_ms)} ago</div>
             </TrRow>
           );
@@ -147,11 +187,13 @@ return (
         onClick: (page) => {
           setPage(page);
         },
-        data: donations,
+        data: allDonations,
         page: page,
         perPage: perPage,
-        bgColor: "var(--primary-color)",
+        bgColor: "#292929",
       }}
     />
   </Container>
+) : (
+  <NoResult>No Donations</NoResult>
 );
