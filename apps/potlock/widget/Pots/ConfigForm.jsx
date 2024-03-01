@@ -15,7 +15,11 @@ const {
 };
 // console.log("props in config form: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+const PotlockRegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getContractId: () => "",
+  }));
 const registry = PotlockRegistrySDK({ env: props.env });
 
 const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
