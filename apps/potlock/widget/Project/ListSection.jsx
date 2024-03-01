@@ -506,26 +506,7 @@ const ProjectList = styled.div`
   }
 
   // For tablet devices (2 columns)
-  @media screen and (min-width: 740px) and (max-width: 1280px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  // For desktop devices (3 columns)
-  @media screen and (min-width: 1024px) {
-    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
-  }
-`;
-const Projects = styled.div`
-  display: grid;
-  gap: 31px;
-
-  // For mobile devices (1 column)
-  @media screen and (max-width: 739px) {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  // For tablet devices (2 columns)
-  @media screen and (min-width: 740px) and (max-width: 1280px) {
+  @media screen and (min-width: 740px) and (max-width: 1023px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -666,7 +647,6 @@ return (
         )} */}
       </Header>
       <ProjectList>{items.map(props.renderItem)}</ProjectList>
-
       {/* <InfiniteScroll
         // loadMore={tab == "pots" || tab == "pot" ? loadPotProjects : loadProjects}
         loadMore={loadMore}
