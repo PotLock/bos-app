@@ -910,7 +910,7 @@ return (
         handleAddAccount: handleAddAdmin,
         handleRemoveAccount: handleRemoveAdmin,
         accountError: state.adminsError,
-        accounts: state.admins,
+        accountIds: state.admins.map((admin) => admin.accountId),
         unitText: "admin",
       }}
     />
