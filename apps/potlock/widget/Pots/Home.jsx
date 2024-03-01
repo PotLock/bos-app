@@ -151,19 +151,19 @@ return (
         to get your contributions amplified.
       </HeaderDescription>
       <Row>
-        {/* {canDeploy && ( */}
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "primary",
-            text: "Deploy Pot",
-            style: {
-              whiteSpace: "nowrap",
-            },
-            href: props.hrefWithParams(`?tab=deploypot`),
-          }}
-        />
-        {/* )} */}
+        {canDeploy && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "primary",
+              text: "Deploy Pot",
+              style: {
+                whiteSpace: "nowrap",
+              },
+              href: props.hrefWithParams(`?tab=deploypot`),
+            }}
+          />
+        )}
         <Widget
           src={`${ownerId}/widget/Components.Button`}
           props={{
