@@ -459,6 +459,10 @@ const ContainerHeader = styled.div`
   @media screen and (min-width: 740px) and (max-width: 1400px) {
     ${props.tab !== "pot" && "padding-top: 120px;"}
   }
+  // mobile
+  @media screen and (max-width: 739px) {
+    padding-top: 40px;
+  }
 `;
 
 const ProjectList = styled.div`
