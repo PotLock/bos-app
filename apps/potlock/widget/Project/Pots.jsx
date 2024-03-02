@@ -1,12 +1,18 @@
-const { POT_FACTORY_CONTRACT_ID, projectId } = props;
+const { projectId } = props;
 
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
 
-// ids[] of pots that approved project
-const [potIds, setPotIds] = useState(null);
-const [potsConfig, setPotsConfig] = useState(null);
+const PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+const potFactory = PotFactorySDK({ env: props.env });
+const pots = potFactory.getPots();
+
+const [potIds, setPotIds] = useState(null); // ids[] of pots that approved project
 
 const getApprovedApplications = (potId) =>
   Near.asyncView(potId, "get_approved_applications", {})
@@ -16,19 +22,9 @@ const getApprovedApplications = (potId) =>
     })
     .catch((err) => console.log(`Error fetching approved applications for ${potId}`));
 
-if (!potIds) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {})
-    .then((pots) => {
-      pots.forEach((pot) => {
-        getApprovedApplications(pot.id);
-      });
-    })
-    .catch((err) => console.log("error fetching pots", err));
-}
-
-if (!potsConfig) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_config", {}).then((potFactoryConfig) => {
-    setPotsConfig(potFactoryConfig);
+if (pots && !potIds) {
+  pots.forEach((pot) => {
+    getApprovedApplications(pot.id);
   });
 }
 
@@ -46,14 +42,13 @@ return potIds ? (
         ...props,
         tab: "pots",
         items: potIds,
-        itemsAll: potsConfig,
         renderItem: (pot) => (
           <Widget
             src={`${ownerId}/widget/Pots.Card`}
             props={{
               ...props,
               potId: pot,
-              potConfig: potsConfig[pot],
+              // potConfig: potsConfig[pot], // TODO: this should be fetched in the pot card widget
             }}
           />
         ),

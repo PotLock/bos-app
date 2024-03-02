@@ -1,11 +1,11 @@
 const { ownerId } = props;
 
-const PotlockRegistrySDK =
+const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+const registry = RegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 

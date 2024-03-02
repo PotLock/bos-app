@@ -1,11 +1,9 @@
 const {
-  allPots,
   recipientId, // TODO: change this to projectId
   referrerId,
   // potId,
   // potDetail,
   onClose,
-  POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   POT,
 } = props;
@@ -19,21 +17,29 @@ const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPO
   };
 // console.log("props in donation modal: ", props);
 
-const PotlockRegistrySDK =
+const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+const registry = RegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
-const PotlockDonateSDK =
+const DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
   }));
-const donate = PotlockDonateSDK({ env: props.env });
+const donate = DonateSDK({ env: props.env });
+
+const PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+const potFactory = PotFactorySDK({ env: props.env });
+const pots = potFactory.getPots();
 
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
@@ -340,17 +346,15 @@ if (state.allPots && !state.activeRoundsForProject) {
   });
 }
 
-if (!state.allPots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    State.update({
-      allPots: pots.reduce((acc, pot) => {
-        acc[pot.id] = {
-          detail: Near.view(pot.id, "get_config", {}),
-          approvedProjects: Near.view(pot.id, "get_approved_applications", {}),
-        };
-        return acc;
-      }, {}),
-    });
+if (pots && !state.allPots) {
+  State.update({
+    allPots: pots.reduce((acc, pot) => {
+      acc[pot.id] = {
+        detail: Near.view(pot.id, "get_config", {}),
+        approvedProjects: Near.view(pot.id, "get_approved_applications", {}),
+      };
+      return acc;
+    }, {}),
   });
 }
 

@@ -45,13 +45,13 @@ const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const PotlockRegistrySDK =
+const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
     getProjectById: () => {},
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+const registry = RegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 

@@ -1,7 +1,7 @@
 return ({ env }) => {
   const contractId = "donate.potlock.near";
 
-  const PotlockDonateSDK = {
+  const DonateSDK = {
     getContractId: () => contractId,
     getConfig: () => {
       return Near.view(contractId, "get_config", {});
@@ -11,5 +11,5 @@ return ({ env }) => {
     getDonationsForProject: (projectId) => {},
     getDonationsForDonor: () => {},
   };
-  return PotlockDonateSDK;
+  return DonateSDK;
 };

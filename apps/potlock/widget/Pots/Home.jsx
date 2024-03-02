@@ -1,4 +1,16 @@
-const { ownerId, POT_FACTORY_CONTRACT_ID } = props;
+const { ownerId } = props;
+
+const PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getContractId: () => {},
+    getConfig: () => {},
+    getPots: () => {},
+  }));
+const potFactory = PotFactorySDK({ env: props.env });
+const potFactoryContractId = potFactory.getContractId();
+const potFactoryConfig = potFactory.getConfig();
+const pots = potFactory.getPots();
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
@@ -112,32 +124,13 @@ const containerStyle = styled.div`
   }
 `;
 
-State.init({
-  pots: null,
-  potConfigs: {},
-  potFactoryConfig: null,
-});
-if (!state.pots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    State.update({ pots });
-  });
-}
-if (!state.potFactoryConfig) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_config", {}).then((potFactoryConfig) => {
-    State.update({ potFactoryConfig });
-  });
-}
-
-// console.log("state: ", state);
-// console.log("props: ", props);
-
-if (!state.potFactoryConfig) {
+if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
 // user can deploy a pot if !potConfig.require_whitelist or potConfig.whitelisted_deployers.includes(context.accountId)
 const canDeploy =
-  !state.potFactoryConfig.require_whitelist ||
-  state.potFactoryConfig.whitelisted_deployers.includes(context.accountId);
+  !potFactoryConfig.require_whitelist ||
+  potFactoryConfig.whitelisted_deployers.includes(context.accountId);
 //console.log("props", state.pots);
 return (
   <Container>
@@ -207,13 +200,12 @@ return (
       ))}
     </containerStyle> */}
 
-    {state.pots && (
+    {pots && (
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
-          items: state.pots,
-          itemsAll: state.potConfigs,
+          items: pots,
           renderItem: (pot) => (
             <Widget
               src={`${ownerId}/widget/Pots.Card`}
@@ -232,7 +224,7 @@ return (
               props={{
                 ...props,
                 potId: pot.id,
-                potConfig: state.potConfigs[pot.id],
+                potConfig: state.potConfigs[pot.id], // TODO: MOVE THIS TO THE CARD WIDGET (PICK UP HERE)
               }}
             />
           ),

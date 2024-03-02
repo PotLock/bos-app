@@ -1,17 +1,26 @@
-const { projectId, tab, POT_FACTORY_CONTRACT_ID } = props;
+const { projectId, tab } = props;
+
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
 };
 const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
-const PotlockRegistrySDK =
+const PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+const potFactory = PotFactorySDK({ env: props.env });
+const pots = potFactory.getPots();
+
+const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjectById: () => "",
   }));
 
-const registry = PotlockRegistrySDK({ env: props.env });
+const registry = RegistrySDK({ env: props.env });
 const project = registry.getProjectById(projectId);
 
 if (!project || project == null) {
@@ -22,8 +31,6 @@ if (project == undefined) {
   return "Project not found";
 }
 
-// Fetch Project Donations
-const [pots, setPots] = useState(null);
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of Round Matching Donations for the project
 const [matchingRoundDonations, setMatchingRoundDonations] = useState({});
@@ -67,12 +74,8 @@ if (!directDonations) {
     setDirectDonations(donations);
   });
 }
-if (!pots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    setPots(pots || []);
-  });
-}
-if (pots.length && !matchingRoundDonations[pots[pots.length - 1].id]) {
+
+if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
     getPotConfig(pot.id).then((potDetail) => {
       getProjectRoundDonations(pot.id, potDetail);

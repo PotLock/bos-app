@@ -1,11 +1,18 @@
 const {
-  POT_FACTORY_CONTRACT_ID,
   SUPPORTED_FTS: { NEAR },
 } = props;
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
 };
+
+const PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+const potFactory = PotFactorySDK({ env: props.env });
+const pots = potFactory.getPots();
 
 const accountId = props.accountId ?? context.accountId;
 
@@ -15,7 +22,6 @@ if (!accountId) {
   return "No account ID";
 }
 
-const [pots, setPots] = useState(null);
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of sponsorship (matching pool) donations to this pot for this user
 const [sponsorshipDonations, setSponsorshipDonations] = useState({});
@@ -62,12 +68,7 @@ if (!directDonations) {
   });
 }
 // Get Sponsorship Donations
-if (!pots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    setPots(pots || []);
-  });
-}
-if (pots.length && !sponsorshipDonations[pots[pots.length - 1].id]) {
+if (pots && !sponsorshipDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
     getPotConfig(pot.id).then((potDetail) => {
       getSponsorshipDonations(pot.id, potDetail);
