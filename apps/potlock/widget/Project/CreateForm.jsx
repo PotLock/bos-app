@@ -45,13 +45,14 @@ const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const PotlockRegistrySDK =
+const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
     getProjectById: () => {},
+    asyncGetProjectById: () => {},
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+const registry = RegistrySDK({ env: props.env });
 
 const projects = registry.getProjects() || [];
 
@@ -766,10 +767,7 @@ const handleCreateOrUpdateProject = (e) => {
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
       // This is an async request, not converting to SDK yet
-      Near.asyncView(registry.getContractId(), "get_project_by_id", {
-        project_id: context.accountId,
-        // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
-      }).then((_project) => {
+      RegistrySDK.asyncGetProjectById(context.accountId).then((_project) => {
         // won't get here unless project exists
         clearInterval(pollId);
         State.update({ registrationSuccess: true });

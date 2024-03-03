@@ -2,10 +2,20 @@ const { referrerId, amountNear, bypassProtocolFee, recipientId } = props;
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
-const { DONATION_CONTRACT_ID, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  DONATION_CONTRACT_ID: "",
+
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+  }));
+
+DonateSDK = DonateSDK({ env: props.env });
+const donationContractConfig = DonateSDK.getConfig();
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CHEVRON_DOWN_URL =
   IPFS_BASE_URL + "bafkreiabkwyfxq6pcc2db7u4ldweld5xcjesylfuhocnfz7y3n6jw7dptm";
@@ -96,8 +106,6 @@ const BreakdownAmount = styled.div`
 State.init({
   showBreakdown: false,
 });
-
-const donationContractConfig = Near.view(DONATION_CONTRACT_ID, "get_config", {});
 
 if (!donationContractConfig) return "";
 

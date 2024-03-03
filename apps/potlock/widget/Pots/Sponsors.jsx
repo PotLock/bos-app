@@ -6,6 +6,10 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   SUPPORTED_FTS: {},
 };
 
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetMatchingPoolDonations: () => {},
+};
+
 const { NEAR } = SUPPORTED_FTS;
 
 State.init({
@@ -13,7 +17,7 @@ State.init({
 });
 
 if (!state.allDonations) {
-  Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
+  PotSDK.asyncGetMatchingPoolDonations(potId).then((donations) => {
     // sort by size)
     donations.sort(
       (a, b) =>

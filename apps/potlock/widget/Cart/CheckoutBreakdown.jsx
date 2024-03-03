@@ -1,11 +1,21 @@
 const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
-const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetDonationsForDonor: () => {},
+};
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetDonationsForDonor: () => {},
+  }));
+
+DonateSDK = DonateSDK({ env: props.env });
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;
 
@@ -170,10 +180,10 @@ const handleDonate = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(potIdContained || DONATION_CONTRACT_ID, "get_donations_for_donor", {
-      donor_id: context.accountId,
-      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
-    }).then((donations) => {
+    (potIdContained
+      ? PotSDK.asyncGetDonationsForDonor(potIdContained, context.accountId)
+      : DonateSDK.asyncGetDonationsForDonor(context.accountId)
+    ).then((donations) => {
       // for each project, there should be a matching donation that occurred since now()
       const foundDonations = [];
       // go through donations, add to foundDonations list

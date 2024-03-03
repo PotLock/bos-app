@@ -1,10 +1,29 @@
 const {
-  POT_FACTORY_CONTRACT_ID,
   SUPPORTED_FTS: { NEAR },
 } = props;
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
+};
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetDonationsForDonor: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetConfig: () => {},
+  asyncGetDonationsForDonor: () => {},
 };
 
 const accountId = props.accountId ?? context.accountId;
@@ -15,18 +34,13 @@ if (!accountId) {
   return "No account ID";
 }
 
-const [pots, setPots] = useState(null);
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of sponsorship (matching pool) donations to this pot for this user
 const [sponsorshipDonations, setSponsorshipDonations] = useState({});
 const [potDonations, setPotDonations] = useState([]);
 
-const getPotConfig = (potId) => Near.asyncView(potId, "get_config", {});
-
 const getSponsorshipDonations = (potId, potDetail) => {
-  return Near.asyncView(potId, "get_donations_for_donor", {
-    donor_id: accountId,
-  })
+  return PotSDK.asyncGetDonationsForDonor(potId, accountId)
     .then((donations) => {
       donations = donations.filter((donations) => donations.donor_id === accountId);
       const updatedDonations = donations.map((donation) => ({
@@ -51,9 +65,7 @@ const getSponsorshipDonations = (potId, potDetail) => {
 
 // Get Direct Donations
 if (!directDonations) {
-  Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
-    donor_id: accountId,
-  }).then((donations) => {
+  DonateSDK.asyncGetDonationsForDonor(accountId).then((donations) => {
     donations = donations.map((donation) => ({
       ...donation,
       type: "DIRECT",
@@ -62,14 +74,9 @@ if (!directDonations) {
   });
 }
 // Get Sponsorship Donations
-if (!pots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    setPots(pots || []);
-  });
-}
-if (pots.length && !sponsorshipDonations[pots[pots.length - 1].id]) {
+if (pots && !sponsorshipDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
-    getPotConfig(pot.id).then((potDetail) => {
+    PotSDK.asyncGetConfig(pot.id).then((potDetail) => {
       getSponsorshipDonations(pot.id, potDetail);
     });
   });
@@ -101,7 +108,7 @@ return (
         profile,
         tags,
         accounts: [accountId],
-        donations: allDonations,
+        donations: allDonations, // TODO: why is this fetched here when it's not used in this component?
         nav: props.nav ?? "donations",
         navOptions: ProfileOptions(props),
       }}

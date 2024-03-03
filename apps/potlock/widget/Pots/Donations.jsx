@@ -7,16 +7,20 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
 const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
   getTimePassed: () => "",
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getPublicRoundDonations: () => {},
+};
+const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
+
 State.init({
   allDonations: null,
   filteredDonations: [],
 });
 
-if (!state.allDonations) {
-  Near.asyncView(potId, "get_public_round_donations", {}).then((donations) => {
-    donations.sort((a, b) => b.donated_at - a.donated_at);
-    State.update({ filteredDonations: donations, allDonations: donations });
-  });
+if (publicRoundDonations && !state.allDonations) {
+  publicRoundDonations.sort((a, b) => b.donated_at - a.donated_at);
+  State.update({ filteredDonations: publicRoundDonations, allDonations: publicRoundDonations });
 }
 
 if (!state.allDonations) return <div class="spinner-border text-secondary" role="status" />;

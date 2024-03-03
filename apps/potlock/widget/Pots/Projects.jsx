@@ -1,3 +1,8 @@
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getApprovedApplications: () => {},
+  getPublicRoundDonations: () => {},
+};
+
 // Card Skeleton - Loading fallback
 const loadingSkeleton = styled.keyframes`
   0% {
@@ -120,7 +125,7 @@ const { ownerId, potId, potDetail, sybilRequirementMet } = props;
 const { calculatePayouts } = VM.require("potlock.near/widget/utils") || {
   calculatePayouts: () => {},
 };
-const projects = Near.view(potId, "get_approved_applications", {});
+const projects = PotSDK.getApprovedApplications(potId);
 
 if (!projects) return <div class="spinner-border text-secondary" role="status" />;
 
@@ -129,7 +134,7 @@ const { public_round_start_ms, public_round_end_ms } = potDetail;
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 
-const allDonationsForPot = Near.view(potId, "get_public_round_donations", {}) || [];
+const allDonationsForPot = PotSDK.getPublicRoundDonations(potId) || [];
 
 const payouts = useMemo(() => {
   if (allDonationsForPot.length)

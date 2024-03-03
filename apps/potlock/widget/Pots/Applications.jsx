@@ -10,6 +10,12 @@ const {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getApplications: () => {},
+};
+const applications = PotSDK.getApplications(potId);
+
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -109,10 +115,8 @@ State.init({
   filterVal: APPLICATIONS_FILTERS.ALL,
 });
 
-if (!state.allApplications) {
-  Near.asyncView(potId, "get_applications", {}).then((applications) => {
-    State.update({ filteredApplications: applications, allApplications: applications });
-  });
+if (applications && !state.allApplications) {
+  State.update({ filteredApplications: applications, allApplications: applications });
 }
 
 if (!state.allApplications) return <div class="spinner-border text-secondary" role="status" />;
