@@ -5,18 +5,17 @@ const {
   // potId,
   // potDetail,
   onClose,
-  POT_FACTORY_CONTRACT_ID,
   NADABOT_CONTRACT_ID,
   POT,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
-  VM.require("potlock.near/widget/constants") || {
-    DONATION_CONTRACT_ID: "",
-    NADABOT_HUMAN_METHOD: "",
-    ownerId: "",
-    NADA_BOT_URL: "",
-    SUPPORTED_FTS: {},
-  };
+const { ownerId, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } = VM.require(
+  "potlock.near/widget/constants"
+) || {
+  NADABOT_HUMAN_METHOD: "",
+  ownerId: "",
+  NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
+};
 // console.log("props in donation modal: ", props);
 
 const PotlockRegistrySDK =
@@ -31,9 +30,18 @@ const projects = registry.getProjects() || [];
 const PotlockDonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
+    getContractId: () => {},
     getConfig: () => {},
   }));
 const donate = PotlockDonateSDK({ env: props.env });
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const pots = PotFactorySDK.getPots();
 
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
@@ -341,7 +349,7 @@ if (state.allPots && !state.activeRoundsForProject) {
 }
 
 if (!state.allPots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
+  if (pots) {
     State.update({
       allPots: pots.reduce((acc, pot) => {
         acc[pot.id] = {
@@ -351,7 +359,7 @@ if (!state.allPots) {
         return acc;
       }, {}),
     });
-  });
+  }
 }
 
 const handleModalClose = () => {
@@ -437,7 +445,7 @@ const handleDonate = () => {
 
   const transactions = [
     {
-      contractName: isPotDonation ? potId : DONATION_CONTRACT_ID,
+      contractName: isPotDonation ? potId : donate.getContractId(),
       methodName: "donate",
       args,
       deposit: amountIndivisible.toString(),
@@ -454,7 +462,7 @@ const handleDonate = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(isPotDonation ? potId : DONATION_CONTRACT_ID, "get_donations_for_donor", {
+    Near.asyncView(isPotDonation ? potId : donate.getContractId(), "get_donations_for_donor", {
       donor_id: context.accountId,
       // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
     }).then((donations) => {
