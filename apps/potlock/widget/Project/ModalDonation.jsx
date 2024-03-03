@@ -335,6 +335,7 @@ useEffect(() => {
   if (pots) {
     pots.forEach((pot) => {
       if (!state.detailForPots[pot.id]) {
+        console.log("PotSDK line 338: ", PotSDK);
         PotSDK.asyncGetConfig(pot.id)
           .then((detail) => {
             State.update({
@@ -356,6 +357,7 @@ useEffect(() => {
   if (pots) {
     pots.forEach((pot) => {
       if (!state.approvedProjectsForPots[pot.id]) {
+        console.log("PotSDK line 360: ", PotSDK);
         PotSDK.asyncGetApprovedApplications(pot.id)
           .then((approvedProjects) => {
             State.update({
@@ -378,7 +380,7 @@ const handleModalClose = () => {
   onClose();
 };
 
-// console.log("state in donation modal: ", state);
+console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
   Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
@@ -392,6 +394,8 @@ const activeRound = useMemo(() => {
   if (!state.activeRoundsForProject) return;
   return state.activeRoundsForProject[0];
 }, [state.activeRoundsForProject]);
+
+console.log("activeRound: ", activeRound);
 
 const potDetail = state.detailForPots[activeRound];
 

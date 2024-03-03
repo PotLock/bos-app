@@ -533,6 +533,8 @@ useEffect(() => {
 
 // console.log("filter", filteredProjects);
 
+console.log("DonateSDK: ", DonateSDK);
+
 DonateSDK.asyncGetConfig().then((result) => {
   const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
   setTotalDonated(lastDonationAmount);
