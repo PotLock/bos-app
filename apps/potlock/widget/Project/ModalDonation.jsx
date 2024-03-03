@@ -338,6 +338,7 @@ if (state.allPots && !state.activeRoundsForProject) {
       return approved.length > 0;
     }
   );
+  console.log("activeRounds: ", activeRounds);
   State.update({
     activeRoundsForProject: activeRounds.reduce((acc, [id, pot]) => {
       acc[id] = {
