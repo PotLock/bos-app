@@ -535,11 +535,14 @@ useEffect(() => {
 
 console.log("DonateSDK: ", DonateSDK);
 
-DonateSDK.asyncGetConfig().then((result) => {
-  const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
-  setTotalDonated(lastDonationAmount);
-  setTotalDonation(result.total_donations_count);
-});
+if (DonateSDK.asyncGetConfig().then) {
+  // TODO: fix this hack
+  DonateSDK.asyncGetConfig().then((result) => {
+    const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
+    setTotalDonated(lastDonationAmount);
+    setTotalDonation(result.total_donations_count);
+  });
+}
 
 const donateRandomly = () => {
   State.update({
