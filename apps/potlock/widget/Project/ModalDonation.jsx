@@ -367,7 +367,7 @@ const handleModalClose = () => {
   onClose();
 };
 
-// console.log("state in donation modal: ", state);
+console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
   Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
