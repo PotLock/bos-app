@@ -16,6 +16,9 @@ return ({ env }) => {
     getProjectById: (projectId) => {
       return Near.view(contractId, "get_project_by_id", { project_id: projectId });
     },
+    asyncGetProjectById: (projectId) => {
+      return Near.asyncView(contractId, "get_project_by_id", { project_id: projectId });
+    },
     isProjectApproved: (projectId) => {
       const project = RegistrySDK.getProjectById(projectId);
       return project && project.status === "Approved";

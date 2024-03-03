@@ -11,6 +11,12 @@ const {
   ONE_TGAS: 0,
   SUPPORTED_FTS: {},
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetConfig: () => {},
+  asyncGetApplications: () => {},
+};
+
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
 Big.PE = 100;
@@ -107,7 +113,7 @@ State.init({
 });
 
 if (state.potDetail === null) {
-  Near.asyncView(potId, "get_config", {})
+  PotSDK.asyncGetConfig(potId)
     .then((potDetail) => {
       if (potDetail.sybil_wrapper_provider) {
         const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
@@ -269,7 +275,7 @@ const handleSendApplication = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(potId, "get_applications", {}).then((applications) => {
+    PotSDK.asyncGetApplications(potId).then((applications) => {
       const application = applications.find(
         (application) =>
           application.project_id === (state.isDao ? state.daoAddress : context.accountId)

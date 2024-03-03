@@ -1,14 +1,19 @@
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
-const { DONATION_CONTRACT_ID, ownerId, SUPPORTED_FTS } = VM.require(
-  "potlock.near/widget/constants"
-) || {
-  DONATION_CONTRACT_ID: "",
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
-const donationContractConfig = Near.view(DONATION_CONTRACT_ID, "get_config", {});
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+const donationContractConfig = DonateSDK.getConfig();
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CHEVRON_DOWN_URL =

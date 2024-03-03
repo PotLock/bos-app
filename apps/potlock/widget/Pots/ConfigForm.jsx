@@ -14,21 +14,22 @@ const {
   SUPPORTED_FTS: {},
 };
 
-const PotFactorySDK =
+let PotFactorySDK =
   VM.require("potlock.near/widget/SDK.potfactory") ||
   (() => ({
     getContractId: () => {},
     getProtocolConfig: () => {},
+    asyncGetPots: () => {},
   }));
-const potFactory = PotFactorySDK({ env: props.env });
-const potFactoryContractId = potFactory.getContractId();
-const protocolConfig = potFactory.getProtocolConfig();
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const potFactoryContractId = PotFactorySDK.getContractId();
+const protocolConfig = PotFactorySDK.getProtocolConfig();
 // console.log("props in config form: ", props);
 
-const RegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = RegistrySDK({ env: props.env });
+let RegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
+const DEFAULT_REGISTRY_PROVIDER = `${RegistrySDK.getContractId()}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:${NADABOT_HUMAN_METHOD}`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
@@ -347,7 +348,7 @@ const handleDeploy = () => {
     const pollIntervalMs = 1000;
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
-      Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
+      PotFactorySDK.asyncGetPots.then((pots) => {
         // console.log("pots: ", pots);
         const pot = pots.find(
           (pot) => pot.deployed_by === context.accountId && pot.deployed_at_ms > now

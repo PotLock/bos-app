@@ -4,18 +4,22 @@ const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
 
-const PotFactorySDK =
+let PotFactorySDK =
   VM.require("potlock.near/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
-const potFactory = PotFactorySDK({ env: props.env });
-const pots = potFactory.getPots();
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetApprovedApplications: () => {},
+};
 
 const [potIds, setPotIds] = useState(null); // ids[] of pots that approved project
 
 const getApprovedApplications = (potId) =>
-  Near.asyncView(potId, "get_approved_applications", {})
+  PotSDK.asyncGetApprovedApplications(potId)
     .then((applications) => {
       if (applications.some((app) => app.project_id === projectId))
         setPotIds([...(potIds || []), potId]);

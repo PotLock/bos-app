@@ -1,13 +1,13 @@
 const { ownerId } = props;
 
-const RegistrySDK =
+let RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
   }));
-const registry = RegistrySDK({ env: props.env });
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const projects = registry.getProjects() || [];
+const projects = RegistrySDK.getProjects() || [];
 
 const projectIds = projects
   .filter((project) => project.status === "Approved")

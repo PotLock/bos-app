@@ -1,11 +1,18 @@
-const { ownerId, DONATION_CONTRACT_ID } = VM.require("potlock.near/widget/constants") || {
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
-  DONATION_CONTRACT_ID: "",
 };
 const { nearToUsd, nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
   nearToUsdWithFallback: () => "",
 };
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getDonationsForRecipient: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
 const Container = styled.div`
@@ -23,9 +30,7 @@ const Container = styled.div`
   }
 `;
 
-const donationsForProject = Near.view(DONATION_CONTRACT_ID, "get_donations_for_recipient", {
-  recipient_id: props.projectId,
-});
+const donationsForProject = DonateSDK.getDonationsForRecipient(props.projectId);
 
 const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
   if (!donationsForProject) {

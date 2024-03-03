@@ -1,16 +1,18 @@
 const { ownerId } = props;
 
-const PotFactorySDK =
+let PotFactorySDK =
   VM.require("potlock.near/widget/SDK.potfactory") ||
   (() => ({
     getContractId: () => {},
     getConfig: () => {},
     getPots: () => {},
+    canUserDeployPot: () => {},
   }));
-const potFactory = PotFactorySDK({ env: props.env });
-const potFactoryContractId = potFactory.getContractId();
-const potFactoryConfig = potFactory.getConfig();
-const pots = potFactory.getPots();
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const potFactoryContractId = PotFactorySDK.getContractId();
+const potFactoryConfig = PotFactorySDK.getConfig();
+const pots = PotFactorySDK.getPots();
+const canDeploy = PotFactorySDK.canUserDeployPot(context.accountId);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
@@ -127,10 +129,7 @@ const containerStyle = styled.div`
 if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
-// user can deploy a pot if !potConfig.require_whitelist or potConfig.whitelisted_deployers.includes(context.accountId)
-const canDeploy =
-  !potFactoryConfig.require_whitelist ||
-  potFactoryConfig.whitelisted_deployers.includes(context.accountId);
+
 //console.log("props", state.pots);
 return (
   <Container>
@@ -209,32 +208,13 @@ return (
           renderItem: (pot) => (
             <Widget
               src={`${ownerId}/widget/Pots.Card`}
-              // loading={
-              //   <div
-              //     style={{
-              //       width: "320px",
-              //       height: "500px",
-              //       borderRadius: "12px",
-              //       background: "white",
-              //       boxShadow: "0px -2px 0px #464646 inset",
-              //       border: "1px solid #292929",
-              //     }}
-              //   />
-              // }
               props={{
                 ...props,
                 potId: pot.id,
-                potConfig: state.potConfigs[pot.id], // TODO: MOVE THIS TO THE CARD WIDGET (PICK UP HERE)
               }}
             />
           ),
           maxCols: 2,
-          // containerStyle: {
-          //   background: "white",
-          // },
-          // listStyle: {
-          //   justifyContent: "center",
-          // },
         }}
       />
     )}

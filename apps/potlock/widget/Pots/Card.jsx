@@ -7,6 +7,12 @@ const { daysUntil, yoctosToNear, yoctosToUsd } = VM.require("potlock.near/widget
   yoctosToNear: () => "",
   yoctosToUsd: () => "",
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getConfig: () => {},
+};
+const potConfig = PotSDK.getConfig(potId);
+
 const MAX_DESCRIPTION_LENGTH = 100;
 const MAX_TITLE_LENGTH = 36;
 
@@ -61,8 +67,6 @@ const Subtitle = styled.span`
   line-height: 20px;
   word-wrap: break-word;
 `;
-
-const potConfig = Near.view(potId, "get_config", {});
 
 if (!potConfig)
   return (
