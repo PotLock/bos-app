@@ -12,9 +12,12 @@ let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
     asyncGetDonationsForDonor: () => {},
+    getContractId: () => "",
   }));
 
 DonateSDK = DonateSDK({ env: props.env });
+
+const DONATION_CONTRACT_ID = DonateSDK.getContractId();
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 Big.PE = 100;

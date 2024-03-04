@@ -204,10 +204,12 @@ const {
   recipientId, // TODO: change this to projectId
   referrerId,
   // potId,
-  // potDetail,
+  potDetail,
   onClose,
   NADABOT_CONTRACT_ID,
   POT,
+  potId,
+  publicRoundOpen,
 } = props;
 const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
   VM.require("potlock.near/widget/constants") || {
@@ -305,31 +307,31 @@ State.init({
   isUserHumanVerified: null,
 });
 
-useEffect(() => {
-  if (
-    pots &&
-    Object.keys(state.approvedProjectsForPots).length == pots.length &&
-    Object.keys(state.detailForPots).length == pots.length
-  ) {
-    const activeRoundsForProject = [];
-    for (const pot of pots) {
-      const potDetail = state.detailForPots[pot.id];
-      const approvedProjects = state.approvedProjectsForPots[pot.id];
-      const now = Date.now();
-      const activeRound = approvedProjects.find((proj) => {
-        return (
-          proj.project_id === recipientId &&
-          potDetail.public_round_start_ms < now &&
-          potDetail.public_round_end_ms > now
-        );
-      });
-      if (activeRound) {
-        activeRoundsForProject.push(pot.id);
-      }
-    }
-    State.update({ activeRoundsForProject });
-  }
-}, [pots, state.approvedProjectsForPots, state.detailForPots]);
+// useEffect(() => {
+//   if (
+//     pots &&
+//     Object.keys(state.approvedProjectsForPots).length == pots.length &&
+//     Object.keys(state.detailForPots).length == pots.length
+//   ) {
+//     const activeRoundsForProject = [];
+//     for (const pot of pots) {
+//       const potDetail = state.detailForPots[pot.id];
+//       const approvedProjects = state.approvedProjectsForPots[pot.id];
+//       const now = Date.now();
+//       const activeRound = approvedProjects.find((proj) => {
+//         return (
+//           proj.project_id === recipientId &&
+//           potDetail.public_round_start_ms < now &&
+//           potDetail.public_round_end_ms > now
+//         );
+//       });
+//       if (activeRound) {
+//         activeRoundsForProject.push(pot.id);
+//       }
+//     }
+//     State.update({ activeRoundsForProject });
+//   }
+// }, [pots, state.approvedProjectsForPots, state.detailForPots]);
 
 useEffect(() => {
   if (pots) {
@@ -388,14 +390,14 @@ if (state.isUserHumanVerified === null) {
   });
 }
 
-const activeRound = useMemo(() => {
-  if (!state.activeRoundsForProject) return;
-  return state.activeRoundsForProject[0];
-}, [state.activeRoundsForProject]);
+// const activeRound = useMemo(() => {
+//   if (!state.activeRoundsForProject) return;
+//   return state.activeRoundsForProject[0];
+// }, [state.activeRoundsForProject]);
 
 console.log("activeRound: ", activeRound);
 
-const potDetail = state.detailForPots[activeRound];
+// const potDetail = state.detailForPots[activeRound];
 
 const protocolConfigContractId = potDetail ? potDetail.protocol_config_provider.split(":")[0] : "";
 const protocolConfigViewMethodName = potDetail
@@ -451,13 +453,12 @@ const handleAddToCart = () => {
       amount: state.amount,
       ft: "NEAR",
       referrerId,
-      potId: activeRound || null,
-      potDetail: activeRound ? state.detailForPots[activeRound] : null,
+      potId,
+      potDetail,
     },
   ]);
   handleModalClose();
 };
-
 const amountNear =
   state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
@@ -478,8 +479,8 @@ const handleDonate = () => {
   if (state.bypassChefFee) {
     args.custom_chef_fee_basis_points = 0;
   }
-  const potId = activeRound || null;
-  const isPotDonation = potId && state.isUserHumanVerified === true;
+
+  const isPotDonation = potId && state.isUserHumanVerified === true && publicRoundOpen;
   if (isPotDonation) {
     args.project_id = projectId;
     if (state.bypassChefFee) {

@@ -348,6 +348,7 @@ return (
               props={{
                 ...props,
                 potDetail: state.potDetail,
+                publicRoundOpen,
                 sybilRequirementMet: state.sybilRequirementMet,
               }}
             />
