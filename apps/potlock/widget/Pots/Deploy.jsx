@@ -16,6 +16,9 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding: 0px 175px;
+  @media only screen and (max-width: 1160px) {
+    padding: 0px;
+  }
 `;
 
 const HeaderContent = styled.div`
@@ -25,6 +28,9 @@ const HeaderContent = styled.div`
   justify-content: center;
   gap: 24px;
   padding: 48px;
+  @media only screen and (max-width: 480px) {
+    padding: 48px 0;
+  }
 `;
 
 const HeaderTitle = styled.div`
