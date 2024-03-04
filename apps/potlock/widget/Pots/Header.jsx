@@ -89,6 +89,9 @@ const Description = styled.div`
     color: black;
     font-weight: 500;
   }
+  @media screen and (max-width: 992px) {
+    font-size: 10px;
+  }
 `;
 
 const ColumnRightSegment = styled.div`
@@ -111,8 +114,11 @@ const H2 = styled.div`
   color: #292929;
   font-size: 24px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 1.5em;
   word-wrap: break-word;
+  @media screen and (max-width: 992px) {
+    font-size: 18px;
+  }
 `;
 
 const H3 = styled.div`
