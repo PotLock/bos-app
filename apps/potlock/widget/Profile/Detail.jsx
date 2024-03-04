@@ -6,9 +6,12 @@ const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/consta
   ownerId: "",
 };
 
+const accountId = props.accountId ?? context.accountId;
+
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
+    getDonationsForDonor: () => {},
     asyncGetDonationsForDonor: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
@@ -25,8 +28,6 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetConfig: () => {},
   asyncGetDonationsForDonor: () => {},
 };
-
-const accountId = props.accountId ?? context.accountId;
 
 const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`);
 
@@ -64,14 +65,13 @@ const getSponsorshipDonations = (potId, potDetail) => {
 };
 
 // Get Direct Donations
-if (!directDonations) {
-  DonateSDK.asyncGetDonationsForDonor(accountId).then((donations) => {
-    donations = donations.map((donation) => ({
-      ...donation,
-      type: "DIRECT",
-    }));
-    setDirectDonations(donations);
-  });
+let donationsForDonor = DonateSDK.getDonationsForDonor(accountId);
+if (donationsForDonor && !directDonations) {
+  donationsForDonor = donationsForDonor.map((donation) => ({
+    ...donation,
+    type: "DIRECT",
+  }));
+  setDirectDonations(donationsForDonor);
 }
 // Get Sponsorship Donations
 if (pots && !sponsorshipDonations[pots[pots.length - 1].id]) {
