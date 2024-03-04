@@ -442,7 +442,7 @@ return (
   <Container>
     <Column style={{ gap: "24px" }}>
       <Title>{pot_name}</Title>
-      <Row style={{ gap: "24px", flexWrap: wrap }}>
+      <Row style={{ gap: "24px", flexWrap: "wrap" }}>
         {/* Application tag */}
         <Widget
           src={`${ownerId}/widget/Pots.Tag`}
@@ -507,9 +507,7 @@ return (
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
         <Row style={{ gap: "8px" }}>
-          <H2>{`${SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
-            matching_pool_balance
-          )} ${base_currency.toUpperCase()} `}</H2>
+          <H2>{yoctosToNear(matching_pool_balance, true)}</H2>
           <Description>Matching funds available</Description>
         </Row>
       </ColumnRightSegment>
