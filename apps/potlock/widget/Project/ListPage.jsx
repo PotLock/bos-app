@@ -873,7 +873,7 @@ return (
         props={{
           ...props,
           items: filteredProjects,
-          shouldSuffle: !isRegistryAdmin,
+          shouldShuffle: !isRegistryAdmin,
           renderItem: (project) => {
             return (
               <Widget
