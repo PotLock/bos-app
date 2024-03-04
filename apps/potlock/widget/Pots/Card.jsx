@@ -61,6 +61,9 @@ const Description = styled.div`
   font-weight: 400;
   line-height: 28px;
   word-wrap: break-word;
+  a {
+    color: rgb(123, 123, 123);
+  }
 `;
 
 const Subtitle = styled.span`
@@ -125,7 +128,9 @@ return (
   <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}>
     <CardSection>
       <Title>{title}</Title>
-      <Description>{description}</Description>
+      <Description>
+        <Markdown text={description} />
+      </Description>
     </CardSection>
     <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
       <Title>

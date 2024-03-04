@@ -9,7 +9,8 @@ const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
-    asyncGetDonationsForRecipient: () => {},
+    getDonationsForRecipient: () => {},
+    // asyncGetDonationsForRecipient: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
@@ -73,14 +74,13 @@ const getProjectRoundDonations = (potId, potDetail) => {
 };
 
 // Get Project Direct Donations
-if (!directDonations) {
-  DonateSDK.asyncGetDonationsForRecipient(projectId).then((donations) => {
-    donations = donations.map((donation) => ({
-      ...donation,
-      type: "DIRECT",
-    }));
-    setDirectDonations(donations);
-  });
+let donationsForRecipient = DonateSDK.getDonationsForRecipient(projectId);
+if (donationsForRecipient && !directDonations) {
+  donationsForRecipient = donationsForRecipient.map((donation) => ({
+    ...donation,
+    type: "DIRECT",
+  }));
+  setDirectDonations(donationsForRecipient);
 }
 
 if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {

@@ -33,6 +33,9 @@ const HeaderContent = styled.div`
   padding: 100px 48px;
   background: #f6f5f3;
   width: 100%;
+  @media only screen and (max-width: 480px) {
+    padding: 100px 2rem;
+  }
 `;
 
 const HeaderTitle = styled.div`
@@ -146,6 +149,9 @@ return (
             props={{
               type: "primary",
               text: "Deploy Pot",
+              style: {
+                whiteSpace: "nowrap",
+              },
               href: props.hrefWithParams(`?tab=deploypot`),
             }}
           />
@@ -155,6 +161,9 @@ return (
           props={{
             type: canDeploy ? "secondary" : "primary",
             text: "Learn More",
+            style: {
+              whiteSpace: "nowrap",
+            },
             href: "https://potlock.org/chef-training",
             target: "_blank",
           }}

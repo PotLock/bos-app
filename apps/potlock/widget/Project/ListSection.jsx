@@ -453,8 +453,8 @@ const [searchTerm, setSearchTerm] = useState("");
 const searchProjects = (searchTerm) => {
   // filter projects that match the search term (just id for now)
   const filteredProjects = allProjects.filter((project) => {
-    const { id } = project;
-    const searchFields = [id];
+    const { id, status } = project;
+    const searchFields = [id, status];
     return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
   });
   return filteredProjects;

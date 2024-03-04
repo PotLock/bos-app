@@ -333,42 +333,52 @@ useEffect(() => {
 
 useEffect(() => {
   if (pots) {
+    const detailForPots = {};
     pots.forEach((pot) => {
-      if (!state.detailForPots[pot.id]) {
-        PotSDK.asyncGetConfig(pot.id)
-          .then((detail) => {
-            State.update({
-              detailForPots: {
-                ...state.detailForPots,
-                [pot.id]: detail,
-              },
-            });
-          })
-          .catch((e) => {
-            console.error("error getting pot detail: ", e);
-          });
-      }
+      PotSDK.asyncGetConfig(pot.id)
+        .then((detail) => {
+          detailForPots[pot.id] = detail;
+          console.log("num details: ", Object.keys(detailForPots).length);
+          console.log("pot details: ", detailForPots);
+          if (Object.keys(detailForPots).length === pots.length) {
+            State.update({ detailForPots });
+          }
+          // State.update({
+          //   detailForPots: {
+          //     ...state.detailForPots,
+          //     [pot.id]: detail,
+          //   },
+          // });
+        })
+        .catch((e) => {
+          console.error("error getting pot detail: ", e);
+        });
     });
   }
 }, [pots]);
 
 useEffect(() => {
   if (pots) {
+    const approvedProjectsForPots = {};
     pots.forEach((pot) => {
-      if (!state.approvedProjectsForPots[pot.id]) {
-        PotSDK.asyncGetApprovedApplications(pot.id)
-          .then((approvedProjects) => {
-            State.update({
-              approvedProjectsForPots: {
-                ...state.approvedProjectsForPots,
-                [pot.id]: approvedProjects,
-              },
-            });
-          })
-          .catch((e) => {
-            console.error("error getting approved projects: ", e);
-          });
-      }
+      PotSDK.asyncGetApprovedApplications(pot.id)
+        .then((approvedProjects) => {
+          approvedProjectsForPots[pot.id] = approvedProjects;
+          console.log("num approved projects: ", Object.keys(approvedProjectsForPots).length);
+          console.log("approved projects: ", approvedProjectsForPots);
+          if (Object.keys(approvedProjectsForPots).length === pots.length) {
+            State.update({ approvedProjectsForPots });
+          }
+          // State.update({
+          //   approvedProjectsForPots: {
+          //     ...state.approvedProjectsForPots,
+          //     [pot.id]: approvedProjects,
+          //   },
+          // });
+        })
+        .catch((e) => {
+          console.error("error getting approved projects: ", e);
+        });
     });
   }
 }, [pots]);
