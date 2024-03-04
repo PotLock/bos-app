@@ -43,7 +43,7 @@ const About = () => (
     props={{
       ...props,
       title: "Overview",
-      text: description,
+      text: <Markdown text={description} />,
     }}
   />
 );

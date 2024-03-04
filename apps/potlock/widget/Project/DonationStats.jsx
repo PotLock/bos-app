@@ -39,14 +39,14 @@ const StatsSubTitle = styled.div`
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || {
   yoctosToUsd: (amount) => amount,
 };
-const PotlockDonateSDK =
+let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
   }));
-const donate = PotlockDonateSDK({ env: props.env });
+DonateSDK = DonateSDK({ env: props.env });
 
-const data = donate.getConfig() || {
+const data = DonateSDK.getConfig() || {
   net_donations_amount: 0,
   total_donations_count: 0,
 };

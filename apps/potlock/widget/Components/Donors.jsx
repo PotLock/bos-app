@@ -1,10 +1,28 @@
-const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
-  DONATION_CONTRACT_ID: "",
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
 );
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetMatchingPoolDonations: () => {},
+};
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetDonations: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
 
 const Container = styled.div`
   display: flex;
@@ -110,7 +128,6 @@ const [index, setIndex] = useState(0);
 const [currentTab, setTab] = useState("leaderboard");
 const [title, setTitle] = useState("");
 const [filter, setFilter] = useState("");
-const [pots, setPots] = useState(null);
 const [allDonationsFetched, setAllDonationsFetched] = useState(false);
 const [donationsByPage, setDonationsByPage] = useState({});
 const [sponsorsByPage, setSponsorsByPage] = useState({});
@@ -120,7 +137,7 @@ const limit = 900;
 const cachedDonationsValidityPeriod = 1000 * 60 * 5; // 5 minutes
 
 const getSponsorshipDonations = (potId) => {
-  return Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
+  return PotSDK.asyncGetMatchingPoolDonations(potId).then((donations) => {
     if (sponsorsByPage[potId]) return "";
     setSponsorsByPage((prevSponsorsByPage) => {
       Storage.set("sponsorsByPage", {
@@ -133,12 +150,8 @@ const getSponsorshipDonations = (potId) => {
 };
 
 // Get Sponsorship Donations
-if (!pots) {
-  Near.asyncView("v1.potfactory.potlock.near", "get_pots", {}).then((pots) => {
-    setPots(pots || []);
-  });
-}
-if (pots.length && !sponsorsByPage[pots[pots.length - 1].id]) {
+
+if (pots && !sponsorsByPage[pots[pots.length - 1].id]) {
   const cachedSponsors = Storage.get("sponsorsByPage");
   if (cachedSponsors && cachedSponsors.ts > Date.now() - cachedDonationsValidityPeriod) {
     console.log("using cached sponsors");
@@ -183,10 +196,7 @@ if (!allDonationsFetched && !donationsByPage[index]) {
     // null means it's loading (async)
     console.log("fetching donations for page", index);
     const startTime = Date.now();
-    Near.asyncView(DONATION_CONTRACT_ID, "get_donations", {
-      from_index: limit * index,
-      limit: limit,
-    })
+    DonateSDK.asyncGetDonations(limit * index, limit)
       .then((donationsPart) => {
         const endTime = Date.now();
         console.log("fetched donations for index", index, "in", endTime - startTime, "ms");

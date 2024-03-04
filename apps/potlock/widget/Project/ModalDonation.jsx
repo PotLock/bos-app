@@ -1,96 +1,3 @@
-const {
-  allPots,
-  recipientId, // TODO: change this to projectId
-  referrerId,
-  // potId,
-  // potDetail,
-  onClose,
-  POT_FACTORY_CONTRACT_ID,
-  NADABOT_CONTRACT_ID,
-  POT,
-} = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
-  VM.require("potlock.near/widget/constants") || {
-    DONATION_CONTRACT_ID: "",
-    NADABOT_HUMAN_METHOD: "",
-    ownerId: "",
-    NADA_BOT_URL: "",
-    SUPPORTED_FTS: {},
-  };
-// console.log("props in donation modal: ", props);
-
-const PotlockRegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
-  (() => ({
-    getProjects: () => {},
-  }));
-const registry = PotlockRegistrySDK({ env: props.env });
-
-const projects = registry.getProjects() || [];
-
-const PotlockDonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
-  (() => ({
-    getConfig: () => {},
-  }));
-const donate = PotlockDonateSDK({ env: props.env });
-
-const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
-  nearToUsd: 1,
-};
-
-const approvedProjectIds = useMemo(
-  // TODO: get projects for pot if potId
-  () => projects.filter((project) => project.status === "Approved").map((project) => project.id),
-  [projects]
-);
-
-const protocolConfigContractId = potDetail ? potDetail?.protocol_config_provider.split(":")[0] : "";
-const protocolConfigViewMethodName = potDetail
-  ? potDetail?.protocol_config_provider.split(":")[1]
-  : "";
-const protocolConfig =
-  protocolConfigContractId && protocolConfigViewMethodName
-    ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
-    : null;
-
-const donationContractConfig = !potDetail ? donate.getConfig() || {} : null;
-
-const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] = useMemo(
-  // if this is a pot donation, use pot config, else use donation contract config
-  () => {
-    if (protocolConfig) {
-      return [
-        protocolConfig.account_id,
-        protocolConfig.basis_points,
-        potDetail.referral_fee_public_round_basis_points,
-      ];
-    } else if (donationContractConfig) {
-      return [
-        donationContractConfig.protocol_fee_recipient_account,
-        donationContractConfig.protocol_fee_basis_points,
-        donationContractConfig.referral_fee_basis_points,
-      ];
-    } else {
-      return ["", 0, 0];
-    }
-  }
-);
-
-const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const CLOSE_ICON_URL =
-  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
-const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
-const NADABOT_ICON_URL =
-  IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
-const ALERT_ICON_URL =
-  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
-
-const MAX_NAME_LENGTH = 60;
-const MAX_DESCRIPTION_LENGTH = 77;
-
-const profile = Social.getr(`${recipientId}/profile`);
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -293,10 +200,89 @@ const LinkSvg = styled.svg`
   }
 `;
 
-const DENOMINATION_OPTIONS = [
-  { text: "NEAR", value: "NEAR" },
-  { text: "USD", value: "USD" },
-];
+const {
+  recipientId, // TODO: change this to projectId
+  referrerId,
+  // potId,
+  // potDetail,
+  onClose,
+  NADABOT_CONTRACT_ID,
+  POT,
+} = props;
+const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
+  VM.require("potlock.near/widget/constants") || {
+    DONATION_CONTRACT_ID: "",
+    NADABOT_HUMAN_METHOD: "",
+    ownerId: "",
+    NADA_BOT_URL: "",
+    SUPPORTED_FTS: {},
+  };
+// console.log("props in donation modal: ", props);
+
+let RegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjects: () => {},
+  }));
+RegistrySDK = RegistrySDK({ env: props.env });
+
+const projects = RegistrySDK.getProjects() || [];
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+    asyncGetDonationsForDonor: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getConfig: () => {},
+  asyncGetConfig: () => {},
+  getApprovedApplications: () => {},
+  asyncGetApprovedApplications: () => {},
+  asyncGetDonationsForDonor: () => {},
+};
+
+const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+  nearToUsd: 1,
+};
+
+const approvedProjectIds = useMemo(
+  // TODO: get projects for pot if potId
+  () => {
+    if (projects) {
+      return projects
+        .filter((project) => project.status === "Approved")
+        .map((project) => project.id);
+    }
+  },
+  [projects]
+);
+
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const CLOSE_ICON_URL =
+  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
+const NADABOT_ICON_URL =
+  IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
+const ALERT_ICON_URL =
+  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
+
+const MAX_NAME_LENGTH = 60;
+const MAX_DESCRIPTION_LENGTH = 77;
+
+const profile = Social.getr(`${recipientId}/profile`);
+
+const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR" }];
 
 const DEFAULT_DONATION_AMOUNT = "1";
 
@@ -312,57 +298,97 @@ State.init({
   donationNote: "",
   donationNoteError: "",
   allPots: null,
+  detailForPots: {},
+  approvedProjectsForPots: {},
   activeRoundsForProject: null, // mapping of potId to { potDetail }
   intervalId: null,
   isUserHumanVerified: null,
 });
 
-if (state.allPots && !state.activeRoundsForProject) {
-  // pots have been fetched but active rounds have not been determined
-  const activeRounds = Object.entries(state.allPots).filter(
-    ([_id, { approvedProjects, detail }]) => {
-      const { public_round_start_ms, public_round_end_ms } = detail;
+useEffect(() => {
+  if (
+    pots &&
+    Object.keys(state.approvedProjectsForPots).length == pots.length &&
+    Object.keys(state.detailForPots).length == pots.length
+  ) {
+    const activeRoundsForProject = [];
+    for (const pot of pots) {
+      const potDetail = state.detailForPots[pot.id];
+      const approvedProjects = state.approvedProjectsForPots[pot.id];
       const now = Date.now();
-      const approved = approvedProjects.filter((proj) => {
+      const activeRound = approvedProjects.find((proj) => {
         return (
           proj.project_id === recipientId &&
-          public_round_start_ms < now &&
-          public_round_end_ms > now
+          potDetail.public_round_start_ms < now &&
+          potDetail.public_round_end_ms > now
         );
       });
-      return approved.length > 0;
+      if (activeRound) {
+        activeRoundsForProject.push(pot.id);
+      }
     }
-  );
-  State.update({
-    activeRoundsForProject: activeRounds.reduce((acc, [id, pot]) => {
-      acc[id] = {
-        potDetail: pot.detail,
-      };
-      return acc;
-    }, {}),
-  });
-}
+    State.update({ activeRoundsForProject });
+  }
+}, [pots, state.approvedProjectsForPots, state.detailForPots]);
 
-if (!state.allPots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    State.update({
-      allPots: pots.reduce((acc, pot) => {
-        acc[pot.id] = {
-          detail: Near.view(pot.id, "get_config", {}),
-          approvedProjects: Near.view(pot.id, "get_approved_applications", {}),
-        };
-        return acc;
-      }, {}),
+useEffect(() => {
+  if (pots) {
+    const detailForPots = {};
+    pots.forEach((pot) => {
+      PotSDK.asyncGetConfig(pot.id)
+        .then((detail) => {
+          detailForPots[pot.id] = detail;
+          console.log("num details: ", Object.keys(detailForPots).length);
+          console.log("pot details: ", detailForPots);
+          if (Object.keys(detailForPots).length === pots.length) {
+            State.update({ detailForPots });
+          }
+          // State.update({
+          //   detailForPots: {
+          //     ...state.detailForPots,
+          //     [pot.id]: detail,
+          //   },
+          // });
+        })
+        .catch((e) => {
+          console.error("error getting pot detail: ", e);
+        });
     });
-  });
-}
+  }
+}, [pots]);
+
+useEffect(() => {
+  if (pots) {
+    const approvedProjectsForPots = {};
+    pots.forEach((pot) => {
+      PotSDK.asyncGetApprovedApplications(pot.id)
+        .then((approvedProjects) => {
+          approvedProjectsForPots[pot.id] = approvedProjects;
+          console.log("num approved projects: ", Object.keys(approvedProjectsForPots).length);
+          console.log("approved projects: ", approvedProjectsForPots);
+          if (Object.keys(approvedProjectsForPots).length === pots.length) {
+            State.update({ approvedProjectsForPots });
+          }
+          // State.update({
+          //   approvedProjectsForPots: {
+          //     ...state.approvedProjectsForPots,
+          //     [pot.id]: approvedProjects,
+          //   },
+          // });
+        })
+        .catch((e) => {
+          console.error("error getting approved projects: ", e);
+        });
+    });
+  }
+}, [pots]);
 
 const handleModalClose = () => {
   resetState();
   onClose();
 };
 
-// console.log("state in donation modal: ", state);
+console.log("state in donation modal: ", state);
 
 if (state.isUserHumanVerified === null) {
   Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
@@ -374,9 +400,44 @@ if (state.isUserHumanVerified === null) {
 
 const activeRound = useMemo(() => {
   if (!state.activeRoundsForProject) return;
-  return Object.entries(state.activeRoundsForProject)[0];
+  return state.activeRoundsForProject[0];
 }, [state.activeRoundsForProject]);
-console.log("active round: ", activeRound);
+
+console.log("activeRound: ", activeRound);
+
+const potDetail = state.detailForPots[activeRound];
+
+const protocolConfigContractId = potDetail ? potDetail.protocol_config_provider.split(":")[0] : "";
+const protocolConfigViewMethodName = potDetail
+  ? potDetail.protocol_config_provider.split(":")[1]
+  : "";
+const protocolConfig =
+  protocolConfigContractId && protocolConfigViewMethodName
+    ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
+    : null;
+
+const donationContractConfig = !potDetail ? DonateSDK.getConfig() || {} : null;
+
+const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] = useMemo(
+  // if this is a pot donation, use pot config, else use donation contract config
+  () => {
+    if (protocolConfig) {
+      return [
+        protocolConfig.account_id,
+        protocolConfig.basis_points,
+        potDetail.referral_fee_public_round_basis_points,
+      ];
+    } else if (donationContractConfig) {
+      return [
+        donationContractConfig.protocol_fee_recipient_account,
+        donationContractConfig.protocol_fee_basis_points,
+        donationContractConfig.referral_fee_basis_points,
+      ];
+    } else {
+      return ["", 0, 0];
+    }
+  }
+);
 
 const resetState = () => {
   State.update({
@@ -400,8 +461,8 @@ const handleAddToCart = () => {
       amount: state.amount,
       ft: "NEAR",
       referrerId,
-      potId: activeRound ? activeRound[0] : null,
-      potDetail: activeRound ? activeRound[1].potDetail : null,
+      potId: activeRound || null,
+      potDetail: activeRound ? state.detailForPots[activeRound] : null,
     },
   ]);
   handleModalClose();
@@ -427,7 +488,7 @@ const handleDonate = () => {
   if (state.bypassChefFee) {
     args.custom_chef_fee_basis_points = 0;
   }
-  const potId = activeRound ? activeRound[0] : null;
+  const potId = activeRound || null;
   const isPotDonation = potId && state.isUserHumanVerified === true;
   if (isPotDonation) {
     args.project_id = projectId;
@@ -457,22 +518,21 @@ const handleDonate = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(isPotDonation ? potId : DONATION_CONTRACT_ID, "get_donations_for_donor", {
-      donor_id: context.accountId,
-      // TODO: implement pagination (should be OK without until there are 500+ donations from this user)
-    }).then((donations) => {
-      for (const donation of donations) {
-        const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
-        if (
-          ((recipient_id === projectId || project_id === projectId) && donated_at_ms > now) ||
-          donated_at > now
-        ) {
-          // display success message & clear cart
-          clearInterval(pollId);
-          props.openDonationSuccessModal(donation);
+    (isPotDonation ? PotSDK : DonateSDK)
+      .asyncGetDonationsForDonor(context.accountId)
+      .then((donations) => {
+        for (const donation of donations) {
+          const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
+          if (
+            ((recipient_id === projectId || project_id === projectId) && donated_at_ms > now) ||
+            donated_at > now
+          ) {
+            // display success message & clear cart
+            clearInterval(pollId);
+            props.openDonationSuccessModal(donation);
+          }
         }
-      }
-    });
+      });
   }, pollIntervalMs);
 };
 

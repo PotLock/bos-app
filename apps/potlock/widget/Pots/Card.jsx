@@ -7,6 +7,12 @@ const { daysUntil, yoctosToNear, yoctosToUsd } = VM.require("potlock.near/widget
   yoctosToNear: () => "",
   yoctosToUsd: () => "",
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getConfig: () => {},
+};
+const potConfig = PotSDK.getConfig(potId);
+
 const MAX_DESCRIPTION_LENGTH = 100;
 const MAX_TITLE_LENGTH = 36;
 
@@ -52,6 +58,9 @@ const Description = styled.div`
   font-weight: 400;
   line-height: 28px;
   word-wrap: break-word;
+  a {
+    color: rgb(123, 123, 123);
+  }
 `;
 
 const Subtitle = styled.span`
@@ -61,8 +70,6 @@ const Subtitle = styled.span`
   line-height: 20px;
   word-wrap: break-word;
 `;
-
-const potConfig = Near.view(potId, "get_config", {});
 
 if (!potConfig)
   return (
@@ -118,7 +125,9 @@ return (
   <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}>
     <CardSection>
       <Title>{title}</Title>
-      <Description>{description}</Description>
+      <Description>
+        <Markdown text={description} />
+      </Description>
     </CardSection>
     <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
       <Title>

@@ -4,6 +4,7 @@ const {
   // addProjectsToCart,
   // setIsCartModalOpen,
   tab,
+  shouldShuffle,
   // setAmount,
   // setProjectId,
   // setNote,
@@ -17,8 +18,6 @@ const {
 } = props;
 
 // console.log("props in list section: ", props);
-
-const shouldShuffle = !tab || tab === "projects";
 
 const items = useMemo(() => {
   if (shouldShuffle) {
@@ -51,14 +50,12 @@ const featuredProjects = useMemo(
 );
 
 const [allProjects, setAllProjects] = useState(items);
-const [filteredProjects, setFilteredProjects] = useState([]);
+const [filteredProjects, setFilteredProjects] = useState(items);
 const [searchTerm, setSearchTerm] = useState("");
 
 // const [elements, setElements] = useState(
 //   props.items.slice(0, PAGE_SIZE).map((item) => props.renderItem(item))
 // );
-// console.log("elements: ", elements);
-// console.log("num of elements: ", elements.length);
 
 // const loadMore = () => {
 //   const newElements = props.items
@@ -66,6 +63,7 @@ const [searchTerm, setSearchTerm] = useState("");
 //     .map(props.renderItem);
 //   setElements([...elements, ...newElements]);
 // };
+
 // const [page, setPage] = useState(1);
 // const [lastNumberOfProject, setLastNumberOfProject] = useState(PAGE_SIZE);
 // const donationContractId = "donate.potlock.near";
@@ -491,41 +489,24 @@ const Container = styled.div`
   width: 100%;
   gap: 48px;
   padding-top: 20px;
-  @media screen and (min-width: 740px) and (max-width: 1400px) {
-    ${props.tab !== "pot" && "padding-top: 120px;"}
+  // @media screen and (min-width: 740px) and (max-width: 1400px) {
+  //   ${props.tab !== "pot" && "padding-top: 120px;"}
+  // }
+  @media screen and (max-width: 739px) {
+    ${props.tab !== "pot" && "padding-top: 40px;"}
   }
 `;
 
 const ProjectList = styled.div`
   display: grid;
   gap: 31px;
-
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
     grid-template-columns: repeat(1, 1fr);
   }
 
   // For tablet devices (2 columns)
-  @media screen and (min-width: 740px) and (max-width: 1280px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  // For desktop devices (3 columns)
-  @media screen and (min-width: 1024px) {
-    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
-  }
-`;
-const Projects = styled.div`
-  display: grid;
-  gap: 31px;
-
-  // For mobile devices (1 column)
-  @media screen and (max-width: 739px) {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  // For tablet devices (2 columns)
-  @media screen and (min-width: 740px) and (max-width: 1280px) {
+  @media screen and (min-width: 740px) and (max-width: 1023px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -589,11 +570,10 @@ const OnBottom = styled.div`
 `;
 
 // const elements = props.items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(props.renderItem);
-// console.log("elements: ", elements);
 
 return (
   <>
-    {tab != "pots" && tab != "pot" && (
+    {/* {tab != "pots" && tab != "pot" && (
       <Container>
         <Header>
           <Title>Featured projects</Title>
@@ -602,16 +582,16 @@ return (
         <ProjectList>{featuredProjects.map(props.renderItem)}</ProjectList>
         <OnBottom></OnBottom>
       </Container>
-    )}
+    )} */}
     <Container style={{ paddingBottom: "32px" }}>
-      <Header>
+      {/* <Header>
         <Title>
           all {tab == "pots" ? "pots" : "projects"}
           <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
             {props.items.length}
           </span>
         </Title>
-        {/* <Widget
+        <Widget
           src={`${ownerId}/widget/Project.SearchBar`}
           props={{
             title: "Sort",
@@ -620,16 +600,11 @@ return (
             itemName: tab == "pots" ? "pot" : "project",
             sortList: Object.values(SORT_FILTERS),
             setSearchTerm: (value) => {
-              const results = tab == "pots"
-                ? searchByWordsPots(totalProjects, value)
-                : tab == "pot"
-                ? searchByWordsPot(totalProjects, value)
-                : searchByWords(totalProjects, value);
-              setSearchTerm(value);
+              const results = searchProjects(value);
               setFilteredProjects(results);
             },
             handleSortChange: (filter) => {
-              const sorted = 
+              const sorted = sortProjects(filter);
               handleSortChange(filter);
             },
           }}
@@ -663,10 +638,9 @@ return (
               </Tag>
             ))}
           </TagsWrapper>
-        )} */}
-      </Header>
+        )}
+      </Header> */}
       <ProjectList>{items.map(props.renderItem)}</ProjectList>
-
       {/* <InfiniteScroll
         // loadMore={tab == "pots" || tab == "pot" ? loadPotProjects : loadProjects}
         loadMore={loadMore}
