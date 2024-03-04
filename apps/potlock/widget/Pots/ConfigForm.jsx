@@ -67,7 +67,7 @@ Big.PE = 100;
 const FormBody = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 32px 68px;
+  padding: 32px 0px;
   width: 100%;
 
   @media screen and (max-width: 880px) {
@@ -87,9 +87,7 @@ const FormDivider = styled.div`
 const FormSectionContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 160px;
-  margin: 48px 0 48px 0;
-  flex-wrap: wrap;
+  margin: 48px 0;
   @media screen and (max-width: 768px) {
     flex-direction: column;
     gap: 32px;
@@ -109,12 +107,12 @@ const FormSectionLeftDiv = styled.div`
 `;
 
 const FormSectionRightDiv = styled.div`
-  flex: 1;
+  width: 70%;
   display: flex;
   flex-direction: column;
   gap: 26px;
   @media screen and (max-width: 768px) {
-    flex-direction: column;
+    width: 100%;
   }
 `;
 
@@ -640,104 +638,101 @@ return (
             }}
           />
         </Row>
-        <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Application start date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.applicationStartDate,
-              onChange: (date) => {
-                State.update({ applicationStartDate: date });
-              },
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after now & before application end date
-                // const now = Date.now();
-                const now = new Date().getTime();
-                const applicationStartDate = new Date(state.applicationStartDate).getTime();
-                const applicationEndDate = new Date(state.applicationEndDate).getTime();
-                const valid =
-                  applicationStartDate > now &&
-                  (!applicationEndDate || applicationStartDate < applicationEndDate);
-                State.update({
-                  applicationStartDateError: valid ? "" : "Invalid application start date",
-                });
-              },
-              error: state.applicationStartDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Application end date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.applicationEndDate,
-              onChange: (date) => State.update({ applicationEndDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be before matching round start date
-                const valid =
-                  (!state.matchingRoundStartDate ||
-                    state.applicationEndDate < state.matchingRoundStartDate) &&
-                  (!state.applicationStartDate ||
-                    state.applicationEndDate > state.applicationStartDate);
-                State.update({
-                  applicationEndDateError: valid ? "" : "Invalid application end date",
-                });
-              },
-              error: state.applicationEndDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-        </Row>
-        <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Matching round start date",
-              selectTime: true,
-              value: state.matchingRoundStartDate,
-              onChange: (date) => State.update({ matchingRoundStartDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after application end and before matching round end
-                const valid =
-                  (!state.applicationEndDate ||
-                    state.matchingRoundStartDate > state.applicationEndDate) &&
-                  (!state.matchingRoundEndDate ||
-                    state.matchingRoundStartDate < state.matchingRoundEndDate);
-                State.update({
-                  matchingRoundStartDateError: valid ? "" : "Invalid round start date",
-                });
-              },
-              error: state.matchingRoundStartDateError,
-            }}
-          />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Matching round end date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.matchingRoundEndDate,
-              onChange: (date) => State.update({ matchingRoundEndDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after matching round start
-                const valid =
-                  !state.matchingRoundStartDate ||
-                  state.matchingRoundEndDate > state.matchingRoundStartDate;
-                State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
-              },
-              error: state.matchingRoundEndDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-        </Row>
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Application start date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.applicationStartDate,
+            onChange: (date) => {
+              State.update({ applicationStartDate: date });
+            },
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after now & before application end date
+              // const now = Date.now();
+              const now = new Date().getTime();
+              const applicationStartDate = new Date(state.applicationStartDate).getTime();
+              const applicationEndDate = new Date(state.applicationEndDate).getTime();
+              const valid =
+                applicationStartDate > now &&
+                (!applicationEndDate || applicationStartDate < applicationEndDate);
+              State.update({
+                applicationStartDateError: valid ? "" : "Invalid application start date",
+              });
+            },
+            error: state.applicationStartDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Application end date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.applicationEndDate,
+            onChange: (date) => State.update({ applicationEndDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be before matching round start date
+              const valid =
+                (!state.matchingRoundStartDate ||
+                  state.applicationEndDate < state.matchingRoundStartDate) &&
+                (!state.applicationStartDate ||
+                  state.applicationEndDate > state.applicationStartDate);
+              State.update({
+                applicationEndDateError: valid ? "" : "Invalid application end date",
+              });
+            },
+            error: state.applicationEndDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Matching round start date",
+            selectTime: true,
+            value: state.matchingRoundStartDate,
+            onChange: (date) => State.update({ matchingRoundStartDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after application end and before matching round end
+              const valid =
+                (!state.applicationEndDate ||
+                  state.matchingRoundStartDate > state.applicationEndDate) &&
+                (!state.matchingRoundEndDate ||
+                  state.matchingRoundStartDate < state.matchingRoundEndDate);
+              State.update({
+                matchingRoundStartDateError: valid ? "" : "Invalid round start date",
+              });
+            },
+            error: state.matchingRoundStartDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Matching round end date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.matchingRoundEndDate,
+            onChange: (date) => State.update({ matchingRoundEndDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after matching round start
+              const valid =
+                !state.matchingRoundStartDate ||
+                state.matchingRoundEndDate > state.matchingRoundStartDate;
+              State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
+            },
+            error: state.matchingRoundEndDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
         <Row>
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
