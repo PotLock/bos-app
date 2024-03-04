@@ -262,7 +262,7 @@ if (
 
 // console.log("state in Index: ", state);
 
-if (state.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
+if (props.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
   // if checkout was successful after wallet redirect, clear cart
   // store previous cart in local storage to show success message
   // console.log("previous cart: ", state.cart);

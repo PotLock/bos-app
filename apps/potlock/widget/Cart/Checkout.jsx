@@ -10,23 +10,6 @@ const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
 const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
 const [projectId, setProjectId] = useState("");
-// const Wrapper = styled.div`
-//   display: flex;
-//   flex-direction: row;
-
-//   @media screen and (max-width: 768px) {
-//     flex-direction: column;
-//   }
-// `;
-
-let RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
-  (() => ({
-    getProjects: () => {},
-  }));
-RegistrySDK = RegistrySDK({ env: props.env });
-
-const registeredProjects = RegistrySDK.getProjects();
 
 const Container = styled.div`
   background: #fafafa;
@@ -144,94 +127,101 @@ State.init({
   masterSelectorSelected: false,
   successfulDonationRecipientId: null,
   successfulDonationRecipientProfile: null,
+  successfulDonationsRecipientProfiles: null,
 });
 
 const allSelected =
   state.selectedProjectIds.length !== 0 &&
   state.selectedProjectIds.length === Object.keys(props.cart).length;
-// const twitterSuccessText = `I just donated to this project on @potlock_!`;
 
-// console.log("props in Checkout: ", props);
-
-// const txInfo = useMemo(() => {
-//   if (props.transactionHashes && props.registeredProjects) {
-//     const body = JSON.stringify({
-//       jsonrpc: "2.0",
-//       id: "dontcare",
-//       method: "tx",
-//       params: [props.transactionHashes, context.accountId],
-//     });
-//     const res = fetch("https://rpc.mainnet.near.org", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body,
-//     });
-//     console.log("tx res: ", res);
-//     if (res.ok) {
-//       const successVal = res.body.result.status?.SuccessValue;
-//       let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-//       decoded = JSON.parse(decoded);
-//       const recipientId = decoded.recipient_id;
-//       if (recipientId) {
-//         State.update({ successfulDonationRecipientId: recipientId });
-//       }
-//     }
-//   }
-// }, [props.transactionHashes]);
-
-if (props.transactionHashes && registeredProjects && !state.successfulDonationRecipientId) {
-  const body = JSON.stringify({
-    jsonrpc: "2.0",
-    id: "dontcare",
-    method: "tx",
-    params: [props.transactionHashes, context.accountId],
-  });
-  const res = fetch("https://rpc.mainnet.near.org", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body,
-  });
-  // console.log("tx res: ", res);
-  if (res.ok) {
-    const successVal = res.body.result.status?.SuccessValue;
-    let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-    decoded = JSON.parse(decoded);
-    const recipientId = decoded.recipient_id;
-    if (recipientId) {
-      State.update({ successfulDonationRecipientId: recipientId });
+if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
+  const transactionHashes = props.transactionHashes.split(",");
+  for (let i = 0; i < transactionHashes.length; i++) {
+    const txHash = transactionHashes[i];
+    const body = JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "tx",
+      params: [txHash, context.accountId],
+    });
+    const res = fetch("https://rpc.mainnet.near.org", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+    if (res.ok) {
+      const successVal = res.body.result.status?.SuccessValue;
+      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
+      decoded = JSON.parse(decoded);
+      const recipientId = decoded.recipient_id;
+      if (recipientId) {
+        Near.asyncView("social.near", "get", { keys: [`${recipientId}/profile/**`] }).then(
+          (socialData) => {
+            State.update({
+              successfulDonationsRecipientProfiles: {
+                ...state.successfulDonationsRecipientProfiles,
+                [recipientId]: socialData[recipientId]["profile"],
+              },
+            });
+          }
+        );
+      }
     }
   }
 }
 
-if (state.successfulDonationRecipientId && !state.successfulDonationRecipientProfile) {
-  const profile = Social.getr(`${state.successfulDonationRecipientId}/profile`);
-  // console.log("profile: ", profile);
-  if (profile) {
-    State.update({ successfulDonationRecipientProfile: profile });
-  }
-}
-
 const twitterIntent = useMemo(() => {
-  if (!state.successfulDonationRecipientId) return;
+  if (!state.successfulDonationsRecipientProfiles) return;
+  const recipientIds = Object.keys(state.successfulDonationsRecipientProfiles);
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
-  let url =
-    DEFAULT_GATEWAY +
-    `${ownerId}/widget/Index?tab=project&projectId=${state.successfulDonationRecipientId}&referrerId=${context.accountId}`;
-  let text = `I just donated to ${
-    state.successfulDonationRecipientProfile
-      ? state.successfulDonationRecipientProfile.linktree?.twitter
-        ? `@${state.successfulDonationRecipientProfile.linktree.twitter}`
-        : state.successfulDonationRecipientProfile.name
-      : state.successfulDonationRecipientId
-  } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
+
+  // if more than one recipient, share the Explore Projects page; otherwise, share the project page
+  let url = DEFAULT_GATEWAY + `${ownerId}/widget/Index?referrerId=${context.accountId}`;
+  if (recipientIds.length === 1) {
+    url = url + `&tab=project&projectId=${recipientIds[0]}`;
+  } else {
+    url = url + `&tab=projects`;
+  }
+
+  // Initialize an empty array to hold the recipient profiles along with their identifiers
+  const recipientProfiles = [];
+
+  // Iterate over each entry in the successfulDonationsRecipientProfiles object
+  for (const [recipientId, profile] of Object.entries(state.successfulDonationsRecipientProfiles)) {
+    // Determine the identifier to use: Twitter handle, name, or recipient ID
+    const identifier = profile.linktree?.twitter
+      ? `@${profile.linktree.twitter}`
+      : profile.name
+      ? profile.name
+      : recipientId;
+
+    // Add the profile and its identifier to the array
+    recipientProfiles.push({
+      identifier,
+      hasTwitter: !!profile.linktree?.twitter,
+    });
+  }
+
+  // Sort the recipientProfiles array to put ones with Twitter handles first
+  recipientProfiles.sort((a, b) => {
+    if (a.hasTwitter && !b.hasTwitter) return -1;
+    if (!a.hasTwitter && b.hasTwitter) return 1;
+    return 0;
+  });
+
+  // Extract the identifiers from the sorted array
+  const sortedIdentifiers = recipientProfiles.map((profile) => profile.identifier);
+
+  // Join the sorted recipient identifiers with " & " to create a single string
+  const recipientsText = sortedIdentifiers.join(" & ");
+
+  let text = `I just donated to ${recipientsText} on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
   return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
-}, [state.successfulDonationRecipientId, state.successfulDonationRecipientProfile]);
+}, [state.successfulDonationsRecipientProfiles]);
 
 return (
   // <div>
@@ -265,7 +255,7 @@ return (
             },
           }}
         />
-        {twitterIntent && props.checkoutSuccessTxHash ? (
+        {/* {twitterIntent && props.checkoutSuccessTxHash ? (
           <TxLink
             target="_blank"
             href={`https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`}
@@ -288,7 +278,7 @@ return (
               }}
             />
           )
-        )}
+        )} */}
       </SuccessContainer>
     ) : (
       <>
