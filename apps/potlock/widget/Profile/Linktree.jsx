@@ -111,7 +111,7 @@ const fullUrls = {
 return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
-      return k in itemIconUrls ? (
+      return k in itemIconUrls && v ? (
         <LinktreeItemContainer
           href={fullUrls[k](v)}
           disabled={!v}
