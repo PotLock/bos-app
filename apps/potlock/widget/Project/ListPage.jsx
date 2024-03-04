@@ -2,16 +2,10 @@ const {
   getTagsFromSocialProfileData,
   getTeamMembersFromSocialProfileData,
   yoctosToUsdWithFallback,
-  yoctosToUsd,
 } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
   getTeamMembersFromSocialProfileData: () => [],
   yoctosToUsdWithFallback: () => "",
-  yoctosToUsd: () => "",
-};
-
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
 };
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -137,6 +131,10 @@ const CardSkeleton = () => (
 // ListPage Content
 
 const { userIsRegistryAdmin, tab } = props;
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
@@ -505,7 +503,7 @@ let RegistrySDK =
   }));
 RegistrySDK = RegistrySDK({ env: props.env });
 
-const isRegistryAdmin = isRegistryAdmin;
+const isRegistryAdmin = RegistrySDK.isRegistryAdmin(context.accountId);
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -514,13 +512,19 @@ let DonateSDK =
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
-const projects = RegistrySDK.getProjects() || [];
+const allProjects = RegistrySDK.getProjects() || [];
+
+// console.log("allProjects: ", allProjects);
+
+const projects = useMemo(() => {
+  if (!isRegistryAdmin) {
+    return allProjects.filter((project) => project.status === "Approved");
+  }
+  allProjects.sort((a, b) => b.submitted_ms - a.submitted_ms);
+  return allProjects;
+}, allProjects);
 
 // console.log("projects: ", projects);
-
-if (!isRegistryAdmin) {
-  projects = projects.filter((project) => project.status === "Approved");
-}
 
 const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
 const featuredProjects = useMemo(
@@ -545,16 +549,18 @@ const arrange = (project_1, project_2) => {
   };
   const total_amounts = (project) => {
     const donationsForProject = DonateSDK.getDonationsForRecipient(project.id);
-    const [totalAmount] = useMemo(() => {
-      if (!donationsForProject) return [null, null];
-      let totalDonationAmount = new Big(0);
-      for (const donation of donationsForProject) {
-        totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
-      }
-      return [totalDonationAmount.toString()];
-    }, [donationsForProject]);
-    const latestDonation = new Big(totalAmount).div(1e24).toFixed(2);
-    return latestDonation;
+    if (donationsForProject) {
+      const [totalAmount] = useMemo(() => {
+        if (!donationsForProject) return [null, null];
+        let totalDonationAmount = new Big(0);
+        for (const donation of donationsForProject) {
+          totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+        }
+        return [totalDonationAmount.toString()];
+      }, [donationsForProject]);
+      const latestDonation = new Big(totalAmount).div(1e24).toFixed(2);
+      return latestDonation;
+    }
   };
   return sort(total_amounts(project_1), total_amounts(project_2));
 };
@@ -690,48 +696,46 @@ const handleSortChange = (sortType) => {
 };
 
 const searchByWords = (projects, searchTerm) => {
-  let findId = [];
-  const dataArr = projects;
-  let alldata = [];
-  dataArr.forEach((item) => {
-    const data = Social.getr(`${item.id}/profile`);
-    alldata.push(data);
-    if (data) {
+  searchTerm = searchTerm.toLowerCase().trim();
+  let results = [];
+  // const dataArr = projects;
+  // let alldata = [];
+  projects.forEach((project) => {
+    const { id, status } = project;
+    const data = Social.getr(`${id}/profile`);
+    // alldata.push(data);
+    if (id.includes(searchTerm) || status.toLowerCase().includes(searchTerm)) {
+      results.push(project);
+    } else if (data) {
       if (
-        data.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getTagsFromSocialProfileData(data)
-          .join("")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        getTeamMembersFromSocialProfileData(data)
-          .join("")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+        data.description.toLowerCase().includes(searchTerm) ||
+        data.name.toLowerCase().includes(searchTerm) ||
+        getTagsFromSocialProfileData(data).join("").toLowerCase().includes(searchTerm) ||
+        getTeamMembersFromSocialProfileData(data).join("").toLowerCase().includes(searchTerm)
       ) {
-        findId.push(item.id);
+        results.push(project);
       }
     }
   });
-  let projectFilterBySearch = [];
-  dataArr.forEach((project) => {
-    const data = Social.getr(`${project.id}/profile`);
-    findId.forEach((id) => {
-      if (tagSelected.length > 0) {
-        if (data.category == tagSelected[0]) {
-          if (project.id == id) {
-            projectFilterBySearch.push(project);
-          }
-        }
-      } else {
-        if (project.id == id) {
-          projectFilterBySearch.push(project);
-        }
-      }
-    });
-  });
+  // let projectFilterBySearch = [];
+  // projects.forEach((project) => {
+  //   const data = Social.getr(`${project.id}/profile`);
+  //   findId.forEach((id) => {
+  //     if (tagSelected.length > 0) {
+  //       if (data.category == tagSelected[0]) {
+  //         if (project.id == id) {
+  //           projectFilterBySearch.push(project);
+  //         }
+  //       }
+  //     } else {
+  //       if (project.id == id) {
+  //         projectFilterBySearch.push(project);
+  //       }
+  //     }
+  //   });
+  // });
 
-  setFilteredProjects(projectFilterBySearch);
+  setFilteredProjects(results);
 };
 
 return (
@@ -900,6 +904,7 @@ return (
         props={{
           ...props,
           items: filteredProjects,
+          shouldSuffle: !isRegistryAdmin,
           renderItem: (project) => {
             return (
               <Widget
