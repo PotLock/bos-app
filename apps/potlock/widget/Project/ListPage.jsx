@@ -502,7 +502,7 @@ const isRegistryAdmin = isRegistryAdmin;
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
-    asyncGetConfig: () => {},
+    getConfig: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
@@ -533,15 +533,11 @@ useEffect(() => {
 
 // console.log("filter", filteredProjects);
 
-console.log("DonateSDK: ", DonateSDK);
-
-if (DonateSDK.asyncGetConfig().then) {
-  // TODO: fix this hack
-  DonateSDK.asyncGetConfig().then((result) => {
-    const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
-    setTotalDonated(lastDonationAmount);
-    setTotalDonation(result.total_donations_count);
-  });
+const donateConfig = DonateSDK.getConfig();
+if (donateConfig && !totalDonated && !totalDonation) {
+  const lastDonationAmount = yoctosToUsd(donateConfig.net_donations_amount);
+  setTotalDonated(lastDonationAmount);
+  setTotalDonation(donateConfig.total_donations_count);
 }
 
 const donateRandomly = () => {
