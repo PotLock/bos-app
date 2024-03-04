@@ -517,7 +517,7 @@ return (
           <Description>Matching funds available</Description>
         </Row>
       </ColumnRightSegment>
-      <ColumnRightSegment>
+      <ColumnRightSegment style={{ gap: "12px" }}>
         {applicationOpen && (
           <>
             <Row
