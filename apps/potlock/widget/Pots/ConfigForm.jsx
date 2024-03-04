@@ -351,7 +351,7 @@ const handleDeploy = () => {
     const pollIntervalMs = 1000;
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
-      PotFactorySDK.asyncGetPots.then((pots) => {
+      PotFactorySDK.asyncGetPots().then((pots) => {
         // console.log("pots: ", pots);
         const pot = pots.find(
           (pot) => pot.deployed_by === context.accountId && pot.deployed_at_ms > now
