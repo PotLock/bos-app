@@ -50,6 +50,9 @@ const Title = styled.div`
   font-weight: 600;
   line-height: 28px;
   word-wrap: break-word;
+  > div {
+    font-weight: inherit;
+  }
 `;
 
 const Description = styled.div`
@@ -126,11 +129,13 @@ return (
     </CardSection>
     <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
       <Title>
-        {amountNear}
+        <div>
+          {amountNear}{" "}
+          <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>in pot</span>
+        </div>
         {amountUsd && (
           <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
         )}
-        <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>Matching Pool</span>
       </Title>
       {/* Application tag */}
       {applicationOpen && (
