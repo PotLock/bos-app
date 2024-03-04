@@ -13,9 +13,9 @@ const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = PotlockRegistrySDK({ env: props.env });
-const userIsRegistryAdmin = registry.isUserRegistryAdmin(context.accountId);
+let RegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+RegistrySDK = RegistrySDK({ env: props.env });
+const userIsRegistryAdmin = RegistrySDK.isUserRegistryAdmin(context.accountId);
 
 const handleUpdateStatus = () => {
   Near.call([

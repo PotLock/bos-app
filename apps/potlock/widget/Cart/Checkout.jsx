@@ -19,14 +19,14 @@ const [projectId, setProjectId] = useState("");
 //   }
 // `;
 
-const PotlockRegistrySDK =
+let RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjects: () => {},
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const registeredProjects = registry.getProjects();
+const registeredProjects = RegistrySDK.getProjects();
 
 const Container = styled.div`
   background: #fafafa;
@@ -232,17 +232,6 @@ const twitterIntent = useMemo(() => {
   url = encodeURIComponent(url);
   return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
 }, [state.successfulDonationRecipientId, state.successfulDonationRecipientProfile]);
-
-// console.log(encodeURIComponent("https://twitter.com/intent/tweet?text=Hello%20world"));
-
-// const donationsForDonor = useMemo(() => {
-//   const donations = Near.view(donationContractId, "get_donations_for_donor", {
-//     donor_id: context.accountId,
-//   });
-//   console.log("donations: ", donations);
-// }, []);
-
-// console.log("props in Checkout: ", props);
 
 return (
   // <div>

@@ -8,23 +8,22 @@ const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.requ
   yoctosToUsdWithFallback: () => "",
 };
 
-const {
-  DONATION_CONTRACT_ID,
-  NADA_BOT_URL,
-  ownerId,
-  ToDo,
-  MAX_DONATION_MESSAGE_LENGTH,
-  SUPPORTED_FTS,
-  ONE_TGAS,
-} = VM.require("potlock.near/widget/constants") || {
-  DONATION_CONTRACT_ID: "",
-  ownerId: "",
-  ONE_TGAS: 0,
-  NADA_BOT_URL: "",
-  ToDo: "",
-  MAX_DONATION_MESSAGE_LENGTH: 0,
-  SUPPORTED_FTS: {},
+const { NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS, ONE_TGAS } =
+  VM.require("potlock.near/widget/constants") || {
+    ownerId: "",
+    ONE_TGAS: 0,
+    NADA_BOT_URL: "",
+    ToDo: "",
+    MAX_DONATION_MESSAGE_LENGTH: 0,
+    SUPPORTED_FTS: {},
+  };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getApplicationByProjectId: () => {},
+  getPublicRoundDonations: () => {},
 };
+
+const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
 
 const { calcNetDonationAmount, filterByDate } = VM.require(
   `${ownerId}/widget/Components.DonorsUtils`
@@ -301,16 +300,11 @@ const canPayoutsBeProcessed =
 const cooldownPeriodInProgress = publicRoundClosed && now < cooldown_end_ms;
 const potComplete = all_paid_out;
 
-const existingApplication = Near.view(potId, "get_application_by_project_id", {
-  project_id: context.accountId,
-});
+const existingApplication = PotSDK.getApplicationByProjectId(potId, context.accountId);
 
-if (state.totalUniqueDonors === null) {
-  Near.asyncView(potId, "get_public_round_donations", {}).then((result) => {
-    const uniqueDonors = [...new Set(result.map((obj) => obj.donor_id))];
-
-    State.update({ totalUniqueDonors: uniqueDonors.length });
-  });
+if (publicRoundDonations && state.totalUniqueDonors === null) {
+  const uniqueDonors = [...new Set(publicRoundDonations.map((donation) => donation.donor_id))];
+  State.update({ totalUniqueDonors: uniqueDonors.length });
 }
 // if (registry_provider) {
 //   const [contractId, methodName] = registry_provider.split(":");

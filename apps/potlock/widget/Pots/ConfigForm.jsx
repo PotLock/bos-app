@@ -1,4 +1,4 @@
-const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID } = props;
+const { potDetail, potId, NADABOT_CONTRACT_ID } = props;
 const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
   validateNearAddress: () => "",
 };
@@ -13,18 +13,28 @@ const {
   ONE_TGAS: 0,
   SUPPORTED_FTS: {},
 };
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getContractId: () => {},
+    getProtocolConfig: () => {},
+    asyncGetPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const potFactoryContractId = PotFactorySDK.getContractId();
+const protocolConfig = PotFactorySDK.getProtocolConfig();
 // console.log("props in config form: ", props);
 
-const PotlockRegistrySDK =
+let RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getContractId: () => "",
   }));
-const registry = PotlockRegistrySDK({ env: props.env });
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
+const DEFAULT_REGISTRY_PROVIDER = `${RegistrySDK.getContractId()}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:${NADABOT_HUMAN_METHOD}`;
-const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
@@ -51,10 +61,6 @@ const getImageUrlFromSocialImage = (image) => {
     return IPFS_BASE_URL + image.ipfs_cid;
   }
 };
-
-const protocolConfigContractId = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[0];
-const protocolConfigViewMethodName = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[1];
-const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
 
 Big.PE = 100;
 
@@ -184,7 +190,7 @@ State.init({
   isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
-  customHandle: isUpdate ? potId.split(`.${POT_FACTORY_CONTRACT_ID}`)[0] : "",
+  customHandle: isUpdate ? potId.split(`.${potFactoryContractId}`)[0] : "",
   customHandleError: "",
   description: isUpdate ? potDetail.pot_description : "",
   descriptionError: "",
@@ -320,7 +326,7 @@ const handleDeploy = () => {
   const deployArgs = getPotDetailArgsFromState();
   console.log("deployArgs: ", deployArgs);
 
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
+  Near.asyncView(potFactoryContractId, "calculate_min_deployment_deposit", {
     args: deployArgs,
   }).then((amount) => {
     // console.log("amount: ", amount);
@@ -331,7 +337,7 @@ const handleDeploy = () => {
     }
     const transactions = [
       {
-        contractName: POT_FACTORY_CONTRACT_ID,
+        contractName: potFactoryContractId,
         methodName: "deploy_pot",
         deposit: amountYoctos,
         args,
@@ -346,7 +352,7 @@ const handleDeploy = () => {
     const pollIntervalMs = 1000;
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
-      Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
+      PotFactorySDK.asyncGetPots.then((pots) => {
         // console.log("pots: ", pots);
         const pot = pots.find(
           (pot) => pot.deployed_by === context.accountId && pot.deployed_at_ms > now
@@ -540,7 +546,7 @@ return (
             onChange: (customHandle) => State.update({ customHandle, customHandleError: "" }),
             validate: () => {
               // **CALLED ON BLUR**
-              const suffix = `.${POT_FACTORY_CONTRACT_ID}`;
+              const suffix = `.${potFactoryContractId}`;
               const fullAddress = `${state.customHandle}${suffix}`;
               let customHandleError = "";
               if (fullAddress.length > 64) {

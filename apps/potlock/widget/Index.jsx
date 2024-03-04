@@ -1,7 +1,7 @@
 const ownerId = "potlock.near";
 const donationContractId = "donate.potlock.near";
-const potFactoryContractId =
-  props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near";
+// const potFactoryContractId =
+//   props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near";
 const nadabotContractId = props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near";
 
 const CREATE_PROJECT_TAB = "createproject";
@@ -60,7 +60,6 @@ State.init({
   // previousCart: null,
   isCartModalOpen: false,
   isNavMenuOpen: false,
-  allPots: null,
   donnorProjectId: null,
   amount: null,
   note: null,
@@ -86,22 +85,6 @@ State.init({
 });
 
 // console.log("state in Index: ", state);
-
-if (!state.allPots) {
-  Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
-    State.update({
-      allPots: pots.reduce((acc, pot) => {
-        acc[pot.id] = {
-          detail: Near.view(pot.id, "get_config", {}),
-          approvedProjects: Near.view(pot.id, "get_approved_applications", {}),
-        };
-        return acc;
-      }, {}),
-    });
-  });
-}
-
-if (!state.allPots) return "";
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
@@ -141,7 +124,6 @@ const props = {
   ...props,
   ...state,
   ownerId: "potlock.near",
-  POT_FACTORY_CONTRACT_ID: potFactoryContractId,
   NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
   setCurrency: (cur) => {

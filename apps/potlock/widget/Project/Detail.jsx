@@ -1,18 +1,41 @@
-const { projectId, tab, POT_FACTORY_CONTRACT_ID } = props;
+const { projectId, tab } = props;
+
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
 };
 const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
 
-const PotlockRegistrySDK =
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetDonationsForRecipient: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+
+const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetConfig: () => {},
+  asyncGetDonationsForProject: () => {},
+  asyncGetDonationsForRecipient: () => {},
+};
+
+let RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getProjectById: () => "",
   }));
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const registry = PotlockRegistrySDK({ env: props.env });
-const project = registry.getProjectById(projectId);
+const project = RegistrySDK.getProjectById(projectId);
 
 if (!project || project == null) {
   return "Loading";
@@ -22,18 +45,12 @@ if (project == undefined) {
   return "Project not found";
 }
 
-// Fetch Project Donations
-const [pots, setPots] = useState(null);
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of Round Matching Donations for the project
 const [matchingRoundDonations, setMatchingRoundDonations] = useState({});
 
-const getPotConfig = (potId) => Near.asyncView(potId, "get_config", {});
-
 const getProjectRoundDonations = (potId, potDetail) => {
-  return Near.asyncView(potId, "get_donations_for_project", {
-    project_id: projectId,
-  })
+  return PotSDK.asyncGetDonationsForProject(potId, projectId)
     .then((donations) => {
       const updatedDonations = donations.map((donation) => ({
         ...donation,
@@ -57,9 +74,7 @@ const getProjectRoundDonations = (potId, potDetail) => {
 
 // Get Project Direct Donations
 if (!directDonations) {
-  Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_recipient", {
-    recipient_id: projectId,
-  }).then((donations) => {
+  DonateSDK.asyncGetDonationsForRecipient(projectId).then((donations) => {
     donations = donations.map((donation) => ({
       ...donation,
       type: "DIRECT",
@@ -67,14 +82,10 @@ if (!directDonations) {
     setDirectDonations(donations);
   });
 }
-if (!pots) {
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
-    setPots(pots || []);
-  });
-}
-if (pots.length && !matchingRoundDonations[pots[pots.length - 1].id]) {
+
+if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
-    getPotConfig(pot.id).then((potDetail) => {
+    PotSDK.asyncGetConfig(pot.id).then((potDetail) => {
       getProjectRoundDonations(pot.id, potDetail);
     });
   });

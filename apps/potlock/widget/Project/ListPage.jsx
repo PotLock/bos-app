@@ -125,8 +125,7 @@ const CardSkeleton = () => (
 // ListPage Content
 
 const { userIsRegistryAdmin, tab } = props;
-const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
-  DONATION_CONTRACT_ID: "",
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
@@ -490,12 +489,28 @@ State.init({
   successfulDonation: null,
 });
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry");
-const registry = PotlockRegistrySDK({ env: props.env });
+let RegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getProjects: () => {},
+    isRegistryAdmin: () => {},
+  }));
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const projects = registry.getProjects() || [];
+const isRegistryAdmin = isRegistryAdmin;
 
-if (!registry.isRegistryAdmin(context.accountId)) {
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetConfig: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+const projects = RegistrySDK.getProjects() || [];
+
+// console.log("projects: ", projects);
+
+if (!isRegistryAdmin) {
   projects = projects.filter((project) => project.status === "Approved");
 }
 
@@ -518,11 +533,16 @@ useEffect(() => {
 
 // console.log("filter", filteredProjects);
 
-Near.asyncView(DONATION_CONTRACT_ID, "get_config", {}).then((result) => {
-  const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
-  setTotalDonated(lastDonationAmount);
-  setTotalDonation(result.total_donations_count);
-});
+console.log("DonateSDK: ", DonateSDK);
+
+if (DonateSDK.asyncGetConfig().then) {
+  // TODO: fix this hack
+  DonateSDK.asyncGetConfig().then((result) => {
+    const lastDonationAmount = yoctosToUsd(result.net_donations_amount);
+    setTotalDonated(lastDonationAmount);
+    setTotalDonation(result.total_donations_count);
+  });
+}
 
 const donateRandomly = () => {
   State.update({
@@ -530,10 +550,6 @@ const donateRandomly = () => {
     successfulDonation: null,
   });
 };
-
-if (!registry.isRegistryAdmin(context.accountId)) {
-  projects = projects.filter((project) => project.status === "Approved");
-}
 
 const handleDonateRandomly = (e) => {
   e.preventDefault();
