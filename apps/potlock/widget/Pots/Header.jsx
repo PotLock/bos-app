@@ -442,7 +442,7 @@ return (
   <Container>
     <Column style={{ gap: "24px" }}>
       <Title>{pot_name}</Title>
-      <Row style={{ gap: "24px" }}>
+      <Row style={{ gap: "24px", flexWrap: wrap }}>
         {/* Application tag */}
         <Widget
           src={`${ownerId}/widget/Pots.Tag`}
