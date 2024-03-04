@@ -25,9 +25,6 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
 
 const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
 
-const { calcNetDonationAmount, filterByDate } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
-);
 // console.log("pot detail: ", potDetail);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
@@ -88,6 +85,10 @@ const Description = styled.div`
   font-weight: 400;
   line-height: 24px;
   word-wrap: break-word;
+  a {
+    color: black;
+    font-weight: 500;
+  }
 `;
 
 const ColumnRightSegment = styled.div`
@@ -487,7 +488,9 @@ return (
           }}
         />
       </Row>
-      <Description>{pot_description}</Description>
+      <Description>
+        <Markdown text={pot_description} />
+      </Description>
       <Row style={{ width: "100%" }}>
         <Column style={{ width: "100%" }}>
           <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
