@@ -674,7 +674,6 @@ const searchByWords = (projects, searchTerm) => {
     const data = Social.getr(`${id}/profile`);
     // alldata.push(data);
     if (id.includes(searchTerm) || status.toLowerCase().includes(searchTerm)) {
-      console.log("match: ", project);
       results.push(project);
     } else if (data) {
       if (
