@@ -15,12 +15,13 @@ const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", 
 
 let RegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
 RegistrySDK = RegistrySDK({ env: props.env });
+const registryContractId = RegistrySDK.getContractId();
 const userIsRegistryAdmin = RegistrySDK.isUserRegistryAdmin(context.accountId);
 
 const handleUpdateStatus = () => {
   Near.call([
     {
-      contractName: registry.getContractId(),
+      contractName: registryContractId,
       methodName: "admin_set_project_status",
       args: {
         project_id: projectId,
