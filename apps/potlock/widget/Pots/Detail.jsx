@@ -11,6 +11,14 @@ const {
   ONE_TGAS: 0,
   SUPPORTED_FTS: {},
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getConfig: () => {},
+  asyncGetApplications: () => {},
+};
+
+const potDetail = PotSDK.getConfig(potId);
+
 const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
 
 Big.PE = 100;
@@ -92,7 +100,7 @@ const Row = styled.div`
 `;
 
 State.init({
-  potDetail: null,
+  // potDetail: null,
   // canApply: null,
   isApplicationModalOpen: false,
   applicationMessage: "",
@@ -106,32 +114,25 @@ State.init({
   isOnRegistry: false,
 });
 
-if (state.potDetail === null) {
-  Near.asyncView(potId, "get_config", {})
-    .then((potDetail) => {
-      if (potDetail.sybil_wrapper_provider) {
-        const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
-        Near.asyncView(contractId, methodName, { account_id: context.accountId })
-          .then((result) => {
-            State.update({ potDetail, sybilRequirementMet: result });
-          })
-          .catch((e) => {
-            State.update({ potDetail, sybilRequirementMet: false });
-          });
-      } else {
-        State.update({ potDetail, sybilRequirementMet: true });
-      }
-    })
-    .catch((e) => {
-      console.log("error getting pot detail: ", e);
-      State.update({ potDetail: undefined });
-    });
+if (state.sybilRequirementMet === null) {
+  if (potDetail.sybil_wrapper_provider) {
+    const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
+    Near.asyncView(contractId, methodName, { account_id: context.accountId })
+      .then((result) => {
+        State.update({ sybilRequirementMet: result });
+      })
+      .catch((e) => {
+        State.update({ sybilRequirementMet: false });
+      });
+  } else {
+    State.update({ sybilRequirementMet: true });
+  }
 }
 
 // console.log("state in pot detail: ", state);
 
-const noPot = state.potDetail === undefined;
-const loading = state.potDetail === null;
+const noPot = potDetail === undefined;
+const loading = potDetail === null;
 
 if (loading) return <div class="spinner-border text-secondary" role="status" />;
 
@@ -184,7 +185,6 @@ props.navOptions = [
   },
 ];
 
-const potDetail = state.potDetail;
 const now = Date.now();
 const applicationNotStarted = now < potDetail.application_start_ms;
 const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
@@ -248,7 +248,7 @@ const handleSendApplication = () => {
         methodName: "add_proposal",
         args: {
           proposal: {
-            description: `Application to PotLock pot: ${state.potDetail.pot_name} (${potId})`,
+            description: `Application to PotLock pot: ${potDetail.pot_name} (${potId})`,
             kind: {
               FunctionCall: {
                 receiver_id: tx.contractName,
@@ -270,7 +270,7 @@ const handleSendApplication = () => {
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    Near.asyncView(potId, "get_applications", {}).then((applications) => {
+    PotSDK.asyncGetApplications(potId).then((applications) => {
       const application = applications.find(
         (application) =>
           application.project_id === (state.isDao ? state.daoAddress : context.accountId)
@@ -284,7 +284,7 @@ const handleSendApplication = () => {
 };
 
 const verifyIsOnRegistry = (address) => {
-  const { registry_provider } = state.potDetail;
+  const { registry_provider } = potDetail;
   if (registry_provider) {
     const [registryId, registryMethod] = registry_provider.split(":");
     if (registryId && registryMethod) {
@@ -305,7 +305,7 @@ useEffect(() => {
   }
 }, []);
 
-const registryRequirementMet = state.isOnRegistry || !state.potDetail.registry_provider;
+const registryRequirementMet = state.isOnRegistry || !potDetail.registry_provider;
 
 const isError = state.applicationMessageError || state.daoAddressError;
 
@@ -316,7 +316,7 @@ return (
         src={`${ownerId}/widget/Pots.Header`}
         props={{
           ...props,
-          potDetail: state.potDetail,
+          potDetail: potDetail,
           setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
           handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
@@ -342,7 +342,7 @@ return (
               src={props.navOptions.find((option) => option.id == props.nav).source}
               props={{
                 ...props,
-                potDetail: state.potDetail,
+                potDetail: potDetail,
                 sybilRequirementMet: state.sybilRequirementMet,
               }}
             />

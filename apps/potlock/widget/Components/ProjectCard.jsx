@@ -2,12 +2,17 @@ const { id, review_notes, status, totalAmount } = props;
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
-const donationContractId = "donate.potlock.near";
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const cardData = Social.getr(`${id}/profile`);
-const donationsForProject = Near.view(donationContractId, "get_donations_for_recipient", {
-  recipient_id: id,
-});
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getDonationsForRecipient: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+const donationsForProject = DonateSDK.getDonationsForRecipient(id);
 
 const Card = styled.a`
   display: flex;

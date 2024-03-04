@@ -6,33 +6,37 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   SUPPORTED_FTS: {},
 };
 
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getMatchingPoolDonations: () => {},
+};
+
+let sponsorshipDonations = PotSDK.getMatchingPoolDonations(potId);
+
 const { NEAR } = SUPPORTED_FTS;
 
 State.init({
-  donations: null,
+  sponsorshipDonations: null,
 });
 
-if (!state.allDonations) {
-  Near.asyncView(potId, "get_matching_pool_donations", {}).then((donations) => {
-    // sort by size)
-    donations.sort(
-      (a, b) =>
-        SUPPORTED_FTS.NEAR.fromIndivisible(b.total_amount) -
-        SUPPORTED_FTS.NEAR.fromIndivisible(a.total_amount)
-    );
-    // add % share of total to each donation
-    const total = SUPPORTED_FTS.NEAR.fromIndivisible(potDetail.matching_pool_balance);
-    donations = donations.map((donation) => {
-      return {
-        ...donation,
-        percentage_share: (SUPPORTED_FTS.NEAR.fromIndivisible(donation.net_amount) / total) * 100,
-      };
-    });
-    State.update({ donations });
+if (sponsorshipDonations && !state.sponsorshipDonations) {
+  // sort by amount
+  sponsorshipDonations.sort(
+    (a, b) =>
+      SUPPORTED_FTS.NEAR.fromIndivisible(b.total_amount) -
+      SUPPORTED_FTS.NEAR.fromIndivisible(a.total_amount)
+  );
+  // add % share of total to each donation
+  const total = SUPPORTED_FTS.NEAR.fromIndivisible(potDetail.matching_pool_balance);
+  sponsorshipDonations = sponsorshipDonations.map((donation) => {
+    return {
+      ...donation,
+      percentage_share: (SUPPORTED_FTS.NEAR.fromIndivisible(donation.net_amount) / total) * 100,
+    };
   });
+  State.update({ sponsorshipDonations });
 }
 
-if (!state.donations) return <div class="spinner-border text-secondary" role="status" />;
+if (!state.sponsorshipDonations) return <div class="spinner-border text-secondary" role="status" />;
 
 const columns = ["Rank", "Donor", "Amount", "Percentage"];
 
@@ -153,7 +157,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Pots.SponsorsBoard`}
         props={{
-          donations: state.donations.slice(0, 6),
+          donations: state.sponsorshipDonations.slice(0, 6),
           base_currency: base_currency,
         }}
       />
@@ -165,10 +169,10 @@ return (
             </HeaderItem>
           ))}
         </Header>
-        {state.donations.length === 0 ? (
+        {state.sponsorshipDonations.length === 0 ? (
           <Row style={{ padding: "12px" }}>No donations to display</Row>
         ) : (
-          state.donations.map((donation, index) => {
+          state.sponsorshipDonations.map((donation, index) => {
             const { donor_id, total_amount, donated_at, percentage_share } = donation;
             const totalDonationAmount =
               SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);

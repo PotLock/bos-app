@@ -1,4 +1,4 @@
-const { potDetail, potId, POT_FACTORY_CONTRACT_ID, NADABOT_CONTRACT_ID } = props;
+const { potDetail, potId, NADABOT_CONTRACT_ID } = props;
 const { validateNearAddress } = VM.require("potlock.near/widget/utils") || {
   validateNearAddress: () => "",
 };
@@ -13,14 +13,28 @@ const {
   ONE_TGAS: 0,
   SUPPORTED_FTS: {},
 };
+
+let PotFactorySDK =
+  VM.require("potlock.near/widget/SDK.potfactory") ||
+  (() => ({
+    getContractId: () => {},
+    getProtocolConfig: () => {},
+    asyncGetPots: () => {},
+  }));
+PotFactorySDK = PotFactorySDK({ env: props.env });
+const potFactoryContractId = PotFactorySDK.getContractId();
+const protocolConfig = PotFactorySDK.getProtocolConfig();
 // console.log("props in config form: ", props);
 
-const PotlockRegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
-const registry = PotlockRegistrySDK({ env: props.env });
+let RegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getContractId: () => "",
+  }));
+RegistrySDK = RegistrySDK({ env: props.env });
 
-const DEFAULT_REGISTRY_PROVIDER = `${registry.getContractId()}:is_registered`;
+const DEFAULT_REGISTRY_PROVIDER = `${RegistrySDK.getContractId()}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:${NADABOT_HUMAN_METHOD}`;
-const DEFAULT_PROTOCOL_CONFIG_PROVIDER = `${POT_FACTORY_CONTRACT_ID}:get_protocol_config`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
@@ -48,19 +62,15 @@ const getImageUrlFromSocialImage = (image) => {
   }
 };
 
-const protocolConfigContractId = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[0];
-const protocolConfigViewMethodName = DEFAULT_PROTOCOL_CONFIG_PROVIDER.split(":")[1];
-const protocolConfig = Near.view(protocolConfigContractId, protocolConfigViewMethodName, {});
-
 Big.PE = 100;
 
 const FormBody = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 32px 68px;
+  padding: 32px 0px;
   width: 100%;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 880px) {
     padding: 10px 10px;
   }
 `;
@@ -77,9 +87,7 @@ const FormDivider = styled.div`
 const FormSectionContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 160px;
-  margin: 48px 0 48px 0;
-
+  margin: 48px 0;
   @media screen and (max-width: 768px) {
     flex-direction: column;
     gap: 32px;
@@ -99,12 +107,12 @@ const FormSectionLeftDiv = styled.div`
 `;
 
 const FormSectionRightDiv = styled.div`
-  flex: 1;
+  width: 70%;
   display: flex;
   flex-direction: column;
   gap: 26px;
   @media screen and (max-width: 768px) {
-    flex-direction: column;
+    width: 100%;
   }
 `;
 
@@ -126,10 +134,11 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   gap: 24px;
-  align-items: center;
+  align-items: end;
   justify-content: flex-start;
   @media screen and (max-width: 768px) {
     flex-direction: column;
+    align-items: flex-start;
   }
 `;
 
@@ -180,7 +189,7 @@ State.init({
   isAdminsModalOpen: false,
   name: isUpdate ? potDetail.pot_name : "",
   nameError: "",
-  customHandle: isUpdate ? potId.split(`.${POT_FACTORY_CONTRACT_ID}`)[0] : "",
+  customHandle: isUpdate ? potId.split(`.${potFactoryContractId}`)[0] : "",
   customHandleError: "",
   description: isUpdate ? potDetail.pot_description : "",
   descriptionError: "",
@@ -316,7 +325,7 @@ const handleDeploy = () => {
   const deployArgs = getPotDetailArgsFromState();
   console.log("deployArgs: ", deployArgs);
 
-  Near.asyncView(POT_FACTORY_CONTRACT_ID, "calculate_min_deployment_deposit", {
+  Near.asyncView(potFactoryContractId, "calculate_min_deployment_deposit", {
     args: deployArgs,
   }).then((amount) => {
     // console.log("amount: ", amount);
@@ -327,7 +336,7 @@ const handleDeploy = () => {
     }
     const transactions = [
       {
-        contractName: POT_FACTORY_CONTRACT_ID,
+        contractName: potFactoryContractId,
         methodName: "deploy_pot",
         deposit: amountYoctos,
         args,
@@ -342,7 +351,7 @@ const handleDeploy = () => {
     const pollIntervalMs = 1000;
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
-      Near.asyncView(POT_FACTORY_CONTRACT_ID, "get_pots", {}).then((pots) => {
+      PotFactorySDK.asyncGetPots().then((pots) => {
         // console.log("pots: ", pots);
         const pot = pots.find(
           (pot) => pot.deployed_by === context.accountId && pot.deployed_at_ms > now
@@ -536,7 +545,7 @@ return (
             onChange: (customHandle) => State.update({ customHandle, customHandleError: "" }),
             validate: () => {
               // **CALLED ON BLUR**
-              const suffix = `.${POT_FACTORY_CONTRACT_ID}`;
+              const suffix = `.${potFactoryContractId}`;
               const fullAddress = `${state.customHandle}${suffix}`;
               let customHandleError = "";
               if (fullAddress.length > 64) {
@@ -630,104 +639,101 @@ return (
             }}
           />
         </Row>
-        <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Application start date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.applicationStartDate,
-              onChange: (date) => {
-                State.update({ applicationStartDate: date });
-              },
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after now & before application end date
-                // const now = Date.now();
-                const now = new Date().getTime();
-                const applicationStartDate = new Date(state.applicationStartDate).getTime();
-                const applicationEndDate = new Date(state.applicationEndDate).getTime();
-                const valid =
-                  applicationStartDate > now &&
-                  (!applicationEndDate || applicationStartDate < applicationEndDate);
-                State.update({
-                  applicationStartDateError: valid ? "" : "Invalid application start date",
-                });
-              },
-              error: state.applicationStartDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Application end date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.applicationEndDate,
-              onChange: (date) => State.update({ applicationEndDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be before matching round start date
-                const valid =
-                  (!state.matchingRoundStartDate ||
-                    state.applicationEndDate < state.matchingRoundStartDate) &&
-                  (!state.applicationStartDate ||
-                    state.applicationEndDate > state.applicationStartDate);
-                State.update({
-                  applicationEndDateError: valid ? "" : "Invalid application end date",
-                });
-              },
-              error: state.applicationEndDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-        </Row>
-        <Row>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Matching round start date",
-              selectTime: true,
-              value: state.matchingRoundStartDate,
-              onChange: (date) => State.update({ matchingRoundStartDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after application end and before matching round end
-                const valid =
-                  (!state.applicationEndDate ||
-                    state.matchingRoundStartDate > state.applicationEndDate) &&
-                  (!state.matchingRoundEndDate ||
-                    state.matchingRoundStartDate < state.matchingRoundEndDate);
-                State.update({
-                  matchingRoundStartDateError: valid ? "" : "Invalid round start date",
-                });
-              },
-              error: state.matchingRoundStartDateError,
-            }}
-          />
-          <Widget
-            src={`${ownerId}/widget/Inputs.Date`}
-            props={{
-              label: "Matching round end date",
-              //   placeholder: "0", // TODO: possibly add this back in
-              selectTime: true,
-              value: state.matchingRoundEndDate,
-              onChange: (date) => State.update({ matchingRoundEndDate: date }),
-              validate: () => {
-                // **CALLED ON BLUR**
-                // must be after matching round start
-                const valid =
-                  !state.matchingRoundStartDate ||
-                  state.matchingRoundEndDate > state.matchingRoundStartDate;
-                State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
-              },
-              error: state.matchingRoundEndDateError,
-              disabled: isUpdate ? !isAdminOrGreater : false,
-            }}
-          />
-        </Row>
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Application start date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.applicationStartDate,
+            onChange: (date) => {
+              State.update({ applicationStartDate: date });
+            },
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after now & before application end date
+              // const now = Date.now();
+              const now = new Date().getTime();
+              const applicationStartDate = new Date(state.applicationStartDate).getTime();
+              const applicationEndDate = new Date(state.applicationEndDate).getTime();
+              const valid =
+                applicationStartDate > now &&
+                (!applicationEndDate || applicationStartDate < applicationEndDate);
+              State.update({
+                applicationStartDateError: valid ? "" : "Invalid application start date",
+              });
+            },
+            error: state.applicationStartDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Application end date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.applicationEndDate,
+            onChange: (date) => State.update({ applicationEndDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be before matching round start date
+              const valid =
+                (!state.matchingRoundStartDate ||
+                  state.applicationEndDate < state.matchingRoundStartDate) &&
+                (!state.applicationStartDate ||
+                  state.applicationEndDate > state.applicationStartDate);
+              State.update({
+                applicationEndDateError: valid ? "" : "Invalid application end date",
+              });
+            },
+            error: state.applicationEndDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Matching round start date",
+            selectTime: true,
+            value: state.matchingRoundStartDate,
+            onChange: (date) => State.update({ matchingRoundStartDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after application end and before matching round end
+              const valid =
+                (!state.applicationEndDate ||
+                  state.matchingRoundStartDate > state.applicationEndDate) &&
+                (!state.matchingRoundEndDate ||
+                  state.matchingRoundStartDate < state.matchingRoundEndDate);
+              State.update({
+                matchingRoundStartDateError: valid ? "" : "Invalid round start date",
+              });
+            },
+            error: state.matchingRoundStartDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Inputs.Date`}
+          props={{
+            label: "Matching round end date",
+            //   placeholder: "0", // TODO: possibly add this back in
+            selectTime: true,
+            value: state.matchingRoundEndDate,
+            onChange: (date) => State.update({ matchingRoundEndDate: date }),
+            validate: () => {
+              // **CALLED ON BLUR**
+              // must be after matching round start
+              const valid =
+                !state.matchingRoundStartDate ||
+                state.matchingRoundEndDate > state.matchingRoundStartDate;
+              State.update({ matchingRoundEndDateError: valid ? "" : "Invalid round end date" });
+            },
+            error: state.matchingRoundEndDateError,
+            disabled: isUpdate ? !isAdminOrGreater : false,
+          }}
+        />
         <Row>
           <Widget
             src={`${ownerId}/widget/Inputs.Text`}
@@ -906,7 +912,7 @@ return (
         handleAddAccount: handleAddAdmin,
         handleRemoveAccount: handleRemoveAdmin,
         accountError: state.adminsError,
-        accounts: state.admins,
+        accountIds: state.admins.map((admin) => admin.accountId),
         unitText: "admin",
       }}
     />

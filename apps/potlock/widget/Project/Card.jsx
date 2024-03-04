@@ -15,7 +15,18 @@ const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
-const donationContractId = "donate.potlock.near";
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getDonationsForProject: () => {},
+};
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getDonationsForRecipient: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
 // console.log("props in Card: ", props);
 
 const Card = styled.a`
@@ -366,11 +377,9 @@ const { name, description, plCategories } = profile;
 // const description = profile?.description || "No description";
 // const category = profile?.category || "No category";
 
-const donationsForProject = Near.view(
-  potId || donationContractId,
-  potId ? "get_donations_for_project" : "get_donations_for_recipient",
-  potId ? { project_id: projectId } : { recipient_id: projectId }
-);
+const donationsForProject = potId
+  ? PotSDK.getDonationsForProject(potId, projectId)
+  : DonateSDK.getDonationsForRecipient(projectId);
 
 // console.log(donationsForProject);
 if (!donationsForProject) return <CardSkeleton />;
