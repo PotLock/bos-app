@@ -100,8 +100,6 @@ const Row = styled.div`
 `;
 
 State.init({
-  // potDetail: null,
-  // canApply: null,
   isApplicationModalOpen: false,
   applicationMessage: "",
   applicationMessageError: "",
@@ -111,7 +109,7 @@ State.init({
   daoAddress: "",
   daoAddressError: "",
   daoPolicy: null,
-  isOnRegistry: false,
+  registryStatus: null,
 });
 
 if (state.sybilRequirementMet === null) {
@@ -283,19 +281,20 @@ const handleSendApplication = () => {
 };
 
 const verifyIsOnRegistry = (address) => {
-  const { registry_provider } = potDetail;
-  if (registry_provider) {
-    const [registryId, registryMethod] = registry_provider.split(":");
-    if (registryId && registryMethod) {
-      Near.asyncView(registryId, registryMethod, { account_id: address })
-        .then((isOnRegistry) => {
-          State.update({ isOnRegistry });
-        })
-        .catch((e) => {
-          console.log("error getting registry: ", e);
-        });
+  // removing custom registry logic for now to better handle Potlock registry statuses, due to user confusion
+  // const { registry_provider } = potDetail;
+  // if (registry_provider) {
+  //   const [registryId, registryMethod] = registry_provider.split(":");
+  //   if (registryId && registryMethod) {
+  Near.asyncView("registry.potlock.near", "get_project_by_id", { project_id: address }).then(
+    (project) => {
+      if (project) {
+        State.update({ registryStatus: project.status });
+      }
     }
-  }
+  );
+  //   }
+  // }
 };
 
 useEffect(() => {
@@ -304,7 +303,9 @@ useEffect(() => {
   }
 }, []);
 
-const registryRequirementMet = state.isOnRegistry || !potDetail.registry_provider;
+// const registryRequirementMet = state.isOnRegistry || !potDetail.registry_provider;
+const registrationApproved = state.registryStatus === "Approved";
+const registrationNotApproved = state.registryStatus && state.registryStatus !== "Approved";
 
 const isError = state.applicationMessageError || state.daoAddressError;
 
@@ -320,6 +321,8 @@ return (
           handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
           applicationSuccess: state.applicationSuccess,
+          registrationApproved,
+          registryStatus: state.registryStatus,
         }}
       />
       <Container>
@@ -443,15 +446,15 @@ return (
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: registryRequirementMet
+                  text: registrationApproved
                     ? state.isDao
                       ? "Propose to Send Application"
                       : "Send application"
                     : "Register to apply",
-                  onClick: registryRequirementMet ? handleSendApplication : null,
+                  onClick: registrationApproved ? handleSendApplication : null,
                   disabled: isError,
-                  href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
-                  target: registryRequirementMet ? "_self" : "_blank",
+                  href: registrationApproved ? null : props.hrefWithParams(`?tab=createproject`),
+                  target: registrationApproved ? "_self" : "_blank",
                 }}
               />
             </Row>
