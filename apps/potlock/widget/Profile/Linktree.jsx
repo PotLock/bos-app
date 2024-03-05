@@ -7,7 +7,7 @@ if (!linktree) return "";
 const LinktreeContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
   width: 100%;
   padding-right: 2rem;
