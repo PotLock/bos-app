@@ -601,6 +601,7 @@ useEffect(() => {
 const donateConfig = DonateSDK.getConfig();
 if (donateConfig && !totalDonated && !totalDonation) {
   const lastDonationAmount = yoctosToUsd(donateConfig.net_donations_amount);
+  console.log("donated", lastDonationAmount);
   setTotalDonated(lastDonationAmount);
   setTotalDonation(donateConfig.total_donations_count);
 }
@@ -635,12 +636,16 @@ const SORT_FILTERS = {
 };
 
 const sortHighestToLowest = () => {
-  const project = Storage.get("sortHighestToLowest") ? Storage.get("sortHighestToLowest") : null;
+  const project = Storage.get("sortHighestToLowest")
+    ? Storage.get("sortHighestToLowest")
+    : sortHighestToLowests(projects);
   setFilteredProjects(project);
 };
 
 const sortLowestToHighest = () => {
-  const project = Storage.get("sortLowestToHighest") ? Storage.get("sortLowestToHighest") : null;
+  const project = Storage.get("sortLowestToHighest")
+    ? Storage.get("sortLowestToHighest")
+    : sortLowestToHighests(projects);
   setFilteredProjects(project);
 };
 
