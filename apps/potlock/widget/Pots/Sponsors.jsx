@@ -157,6 +157,7 @@ return (
       <Widget
         src={`${ownerId}/widget/Pots.SponsorsBoard`}
         props={{
+          ...props,
           donations: state.sponsorshipDonations.slice(0, 6),
           base_currency: base_currency,
         }}
