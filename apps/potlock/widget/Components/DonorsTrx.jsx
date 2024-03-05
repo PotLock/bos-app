@@ -1,4 +1,4 @@
-const { ownerId, allDonations, filter } = props;
+const { allDonations, filter } = props;
 const [page, setPage] = useState(0);
 const perPage = 30; // need to be less than 50
 
@@ -10,7 +10,7 @@ const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
 const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
+  `potlock.near/widget/Components.DonorsUtils`
 );
 
 const Container = styled.div`
@@ -18,6 +18,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  width: 100%;
   .transcation {
     display: flex;
     flex-direction: column;
@@ -149,17 +150,17 @@ return allDonations.length ? (
       {reverseArr(allDonations)
         .slice(page * perPage, (page + 1) * perPage)
         .map((donation) => {
-          const { id, donor_id, recipient_id, donated_at_ms } = donation;
-
+          const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
+          const projectId = recipient_id || project_id;
           return (
             <TrRow>
               <a
-                href={props.hrefWithParams(`?tab=project&projectId=${recipient_id}`)}
+                href={props.hrefWithParams(`?tab=project&projectId=${projectId}`)}
                 className="address"
                 target="_blank"
               >
-                <ProfileImg address={recipient_id} />
-                {_address(recipient_id)}
+                <ProfileImg address={projectId} />
+                {_address(projectId)}
               </a>
 
               <a
@@ -176,7 +177,7 @@ return allDonations.length ? (
                 {calcNetDonationAmount(donation).toFixed(2)}
               </div>
 
-              <div>{getTimePassed(donated_at_ms)} ago</div>
+              <div>{getTimePassed(donated_at_ms || donated_at)} ago</div>
             </TrRow>
           );
         })}

@@ -20,7 +20,6 @@ State.init({
 });
 
 if (publicRoundDonations && !state.allDonations) {
-  publicRoundDonations.sort((a, b) => b.donated_at - a.donated_at);
   State.update({ filteredDonations: publicRoundDonations, allDonations: publicRoundDonations });
 }
 
@@ -34,8 +33,16 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 24px;
   width: 100%;
+  .donations-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 24px;
+    padding-bottom: 1rem;
+    border: 1px solid rgba(41, 41, 41, 0.5);
+    box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2), 0px 2px 4px -2px rgba(82, 82, 82, 0.3);
+  }
   @media screen and (min-width: 375px) and (max-width: 768px) {
     width: 99%;
   }
@@ -156,6 +163,9 @@ const SearchBar = styled.input`
     outline: none;
     border: none;
   }
+  @media only screen and (max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 const SearchIcon = styled.div`
@@ -178,6 +188,17 @@ const searchDonations = (searchTerm) => {
   return filteredDonations;
 };
 
+const ProfileImg = (address) => (
+  <Widget
+    src={`${ownerId}/widget/Project.ProfileImage`}
+    props={{
+      ...props,
+      accountId: address,
+      style: {},
+    }}
+  />
+);
+
 return (
   <Container>
     <Widget
@@ -190,7 +211,7 @@ return (
       <OuterText>all donations</OuterText>
       <DonationsCount>{state.allDonations.length}</DonationsCount>
     </OuterTextContainer>
-    <TableContainer>
+    <div className="donations-table">
       <SearchBarContainer>
         <SearchIcon>
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -208,63 +229,13 @@ return (
           }}
         />
       </SearchBarContainer>
-      <Header>
-        {columns.map((column, index) => (
-          <HeaderItem>
-            <HeaderItemText key={index}>{column}</HeaderItemText>
-          </HeaderItem>
-        ))}
-      </Header>
-      {state.filteredDonations.length === 0 ? (
-        <Row style={{ padding: "12px" }}>No donations to display</Row>
-      ) : (
-        state.filteredDonations.map((donation, index) => {
-          const { project_id, message, donor_id, total_amount, donated_at } = donation;
-          const totalDonationAmount =
-            SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
-
-          return (
-            <Row key={index}>
-              <RowItem href={`?tab=project&projectId=${project_id}`} target={"_blank"}>
-                <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
-                  props={{
-                    ...props,
-                    accountId: project_id,
-                    style: {
-                      height: "24px",
-                      width: "24px",
-                    },
-                  }}
-                />
-                <RowText>{_address(project_id)}</RowText>
-              </RowItem>
-              <RowItem href={`?tab=profile&accountId=${donor_id}`} target={"_blank"}>
-                <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
-                  props={{
-                    ...props,
-                    accountId: donor_id,
-                    style: {
-                      height: "24px",
-                      width: "24px",
-                    },
-                  }}
-                />
-                <RowText>{_address(donor_id)}</RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>
-                  {totalDonationAmount} {base_currency.toUpperCase()}
-                </RowText>
-              </RowItem>
-              <RowItem>
-                <RowText>{getTimePassed(donated_at)} ago</RowText>
-              </RowItem>
-            </Row>
-          );
-        })
-      )}
-    </TableContainer>
+      <Widget
+        src={`${ownerId}/widget/Components.DonorsTrx`}
+        props={{
+          ...props,
+          allDonations: state.filteredDonations,
+        }}
+      />
+    </div>
   </Container>
 );
