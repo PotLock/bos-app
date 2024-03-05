@@ -1,6 +1,6 @@
 // get donations
 const { potId, potDetail } = props; // TODO: refactor to use PotsSDK
-potDetail.cooldown_end_ms = 1709936649000; // TODO: remove this line
+// potDetail.cooldown_end_ms = 1709936649000; // TODO: remove this line
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
@@ -242,7 +242,7 @@ if (!state.allPayout && allDonationsForPot) {
 }
 
 const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
-console.log("payoutsChallenges: ", payoutsChallenges);
+// console.log("payoutsChallenges: ", payoutsChallenges);
 
 const columns = ["Project", "Total Raised", "Total Unique Donors", "Matching Pool Allocation"];
 
@@ -262,11 +262,7 @@ const searchPayouts = (searchTerm) => {
   return filteredPayouts;
 };
 
-console.log("state.allPayouts", state.allPayouts);
-
 const maxAccountIdLength = 20;
-
-console.log("potDetail: ", potDetail);
 
 return (
   <Container>
