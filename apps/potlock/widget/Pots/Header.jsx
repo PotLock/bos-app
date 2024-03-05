@@ -94,9 +94,6 @@ const Description = styled.div`
     color: black;
     font-weight: 500;
   }
-  @media screen and (max-width: 992px) {
-    font-size: 10px;
-  }
 `;
 
 const ColumnRightSegment = styled.div`
@@ -531,8 +528,8 @@ return (
       <ColumnRightSegment
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
-        <Row style={{ gap: "8px" }}>
-          <H2>{yoctosToNear(matching_pool_balance, true)}</H2>
+        <Row style={{ gap: "8px", alignItems: "baseline" }}>
+          <H3>{yoctosToNear(matching_pool_balance, true)}</H3>
           <Description>Matching funds available</Description>
         </Row>
       </ColumnRightSegment>
