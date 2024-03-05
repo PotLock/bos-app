@@ -1,4 +1,5 @@
 const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess } = props;
+
 const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
@@ -21,6 +22,10 @@ const { NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS,
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getApplicationByProjectId: () => {},
   getPublicRoundDonations: () => {},
+};
+
+const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+  _address: () => "",
 };
 
 const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
@@ -110,6 +115,20 @@ const Row = styled.div`
   justify-content: flex-start;
 `;
 
+const AmountDonated = styled.div`
+  display: flex;
+  width: 100%;
+  > div {
+    padding: 0;
+    width: 100%;
+  }
+  @media screen and (max-width: 480px) {
+    gap: 40px;
+    > div {
+      width: fit-content;
+    }
+  }
+`;
 const H2 = styled.div`
   color: #292929;
   font-size: 24px;
@@ -163,6 +182,7 @@ const ModalTitle = styled.div`
 `;
 
 const Label = styled.label`
+  width: 100%;
   font-size: 12px;
   line-height: 16px;
   word-wrap: break-word;
@@ -197,10 +217,9 @@ const TotalsSubtext = styled.div`
 const UserChipLink = styled.a`
   display: flex;
   flex-direction: row;
-  // align-items: center;
-  // justify-content: center;
-  padding: 2px 12px;
   margin: 0px 4px;
+  margin-left: auto;
+  padding: 2px 12px;
   gap: 4px;
   border-radius: 32px;
   background: #ebebeb;
@@ -497,16 +516,16 @@ return (
       <Description>
         <Markdown text={pot_description} />
       </Description>
-      <Row style={{ width: "100%" }}>
-        <Column style={{ width: "100%" }}>
+      <AmountDonated>
+        <Column>
           <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
-        <Column style={{ width: "100%" }}>
+        <Column>
           <H3>{state.totalUniqueDonors !== null ? state.totalUniqueDonors : "-"}</H3>
           <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
-      </Row>
+      </AmountDonated>
     </Column>
     <Column>
       <ColumnRightSegment
@@ -762,7 +781,7 @@ return (
                     }}
                   />
                   <TextBold>
-                    {protocolFeeRecipientProfile?.name || protocolConfig?.account_id}
+                    {_address(protocolFeeRecipientProfile?.name || protocolConfig?.account_id)}
                   </TextBold>
                 </UserChipLink>
               </Label>
