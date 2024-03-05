@@ -62,21 +62,22 @@ return {
     console.log("PotFactorySDK: ", PotFactorySDK);
     const pots = PotFactorySDK.getPots();
     console.log("pots line 64: ", pots);
-    const activeRounds = Object.entries(pots).filter(
-      ([_id, { approvedProjects, detail }]) => {
-        console.log("approvedProjects: ", approvedProjects);
-        const { public_round_start_ms, public_round_end_ms } = detail;
-        const now = Date.now();
-        const approved = approvedProjects.filter((proj) => {
-          return (
-            proj.project_id === recipientId &&
-            public_round_start_ms < now &&
-            public_round_end_ms > now
-          );
-        });
-        return approved.length > 0;
-      }
-    );
+    const activeRounds = Object.entries(pots).filter(([_id, { approvedProjects, detail }]) => {
+      console.log("approvedProjects: ", approvedProjects);
+      const { public_round_start_ms, public_round_end_ms } = detail;
+      const now = Date.now();
+      const approved = approvedProjects.filter((proj) => {
+        return (
+          proj.project_id === recipientId &&
+          public_round_start_ms < now &&
+          public_round_end_ms > now
+        );
+      });
+      return approved.length > 0;
+    });
     // return Near.view(projectId, "get_active_rounds_for_project", {});
+  },
+  getPayoutsChallenges: (potId) => {
+    return Near.view(potId, "get_payouts_challenges", {});
   },
 };

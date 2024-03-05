@@ -53,9 +53,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  padding: 60px 80px;
-  gap: 40px;
+  justify-content: space-between;
+  padding: 60px;
+  // gap: 40px;
   width: 100%;
   background: #f6f5f3;
 
@@ -72,7 +72,7 @@ const Column = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  width: 40%;
+  width: 45%;
   @media screen and (max-width: 768px) {
     justify-content: start;
     width: 100%;
@@ -522,12 +522,16 @@ return (
       </Description>
       <AmountDonated>
         <Column>
-          <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
+          <H3>{`${yoctosToUsdWithFallback(total_public_donations, true)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
         <Column>
           <H3>{state.totalUniqueDonors !== null ? state.totalUniqueDonors : "-"}</H3>
           <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
+        </Column>
+        <Column style={{ padding: "0px" }}>
+          <H3>{publicRoundDonations ? publicRoundDonations.length : "-"}</H3>
+          <TotalsSubtext>{`Donation${publicRoundDonations.length !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
       </AmountDonated>
     </Column>
