@@ -300,6 +300,8 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
+    <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
+
     {state.donateToProjectModal.isOpen && (
       <Widget
         src={`${ownerId}/widget/Project.ModalDonation`}
