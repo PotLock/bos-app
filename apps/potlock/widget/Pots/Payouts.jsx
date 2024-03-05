@@ -1,5 +1,6 @@
 // get donations
 const { potId, potDetail } = props; // TODO: refactor to use PotsSDK
+potDetail.cooldown_end_ms = 1709936649000; // TODO: remove this line
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
@@ -8,6 +9,14 @@ const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils
   calculatePayouts: () => {},
   yoctosToNear: () => "",
 };
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getPayoutsChallenges: () => {},
+};
+
+const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
+const ALERT_ICON_URL =
+  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
 
 const Container = styled.div`
   display: flex;
@@ -145,30 +154,95 @@ const SearchIcon = styled.div`
   justify-content: center;
 `;
 
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+  background: ${potDetail.all_paid_out
+    ? "green"
+    : potDetail.cooldown_end_ms
+    ? "#E6B800"
+    : "#dd3345"};
+  border-radius: 6px;
+  gap: 10px;
+`;
+
+const WarningText = styled.div`
+  text-align: center;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 8px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 12px;
+    margin-left: 4px;
+  }
+`;
+const AlertSvg = styled.svg`
+  width: 24px;
+  // @media screen and (max-width: 768px) {
+  //   width: 24px;
+  // }
+`;
+
+const DivLink = styled.div`
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+`;
+
 State.init({
   allPayouts: null,
-  filteredPayouts: [],
+  filteredPayouts: null,
 });
 
 const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!state.allPayouts && allDonationsForPot) {
+if (!state.allPayout && allDonationsForPot) {
   const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
-  const allPayouts = Object.entries(calculatedPayouts).map(
-    ([projectId, { totalAmount, matchingAmount, donorCount }]) => {
+  console.log("calculated payouts: ", calculatedPayouts);
+  if (potDetail.payouts.length) {
+    // handle these payouts, which don't contain all the info needed
+    // pot payouts contain id, project_id, amount & paid_at
+    // loop through potDetail payouts and synthesize the two sets of payouts, so projectId and matchingAmount are taken from potDetail payouts, and donorCount and totalAmount are taken from calculatedPayouts
+    const synthesizedPayouts = potDetail.payouts.map((payout) => {
+      const { project_id, amount } = payout;
+      const { totalAmount, matchingAmount, donorCount } = calculatedPayouts[project_id];
       return {
-        projectId,
+        projectId: project_id,
         totalAmount,
-        matchingAmount,
+        matchingAmount: amount,
         donorCount,
       };
-    }
-  ); // TODO: refactor to use PotsSDK (note that this is duplicated in Pots/Projects.jsx)
-  allPayouts.sort((a, b) => {
-    // sort by matching pool allocation, highest to lowest
-    return b.matchingAmount - a.matchingAmount;
-  });
-  State.update({ allPayouts, filteredPayouts: allPayouts });
+    });
+    State.update({ allPayouts: synthesizedPayouts, filteredPayouts: synthesizedPayouts });
+  } else {
+    // calculate estimated payouts
+    const allPayouts = Object.entries(calculatedPayouts).map(
+      ([projectId, { totalAmount, matchingAmount, donorCount }]) => {
+        return {
+          projectId,
+          totalAmount,
+          matchingAmount,
+          donorCount,
+        };
+      }
+    ); // TODO: refactor to use PotsSDK (note that this is duplicated in Pots/Projects.jsx)
+    allPayouts.sort((a, b) => {
+      // sort by matching pool allocation, highest to lowest
+      return b.matchingAmount - a.matchingAmount;
+    });
+    State.update({ allPayouts, filteredPayouts: allPayouts });
+  }
 }
+
+const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
+console.log("payoutsChallenges: ", payoutsChallenges);
 
 const columns = ["Project", "Total Raised", "Total Unique Donors", "Matching Pool Allocation"];
 
@@ -192,6 +266,8 @@ console.log("state.allPayouts", state.allPayouts);
 
 const maxAccountIdLength = 20;
 
+console.log("potDetail: ", potDetail);
+
 return (
   <Container>
     <Widget
@@ -204,6 +280,35 @@ return (
       <OuterText>all payouts</OuterText>
       <Count>{state.allPayouts.length}</Count>
     </OuterTextContainer>
+    {!potDetail.payouts.length && (
+      <InfoContainer>
+        <Row style={{ justifyContent: "center" }}>
+          <AlertSvg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="white"
+            aria-hidden="true"
+            // width="18px"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            ></path>
+          </AlertSvg>
+          <WarningText>
+            {potDetail.all_paid_out
+              ? "All payouts have been paid out."
+              : potDetail.cooldown_end_ms
+              ? "These payouts have been set on the contract but have not been paid out yet."
+              : "These payouts are estimated amounts only and have not been set on the contract yet."}
+          </WarningText>
+        </Row>
+        {potDetail.cooldown_end_ms > Date.now() && <DivLink>Something doesn't look right?</DivLink>}
+      </InfoContainer>
+    )}
     <TableContainer>
       <SearchBarContainer>
         <SearchIcon>
@@ -241,7 +346,9 @@ return (
           <HeaderItemText>Pool Allocation</HeaderItemText>
         </HeaderItem>
       </Header>
-      {state.filteredPayouts.length === 0 ? (
+      {!state.filteredPayouts ? (
+        <div>Loading</div>
+      ) : state.filteredPayouts.length === 0 ? (
         <Row style={{ padding: "12px" }}>No payouts to display</Row>
       ) : (
         state.filteredPayouts.map((payout, index) => {

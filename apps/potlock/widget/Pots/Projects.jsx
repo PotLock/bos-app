@@ -153,6 +153,7 @@ return (
       src={`${ownerId}/widget/Project.ListSection`}
       props={{
         ...props,
+        shouldShuffle: true,
         maxCols: 2,
         items: projects,
         renderItem: (project) => {
