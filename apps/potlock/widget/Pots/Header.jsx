@@ -1,4 +1,12 @@
-const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess } = props;
+const {
+  potId,
+  potDetail,
+  referrerId,
+  sybilRequirementMet,
+  applicationSuccess,
+  registrationApproved,
+  registryStatus,
+} = props;
 const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
@@ -595,11 +603,14 @@ return (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: "primary",
+              type: registrationApproved ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: "Apply to pot",
+              text: registrationApproved
+                ? "Apply to pot"
+                : `Project Registration ${registryStatus}`,
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
               onClick: handleApplyToPot,
+              disabled: !registrationApproved,
               // href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
               // target: "_self",
               style: { marginRight: "24px" },
