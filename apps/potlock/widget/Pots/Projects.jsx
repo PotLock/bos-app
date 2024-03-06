@@ -176,7 +176,11 @@ return (
                   publicRoundOpen &&
                   project.project_id !== context.accountId,
                 requireVerification: !sybilRequirementMet,
-                payoutDetails: payouts[project.project_id],
+                payoutDetails: payouts[project.project_id] || {
+                  donorCount: 0,
+                  matchingAmount: "0",
+                  totalAmount: "0",
+                },
               }}
             />
           );

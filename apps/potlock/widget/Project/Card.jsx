@@ -28,7 +28,6 @@ let DonateSDK =
 DonateSDK = DonateSDK({ env: props.env });
 
 // console.log("props in Card: ", props);
-console.log("payoutDetails: ", payoutDetails);
 
 const Card = styled.a`
   display: flex;
@@ -386,7 +385,7 @@ const donationsForProject = potId
 if (donationsForProject === null) return <CardSkeleton />;
 
 const [totalAmount, totalDonors] = useMemo(() => {
-  if (!donationsForProject) return [null, null];
+  if (!donationsForProject) return ["0", 0];
   const donors = [];
   let totalDonationAmount = new Big(0);
   for (const donation of donationsForProject) {
