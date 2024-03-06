@@ -1,0 +1,3 @@
+[submodule "packages/bos-workspace"]
+	path = packages/bos-workspace
+	url = https://github.com/NEARBuilders/bos-workspace

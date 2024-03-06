@@ -6,12 +6,15 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "bosworkspace": "bos-workspace",
-    "dev": "npm run bosworkspace dev"
+    "init": "git submodule init && pnpm install && pnpm run build:bw",
+    "dev": "pnpm run bw workspace dev",
+    "dev:gateway": "npx nx run-many --target=dev --projects=viewer",
+    "bw": "./node_modules/bos-workspace/bin/bw.js",
+    "build:bw": "pnpm --filter ./packages/bos-workspace run build"
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
-    "bos-workspace": "github:NEARBuilders/bos-workspace",
+    "bos-workspace": "workspace:*",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
     "prettier": "^2.8.8"
@@ -26,5 +29,8 @@
       ],
       "extensions": "js,jsx"
     }
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
