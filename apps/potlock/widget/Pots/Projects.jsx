@@ -156,6 +156,12 @@ return (
         shouldShuffle: true,
         maxCols: 2,
         items: projects,
+        responsive: [
+          {
+            breakpoint: 1024,
+            items: 1,
+          },
+        ],
         renderItem: (project) => {
           return (
             <Widget
