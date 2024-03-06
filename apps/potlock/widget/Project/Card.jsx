@@ -382,7 +382,7 @@ const donationsForProject = potId
   : DonateSDK.getDonationsForRecipient(projectId);
 
 // console.log(donationsForProject);
-if (!donationsForProject) return <CardSkeleton />;
+if (donationsForProject === null) return <CardSkeleton />;
 
 const [totalAmount, totalDonors] = useMemo(() => {
   if (!donationsForProject) return [null, null];
