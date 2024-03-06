@@ -142,8 +142,8 @@ return allDonations.length ? (
   <Container>
     <div className="transcation">
       <div className="header">
-        <div className="address">Project</div>
         <div className="address">Donor</div>
+        <div className="address">Project</div>
         <div>Amount</div>
         <div>Date</div>
       </div>
@@ -155,21 +155,21 @@ return allDonations.length ? (
           return (
             <TrRow>
               <a
-                href={props.hrefWithParams(`?tab=project&projectId=${projectId}`)}
-                className="address"
-                target="_blank"
-              >
-                <ProfileImg address={projectId} />
-                {_address(projectId)}
-              </a>
-
-              <a
                 href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
                 className="address"
                 target="_blank"
               >
                 <ProfileImg address={donor_id} />
                 {_address(donor_id)}
+              </a>
+
+              <a
+                href={props.hrefWithParams(`?tab=project&projectId=${projectId}`)}
+                className="address"
+                target="_blank"
+              >
+                <ProfileImg address={projectId} />
+                {_address(projectId)}
               </a>
 
               <div className="price">
