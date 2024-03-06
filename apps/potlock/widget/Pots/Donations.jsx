@@ -27,8 +27,6 @@ if (!state.allDonations) return <div class="spinner-border text-secondary" role=
 
 // console.log("donations: ", donations);
 
-const columns = ["Project", "Donor", "Amount", "Date"];
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -111,35 +109,6 @@ const HeaderItemText = styled.div`
   color: #292929;
   font-size: 14px;
   font-weight: 600;
-  line-height: 24px;
-  word-wrap: break-word;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const RowItem = styled.a`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  padding: 20px;
-  width: ${100 / columns.length}%;
-  &:hover {
-    text-decoration: none;
-  }
-`;
-
-const RowText = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 400;
   line-height: 24px;
   word-wrap: break-word;
 `;
