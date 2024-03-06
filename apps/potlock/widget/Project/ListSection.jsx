@@ -16,7 +16,7 @@ const {
   // currency,
   // note,
 } = props;
-
+const responsive = props.responsive || [];
 // console.log("props in list section: ", props);
 
 const items = useMemo(() => {
@@ -514,6 +514,14 @@ const ProjectList = styled.div`
   @media screen and (min-width: 1024px) {
     grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
   }
+  ${responsive.map(
+    (view) =>
+      `
+    @media screen and (max-width: ${view.breakpoint}px) {
+      grid-template-columns: repeat(${view.items}, 1fr);
+    }
+    `
+  )}
 `;
 
 const Header = styled.div`
