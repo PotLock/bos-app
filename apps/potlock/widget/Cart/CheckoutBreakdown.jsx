@@ -174,7 +174,6 @@ const handleDonate = () => {
 
   const now = Date.now();
   Near.call(transactions);
-  console.log("props.cart: ", props.cart);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <-------- EXTENSION WALLET HANDLING -------->
   // poll for updates
@@ -189,7 +188,6 @@ const handleDonate = () => {
       // for each project, there should be a matching donation that occurred since now()
       const foundDonations = [];
       // go through donations, add to foundDonations list
-      console.log("donations: ", donations);
       for (const donation of donations) {
         const { recipient_id, project_id, donated_at_ms, donated_at, total_amount } = donation;
         const matchingCartItem = props.cart[project_id || recipient_id];
@@ -197,7 +195,6 @@ const handleDonate = () => {
           foundDonations.push(donation);
         }
       }
-      console.log("foundDonations: ", foundDonations);
       if (foundDonations.length) {
         // donations found
         // display success message & clear cart
