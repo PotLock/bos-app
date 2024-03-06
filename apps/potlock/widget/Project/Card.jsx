@@ -28,6 +28,7 @@ let DonateSDK =
 DonateSDK = DonateSDK({ env: props.env });
 
 // console.log("props in Card: ", props);
+console.log("payoutDetails: ", payoutDetails);
 
 const Card = styled.a`
   display: flex;
@@ -515,7 +516,7 @@ return (
             </AmountDescriptor>
           </DonationsInfoItem>
         )}
-        {props.allowDonate && (
+        {props.allowDonate && context.accountId && (
           <DonationButton
             onClick={(e) => {
               e.preventDefault();
@@ -523,11 +524,7 @@ return (
             }}
             disabled={!context.accountId}
           >
-            {!context.accountId
-              ? "Sign in to donate"
-              : props.requireVerification
-              ? "Verify to donate"
-              : "Donate"}
+            {props.requireVerification ? "Verify to donate" : "Donate"}
           </DonationButton>
         )}
         {/* <Widget
