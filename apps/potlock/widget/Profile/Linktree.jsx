@@ -7,7 +7,7 @@ if (!linktree) return "";
 const LinktreeContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
   width: 100%;
   padding-right: 2rem;
@@ -111,7 +111,7 @@ const fullUrls = {
 return (
   <LinktreeContainer>
     {Object.entries(linktree).map(([k, v], idx) => {
-      return k in itemIconUrls ? (
+      return k in itemIconUrls && v ? (
         <LinktreeItemContainer
           href={fullUrls[k](v)}
           disabled={!v}
