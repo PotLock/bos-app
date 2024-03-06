@@ -28,6 +28,16 @@ pnpm install
 
 Reference: [node-gyp on macOS](https://github.com/nodejs/node-gyp?tab=readme-ov-file#on-macos)
 
+**Note:** you may run into an issue with bos-workspace -- if this is the case, after `pnpm run init`, do the following:
+
+```bash
+cd packages/bos-workspace
+pnpm install
+pnpm run build
+```
+
+And then try `pnpm run dev` again.
+
 ## get started
 
 To modify the widgets in the /apps directory,
