@@ -19,18 +19,25 @@ State.init({
 });
 
 if (sponsorshipDonations && !state.sponsorshipDonations) {
-  // sort by amount
-  sponsorshipDonations.sort(
-    (a, b) =>
-      SUPPORTED_FTS.NEAR.fromIndivisible(b.total_amount) -
-      SUPPORTED_FTS.NEAR.fromIndivisible(a.total_amount)
-  );
+  // accumulate donations for each address
+  sponsorshipDonations = sponsorshipDonations.reduce((accumulator, currentDonation) => {
+    accumulator[currentDonation.donor_id] = {
+      amount:
+        parseFloat(accumulator[currentDonation.donor_id].amount || 0) +
+        parseFloat(SUPPORTED_FTS.NEAR.fromIndivisible(currentDonation.total_amount)),
+      ...currentDonation,
+    };
+    return accumulator;
+  }, {});
+
   // add % share of total to each donation
   const total = SUPPORTED_FTS.NEAR.fromIndivisible(potDetail.matching_pool_balance);
+
+  sponsorshipDonations = Object.values(sponsorshipDonations).sort((a, b) => b.amount - a.amount);
   sponsorshipDonations = sponsorshipDonations.map((donation) => {
     return {
       ...donation,
-      percentage_share: (SUPPORTED_FTS.NEAR.fromIndivisible(donation.net_amount) / total) * 100,
+      percentage_share: ((donation.amount / total) * 100).toFixed(2).replace(/[.,]00$/, ""),
     };
   });
   State.update({ sponsorshipDonations });
@@ -69,6 +76,7 @@ const TableContainer = styled.div`
   border-radius: 2px;
   width: 100%;
   margin-top: 35px;
+  padding-bottom: 1rem;
 `;
 
 const Header = styled.div`
@@ -163,56 +171,13 @@ return (
         }}
       />
       <TableContainer>
-        <Header>
-          {columns.map((column, index) => (
-            <HeaderItem style={index === 0 ? { width: "5%" } : {}}>
-              <HeaderItemText key={index}>{column}</HeaderItemText>
-            </HeaderItem>
-          ))}
-        </Header>
-        {state.sponsorshipDonations.length === 0 ? (
-          <Row style={{ padding: "12px" }}>No donations to display</Row>
-        ) : (
-          state.sponsorshipDonations.map((donation, index) => {
-            const { donor_id, total_amount, donated_at, percentage_share } = donation;
-            const totalDonationAmount =
-              SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
-
-            return (
-              <Row key={index}>
-                <RowItem style={{ width: "5%" }}>
-                  <RowText>#{index + 1}</RowText>
-                </RowItem>
-                <RowItem style={{ width: "22%" }}>
-                  <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
-                    props={{
-                      ...props,
-                      accountId: donor_id,
-                      style: {
-                        height: "25px",
-                        width: "25px",
-                      },
-                    }}
-                  />
-                  <RowText>
-                    {donor_id.length > maxRowItemLength
-                      ? donor_id.slice(0, maxRowItemLength) + "..."
-                      : donor_id}
-                  </RowText>
-                </RowItem>
-                <RowItem>
-                  <RowText>
-                    {totalDonationAmount} {base_currency.toUpperCase()}
-                  </RowText>
-                </RowItem>
-                <RowItem>
-                  <RowText>{percentage_share.toFixed(0)}%</RowText>
-                </RowItem>
-              </Row>
-            );
-          })
-        )}
+        <Widget
+          src={`${ownerId}/widget/Components.DonorsLeaderboard`}
+          props={{
+            ...props,
+            sortedDonations: state.sponsorshipDonations,
+          }}
+        />
       </TableContainer>
     </Container>
   </>

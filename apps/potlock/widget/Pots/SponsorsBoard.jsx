@@ -231,12 +231,9 @@ const SponsorOverlay = ({
   </SponsorOverlayWrapper>
 );
 
-const Sponsor = ({ donation: { total_amount, donor_id, percentage_share }, colIdx, idx }) => {
+const Sponsor = ({ donation: { amount, donor_id, percentage_share }, colIdx, idx }) => {
   const profile = props.profile ?? Social.getr(`${donor_id}/profile`);
-  const totalDonationAmount =
-    SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
-  percentage_share = percentage_share.toFixed(2).replace(/[.,]00$/, "");
-  totalDonationAmount = totalDonationAmount.replace(/[.,]00$/, "");
+
   return (
     <div className="item">
       <SponsorOverlay
@@ -244,7 +241,7 @@ const Sponsor = ({ donation: { total_amount, donor_id, percentage_share }, colId
         name={profile.name}
         description={profile.description}
         account_id={donor_id}
-        total_amount={totalDonationAmount}
+        total_amount={amount}
         percentage_share={percentage_share}
       />
       <div className="item-overlay">{percentage_share}%</div>
@@ -253,7 +250,7 @@ const Sponsor = ({ donation: { total_amount, donor_id, percentage_share }, colId
         {colIdx < 3 && <div className="name">{profile.name || donor_id}</div>}
       </SponsorWrapper>
       <div className="footer">
-        <div className="amount">{totalDonationAmount} NEAR</div>
+        <div className="amount">{amount} NEAR</div>
         <div className="percentage">{percentage_share}%</div>
       </div>
     </div>
