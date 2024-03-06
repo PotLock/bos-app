@@ -221,6 +221,7 @@ return (
             style={{
               background:
                 status === "Approved" ? "#F7FDE8" : status === "Rejected" ? "#FEF3F2" : "white",
+              alignItems: "flex-start",
             }}
           >
             <Widget
