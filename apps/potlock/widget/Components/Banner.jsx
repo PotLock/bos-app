@@ -23,8 +23,8 @@ useEffect(() => {
         .then((potConfig) => {
           const { public_round_start_ms, public_round_end_ms } = potConfig;
           if (public_round_start_ms < now && public_round_end_ms > now) {
-            setActiveRounds([
-              ...activeRounds,
+            setActiveRounds((prevActiveRounds) => [
+              ...prevActiveRounds,
               {
                 ...potConfig,
                 pot_id: pot.id,
