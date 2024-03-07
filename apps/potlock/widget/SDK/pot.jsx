@@ -11,6 +11,12 @@ return {
   asyncGetConfig: (potId) => {
     return Near.asyncView(potId, "get_config", {});
   },
+  isUserPotAdminOrGreater: (potId, accountId) => {
+    const config = Near.view(potId, "get_config", {});
+    if (config) {
+      return config.owner === accountId || config.admins.includes(accountId);
+    }
+  },
   getMatchingPoolDonations: (potId) => {
     // TODO: paginate
     return Near.view(potId, "get_matching_pool_donations", {});
@@ -66,6 +72,17 @@ return {
       contractName: potId,
       methodName: "challenge_payouts",
       args: { reason },
+      deposit: Big(depositFloat).mul(Big(10).pow(24)),
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
+  adminUpdatePayoutsChallenge: (potId, challengerId, notes, shouldResolveChallenge) => {
+    const depositFloat = notes.length * 0.00003;
+    const transaction = {
+      contractName: potId,
+      methodName: "admin_update_payouts_challenge",
+      args: { challenger_id: challengerId, notes, resolve_challenge: shouldResolveChallenge },
       deposit: Big(depositFloat).mul(Big(10).pow(24)),
       gas: "300000000000000",
     };
