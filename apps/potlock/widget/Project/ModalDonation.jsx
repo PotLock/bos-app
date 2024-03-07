@@ -286,13 +286,13 @@ const approvedProjectIds = useMemo(
 );
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const CLOSE_ICON_URL =
-  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
-const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
-const NADABOT_ICON_URL =
-  IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
-const ALERT_ICON_URL =
-  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
+// const CLOSE_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+// const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
+// const NADABOT_ICON_URL =
+//   IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
+// const ALERT_ICON_URL =
+//   IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
 
 const MAX_NAME_LENGTH = 60;
 const MAX_DESCRIPTION_LENGTH = 77;
@@ -809,7 +809,12 @@ return (
             )}
             {activeRound && state.isUserHumanVerified === false && (
               <InfoSection>
-                <Icon src={ALERT_ICON_URL} />
+                <Icon viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z"
+                    fill="#DD3345"
+                  />
+                </Icon>
                 <Column>
                   <TitleText>Increase your impact!</TitleText>
                   <SubtitleText>

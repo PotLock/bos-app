@@ -417,8 +417,8 @@ const profile = Social.getr(`${projectId}/profile`);
 const IPFS_BASE_URL = "https://ipfs.near.social/ipfs/";
 const DEFAULT_SHARE_HASHTAGS = ["BOS", "PublicGoods", "Donations"];
 const IPFS_BASE_URL_NFT = "https://nftstorage.link/ipfs/";
-const TRASH_ICON_URL =
-  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+// const TRASH_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
 const DEFAULT_GATEWAY = "https://bos.potlock.org/";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";

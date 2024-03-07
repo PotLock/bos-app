@@ -23,10 +23,10 @@ State.init({
 // console.log("state in add funding source modal: ", state);
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const MONEY_ICON_URL =
-  IPFS_BASE_URL + "bafkreiem3zqv4smaflel54lwtl65d7zbulkan3vnfor4fi2sqn3n5p7tpe";
-const CLOSE_ICON_URL =
-  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+// const MONEY_ICON_URL =
+//   IPFS_BASE_URL + "bafkreiem3zqv4smaflel54lwtl65d7zbulkan3vnfor4fi2sqn3n5p7tpe";
+// const CLOSE_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
 
 const ModalHeader = styled.div`
   display: flex;
@@ -58,12 +58,17 @@ const ModalBody = styled.div`
   gap: 24px;
 `;
 
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-
-  &:hover {
-    cursor: pointer;
+const Icon = styled.svg`
+  width: 20px;
+  height: 20px;
+`;
+const CloseIcon = styled.svg`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: rotate 300ms ease-in-out;
+  :hover {
+    rotate: 180deg;
   }
 `;
 
@@ -90,10 +95,32 @@ return (
           <ModalHeader>
             <div></div>
             <Row>
-              <Icon src={MONEY_ICON_URL} />
+              <Icon
+                width="12"
+                height="18"
+                viewBox="0 0 12 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6.39016 7.9C4.12016 7.31 3.39016 6.7 3.39016 5.75C3.39016 4.66 4.40016 3.9 6.09016 3.9C7.87016 3.9 8.53016 4.75 8.59016 6H10.8002C10.7302 4.28 9.68016 2.7 7.59016 2.19V0H4.59016V2.16C2.65016 2.58 1.09016 3.84 1.09016 5.77C1.09016 8.08 3.00016 9.23 5.79016 9.9C8.29016 10.5 8.79016 11.38 8.79016 12.31C8.79016 13 8.30016 14.1 6.09016 14.1C4.03016 14.1 3.22016 13.18 3.11016 12H0.910156C1.03016 14.19 2.67016 15.42 4.59016 15.83V18H7.59016V15.85C9.54016 15.48 11.0902 14.35 11.0902 12.3C11.0902 9.46 8.66016 8.49 6.39016 7.9Z"
+                  fill="#151A23"
+                />
+              </Icon>
+
               <ModalHeaderText>Add Past Funding Source</ModalHeaderText>
             </Row>
-            <Icon src={CLOSE_ICON_URL} onClick={onClose} />
+            <CloseIcon
+              viewBox="0 0 14 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              onClick={onClose}
+            >
+              <path
+                d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
+                fill="#7B7B7B"
+              />
+            </CloseIcon>
           </ModalHeader>
           <ModalBody>
             <Widget

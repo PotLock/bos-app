@@ -11,10 +11,10 @@ const {
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
-const HEADER_ICON_URL =
-  IPFS_BASE_URL + "bafkreiholfe7utobo5y2znjdr6ou26qmlcgf5teoxtyjo2undgfpl5kcwe";
-const TWITTER_ICON_URL =
-  IPFS_BASE_URL + "bafkreibkeyodxxrf76cr5q3in4tsmhuhzmkl5cdr56rfl57x4aji47gsby";
+// const HEADER_ICON_URL =
+//   IPFS_BASE_URL + "bafkreiholfe7utobo5y2znjdr6ou26qmlcgf5teoxtyjo2undgfpl5kcwe";
+// const TWITTER_ICON_URL =
+//   IPFS_BASE_URL + "bafkreibkeyodxxrf76cr5q3in4tsmhuhzmkl5cdr56rfl57x4aji47gsby";
 
 const DEFAULT_GATEWAY = "https://bos.potlock.org/";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
@@ -57,12 +57,18 @@ const ModalFooter = styled.div`
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 `;
-
-const HeaderIcon = styled.img`
+const HeaderIcon = styled.div`
+  padding: 1rem;
   width: 64px;
   height: 64px;
+  border-radius: 44px;
+  background: radial-gradient(97.66% 97.66% at 50% 2.34%, #e84a5b 0%, #c02031 100%);
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) inset;
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 `;
-
 const AmountNear = styled.div`
   color: #292929;
   font-size: 32px;
@@ -131,10 +137,16 @@ const ShareText = styled.div`
   word-wrap: break-word;
 `;
 
-const SocialIcon = styled.img`
+const SocialIcon = styled.svg`
   width: 24px;
   height: 24px;
   cursor: pointer;
+  path {
+    transition: 300ms;
+  }
+  :hover path {
+    fill: #dd3345;
+  }
 `;
 
 State.init({
@@ -233,7 +245,14 @@ return (
       ) : state.successfulDonation ? (
         <>
           <ModalMain>
-            <HeaderIcon src={HEADER_ICON_URL} />
+            <HeaderIcon>
+              <svg viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M6.39016 7.9C4.12016 7.31 3.39016 6.7 3.39016 5.75C3.39016 4.66 4.40016 3.9 6.09016 3.9C7.87016 3.9 8.53016 4.75 8.59016 6H10.8002C10.7302 4.28 9.68016 2.7 7.59016 2.19V0H4.59016V2.16C2.65016 2.58 1.09016 3.84 1.09016 5.77C1.09016 8.08 3.00016 9.23 5.79016 9.9C8.29016 10.5 8.79016 11.38 8.79016 12.31C8.79016 13 8.30016 14.1 6.09016 14.1C4.03016 14.1 3.22016 13.18 3.11016 12H0.910156C1.03016 14.19 2.67016 15.42 4.59016 15.83V18H7.59016V15.85C9.54016 15.48 11.0902 14.35 11.0902 12.3C11.0902 9.46 8.66016 8.49 6.39016 7.9Z"
+                  fill="white"
+                />
+              </svg>
+            </HeaderIcon>
             <Column>
               <Row style={{ gap: "9px" }}>
                 <AmountNear>
@@ -348,7 +367,12 @@ return (
             <Row style={{ gap: "8px", justifyContent: "center" }}>
               <ShareText>Share to</ShareText>
               <a href={twitterIntent} target="_blank">
-                <SocialIcon src={TWITTER_ICON_URL} />
+                <SocialIcon viewBox="0 0 21 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M20.92 2C20.15 2.35 19.32 2.58 18.46 2.69C19.34 2.16 20.02 1.32 20.34 0.31C19.51 0.81 18.59 1.16 17.62 1.36C16.83 0.5 15.72 0 14.46 0C12.11 0 10.19 1.92 10.19 4.29C10.19 4.63 10.23 4.96 10.3 5.27C6.74 5.09 3.57 3.38 1.46 0.79C1.09 1.42 0.88 2.16 0.88 2.94C0.88 4.43 1.63 5.75 2.79 6.5C2.08 6.5 1.42 6.3 0.84 6V6.03C0.84 8.11 2.32 9.85 4.28 10.24C3.65073 10.4122 2.9901 10.4362 2.35 10.31C2.62161 11.1625 3.15354 11.9084 3.87102 12.4429C4.5885 12.9775 5.45545 13.2737 6.35 13.29C4.83363 14.4904 2.954 15.1393 1.02 15.13C0.68 15.13 0.34 15.11 0 15.07C1.9 16.29 4.16 17 6.58 17C14.46 17 18.79 10.46 18.79 4.79C18.79 4.6 18.79 4.42 18.78 4.23C19.62 3.63 20.34 2.87 20.92 2Z"
+                    fill="#7B7B7B"
+                  />
+                </SocialIcon>
               </a>
             </Row>
           </ModalFooter>

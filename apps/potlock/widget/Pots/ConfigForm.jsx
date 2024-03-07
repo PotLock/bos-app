@@ -40,10 +40,10 @@ const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contra
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const ADD_ADMINS_ICON_URL =
-  IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
-const CLOSE_ICON_URL =
-  IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
+// const ADD_ADMINS_ICON_URL =
+//   IPFS_BASE_URL + "bafkreig6c7m2z2lupreu2br4pm3xx575mv6uvmuy2qkij4kzzfpt7tipcq";
+// const CLOSE_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
 
