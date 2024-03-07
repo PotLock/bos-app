@@ -530,46 +530,37 @@ const [totalDonated, setTotalDonated] = useState(0);
 const [filteredProjects, setFilteredProjects] = useState(projects);
 const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
-const [tagSelected, setTagSelected] = useState([]);
 const [tagsList, setTagsList] = useState([
   {
     label: "Desci",
-    value: "de-sci",
     selected: false,
   },
   {
     label: "Open Source",
-    value: "open-source",
     selected: false,
   },
   {
     label: "Non Profit",
-    value: "non-profit",
     selected: false,
   },
   {
     label: "Social Impact",
-    value: "social-impact",
     selected: false,
   },
   {
     label: "Climate",
-    value: "climate",
     selected: false,
   },
   {
     label: "Public Good",
-    value: "public-good",
     selected: false,
   },
   {
     label: "Community",
-    value: "community",
     selected: false,
   },
   {
     label: "Education",
-    value: "education",
     selected: false,
   },
 ]);
@@ -729,19 +720,19 @@ const searchByWords = (projects, searchTerm) => {
       }
     }
   });
-  // let projectFilterBySearch = [];
+  //let projectFilterBySearch = [];
   // projects.forEach((project) => {
   //   const data = Social.getr(`${project.id}/profile`);
   //   findId.forEach((id) => {
   //     if (tagSelected.length > 0) {
   //       if (data.category == tagSelected[0]) {
   //         if (project.id == id) {
-  //           projectFilterBySearch.push(project);
+  //           results.push(project);
   //         }
   //       }
   //     } else {
   //       if (project.id == id) {
-  //         projectFilterBySearch.push(project);
+  //         results.push(project);
   //       }
   //     }
   //   });
@@ -757,14 +748,14 @@ const handleTag = (key) => {
   let tagSelected = [];
   tagsList.forEach((tag) => {
     if (tag.selected) {
-      tagSelected.push(tag.value);
+      tagSelected.push(tag.label);
     }
   });
   let projectFilterBySearch = [];
   dataArr.forEach((item) => {
     const data = Social.getr(`${item.id}/profile`);
     tagSelected.forEach((tag) => {
-      if (data.category == tag) {
+      if (getTagsFromSocialProfileData(data).join("").includes(tag)) {
         projectFilterBySearch.push(item);
       }
     });
@@ -775,7 +766,6 @@ const handleTag = (key) => {
     setFilteredProjects(projectFilterBySearch);
   }
   console.log("tagsList", tagSelected);
-  setTagSelected(tagSelected);
   setTagsList(tags);
 };
 return (
