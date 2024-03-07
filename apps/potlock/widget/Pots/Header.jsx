@@ -1,4 +1,12 @@
-const { potId, potDetail, referrerId, sybilRequirementMet, applicationSuccess } = props;
+const {
+  potId,
+  potDetail,
+  referrerId,
+  sybilRequirementMet,
+  applicationSuccess,
+  registrationApproved,
+  registryStatus,
+} = props;
 const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
@@ -23,11 +31,12 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getPublicRoundDonations: () => {},
 };
 
+const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+  _address: () => "",
+};
+
 const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
 
-const { calcNetDonationAmount, filterByDate } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
-);
 // console.log("pot detail: ", potDetail);
 
 const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
@@ -44,9 +53,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  padding: 60px 80px;
-  gap: 40px;
+  justify-content: space-between;
+  padding: 60px;
+  // gap: 40px;
   width: 100%;
   background: #f6f5f3;
 
@@ -54,7 +63,7 @@ const Container = styled.div`
     flex-direction: column;
     align-items: start;
     justify-content: start;
-    padding: 50px 0;
+    padding: 50px 0px 20px;
   }
 `;
 
@@ -63,7 +72,7 @@ const Column = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  width: 40%;
+  width: 45%;
   @media screen and (max-width: 768px) {
     justify-content: start;
     width: 100%;
@@ -88,6 +97,10 @@ const Description = styled.div`
   font-weight: 400;
   line-height: 24px;
   word-wrap: break-word;
+  a {
+    color: black;
+    font-weight: 500;
+  }
 `;
 
 const ColumnRightSegment = styled.div`
@@ -106,12 +119,29 @@ const Row = styled.div`
   justify-content: flex-start;
 `;
 
+const AmountDonated = styled.div`
+  display: flex;
+  width: 100%;
+  > div {
+    padding: 0;
+    width: 100%;
+  }
+  @media screen and (max-width: 480px) {
+    gap: 40px;
+    > div {
+      width: fit-content;
+    }
+  }
+`;
 const H2 = styled.div`
   color: #292929;
   font-size: 24px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 1.5em;
   word-wrap: break-word;
+  @media screen and (max-width: 992px) {
+    font-size: 18px;
+  }
 `;
 
 const H3 = styled.div`
@@ -156,6 +186,7 @@ const ModalTitle = styled.div`
 `;
 
 const Label = styled.label`
+  width: 100%;
   font-size: 12px;
   line-height: 16px;
   word-wrap: break-word;
@@ -190,10 +221,9 @@ const TotalsSubtext = styled.div`
 const UserChipLink = styled.a`
   display: flex;
   flex-direction: row;
-  // align-items: center;
-  // justify-content: center;
-  padding: 2px 12px;
   margin: 0px 4px;
+  margin-left: auto;
+  padding: 2px 12px;
   gap: 4px;
   border-radius: 32px;
   background: #ebebeb;
@@ -441,7 +471,7 @@ return (
   <Container>
     <Column style={{ gap: "24px" }}>
       <Title>{pot_name}</Title>
-      <Row style={{ gap: "24px" }}>
+      <Row style={{ gap: "24px", flexWrap: "wrap" }}>
         {/* Application tag */}
         <Widget
           src={`${ownerId}/widget/Pots.Tag`}
@@ -487,30 +517,34 @@ return (
           }}
         />
       </Row>
-      <Description>{pot_description}</Description>
-      <Row style={{ width: "100%" }}>
-        <Column style={{ width: "100%" }}>
-          <H3>{`${yoctosToUsdWithFallback(total_public_donations)}`}</H3>
+      <Description>
+        <Markdown text={pot_description} />
+      </Description>
+      <AmountDonated>
+        <Column>
+          <H3>{`${yoctosToUsdWithFallback(total_public_donations, true)}`}</H3>
           <TotalsSubtext>donated</TotalsSubtext>
         </Column>
-        <Column style={{ width: "100%" }}>
+        <Column>
           <H3>{state.totalUniqueDonors !== null ? state.totalUniqueDonors : "-"}</H3>
           <TotalsSubtext>{`Donor${state.totalUniqueDonors !== 1 ? "s" : ""}`}</TotalsSubtext>
         </Column>
-      </Row>
+        <Column style={{ padding: "0px" }}>
+          <H3>{publicRoundDonations ? publicRoundDonations.length : "-"}</H3>
+          <TotalsSubtext>{`Donation${publicRoundDonations.length !== 1 ? "s" : ""}`}</TotalsSubtext>
+        </Column>
+      </AmountDonated>
     </Column>
     <Column>
       <ColumnRightSegment
         style={{ borderTop: "1px #7B7B7B solid", borderBottom: "1px #7B7B7B solid" }}
       >
-        <Row style={{ gap: "8px" }}>
-          <H2>{`${SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(
-            matching_pool_balance
-          )} ${base_currency.toUpperCase()} `}</H2>
+        <Row style={{ gap: "8px", alignItems: "baseline" }}>
+          <H3>{yoctosToNear(matching_pool_balance, true)}</H3>
           <Description>Matching funds available</Description>
         </Row>
       </ColumnRightSegment>
-      <ColumnRightSegment>
+      <ColumnRightSegment style={{ gap: "12px" }}>
         {applicationOpen && (
           <>
             <Row
@@ -591,11 +625,14 @@ return (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: "primary",
+              type: registrationApproved ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: "Apply to pot",
+              text: registrationApproved
+                ? "Apply to pot"
+                : `Project Registration ${registryStatus}`,
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
               onClick: handleApplyToPot,
+              disabled: !registrationApproved,
               // href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
               // target: "_self",
               style: { marginRight: "24px" },
@@ -755,7 +792,7 @@ return (
                     }}
                   />
                   <TextBold>
-                    {protocolFeeRecipientProfile?.name || protocolConfig?.account_id}
+                    {_address(protocolFeeRecipientProfile?.name || protocolConfig?.account_id)}
                   </TextBold>
                 </UserChipLink>
               </Label>

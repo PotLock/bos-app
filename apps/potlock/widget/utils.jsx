@@ -158,7 +158,7 @@ return {
   nearToUsd,
   yoctosToNear: (amountYoctos, abbreviate) => {
     return (
-      formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? " N" : " NEAR")
+      formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? "N" : " NEAR")
     );
   },
   yoctosToUsd: (amount) => {
@@ -169,13 +169,12 @@ return {
   nearToUsdWithFallback: (amountNear, abbreviate) => {
     return nearToUsd
       ? "~$" + formatWithCommas((amountNear * nearToUsd).toFixed(2))
-      : formatWithCommas(amountNear) + (abbreviate ? " N" : " NEAR");
+      : formatWithCommas(amountNear) + (abbreviate ? "N" : " NEAR");
   },
   yoctosToUsdWithFallback: (amountYoctos, abbreviate) => {
     return nearToUsd
       ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
-      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) +
-          (abbreviate ? " N" : " NEAR");
+      : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? "N" : " NEAR");
   },
   calculatePayouts: (allPotDonations, totalMatchingPool) => {
     // first, flatten the list of donations into a list of contributions
@@ -258,6 +257,7 @@ return {
     }
     const payouts = totals.reduce((acc, t) => {
       acc[t.id] = {
+        totalAmount: t.contribution_amount_str,
         matchingAmount: t.matching_amount_str,
         donorCount: t.number_contributions,
       };

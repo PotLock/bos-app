@@ -1,4 +1,9 @@
 const { donations, base_currency } = props;
+
+const { _address } = VM.require("potlock.near/widget/Components.DonorsUtils") || {
+  _address: () => "",
+};
+
 const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
@@ -7,8 +12,8 @@ const SponsorOverlayWrapper = styled.div`
   position: absolute;
   overflow: hidden;
   top: 0;
-  right: 0;
-  transform: translate(50%, -50%);
+  right: 50%;
+  transform: translate(0%, -50%);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -25,6 +30,9 @@ const SponsorOverlayWrapper = styled.div`
   font-size: 12px;
   .info {
     display: flex;
+    * {
+      font-weight: 600;
+    }
     align-items: center;
     gap: 1.25rem;
     .profile-image {
@@ -35,7 +43,15 @@ const SponsorOverlayWrapper = styled.div`
     .address {
       display: flex;
       flex-direction: column;
-      font-weight: 600;
+      > a {
+        color: inherit;
+        transition: 300ms ease;
+
+        :hover {
+          color: #dd3345;
+          text-decoration: none;
+        }
+      }
       .amount {
         display: flex;
         justify-content: space-between;
@@ -53,13 +69,8 @@ const SponsorOverlayWrapper = styled.div`
     color: #525252;
     font-size: 0.75rem;
   }
-  @media only screen and (max-width: 1230px) {
-    transform: translate(20%, -50%);
-  }
   @media only screen and (max-width: 768px) {
-    transform: translate(0%, -50%);
-    width: 200%;
-    right: 0;
+    right: 0%;
     .info {
       gap: 0.5rem;
       flex-wrap: wrap;
@@ -77,7 +88,6 @@ const SponsorOverlayWrapper = styled.div`
 
 const Container = styled.div`
   display: flex;
-  /* grid-template-columns: repeat(3, 1fr); */
   gap: 10px;
   height: 640px;
   width: 100%;
@@ -86,7 +96,7 @@ const Container = styled.div`
     flex-direction: column;
     gap: 10px;
     &:not(:last-of-type) .item ${SponsorOverlayWrapper} {
-      left: 0;
+      left: 50%;
     }
   }
   .item {
@@ -103,7 +113,7 @@ const Container = styled.div`
       ${SponsorOverlayWrapper} {
         opacity: 1;
         z-index: 2;
-        width: 100%;
+        width: 150%;
       }
     }
     .item-overlay {
@@ -149,6 +159,9 @@ const Container = styled.div`
         width: 200%;
       }
     }
+    .col:not(:last-of-type) .item ${SponsorOverlayWrapper} {
+      left: 0%;
+    }
   }
   @media only screen and (max-width: 480px) {
     .item {
@@ -184,6 +197,9 @@ const SponsorWrapper = styled.div`
       height: 40px;
     }
   }
+  .name {
+    white-space: nowrap;
+  }
 `;
 
 const ProfileImg = ({ profile }) => (
@@ -202,7 +218,9 @@ const SponsorOverlay = ({
     <div className="info">
       <ProfileImg profile={profile} />
       <div className="address">
-        <div>{name || account_id}</div>
+        <a href={props.hrefWithParams(`?tab=profile&accountId=${account_id}`)}>
+          {_address(name || account_id, 15)}
+        </a>
         <div className="amount">
           <div>{total_amount} NEAR</div>
           <div className="precentage">{percentage_share}%</div>
@@ -213,12 +231,9 @@ const SponsorOverlay = ({
   </SponsorOverlayWrapper>
 );
 
-const Sponsor = ({ donation: { total_amount, donor_id, percentage_share }, colIdx, idx }) => {
+const Sponsor = ({ donation: { amount, donor_id, percentage_share }, colIdx, idx }) => {
   const profile = props.profile ?? Social.getr(`${donor_id}/profile`);
-  const totalDonationAmount =
-    SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
-  percentage_share = percentage_share.toFixed(2).replace(/[.,]00$/, "");
-  totalDonationAmount = totalDonationAmount.replace(/[.,]00$/, "");
+
   return (
     <div className="item">
       <SponsorOverlay
@@ -226,16 +241,16 @@ const Sponsor = ({ donation: { total_amount, donor_id, percentage_share }, colId
         name={profile.name}
         description={profile.description}
         account_id={donor_id}
-        total_amount={totalDonationAmount}
+        total_amount={amount}
         percentage_share={percentage_share}
       />
       <div className="item-overlay">{percentage_share}%</div>
       <SponsorWrapper>
         <ProfileImg profile={profile} />
-        {colIdx < 3 && <div>{profile.name || donor_id}</div>}
+        {colIdx < 3 && <div className="name">{profile.name || donor_id}</div>}
       </SponsorWrapper>
       <div className="footer">
-        <div className="amount">{totalDonationAmount} NEAR</div>
+        <div className="amount">{amount} NEAR</div>
         <div className="percentage">{percentage_share}%</div>
       </div>
     </div>

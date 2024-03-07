@@ -1,5 +1,6 @@
 const ModalOverlay = styled.div`
   position: fixed;
+  padding: 0 10px;
   top: 0;
   left: 0;
   width: 100%;

@@ -1,5 +1,6 @@
-const { sponsors, sortedDonations, filter, currentTab } = props;
+const { sponsors, sortedDonations, filter, currentTab, tab } = props;
 const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
+const isInPot = tab === "pot";
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
 const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
@@ -21,6 +22,7 @@ const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.requir
 );
 
 const Container = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -158,10 +160,11 @@ return donations.length ? (
         <div className="rank">Rank</div>
         <div className="address">Donor</div>
         <div>Amount</div>
-        {nearToUsd && <div>Amount (USD)</div>}
+        {isInPot && <div>Percentage</div>}
+        {nearToUsd && !isInPot && <div>Amount (USD)</div>}
       </div>
       {donations.slice(page * perPage, (page + 1) * perPage).map((donation, idx) => {
-        const { donor_id, amount } = donation;
+        const { donor_id, amount, percentage_share } = donation;
 
         return (
           <TrRow>
@@ -179,9 +182,10 @@ return donations.length ? (
 
             <div className="price">
               <img src={nearLogo} alt="NEAR" />
-              {amount.toFixed(2)}
+              {amount.toFixed(2).replace(/[.,]00$/, "")}
             </div>
-            {nearToUsd && <div>~${(amount * nearToUsd).toFixed(2)}</div>}
+            {isInPot && <div>{percentage_share}%</div>}
+            {nearToUsd && !isInPot && <div>~${(amount * nearToUsd).toFixed(2)}</div>}
           </TrRow>
         );
       })}

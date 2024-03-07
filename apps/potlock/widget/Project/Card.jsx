@@ -382,10 +382,10 @@ const donationsForProject = potId
   : DonateSDK.getDonationsForRecipient(projectId);
 
 // console.log(donationsForProject);
-if (!donationsForProject) return <CardSkeleton />;
+if (donationsForProject === null) return <CardSkeleton />;
 
 const [totalAmount, totalDonors] = useMemo(() => {
-  if (!donationsForProject) return [null, null];
+  if (!donationsForProject) return ["0", 0];
   const donors = [];
   let totalDonationAmount = new Big(0);
   for (const donation of donationsForProject) {
@@ -515,7 +515,7 @@ return (
             </AmountDescriptor>
           </DonationsInfoItem>
         )}
-        {props.allowDonate && (
+        {props.allowDonate && context.accountId && (
           <DonationButton
             onClick={(e) => {
               e.preventDefault();
@@ -523,11 +523,7 @@ return (
             }}
             disabled={!context.accountId}
           >
-            {!context.accountId
-              ? "Sign in to donate"
-              : props.requireVerification
-              ? "Verify to donate"
-              : "Donate"}
+            {props.requireVerification ? "Verify to donate" : "Donate"}
           </DonationButton>
         )}
         {/* <Widget

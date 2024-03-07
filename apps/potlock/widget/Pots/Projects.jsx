@@ -153,8 +153,15 @@ return (
       src={`${ownerId}/widget/Project.ListSection`}
       props={{
         ...props,
+        shouldShuffle: true,
         maxCols: 2,
         items: projects,
+        responsive: [
+          {
+            breakpoint: 1024,
+            items: 1,
+          },
+        ],
         renderItem: (project) => {
           return (
             <Widget
@@ -169,7 +176,11 @@ return (
                   publicRoundOpen &&
                   project.project_id !== context.accountId,
                 requireVerification: !sybilRequirementMet,
-                payoutDetails: payouts[project.project_id],
+                payoutDetails: payouts[project.project_id] || {
+                  donorCount: 0,
+                  matchingAmount: "0",
+                  totalAmount: "0",
+                },
               }}
             />
           );

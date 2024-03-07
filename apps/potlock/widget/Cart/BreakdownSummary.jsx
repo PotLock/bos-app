@@ -22,7 +22,7 @@ const CHEVRON_DOWN_URL =
 const CHEVRON_UP_URL =
   IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
-const FtIcon = styled.img`
+const FtIcon = styled.svg`
   width: 20px;
   height: 20px;
 `;
@@ -30,10 +30,26 @@ const FtIcon = styled.img`
 const BreakdownSummary = styled.div`
   display: flex;
   flex-direction: column;
-  // justify-content: flex-end;
   align-items: center;
   width: 100%;
   cursor: pointer;
+  .breakdown-details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 8px;
+    gap: 12px;
+    border-radius: 8px;
+    border: 1px #dbdbdb solid;
+    background: #fafafa;
+    transition: all 300ms ease-in-out;
+    &.hidden {
+      visibility: hidden;
+      height: 0;
+      opacity: 0;
+      transform: translateY(100px);
+    }
+  }
 `;
 
 const Header = styled.div`
@@ -41,7 +57,6 @@ const Header = styled.div`
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  // background: pink;
   width: 100%;
 `;
 
@@ -53,10 +68,11 @@ const BreakdownTitle = styled.div`
   word-wrap: break-word;
 `;
 
-const ChevronIcon = styled.img`
-  width: 24px;
-  height: 24px;
+const ChevronIcon = styled.svg`
+  width: 1rem;
+  height: 1rem;
   margin-left: 8px;
+  transition: all 300ms ease-in-out;
 `;
 
 const BreakdownDetails = styled.div`
@@ -69,6 +85,7 @@ const BreakdownDetails = styled.div`
   border-radius: 8px;
   border: 1px #dbdbdb solid;
   background: #fafafa;
+  transition: all 300ms ease-in-out;
 `;
 
 const BreakdownItem = styled.div`
@@ -76,7 +93,14 @@ const BreakdownItem = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  padding: 0 16px;
   gap: 16px;
+  :first-of-type {
+    padding-top: 1rem;
+  }
+  :last-of-type {
+    padding-bottom: 1rem;
+  }
 `;
 
 const BreakdownItemLeft = styled.div`
@@ -102,6 +126,22 @@ const BreakdownAmount = styled.div`
   font-weight: 500;
   word-wrap: break-word;
 `;
+
+const NearIcon = (props) => (
+  <FtIcon
+    {...props}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    id="near-logo"
+  >
+    <rect width="24" height="24" rx="12" fill="#CECECE" />
+    <path
+      d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
+      fill="black"
+    />
+  </FtIcon>
+);
 
 State.init({
   showBreakdown: false,
@@ -140,53 +180,66 @@ return (
       <BreakdownTitle style={{ fontSize: "14px", lineHeight: "16px" }}>
         {state.showBreakdown ? "Hide" : "Show"} breakdown
       </BreakdownTitle>
-      <ChevronIcon src={state.showBreakdown ? CHEVRON_UP_URL : CHEVRON_DOWN_URL} />
+      <ChevronIcon
+        style={{
+          rotate: state.showBreakdown ? "0deg" : "180deg",
+        }}
+        viewBox="0 0 12 8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M6 0.295013L0 6.29501L1.41 7.70501L6 3.12501L10.59 7.70501L12 6.29501L6 0.295013Z"
+          fill="#7B7B7B"
+        />
+      </ChevronIcon>
     </Header>
-    {state.showBreakdown && (
-      <BreakdownDetails>
-        {!bypassProtocolFee && (
-          <BreakdownItem>
-            <BreakdownItemLeft>
-              Protocol fee ({protocolFeePercent}% to {protocolFeeRecipientAccount})
-            </BreakdownItemLeft>
-            <BreakdownItemRight>
-              <BreakdownAmount>
-                {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
-              </BreakdownAmount>
-              <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
-            </BreakdownItemRight>
-          </BreakdownItem>
-        )}
-        {referrerId && (
-          <BreakdownItem>
-            <BreakdownItemLeft>
-              Referrer fee ({referrerFeePercent}% to {referrerId})
-            </BreakdownItemLeft>
-            <BreakdownItemRight>
-              <BreakdownAmount>
-                {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
-              </BreakdownAmount>
-              <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
-            </BreakdownItemRight>
-          </BreakdownItem>
-        )}
-        <BreakdownItem>
-          <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
-          <BreakdownItemRight>
-            <BreakdownAmount>{"<0.01"}</BreakdownAmount>
-            <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
-          </BreakdownItemRight>
-        </BreakdownItem>
+    <div
+      className={`breakdown-details ${!state.showBreakdown ? "hidden" : ""}`}
+      active={state.showBreakdown}
+    >
+      {!bypassProtocolFee && (
         <BreakdownItem>
           <BreakdownItemLeft>
-            Project allocation (~{projectAllocationPercent}% to {recipientId || "project"})
+            Protocol fee ({protocolFeePercent}% to {protocolFeeRecipientAccount})
           </BreakdownItemLeft>
           <BreakdownItemRight>
-            <BreakdownAmount>~{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
-            <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
+            <BreakdownAmount>
+              {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
+            </BreakdownAmount>
+            <NearIcon />
           </BreakdownItemRight>
         </BreakdownItem>
-      </BreakdownDetails>
-    )}
+      )}
+      {referrerId && (
+        <BreakdownItem>
+          <BreakdownItemLeft>
+            Referrer fee ({referrerFeePercent}% to {referrerId})
+          </BreakdownItemLeft>
+          <BreakdownItemRight>
+            <BreakdownAmount>
+              {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
+            </BreakdownAmount>
+            <NearIcon />
+          </BreakdownItemRight>
+        </BreakdownItem>
+      )}
+      <BreakdownItem>
+        <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
+        <BreakdownItemRight>
+          <BreakdownAmount>{"<0.01"}</BreakdownAmount>
+          <NearIcon />
+        </BreakdownItemRight>
+      </BreakdownItem>
+      <BreakdownItem>
+        <BreakdownItemLeft>
+          Project allocation (~{projectAllocationPercent}% to {recipientId || "project"})
+        </BreakdownItemLeft>
+        <BreakdownItemRight>
+          <BreakdownAmount>~{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
+          <NearIcon />
+        </BreakdownItemRight>
+      </BreakdownItem>
+    </div>
   </BreakdownSummary>
 );

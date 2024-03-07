@@ -262,7 +262,7 @@ if (
 
 // console.log("state in Index: ", state);
 
-if (state.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
+if (props.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
   // if checkout was successful after wallet redirect, clear cart
   // store previous cart in local storage to show success message
   // console.log("previous cart: ", state.cart);
@@ -300,6 +300,10 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
+    {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (
+      <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
+    )}
+
     {state.donateToProjectModal.isOpen && (
       <Widget
         src={`${ownerId}/widget/Project.ModalDonation`}
