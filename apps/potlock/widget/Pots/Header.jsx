@@ -119,6 +119,21 @@ const Row = styled.div`
   justify-content: flex-start;
 `;
 
+const LayoutButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 400px;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    //justify-content: center;
+    width: 100%;
+    gap: 20px;
+  }
+`;
+
 const AmountDonated = styled.div`
   display: flex;
   width: 100%;
@@ -620,7 +635,7 @@ return (
           </Row>
         )}
       </ColumnRightSegment>
-      <Row>
+      <LayoutButton>
         {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
@@ -646,7 +661,7 @@ return (
               type: publicRoundOpen || canApply ? "secondary" : "primary",
               text: "Fund matching pool",
               onClick: handleFundMatchingPool,
-              style: { marginRight: "12px" },
+              style: { width: "100%" },
             }}
           />
         )}
@@ -661,6 +676,7 @@ return (
                 : NADA_BOT_URL,
               target: sybilRequirementMet ? "_self" : "_blank",
               iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,
+              style: { width: "100%" },
             }}
           />
         )}
@@ -688,7 +704,7 @@ return (
           <div>Cooldown period ends on {formatDate(cooldown_end_ms)}</div>
         )}
         {potComplete && <div style={{ color: "red" }}>Pot complete</div>}
-      </Row>
+      </LayoutButton>
       <RefLink onClick={handleCopyReferralLink}>
         <svg
           fill="none"
