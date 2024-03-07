@@ -530,6 +530,49 @@ const [totalDonated, setTotalDonated] = useState(0);
 const [filteredProjects, setFilteredProjects] = useState(projects);
 const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
+const [tagSelected, setTagSelected] = useState([]);
+const [tagsList, setTagsList] = useState([
+  {
+    label: "Desci",
+    value: "de-sci",
+    selected: false,
+  },
+  {
+    label: "Open Source",
+    value: "open-source",
+    selected: false,
+  },
+  {
+    label: "Non Profit",
+    value: "non-profit",
+    selected: false,
+  },
+  {
+    label: "Social Impact",
+    value: "social-impact",
+    selected: false,
+  },
+  {
+    label: "Climate",
+    value: "climate",
+    selected: false,
+  },
+  {
+    label: "Public Good",
+    value: "public-good",
+    selected: false,
+  },
+  {
+    label: "Community",
+    value: "community",
+    selected: false,
+  },
+  {
+    label: "Education",
+    value: "education",
+    selected: false,
+  },
+]);
 
 useEffect(() => {
   if (filteredProjects.length < 1) {
@@ -706,7 +749,35 @@ const searchByWords = (projects, searchTerm) => {
 
   setFilteredProjects(results);
 };
-
+const handleTag = (key) => {
+  //console.log(tagsList[key].value);
+  const tags = tagsList;
+  tags[key].selected = !tagsList[key].selected;
+  const dataArr = projects;
+  let tagSelected = [];
+  tagsList.forEach((tag) => {
+    if (tag.selected) {
+      tagSelected.push(tag.value);
+    }
+  });
+  let projectFilterBySearch = [];
+  dataArr.forEach((item) => {
+    const data = Social.getr(`${item.id}/profile`);
+    tagSelected.forEach((tag) => {
+      if (data.category == tag) {
+        projectFilterBySearch.push(item);
+      }
+    });
+  });
+  if (tagSelected.length == 0) {
+    setFilteredProjects(dataArr);
+  } else {
+    setFilteredProjects(projectFilterBySearch);
+  }
+  console.log("tagsList", tagSelected);
+  setTagSelected(tagSelected);
+  setTagsList(tags);
+};
 return (
   <>
     <HeroContainer>
@@ -866,6 +937,36 @@ return (
           },
         }}
       />
+      {tab != "pots" && tab != "pot" && (
+        <TagsWrapper>
+          Tags:
+          {tagsList.map((tag, key) => (
+            <Tag
+              key={key}
+              onClick={() => handleTag(key)}
+              className={`${
+                tag.selected && "gap-2 bg-[#FEF6EE]"
+              } p-2 rounded border text-sm flex items-center  cursor-pointer`}
+            >
+              {tag.selected && (
+                <svg
+                  width="12"
+                  height="10"
+                  viewBox="0 0 12 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
+                    fill="#F4B37D"
+                  ></path>
+                </svg>
+              )}
+              {tag.label}
+            </Tag>
+          ))}
+        </TagsWrapper>
+      )}
     </Header>
     <ProjectsContainer>
       <Widget
