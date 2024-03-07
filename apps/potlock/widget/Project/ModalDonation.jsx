@@ -220,7 +220,7 @@ const NearIcon = (props) => (
 const {
   recipientId, // TODO: change this to projectId
   referrerId,
-  // potId,
+  potId,
   // potDetail,
   onClose,
   NADABOT_CONTRACT_ID,
@@ -305,7 +305,7 @@ const DEFAULT_DONATION_AMOUNT = "1";
 
 const MAX_NOTE_LENGTH = 60;
 
-State.init({
+const initialState = {
   amount: DEFAULT_DONATION_AMOUNT,
   denomination: DENOMINATION_OPTIONS[0].value,
   showBreakdown: false,
@@ -317,10 +317,15 @@ State.init({
   allPots: null,
   detailForPots: {},
   approvedProjectsForPots: {},
-  activeRoundsForProject: null, // mapping of potId to { potDetail }
+  activeRoundsForProject: potId ? [potId] : null, // mapping of potId to { potDetail }
   intervalId: null,
-  isUserHumanVerified: null,
-});
+};
+
+State.init(initialState);
+
+const resetState = () => {
+  State.update({ ...initialState });
+};
 
 useEffect(() => {
   if (
@@ -355,17 +360,9 @@ useEffect(() => {
       PotSDK.asyncGetConfig(pot.id)
         .then((detail) => {
           detailForPots[pot.id] = detail;
-          console.log("num details: ", Object.keys(detailForPots).length);
-          console.log("pot details: ", detailForPots);
           if (Object.keys(detailForPots).length === pots.length) {
             State.update({ detailForPots });
           }
-          // State.update({
-          //   detailForPots: {
-          //     ...state.detailForPots,
-          //     [pot.id]: detail,
-          //   },
-          // });
         })
         .catch((e) => {
           console.error("error getting pot detail: ", e);
@@ -381,17 +378,9 @@ useEffect(() => {
       PotSDK.asyncGetApprovedApplications(pot.id)
         .then((approvedProjects) => {
           approvedProjectsForPots[pot.id] = approvedProjects;
-          console.log("num approved projects: ", Object.keys(approvedProjectsForPots).length);
-          console.log("approved projects: ", approvedProjectsForPots);
           if (Object.keys(approvedProjectsForPots).length === pots.length) {
             State.update({ approvedProjectsForPots });
           }
-          // State.update({
-          //   approvedProjectsForPots: {
-          //     ...state.approvedProjectsForPots,
-          //     [pot.id]: approvedProjects,
-          //   },
-          // });
         })
         .catch((e) => {
           console.error("error getting approved projects: ", e);
@@ -405,22 +394,16 @@ const handleModalClose = () => {
   onClose();
 };
 
-console.log("state in donation modal: ", state);
+// console.log("state in donation modal: ", state);
 
-if (state.isUserHumanVerified === null) {
-  Near.asyncView(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
-    account_id: context.accountId,
-  }).then((isUserHumanVerified) => {
-    State.update({ isUserHumanVerified });
-  });
-}
+const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
+  account_id: context.accountId,
+});
 
 const activeRound = useMemo(() => {
   if (!state.activeRoundsForProject) return;
   return state.activeRoundsForProject[0];
 }, [state.activeRoundsForProject]);
-
-console.log("activeRound: ", activeRound);
 
 const potDetail = state.detailForPots[activeRound];
 
@@ -455,19 +438,6 @@ const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoin
     }
   }
 );
-
-const resetState = () => {
-  State.update({
-    amount: DEFAULT_DONATION_AMOUNT,
-    denomination: DENOMINATION_OPTIONS[0].value,
-    showBreakdown: false,
-    bypassProtocolFee: false,
-    bypassChefFee: false,
-    addNote: false,
-    donationNote: "",
-    donationNoteError: "",
-  });
-};
 
 const profileName = profile?.name || "No name";
 
@@ -506,7 +476,7 @@ const handleDonate = () => {
     args.custom_chef_fee_basis_points = 0;
   }
   const potId = activeRound || null;
-  const isPotDonation = potId && state.isUserHumanVerified === true;
+  const isPotDonation = potId && isUserHumanVerified === true;
   if (isPotDonation) {
     args.project_id = projectId;
     if (state.bypassChefFee) {
@@ -552,6 +522,8 @@ const handleDonate = () => {
       });
   }, pollIntervalMs);
 };
+
+const donateDisabled = !state.activeRoundsForProject || isUserHumanVerified === null;
 
 return (
   <Widget
@@ -807,7 +779,7 @@ return (
                 <AddNote onClick={() => State.update({ addNote: true })}>Add Note</AddNote>
               </Row>
             )}
-            {activeRound && state.isUserHumanVerified === false && (
+            {activeRound && isUserHumanVerified === false && (
               <InfoSection>
                 <Icon viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -846,6 +818,7 @@ return (
                   type: "tertiary",
                   text: "Add to cart",
                   onClick: handleAddToCart,
+                  disabled: donateDisabled,
                   style: {
                     padding: "12px 16px",
                   },
@@ -858,6 +831,7 @@ return (
                 type: "primary",
                 text: userShouldVerify ? "Nah, I want to have less impact" : "Donate",
                 // disabled: !state.reviewMessage || !!state.reviewMessageError,
+                disabled: donateDisabled,
                 onClick: handleDonate,
                 // href: userShouldVerify ? props.NADA_BOT_URL : null,
                 // target: userShouldVerify ? "_blank" : "_self",
