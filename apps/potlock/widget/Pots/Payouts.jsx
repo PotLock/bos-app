@@ -1,10 +1,13 @@
 // get donations
 const { potId, potDetail } = props; // TODO: refactor to use PotsSDK
-// potDetail.cooldown_end_ms = 1709936649000; // TODO: remove this line
+potDetail.cooldown_end_ms = 1710105146000; // TODO: remove this line
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
+
 const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
   calculatePayouts: () => {},
   yoctosToNear: () => "",
@@ -12,6 +15,7 @@ const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getPayoutsChallenges: () => {},
+  challengePayouts: () => {},
 };
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -197,13 +201,56 @@ const DivLink = styled.div`
   cursor: pointer;
 `;
 
+const ModalHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: white;
+  padding: 24px 24px 12px 24px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-weight: 500;
+`;
+
+const ModalBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 24px;
+  border-top: 1px #f0f0f0 solid;
+  background: #fafafa;
+  gap: 8px;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  background: #fafafa;
+  padding: 12px 24px 24px 24px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  gap: 24px;
+  width: 100%;
+`;
+
 State.init({
   allPayouts: null,
   filteredPayouts: null,
+  showChallengePayoutsModal: false,
+  challengeReason: "",
+  challengeReasonError: "",
 });
 
+if (!state.challengeReason && existingChallengeForUser) {
+  State.update({ challengeReason: existingChallengeForUser.reason });
+}
+
 const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!state.allPayout && allDonationsForPot) {
+if (!state.allPayouts && allDonationsForPot) {
   const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
@@ -241,7 +288,10 @@ if (!state.allPayout && allDonationsForPot) {
   }
 }
 
-const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
+const payoutsChallenges = PotSDK.getPayoutsChallenges(potId) || [];
+const existingChallengeForUser = payoutsChallenges.find(
+  (challenge) => challenge.challenger_id === context.accountId
+);
 // console.log("payoutsChallenges: ", payoutsChallenges);
 
 const columns = ["Project", "Total Raised", "Total Unique Donors", "Matching Pool Allocation"];
@@ -262,7 +312,17 @@ const searchPayouts = (searchTerm) => {
   return filteredPayouts;
 };
 
-const maxAccountIdLength = 20;
+const handleCancelChallenge = () => {
+  State.update({ showChallengePayoutsModal: false, challengeReason: "", challengeReasonError: "" });
+};
+
+const handleSubmitChallenge = () => {
+  PotSDK.challengePayouts(potId, state.challengeReason);
+  State.update({ showChallengePayoutsModal: false });
+};
+
+const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 20;
+const MAX_CHALLENGE_REASON_LENGTH = 1000;
 
 return (
   <Container>
@@ -302,7 +362,15 @@ return (
               : "These payouts are estimated amounts only and have not been set on the contract yet."}
           </WarningText>
         </Row>
-        {potDetail.cooldown_end_ms > Date.now() && <DivLink>Something doesn't look right?</DivLink>}
+        {potDetail.cooldown_end_ms > Date.now() && (
+          <DivLink onClick={() => State.update({ showChallengePayoutsModal: true })}>
+            {existingChallengeForUser && !existingChallengeForUser.resolved
+              ? `Update your challenge (submitted ${getTimePassed(
+                  existingChallengeForUser.created_at
+                )} ago)`
+              : "Something doesn't look right? Challenge payouts"}
+          </DivLink>
+        )}
       </InfoContainer>
     )}
     <TableContainer>
@@ -372,8 +440,8 @@ return (
                   }}
                 />
                 <RowText>
-                  {projectId.length > maxAccountIdLength
-                    ? projectId.slice(0, maxAccountIdLength) + "..."
+                  {projectId.length > MAX_ACCOUNT_ID_DISPLAY_LENGTH
+                    ? projectId.slice(0, MAX_ACCOUNT_ID_DISPLAY_LENGTH) + "..."
                     : projectId}
                 </RowText>
               </RowItem>
@@ -394,5 +462,66 @@ return (
         })
       )}
     </TableContainer>
+    <Widget
+      src={`${ownerId}/widget/Components.Modal`}
+      props={{
+        isModalOpen: state.showChallengePayoutsModal,
+        onClose: handleCancelChallenge,
+        contentStyle: {
+          padding: "0px",
+        },
+        children: (
+          <>
+            <ModalHeader>Challenge Payouts</ModalHeader>
+            <ModalBody>
+              <div>Explain the reason for your challenge</div>
+              <Widget
+                src={`${ownerId}/widget/Inputs.TextArea`}
+                props={{
+                  noLabel: true,
+                  inputRows: 5,
+                  inputStyle: {
+                    background: "#FAFAFA",
+                  },
+                  placeholder: "Type the reason for your challenge here",
+                  value: state.challengeReason,
+                  onChange: (challengeReason) => State.update({ challengeReason }),
+                  validate: () => {
+                    if (state.challengeReason.length > MAX_CHALLENGE_REASON_LENGTH) {
+                      State.update({
+                        challengeReasonError: `Challenge reason must be less than ${MAX_CHALLENGE_REASON_LENGTH} characters`,
+                      });
+                      return;
+                    }
+
+                    State.update({ challengeReasonError: "" });
+                  },
+                  error: state.challengeReasonError,
+                }}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "tertiary",
+                  text: "Cancel",
+                  onClick: handleCancelChallenge,
+                }}
+              />
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "primary",
+                  text: "Submit Challenge",
+                  disabled: !state.challengeReason || !!state.challengeReasonError,
+                  onClick: handleSubmitChallenge,
+                }}
+              />
+            </ModalFooter>
+          </>
+        ),
+      }}
+    />
   </Container>
 );
