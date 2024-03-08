@@ -11,6 +11,12 @@ return {
   asyncGetConfig: (potId) => {
     return Near.asyncView(potId, "get_config", {});
   },
+  isUserPotAdminOrGreater: (potId, accountId) => {
+    const config = Near.view(potId, "get_config", {});
+    if (config) {
+      return config.owner === accountId || config.admins.includes(accountId);
+    }
+  },
   getMatchingPoolDonations: (potId) => {
     // TODO: paginate
     return Near.view(potId, "get_matching_pool_donations", {});
@@ -57,27 +63,49 @@ return {
   asyncGetApplications: (potId) => {
     return Near.asyncView(potId, "get_applications", {});
   },
-  asyncGetActiveRoundsForProject: (projectId, env) => {
-    PotFactorySDK = PotFactorySDK({ env });
-    console.log("PotFactorySDK: ", PotFactorySDK);
-    const pots = PotFactorySDK.getPots();
-    console.log("pots line 64: ", pots);
-    const activeRounds = Object.entries(pots).filter(([_id, { approvedProjects, detail }]) => {
-      console.log("approvedProjects: ", approvedProjects);
-      const { public_round_start_ms, public_round_end_ms } = detail;
-      const now = Date.now();
-      const approved = approvedProjects.filter((proj) => {
-        return (
-          proj.project_id === recipientId &&
-          public_round_start_ms < now &&
-          public_round_end_ms > now
-        );
-      });
-      return approved.length > 0;
-    });
-    // return Near.view(projectId, "get_active_rounds_for_project", {});
-  },
   getPayoutsChallenges: (potId) => {
     return Near.view(potId, "get_payouts_challenges", {});
+  },
+  challengePayouts: (potId, reason) => {
+    const depositFloat = reason.length * 0.00003 + 0.003;
+    const transaction = {
+      contractName: potId,
+      methodName: "challenge_payouts",
+      args: { reason },
+      deposit: Big(depositFloat).mul(Big(10).pow(24)),
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
+  adminUpdatePayoutsChallenge: (potId, challengerId, notes, shouldResolveChallenge) => {
+    const depositFloat = notes.length * 0.00003;
+    const transaction = {
+      contractName: potId,
+      methodName: "admin_update_payouts_challenge",
+      args: { challenger_id: challengerId, notes, resolve_challenge: shouldResolveChallenge },
+      deposit: Big(depositFloat).mul(Big(10).pow(24)),
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
+  chefSetPayouts: (potId, payouts) => {
+    const transaction = {
+      contractName: potId,
+      methodName: "chef_set_payouts",
+      args: { payouts },
+      deposit: "0",
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
+  adminProcessPayouts: (potId) => {
+    const transaction = {
+      contractName: potId,
+      methodName: "admin_process_payouts",
+      args: {},
+      deposit: "0",
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
   },
 };
