@@ -47,6 +47,8 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const NADABOT_ICON_URL =
   IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
 
+const projectNotRegistered = registryStatus === null;
+
 // console.log("header props: ", props);
 
 const Container = styled.div`
@@ -640,15 +642,17 @@ return (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: registrationApproved ? "primary" : "tertiary",
+              type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: registrationApproved
+              text: projectNotRegistered
+                ? "Register to Apply"
+                : registrationApproved
                 ? "Apply to pot"
                 : `Project Registration ${registryStatus}`,
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
-              onClick: handleApplyToPot,
+              onClick: projectNotRegistered ? null : handleApplyToPot,
               disabled: !registrationApproved,
-              // href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
+              href: projectNotRegistered ? props.hrefWithParams(`?tab=createproject`) : null,
               // target: "_self",
               style: { marginRight: "24px" },
             }}
