@@ -1,8 +1,8 @@
 const profile = Social.getr(`${props.projectId}/profile`);
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const TRASH_ICON_URL =
-  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+// const TRASH_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
 const TrashContainer = styled.div`
   position: absolute;
@@ -15,17 +15,18 @@ const TrashContainer = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-
-  &:hover {
-    cursor: pointer;
-  }
+  cursor: pointer;
 `;
 
-const TrashIcon = styled.img`
-  //   width: 100%;
-  //   height: 100%;
+const TrashIcon = styled.svg`
   width: 20px;
   height: 20px;
+  path {
+    transition: 300ms;
+  }
+  :hover path {
+    fill: #dd3345;
+  }
 `;
 
 const ItemContainer = styled.div`
@@ -84,7 +85,12 @@ return (
           : profile.description}
       </Text>
       <TrashContainer onClick={() => props.removeProjectsFromCart([props.projectId])}>
-        <TrashIcon src={TRASH_ICON_URL} />
+        <TrashIcon viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M2.5 14C2.0875 14 1.73437 13.8531 1.44062 13.5594C1.14687 13.2656 1 12.9125 1 12.5V2.5H0V1H4V0H8V1H12V2.5H11V12.491C11 12.9137 10.8531 13.2708 10.5594 13.5625C10.2656 13.8542 9.9125 14 9.5 14H2.5ZM9.5 2.5H2.5V12.5H9.5V2.5ZM4 11H5.5V4H4V11ZM6.5 11H8V4H6.5V11Z"
+            fill="#7B7B7B"
+          />
+        </TrashIcon>
       </TrashContainer>
     </ProjectDetails>
   </ItemContainer>

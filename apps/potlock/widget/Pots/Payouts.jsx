@@ -24,8 +24,8 @@ const userIsAdminOrGreater = PotSDK.isUserPotAdminOrGreater(potId, context.accou
 // const userIsAdminOrGreater = true; // TODO: REMOVE THIS LINE
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const ALERT_ICON_URL =
-  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
+// const ALERT_ICON_URL =
+//   IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
 
 const Container = styled.div`
   display: flex;
