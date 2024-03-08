@@ -88,4 +88,24 @@ return {
     };
     Near.call([transaction]);
   },
+  chefSetPayouts: (potId, payouts) => {
+    const transaction = {
+      contractName: potId,
+      methodName: "chef_set_payouts",
+      args: { payouts },
+      deposit: "0",
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
+  adminProcessPayouts: (potId) => {
+    const transaction = {
+      contractName: potId,
+      methodName: "admin_process_payouts",
+      args: {},
+      deposit: "0",
+      gas: "300000000000000",
+    };
+    Near.call([transaction]);
+  },
 };

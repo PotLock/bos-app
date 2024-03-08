@@ -561,6 +561,7 @@ return (
         })
       )}
     </TableContainer>
+    {}
     <ChallengesHeaderText>Payouts Challenges</ChallengesHeaderText>
     {!payoutsChallenges ? (
       "Loading..."

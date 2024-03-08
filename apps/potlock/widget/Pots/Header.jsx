@@ -7,14 +7,14 @@ const {
   registrationApproved,
   registryStatus,
 } = props;
-const { formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
-  "potlock.near/widget/utils"
-) || {
-  formatDate: () => "",
-  daysUntil: () => "",
-  yoctosToNear: () => "",
-  yoctosToUsdWithFallback: () => "",
-};
+const { calculatePayouts, formatDate, daysUntil, yoctosToNear, yoctosToUsdWithFallback } =
+  VM.require("potlock.near/widget/utils") || {
+    calculatePayouts: () => {},
+    formatDate: () => "",
+    daysUntil: () => "",
+    yoctosToNear: () => "",
+    yoctosToUsdWithFallback: () => "",
+  };
 
 const { NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS, ONE_TGAS } =
   VM.require("potlock.near/widget/constants") || {
@@ -29,6 +29,8 @@ const { NADA_BOT_URL, ownerId, ToDo, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS,
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getApplicationByProjectId: () => {},
   getPublicRoundDonations: () => {},
+  chefSetPayouts: () => {},
+  adminProcessPayouts: () => {},
 };
 
 const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
@@ -409,19 +411,18 @@ const handleMatchingPoolDonation = () => {
   // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
 };
 
+const handleSetPayouts = () => {
+  const payouts = Object.entries(
+    calculatePayouts(publicRoundDonations, potDetail.matching_pool_balance)
+  )
+    .map(([projectId, { matchingAmount }]) => ({ project_id: projectId, amount: matchingAmount }))
+    .filter((payout) => payout.amount !== "0");
+  console.log("payouts: ", payouts);
+  PotSDK.chefSetPayouts(potId, payouts);
+};
+
 const handleProcessPayouts = () => {
-  // TODO: implement admin_process_payouts
-  const args = {};
-  const transactions = [
-    {
-      contractName: potId,
-      methodName: "admin_process_payouts",
-      deposit: "0",
-      args,
-      gas: ONE_TGAS.mul(100),
-    },
-  ];
-  Near.call(transactions);
+  PotSDK.adminProcessPayouts(potId);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
 };
@@ -682,10 +683,12 @@ return (
         )}
         {canPayoutsBeSet && (
           <Widget
-            src={`${ownerId}/widget/Pots.CalculateSetPayoutsButton`}
+            src={`${ownerId}/widget/Components.Button`}
             props={{
               ...props,
-              potDetail,
+              type: "primary",
+              text: "Set Payouts",
+              onClick: handleSetPayouts,
             }}
           />
         )}

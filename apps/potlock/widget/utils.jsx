@@ -290,33 +290,65 @@ return {
       residual = totalPot.minus(totalAllocatedBeforeRounding);
       console.log("second round residual: ", residual.toFixed(0));
 
-      if (residual.abs().gt(Big("0"))) {
-        console.log("MAKING FINAL ADJUSTMENT");
-        // Step 1: Sort 'totals' in descending order based on 'matching_amount_str'
+      // if (residual.abs().gt(Big("0"))) {
+      //   console.log("MAKING FINAL ADJUSTMENT");
+      //   // Step 1: Sort 'totals' in descending order based on 'matching_amount_str'
+      //   totals.sort((a, b) => Big(b.matching_amount_str).minus(Big(a.matching_amount_str)));
+
+      //   // Step 2: Allocate the residual
+      //   let residualToAllocate = Big(residual);
+      //   for (let i = 0; i < totals.length && residualToAllocate.gt(Big(0)); i++) {
+      //     let allocationIncrement = Big(1); // Smallest possible increment
+      //     if (residualToAllocate.lt(allocationIncrement)) {
+      //       allocationIncrement = residualToAllocate; // If the remaining residual is less than the increment, adjust it
+      //     }
+      //     totals[i].matching_amount_str = Big(totals[i].matching_amount_str)
+      //       .plus(allocationIncrement)
+      //       .toFixed(0);
+      //     residualToAllocate = residualToAllocate.minus(allocationIncrement);
+      //   }
+      //   // Ensure the loop above runs until 'residualToAllocate' is 0 or sufficiently small to be considered fully allocated
+
+      //   // Recalculate 'totalAllocatedBeforeRounding' to verify the final allocation matches the total matching pool
+      //   totalAllocatedBeforeRounding = Big(0);
+      //   for (const t of totals) {
+      //     const currentMatchingAmount = Big(t.matching_amount_str);
+      //     totalAllocatedBeforeRounding = totalAllocatedBeforeRounding.plus(currentMatchingAmount);
+      //   }
+      //   residual = totalPot.minus(totalAllocatedBeforeRounding);
+      //   console.log("FINAL residual: ", residual.toFixed(0));
+      // }
+
+      if (residual.abs().gt(Big(0))) {
+        // Directly adjust the matching amount of one project to correct the residual
+        // Find a project to adjust. Prefer adjusting projects with larger allocations to minimize impact
         totals.sort((a, b) => Big(b.matching_amount_str).minus(Big(a.matching_amount_str)));
-
-        // Step 2: Allocate the residual
-        let residualToAllocate = Big(residual);
-        for (let i = 0; i < totals.length && residualToAllocate.gt(Big(0)); i++) {
-          let allocationIncrement = Big(1); // Smallest possible increment
-          if (residualToAllocate.lt(allocationIncrement)) {
-            allocationIncrement = residualToAllocate; // If the remaining residual is less than the increment, adjust it
-          }
-          totals[i].matching_amount_str = Big(totals[i].matching_amount_str)
-            .plus(allocationIncrement)
+        if (residual.gt(Big(0))) {
+          // If residual is positive, increment the largest allocation
+          totals[0].matching_amount_str = Big(totals[0].matching_amount_str)
+            .plus(residual)
             .toFixed(0);
-          residualToAllocate = residualToAllocate.minus(allocationIncrement);
+        } else {
+          // If residual is negative, decrement the largest allocation
+          // Ensure the allocation is large enough to be decremented
+          for (let i = 0; i < totals.length; i++) {
+            if (Big(totals[i].matching_amount_str).gt(Big(abs(residual)))) {
+              totals[i].matching_amount_str = Big(totals[i].matching_amount_str)
+                .plus(residual)
+                .toFixed(0); // Residual is negative here
+              break;
+            }
+          }
         }
-        // Ensure the loop above runs until 'residualToAllocate' is 0 or sufficiently small to be considered fully allocated
 
-        // Recalculate 'totalAllocatedBeforeRounding' to verify the final allocation matches the total matching pool
+        // Verify that the adjustment has corrected the residual
         totalAllocatedBeforeRounding = Big(0);
         for (const t of totals) {
           const currentMatchingAmount = Big(t.matching_amount_str);
           totalAllocatedBeforeRounding = totalAllocatedBeforeRounding.plus(currentMatchingAmount);
         }
         residual = totalPot.minus(totalAllocatedBeforeRounding);
-        console.log("FINAL residual: ", residual.toFixed(0));
+        console.log("Residual after final adjustment: ", residual.toFixed(0));
       }
     }
 
