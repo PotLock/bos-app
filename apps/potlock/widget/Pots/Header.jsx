@@ -47,6 +47,8 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const NADABOT_ICON_URL =
   IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
 
+const projectNotRegistered = registryStatus === null;
+
 // console.log("header props: ", props);
 
 const Container = styled.div`
@@ -117,6 +119,21 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+`;
+
+const LayoutButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 400px;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    //justify-content: center;
+    width: 100%;
+    gap: 20px;
+  }
 `;
 
 const AmountDonated = styled.div`
@@ -620,20 +637,22 @@ return (
           </Row>
         )}
       </ColumnRightSegment>
-      <Row>
+      <LayoutButton>
         {canApply && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: registrationApproved ? "primary" : "tertiary",
+              type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: registrationApproved
+              text: projectNotRegistered
+                ? "Register to Apply"
+                : registrationApproved
                 ? "Apply to pot"
                 : `Project Registration ${registryStatus}`,
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
-              onClick: handleApplyToPot,
+              onClick: projectNotRegistered ? null : handleApplyToPot,
               disabled: !registrationApproved,
-              // href: registryRequirementMet ? null : props.hrefWithParams(`?tab=createproject`),
+              href: projectNotRegistered ? props.hrefWithParams(`?tab=createproject`) : null,
               // target: "_self",
               style: { marginRight: "24px" },
             }}
@@ -646,7 +665,7 @@ return (
               type: publicRoundOpen || canApply ? "secondary" : "primary",
               text: "Fund matching pool",
               onClick: handleFundMatchingPool,
-              style: { marginRight: "12px" },
+              style: { width: "100%" },
             }}
           />
         )}
@@ -661,6 +680,7 @@ return (
                 : NADA_BOT_URL,
               target: sybilRequirementMet ? "_self" : "_blank",
               iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,
+              style: { width: "100%" },
             }}
           />
         )}
@@ -688,7 +708,7 @@ return (
           <div>Cooldown period ends on {formatDate(cooldown_end_ms)}</div>
         )}
         {potComplete && <div style={{ color: "red" }}>Pot complete</div>}
-      </Row>
+      </LayoutButton>
       <RefLink onClick={handleCopyReferralLink}>
         <svg
           fill="none"

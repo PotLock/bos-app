@@ -30,13 +30,12 @@ const Row = styled.div`
 const SearchBar = styled.input`
   background: none;
   width: 100%;
-  border-radius: 
   outline: none;
   border: none;
   color: #525252;
   &:focus {
-      outline: none;
-      border: none;
+    outline: none;
+    border: none;
   }
 `;
 
