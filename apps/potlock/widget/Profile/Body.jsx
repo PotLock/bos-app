@@ -140,6 +140,7 @@ return (
           src={props.navOptions.find((option) => option.id == props.nav).source}
           props={{
             ...props,
+            accounts: [projectId || accountId],
           }}
         />
       </Details>
