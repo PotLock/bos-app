@@ -39,8 +39,6 @@ const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
 
 // console.log("pot detail: ", potDetail);
 
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
-
 Big.PE = 100;
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -89,8 +87,6 @@ const Title = styled.div`
   line-height: 56px;
   word-wrap: break-word;
   font-family: "Lora";
-
-  ${loraCss}
 `;
 
 const Description = styled.div`

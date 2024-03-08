@@ -60,10 +60,12 @@ const Verified = styled.div`
   display: flex;
   align-items: center;
   font-size: 11px;
-  font-weight: 600;
-  color: #0e615e;
   letter-spacing: 0.88px;
   gap: 4px;
+  div {
+    font-weight: 600;
+    color: #0e615e;
+  }
   svg {
     background: white;
     border-radius: 50%;

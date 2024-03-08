@@ -27,8 +27,6 @@ RegistrySDK = RegistrySDK({ env: props.env });
 
 const projectIsApproved = RegistrySDK.isProjectApproved(projectId);
 
-const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,7 +37,6 @@ const Container = styled.div`
   border-bottom-width: 3px;
   background: #fef6ee;
   margin-left: auto;
-  ${loraCss}
   .donations-info {
     display: flex;
     flex-direction: column;

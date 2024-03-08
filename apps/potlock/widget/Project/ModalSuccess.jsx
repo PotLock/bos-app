@@ -9,7 +9,6 @@ const {
   IPFS_BASE_URL: "",
 };
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
 
 const HEADER_ICON_URL =
   IPFS_BASE_URL + "bafkreiholfe7utobo5y2znjdr6ou26qmlcgf5teoxtyjo2undgfpl5kcwe";
@@ -69,7 +68,6 @@ const AmountNear = styled.div`
   font-weight: 600;
   line-height: 40px;
   font-family: "Lora";
-  ${loraCss}
 `;
 
 const AmountUsd = styled.div`

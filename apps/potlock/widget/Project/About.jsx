@@ -6,8 +6,6 @@ const { getTeamMembersFromSocialProfileData } = VM.require("potlock.near/widget/
   getTeamMembersFromSocialProfileData: () => [],
 };
 
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
-
 const Container = styled.div`
   max-width: 920px;
   display: flex;
@@ -20,7 +18,6 @@ const Header = styled.div`
   font-size: 40px;
   font-weight: 500;
   font-family: "Lora";
-  ${loraCss}
   @media screen and (max-width: 768px) {
     font-size: 32px;
   }
