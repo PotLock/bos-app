@@ -1,19 +1,21 @@
-const { profile } = props;
+const { profile, projectId } = props;
 const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
 const Tags = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 `;
 
 const Tag = styled.span`
-  box-shadow: 0px -0.699999988079071px 0px rgba(123, 123, 123, 0.36) inset;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(123, 123, 123, 0.36);
-  color: #2e2e2e;
+  color: #292929;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 6px;
+  border-radius: 2px;
+  background: #ebebeb;
+  box-shadow: 0px -1px 0px 0px #dbdbdb inset, 0px 0px 0px 0.5px #dbdbdb;
 `;
 
 const tags = props.tags ?? getTagsFromSocialProfileData(profile);
@@ -21,6 +23,7 @@ if (!tags.length) return "No tags";
 
 return (
   <Tags>
+    {projectId.endsWith(".sputnik-dao.near") && <Tag>Dao</Tag>}
     {tags.map((tag, tagIndex) => (
       <Tag key={tagIndex}>{tag}</Tag>
     ))}

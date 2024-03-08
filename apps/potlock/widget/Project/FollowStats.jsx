@@ -1,6 +1,6 @@
-const accountId = props.accountId;
 const projectId = props.projectId;
-const ownerId = props.ownerId;
+const accountId = projectId || props.accountId;
+
 if (!accountId) {
   return "";
 }
@@ -24,25 +24,32 @@ const profileLink = props.hrefWithParams(
   }`
 );
 
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  gap: 2rem;
+`;
+
 return (
-  <div>
-    <div className="d-flex flex-row">
-      <div className="me-4">
-        <a href={`${profileLink}&nav=following`} className="text-dark">
-          <span style={{ fontWeight: 500 }} className="me-2">
-            Following
-          </span>
-          {numFollowing !== null ? <span className="text-muted">{numFollowing}</span> : "?"}
-        </a>
-      </div>
-      <div>
-        <a href={`${profileLink}&nav=followers`} className="text-dark">
-          <span style={{ fontWeight: 500 }} className="me-2">
-            Follower{numFollowers !== 1 && "s"}
-          </span>
-          {numFollowers !== null ? <span className="text-muted">{numFollowers}</span> : "?"}
-        </a>
-      </div>
+  <Container>
+    <div>
+      <a href={`${profileLink}&nav=followers`} className="text-dark">
+        {numFollowers !== null ? <span className="text-muted">{numFollowers}</span> : "?"}
+
+        <span style={{ fontWeight: 500 }} className="me-2">
+          Follower{numFollowers !== 1 && "s"}
+        </span>
+      </a>
     </div>
-  </div>
+    <div className="me-4">
+      <a href={`${profileLink}&nav=following`} className="text-dark">
+        {numFollowing !== null ? <span className="text-muted">{numFollowing}</span> : "?"}
+
+        <span style={{ fontWeight: 500 }} className="me-2">
+          Following
+        </span>
+      </a>
+    </div>
+  </Container>
 );

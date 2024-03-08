@@ -1,6 +1,3 @@
-const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
-const [isModalDonationSucessOpen, setIsModalDonationSucessOpen] = useState(false);
-
 const { ownerId, projectId } = props;
 
 let RegistrySDK =
@@ -70,18 +67,6 @@ const DonationButton = styled.button`
   }
 `;
 
-// const FollowingMobile = styled.div`
-//   display: none;
-
-//   @media screen and (max-width: 768px) {
-//     display: flex;
-//     flex-direction: row;
-//     align-items: center;
-//     justify-content: flex-start;
-//     gap: 24px;
-//   }
-// `;
-
 State.init({
   successfulDonation: null,
 });
@@ -93,51 +78,6 @@ return (
         src={`${ownerId}/widget/Project.FollowStats`}
         props={{ ...props, accountId: props.id }}
       />
-      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: props.id }} />
     </SubRow1>
-    {props.tab === "project" && projectIsApproved && (
-      <SubRow2>
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "primary",
-            text: "Donate",
-            onClick: () => setIsModalDonationOpen(true),
-          }}
-        />
-        <Widget
-          src={`${ownerId}/widget/Project.ModalDonation`}
-          props={{
-            ...props,
-            isModalOpen: isModalDonationOpen,
-            onClose: () => setIsModalDonationOpen(false),
-            recipientId: props.projectId,
-            referrerId: props.referrerId,
-            openDonateToProjectModal: () => setIsModalDonationOpen(true),
-            openDonationModalSuccess: (donation) => {
-              setIsModalDonationOpen(false);
-              State.update({
-                successfulDonation: donation,
-              });
-            },
-            // potId: state.donateToProjectModal.potId, // TODO: add this in if project is in a pot?
-          }}
-        />
-      </SubRow2>
-    )}
-    {state.successfulDonation && (
-      <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
-        props={{
-          ...props,
-          successfulDonation: state.successfulDonation,
-          isModalOpen: state.successfulDonation != null,
-          onClose: () =>
-            State.update({
-              successfulDonation: null,
-            }),
-        }}
-      />
-    )}
   </Container>
 );

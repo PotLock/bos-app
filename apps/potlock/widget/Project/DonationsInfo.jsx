@@ -1,3 +1,5 @@
+const { accountId, projectId } = props;
+
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
@@ -6,6 +8,9 @@ const { nearToUsd, nearToUsdWithFallback } = VM.require("potlock.near/widget/uti
   nearToUsdWithFallback: () => "",
 };
 
+const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
+const [successfulDonation, setSuccessfulDonation] = useState(false);
+
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
   (() => ({
@@ -13,20 +18,55 @@ let DonateSDK =
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
+let RegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    isProjectApproved: () => {},
+  }));
+RegistrySDK = RegistrySDK({ env: props.env });
+
+const projectIsApproved = RegistrySDK.isProjectApproved(projectId);
+
 const loraCss = fetch("https://fonts.cdnfonts.com/css/lora").body;
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  // width: 100%;
-  // background: green;
-  gap: 40px;
-
-  @media screen and (max-width: 768px) {
+  flex-direction: column;
+  padding: 24px;
+  gap: 24px;
+  border-radius: 10px;
+  border: 1px solid #f4b37d;
+  border-bottom-width: 3px;
+  background: #fef6ee;
+  margin-left: auto;
+  ${loraCss}
+  .donations-info {
+    display: flex;
     flex-direction: column;
-    gap: 24px;
+    .amount {
+      font-weight: 500;
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+    .donors {
+      font-size: 14px;
+      span {
+        font-weight: 600;
+      }
+    }
+  }
+  .btn-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    > div,
+    button {
+      padding: 10px 0;
+      width: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 `;
 
@@ -60,21 +100,57 @@ const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
 
 return (
   <Container>
+    <div className="donations-info">
+      <div className="amount">{nearToUsdWithFallback(totalDonations)}</div>
+      <div className="donors">
+        Raised from <span> {totalDonors}</span> Donor{totalDonors?.length === 1 ? "" : "s"}
+      </div>
+    </div>
+    <div className="btn-wrapper">
+      {projectIsApproved && (
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "primary",
+            text: "Donate",
+            onClick: () => setIsModalDonationOpen(true),
+          }}
+        />
+      )}
+      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: accountId }} />
+    </div>
+
     <Widget
-      src={`${ownerId}/widget/Components.InfoCard`}
+      src={`${ownerId}/widget/Project.ModalDonation`}
       props={{
-        infoTextPrimary: nearToUsd
-          ? `$${(totalDonations * nearToUsd).toFixed(2)}`
-          : `${totalDonations} N`,
-        infoTextSecondary: "Contributed",
+        ...props,
+        isModalOpen: isModalDonationOpen,
+        onClose: () => setIsModalDonationOpen(false),
+        recipientId: props.projectId,
+        referrerId: props.referrerId,
+        openDonateToProjectModal: () => setIsModalDonationOpen(true),
+        openDonationModalSuccess: (donation) => {
+          setIsModalDonationOpen(false);
+          State.update({
+            successfulDonation: donation,
+          });
+        },
+        // potId: state.donateToProjectModal.potId, // TODO: add this in if project is in a pot?
       }}
     />
-    <Widget
-      src={`${ownerId}/widget/Components.InfoCard`}
-      props={{
-        infoTextPrimary: totalReferralFees ? nearToUsdWithFallback(totalReferralFees) : "-",
-        infoTextSecondary: "Referral Fees",
-      }}
-    />
+    {successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalSuccess`}
+        props={{
+          ...props,
+          successfulDonation: state.successfulDonation,
+          isModalOpen: state.successfulDonation != null,
+          onClose: () =>
+            State.update({
+              successfulDonation: null,
+            }),
+        }}
+      />
+    )}
   </Container>
 );

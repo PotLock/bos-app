@@ -28,14 +28,14 @@ const HeaderContainer = styled.div`
   gap: 24px;
 `;
 
-const DonationsInfo = () => (
-  <Widget
-    src={`${ownerId}/widget/Project.DonationsInfo`}
-    props={{
-      ...props,
-    }}
-  />
-);
+// const DonationsInfo = () => (
+//   <Widget
+//     src={`${ownerId}/widget/Project.DonationsInfo`}
+//     props={{
+//       ...props,
+//     }}
+//   />
+// );
 
 const About = () => (
   <Widget
@@ -73,7 +73,7 @@ return (
   <Container>
     <HeaderContainer>
       <Header>About {name}</Header>
-      <DonationsInfo />
+      {/* <DonationsInfo /> */}
     </HeaderContainer>
     <About />
     <PublicGoodReason />
