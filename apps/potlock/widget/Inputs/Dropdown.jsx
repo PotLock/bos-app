@@ -11,7 +11,10 @@ const FilterButton = styled.div`
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
-  color: #525252;
+  border: 1px solid #292929;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #292929;
 `;
 
 const FilterIcon = styled.div`
@@ -46,7 +49,7 @@ const FilterItem = styled.div`
   white-space: nowrap;
   &:hover {
     color: #fff;
-    background: #dd3345;
+    background: #292929;
     border-radius: 6px;
   }
 `;

@@ -19,6 +19,11 @@ const APPLICATIONS_FILTERS = {
   MATCHED_DONATIONS: "Matched donations",
   PAYOUTS: "Pot Payouts",
 };
+
+const [filter, setFilter] = useState({
+  date: false, // false === ascending
+  price: false, // false === ascending
+});
 const [page, setPage] = useState(0);
 const [totalDonations, setTotalDonation] = useState(donations);
 const [filteredDonations, setFilteredDonations] = useState(donations);
@@ -32,7 +37,6 @@ useEffect(() => {
 }, [donations]);
 
 const searchDonations = (searchTerm) => {
-  console.log(searchTerm);
   const filteredApplications = totalDonations.filter((item) => {
     const searchIn = [
       item.pot_name || "",
@@ -46,7 +50,25 @@ const searchDonations = (searchTerm) => {
   return filteredApplications;
 };
 
-const sortDonations = (sortVal) => {
+const getDate = (donation) => donation.donated_at_ms || donation.donated_at;
+
+const sortDonation = (type) => {
+  const sort = !filter[type];
+  setFilter({ ...filter, [type]: sort });
+  if (type === "price") {
+    const sortedDonations = filteredDonations.sort((a, b) =>
+      sort ? b.total_amount - a.total_amount : a.total_amount - b.total_amount
+    );
+    setFilteredDonations(sortedDonations);
+  } else if (type === "date") {
+    const sortedDonations = filteredDonations.sort((a, b) => {
+      return sort ? getDate(a) - getDate(b) : getDate(b) - getDate(a);
+    });
+    setFilteredDonations(sortedDonations);
+  }
+};
+
+const filterDonations = (sortVal) => {
   const displayedDonations = searchDonations(search);
   let filtered;
   if (sortVal && sortVal !== APPLICATIONS_FILTERS.ALL) {
@@ -96,6 +118,12 @@ const PotlockFunding = styled.div`
       gap: 8px;
       width: 156px;
       justify-content: left;
+      &.sort {
+        cursor: pointer;
+        svg {
+          transition: rotate 300ms;
+        }
+      }
       &:last-of-type {
         justify-content: right;
       }
@@ -105,6 +133,7 @@ const PotlockFunding = styled.div`
     }
     .price {
       gap: 1rem;
+      font-weight: 600;
       svg {
         width: 1.5em;
       }
@@ -192,9 +221,10 @@ const PotIcon = () => (
   </svg>
 );
 
-const Arrow = (props) => {
+const Arrow = (props) => (
   <svg
     {...props}
+    style={{ rotate: !props.active ? "0deg" : "180deg" }}
     width="12"
     height="12"
     viewBox="0 0 12 12"
@@ -205,8 +235,8 @@ const Arrow = (props) => {
       d="M0 6L1.0575 7.0575L5.25 2.8725V12H6.75V2.8725L10.935 7.065L12 6L6 0L0 6Z"
       fill="#7B7B7B"
     />
-  </svg>;
-};
+  </svg>
+);
 
 const getName = (donation) => {
   switch (APPLICATIONS_FILTERS[donation.type]) {
@@ -226,11 +256,11 @@ return (
     <PotlockFunding>
       <div className="header">
         <div className="funding tab">funding Source</div>
-        <div className="tab">
-          Amount <Arrow />
+        <div className="tab sort" onClick={() => sortDonation("price")}>
+          Amount <Arrow active={filter.price} />
         </div>
-        <div className="tab">
-          Date <Arrow />
+        <div className="tab sort" onClick={() => sortDonation("date")}>
+          Date <Arrow active={filter.date} />
         </div>
       </div>
       <SearchBar>
@@ -290,7 +320,7 @@ return (
               <NearIcon />
               {donationAmount}
             </div>
-            <div className="date tab">{getTimePassed(donated_at_ms || donated_at)} ago</div>
+            <div className="tab">{getTimePassed(donated_at_ms || donated_at)} ago</div>
           </div>
         );
       })}

@@ -107,6 +107,29 @@ return (
           <div className="item-label">{k}</div>
         </div>
       ))}
+      {/* <div className="dropdown">
+        <Widget
+          src={`${ownerId}/widget/Inputs.Dropdown`}
+          props={{
+            sortVal: title,
+            title: (
+              <MenuItem className="selected" count={tabs[0].count}>
+                {tabs[0].val}{" "}
+              </MenuItem>
+            ),
+            sortList: sortList,
+            FilterMenuCustomStyle: `left:auto; right:0;`,
+            handleSortChange: ({ val: option }) => {
+              setTitle(
+                <MenuItem className="selected" count={option.count}>
+                  {option.val}
+                </MenuItem>
+              );
+              setTab(option.val);
+            },
+          }}
+        />
+      </div> */}
     </Stats>
     <Widget
       src={`${ownerId}/widget/Project.PotlockFunding`}
