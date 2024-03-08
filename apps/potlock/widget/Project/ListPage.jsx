@@ -266,6 +266,7 @@ const ProjectsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
   // padding: 0px 64px 96px 64px;
   // background: #fafafa;
 
@@ -436,6 +437,7 @@ const Tag = styled.div`
   background: #fff;
   box-shadow: 0px -1px 0px 0px #c7c7c7 inset, 0px 0px 0px 0.5px #c7c7c7;
   border: 1px solid #c7c7c7;
+  cursor: pointer;
   &:hover {
     background: #fef6ee;
   }
@@ -754,8 +756,9 @@ const handleTag = (key) => {
   let projectFilterBySearch = [];
   dataArr.forEach((item) => {
     const data = Social.getr(`${item.id}/profile`);
+    const tagsForProfile = getTagsFromSocialProfileData(data);
     tagSelected.forEach((tag) => {
-      if (getTagsFromSocialProfileData(data).join("").includes(tag)) {
+      if (tagsForProfile.includes(tag)) {
         projectFilterBySearch.push(item);
       }
     });
@@ -765,9 +768,9 @@ const handleTag = (key) => {
   } else {
     setFilteredProjects(projectFilterBySearch);
   }
-  console.log("tagsList", tagSelected);
   setTagsList(tags);
 };
+
 return (
   <>
     <HeroContainer>
@@ -959,33 +962,37 @@ return (
       )}
     </Header>
     <ProjectsContainer>
-      <Widget
-        src={`${ownerId}/widget/Project.ListSection`}
-        props={{
-          ...props,
-          items: filteredProjects,
-          shouldShuffle: !isRegistryAdmin,
-          renderItem: (project) => {
-            return (
-              <Widget
-                src={`${ownerId}/widget/Project.Card`}
-                loading={<CardSkeleton />}
-                props={{
-                  ...props,
-                  // potId,
-                  projectId: project.id,
-                  allowDonate: true,
-                  // allowDonate:
-                  //   sybilRequirementMet &&
-                  //   publicRoundOpen &&
-                  //   project.project_id !== context.accountId,
-                  // requireVerification: !sybilRequirementMet,
-                }}
-              />
-            );
-          },
-        }}
-      />
+      {filteredProjects.length ? (
+        <Widget
+          src={`${ownerId}/widget/Project.ListSection`}
+          props={{
+            ...props,
+            items: filteredProjects,
+            shouldShuffle: !isRegistryAdmin,
+            renderItem: (project) => {
+              return (
+                <Widget
+                  src={`${ownerId}/widget/Project.Card`}
+                  loading={<CardSkeleton />}
+                  props={{
+                    ...props,
+                    // potId,
+                    projectId: project.id,
+                    allowDonate: true,
+                    // allowDonate:
+                    //   sybilRequirementMet &&
+                    //   publicRoundOpen &&
+                    //   project.project_id !== context.accountId,
+                    // requireVerification: !sybilRequirementMet,
+                  }}
+                />
+              );
+            },
+          }}
+        />
+      ) : (
+        <div style={{ alignSelf: "flex-start", margin: "24px 0px" }}>No results</div>
+      )}
     </ProjectsContainer>
   </>
 );
