@@ -15,6 +15,7 @@ const Container = styled.div`
 const Col1 = styled.div`
   display: flex;
   width: 30%;
+  margin-bottom: 1rem;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
