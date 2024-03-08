@@ -38,6 +38,9 @@ const ProfileWraper = styled.div`
   align-items: end;
   transform: translateY(-50%);
   z-index: 6;
+  @media screen and (max-width: 768px) {
+    padding-left: 1rem;
+  }
 `;
 
 const ProfileStats = styled.div`
@@ -47,6 +50,10 @@ const ProfileStats = styled.div`
   align-items: center;
   gap: 1.5rem;
   transform: translate(-25px, -20px);
+  @media screen and (max-width: 768px) {
+    transform: translate(-25px, 0px);
+    gap: 10px;
+  }
 `;
 const Verified = styled.div`
   opacity: ${isHuman ? "1" : "0"};
@@ -60,6 +67,11 @@ const Verified = styled.div`
   svg {
     background: white;
     border-radius: 50%;
+  }
+  @media screen and (max-width: 768px) {
+    div {
+      display: none;
+    }
   }
 `;
 
@@ -119,6 +131,10 @@ const ProfileImageContainer = styled.div`
     }
   }
   `}
+  @media screen and (max-width: 768px) {
+    width: 72px;
+    height: 72px;
+  }
 `;
 
 const backgroundStyleHeightPx = parseInt(backgroundStyle?.height?.replace("px", ""));
@@ -271,10 +287,10 @@ return (
                 fill="#0DBFAF"
               />
             </svg>
-            VERIFIED
+            <div> VERIFIED</div>
           </Verified>
           <Widget
-            src={`${ownerId}/widget/Project.FollowStats`}
+            src={`${ownerId}/widget/Profile.FollowStats`}
             props={{ ...props, accountId: props.id }}
           />
         </ProfileStats>

@@ -50,7 +50,7 @@ const Details = styled.div`
   flex-direction: column;
   gap: 2rem;
   width: 100%;
-  padding: 24px 4rem;
+  padding: 3rem 4rem 24px;
   @media screen and (max-width: 768px) {
     padding: 24px 1rem;
   }

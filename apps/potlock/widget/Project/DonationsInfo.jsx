@@ -47,6 +47,7 @@ const Container = styled.div`
       font-weight: 500;
       font-size: 2.5rem;
       line-height: 1;
+      font-family: "Lora";
     }
     .donors {
       font-size: 14px;
@@ -64,8 +65,18 @@ const Container = styled.div`
       padding: 10px 0;
       width: 160px;
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    width: 100%;
+    .btn-wrapper {
+      > div,
+      button {
+        width: 100%;
+      }
     }
   }
 `;

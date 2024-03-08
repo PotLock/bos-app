@@ -17,6 +17,7 @@ const NavOptionsContainer = styled.div`
     color: #7b7b7b;
     padding: 10px 16px;
     font-weight: 500;
+    white-space: nowrap;
     border-bottom: 2px solid transparent;
     transition: 300ms ease;
     &.disabled {
@@ -31,6 +32,10 @@ const NavOptionsContainer = styled.div`
       border-bottom-color: #292929;
       text-decoration: none;
     }
+  }
+  @media screen and (max-width: 768px) {
+    padding: 0px 1rem;
+    overflow-x: scroll;
   }
 `;
 

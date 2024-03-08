@@ -5,19 +5,25 @@ const { name, description, plPublicGoodReason } = props.profile;
 const { getTeamMembersFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
   getTeamMembersFromSocialProfileData: () => [],
 };
+
+const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
+
 const Container = styled.div`
+  max-width: 920px;
   display: flex;
   flex-direction: column;
   gap: 48px;
-  // width: 100%;
-  // background: yellow;
 `;
 
 const Header = styled.div`
   color: #2e2e2e;
-  font-size: 24px;
-  line-height: 32px;
-  font-weight: 400;
+  font-size: 40px;
+  font-weight: 500;
+  font-family: "Lora";
+  ${loraCss}
+  @media screen and (max-width: 768px) {
+    font-size: 32px;
+  }
 `;
 
 const HeaderContainer = styled.div`
@@ -27,15 +33,6 @@ const HeaderContainer = styled.div`
   justify-content: flex-start;
   gap: 24px;
 `;
-
-// const DonationsInfo = () => (
-//   <Widget
-//     src={`${ownerId}/widget/Project.DonationsInfo`}
-//     props={{
-//       ...props,
-//     }}
-//   />
-// );
 
 const About = () => (
   <Widget
@@ -53,7 +50,7 @@ const PublicGoodReason = () => (
     src={`${ownerId}/widget/Project.AboutItem`}
     props={{
       ...props,
-      title: "Public Good Reason",
+      title: "Why we are a public good",
       text: plPublicGoodReason || "None provided",
     }}
   />
@@ -73,7 +70,6 @@ return (
   <Container>
     <HeaderContainer>
       <Header>About {name}</Header>
-      {/* <DonationsInfo /> */}
     </HeaderContainer>
     <About />
     <PublicGoodReason />

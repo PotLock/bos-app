@@ -5,6 +5,8 @@ const {
   projectId,
 } = props;
 
+const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
+
 const Header = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,6 +22,11 @@ const Header = styled.div`
 const Container = styled.div`
   display: flex;
   width: 100%;
+  flex-wrap: wrap;
+  gap: 2rem;
+  @media only screen and (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const Info = styled.div`
@@ -36,7 +43,7 @@ const NameContainer = styled.div`
 `;
 
 const Name = styled.div`
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 500;
   color: #2e2e2e;
   line-height: 56px;

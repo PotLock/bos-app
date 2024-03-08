@@ -29,26 +29,25 @@ const Container = styled.div`
   align-items: center;
   font-size: 14px;
   gap: 2rem;
+  @media screen and (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 return (
   <Container>
     <div>
       <a href={`${profileLink}&nav=followers`} className="text-dark">
-        {numFollowers !== null ? <span className="text-muted">{numFollowers}</span> : "?"}
+        {numFollowers !== null ? <span style={{ fontWeight: 600 }}>{numFollowers}</span> : "?"}
 
-        <span style={{ fontWeight: 500 }} className="me-2">
-          Follower{numFollowers !== 1 && "s"}
-        </span>
+        <span>Follower{numFollowers !== 1 && "s"}</span>
       </a>
     </div>
     <div className="me-4">
       <a href={`${profileLink}&nav=following`} className="text-dark">
-        {numFollowing !== null ? <span className="text-muted">{numFollowing}</span> : "?"}
+        {numFollowing !== null ? <span style={{ fontWeight: 600 }}>{numFollowing}</span> : "?"}
 
-        <span style={{ fontWeight: 500 }} className="me-2">
-          Following
-        </span>
+        <span>Following</span>
       </a>
     </div>
   </Container>
