@@ -1,3 +1,5 @@
+const { externalFunding } = props;
+
 const [showFundingTable, setShowFundingTable] = useState(true);
 
 const Container = styled.div`
@@ -27,9 +29,19 @@ const Container = styled.div`
       div {
         font-weight: 600;
       }
+      @media screen and (max-width: 768px) {
+        div {
+          display: none;
+        }
+        .funding {
+          display: block;
+        }
+      }
     }
     .funding-row {
       padding: 20px;
+      flex-wrap: wrap;
+      position: relative;
     }
     .header,
     .funding-row {
@@ -40,18 +52,59 @@ const Container = styled.div`
       div {
         text-transform: capitalize;
         width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         max-width: 156px;
         text-align: left;
         &:last-of-type {
           text-align: right;
         }
       }
+      .amount {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        svg {
+          display: none;
+          rotate: 180deg;
+        }
+      }
       .description {
         flex: 1;
         max-width: 100%;
+      }
+      .toggle-check {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 0;
+        height: 100%;
+        opacity: 0;
+        display: none;
+      }
+      @media screen and (max-width: 768px) {
+        gap: 8px;
+        .description {
+          flex-basis: 100%;
+          order: 1;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 200ms ease-in-out;
+        }
+        div {
+          width: fit-content;
+        }
+        .amount svg {
+          display: block;
+        }
+        .toggle-check {
+          display: block;
+        }
+        .toggle-check:checked + .description {
+          max-height: 200px;
+        }
+        .toggle-check:checked + .description + .amount svg {
+          rotate: 0deg;
+        }
       }
     }
   }
@@ -88,20 +141,7 @@ const ArrowDown = (props) => (
 );
 
 const externalTableTabs = ["funding Source", "description", "amount"];
-const Funding = [
-  {
-    src: "James Kritik Moriaty",
-    description:
-      "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-    amount: "USD 3.00",
-  },
-  {
-    src: "James Kritik Moriaty",
-    description:
-      "Lorem ipsum dolor sit amet consectetur. Vel sit nunc in nunc. Viverra arcu eu sed consequat.",
-    amount: "NEAR 3.00",
-  },
-];
+
 return (
   <Container>
     <Title
@@ -125,11 +165,14 @@ return (
           </div>
         ))}
       </div>
-      {Funding.map(({ src, description, amount }) => (
+      {externalFunding.map(({ investorName, description, amountReceived }) => (
         <div className="funding-row">
-          <div style={{ fontWeight: 600 }}>{src}</div>
+          <div style={{ fontWeight: 600 }}>{investorName}</div>
+          <input type="checkbox" className="toggle-check" />
           <div className="description">{description}</div>
-          <div style={{ fontWeight: 600 }}>{amount}</div>
+          <div className="amount">
+            {amountReceived} <ArrowDown showFundingTable={showFundingTable} />
+          </div>
         </div>
       ))}
     </div>

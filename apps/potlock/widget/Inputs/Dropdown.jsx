@@ -1,4 +1,4 @@
-const { sortList, sortVal, title, handleSortChange, FilterMenuCustomStyle } = props;
+const { sortList, sortVal, title, handleSortChange, FilterMenuCustomStyle, showCount } = props;
 
 const [openFilter, setOpenFilter] = useState(false);
 
@@ -15,6 +15,9 @@ const FilterButton = styled.div`
   padding: 0.5rem 1rem;
   border-radius: 6px;
   color: #292929;
+  * {
+    font-weight: 500;
+  }
 `;
 
 const FilterIcon = styled.div`
@@ -38,6 +41,7 @@ const FilterMenu = styled.div`
   border: 1px solid rgba(41, 41, 41, 0.36);
   box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
     0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
+  z-index: 1;
   ${FilterMenuCustomStyle || ""}
 `;
 
@@ -45,12 +49,21 @@ const FilterItem = styled.div`
   cursor: pointer;
   padding: 8px;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   white-space: nowrap;
+  transition: all 300ms ease-in-out;
   &:hover {
     color: #fff;
     background: #292929;
     border-radius: 6px;
+    .count {
+      color: #fff;
+    }
+  }
+  .count {
+    color: #7b7b7b;
   }
 `;
 
@@ -83,7 +96,7 @@ return (
               handleSortChange(option);
             }}
           >
-            {option.label}
+            {option.label} <div className="count">{showCount ? option.count : ""}</div>
           </FilterItem>
         ))}
       </FilterMenu>

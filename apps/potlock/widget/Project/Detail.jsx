@@ -58,7 +58,7 @@ const getProjectRoundDonations = (potId, potDetail) => {
         base_currency: potDetail.base_currency,
         pot_name: potDetail.pot_name,
         pot_id: potId,
-        type: "MATCHED_DONATIONS",
+        type: "matched",
       }));
       if (roundDonations[potId]) return "";
       setMatchingRoundDonations((prevmMatchingRoundDonations) => {
@@ -78,7 +78,7 @@ let donationsForRecipient = DonateSDK.getDonationsForRecipient(projectId);
 if (donationsForRecipient && !directDonations) {
   donationsForRecipient = donationsForRecipient.map((donation) => ({
     ...donation,
-    type: "DIRECT",
+    type: "direct",
   }));
   setDirectDonations(donationsForRecipient);
 }
@@ -122,6 +122,8 @@ return (
         project,
         nav: props.nav ?? "home",
         donations: allDonations,
+        directDonations: directDonations,
+        matchingRoundDonations: Object.values(matchingRoundDonations).flat(),
         navOptions: ProjectOptions(props),
       }}
     />

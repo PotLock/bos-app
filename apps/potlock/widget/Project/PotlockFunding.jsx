@@ -1,4 +1,4 @@
-const { hrefWithParams, donations } = props;
+const { hrefWithParams, donations, directDonations, matchingRoundDonations } = props;
 
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -10,31 +10,57 @@ const { _address, getTimePassed } = VM.require(`potlock.near/widget/Components.D
   getTimePassed: () => "",
 };
 
-const nearLogo =
-  "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
-
-const APPLICATIONS_FILTERS = {
-  ALL: "All donations",
-  DIRECT: "Direct donations",
-  MATCHED_DONATIONS: "Matched donations",
-  PAYOUTS: "Pot Payouts",
-};
-
 const [filter, setFilter] = useState({
   date: false, // false === ascending
   price: false, // false === ascending
 });
+const [sort, setSort] = useState("all");
 const [page, setPage] = useState(0);
 const [totalDonations, setTotalDonation] = useState(donations);
 const [filteredDonations, setFilteredDonations] = useState(donations);
 const [search, setSearch] = useState("");
-const [sortVal, setSortVal] = useState(APPLICATIONS_FILTERS.ALL);
+
 const perPage = 30; // need to be less than 50
+
+// Get total donations & Unique donors count
+const [totalDonationAmount, uniqueDonors] = useMemo(() => {
+  let total = Big(0);
+  const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
+  donations.forEach((donation) => {
+    total = total.plus(Big(donation.total_amount));
+  });
+  const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
+
+  return [totalDonationAmount, uniqueDonors?.length];
+}, [donations]);
 
 useEffect(() => {
   setTotalDonation(donations);
   setFilteredDonations(donations);
 }, [donations]);
+
+const sortList = {
+  all: {
+    label: "All donations",
+    val: "all",
+    count: donations?.length,
+  },
+  direct: {
+    label: "Direct Donation",
+    val: "direct",
+    count: directDonations?.length,
+  },
+  matched: {
+    label: "Matched Donations",
+    val: "matched",
+    count: matchingRoundDonations?.length,
+  },
+  payout: {
+    label: "Pot Payouts",
+    val: "payout",
+    count: 0,
+  },
+};
 
 const searchDonations = (searchTerm) => {
   const filteredApplications = totalDonations.filter((item) => {
@@ -71,13 +97,26 @@ const sortDonation = (type) => {
 const filterDonations = (sortVal) => {
   const displayedDonations = searchDonations(search);
   let filtered;
-  if (sortVal && sortVal !== APPLICATIONS_FILTERS.ALL) {
+  if (sortVal && sortVal !== "all") {
     filtered = displayedDonations.filter((donation) => {
-      return APPLICATIONS_FILTERS[donation.type] === sortVal;
+      return sortList[donation.type].val === sortVal;
     });
     return filtered;
   } else {
     return displayedDonations;
+  }
+};
+
+const getName = (donation) => {
+  switch (donation.type) {
+    case "direct":
+      return donation.donor_id;
+    case "payout":
+      return donation.pot_name;
+    case "matched":
+      return donation.donor_id;
+    default:
+      return donation.donor_id;
   }
 };
 
@@ -86,7 +125,10 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1.5rem;
 `;
-
+const Title = styled.div`
+  font-size: 24px;
+  font-weight: 600;
+`;
 const PotlockFunding = styled.div`
   display: flex;
   flex-direction: column;
@@ -101,6 +143,14 @@ const PotlockFunding = styled.div`
     div {
       font-weight: 600;
     }
+    @media screen and (max-width: 768px) {
+      .tab {
+        display: none;
+      }
+      .funding {
+        display: block;
+      }
+    }
   }
   .funding-row {
     padding: 1rem;
@@ -111,32 +161,50 @@ const PotlockFunding = styled.div`
     justify-content: space-between;
     gap: 2rem;
     font-size: 14px;
-    .tab {
-      display: flex;
-      align-items: center;
-      text-transform: capitalize;
-      gap: 8px;
-      width: 156px;
-      justify-content: left;
-      &.sort {
-        cursor: pointer;
-        svg {
-          transition: rotate 300ms;
-        }
-      }
-      &:last-of-type {
-        justify-content: right;
-      }
+    flex-wrap: wrap;
+    @media screen and (max-width: 768px) {
+      gap: 4px;
     }
-    .funding {
-      flex: 1;
-    }
-    .price {
-      gap: 1rem;
-      font-weight: 600;
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    text-transform: capitalize;
+    gap: 8px;
+    width: 156px;
+    justify-content: left;
+    &.sort {
+      cursor: pointer;
       svg {
-        width: 1.5em;
+        transition: rotate 300ms;
       }
+    }
+    @media screen and (max-width: 768px) {
+      width: initial;
+    }
+  }
+  .funding {
+    flex: 1;
+  }
+  .price {
+    gap: 1rem;
+    font-weight: 600;
+    justify-content: left;
+    svg {
+      width: 1.5em;
+    }
+    @media screen and (max-width: 768px) {
+      justify-content: right;
+    }
+  }
+  .date {
+    justify-content: right;
+  }
+  @media screen and (max-width: 768px) {
+    .date {
+      width: 100%;
+      justify-content: left;
+      color: #7b7b7b;
     }
   }
 `;
@@ -168,6 +236,11 @@ const FundingSrc = styled.div`
       color: #7b7b7b;
     }
   }
+  @media screen and (max-width: 768px) {
+    .fudning-src .type {
+      display: none;
+    }
+  }
 `;
 
 const SearchBar = styled.div`
@@ -195,6 +268,62 @@ const SearchBar = styled.div`
     }
   }
 `;
+
+const Stats = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin: 24px 0;
+  align-items: center;
+  .item {
+    display: flex;
+    height: fit-content;
+    gap: 8px;
+    padding-right: 1rem;
+    align-items: center;
+    :nth-child(2) {
+      border-right: 1px solid #7b7b7b;
+      border-left: 1px solid #7b7b7b;
+      padding-left: 1rem;
+    }
+    :nth-child(3) {
+      padding-left: 1rem;
+    }
+    .item-value {
+      font-weight: 600;
+    }
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
+  }
+  .dropdown {
+    margin-left: auto;
+  }
+`;
+
+const Sort = styled.div`
+  display: none;
+  justify-content: space-between;
+  width: 100%;
+  div {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    cursor: pointer;
+    gap: 8px;
+    svg {
+      transition: rotate 300ms;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    display: flex;
+  }
+`;
+
+const stats = {
+  donated: totalDonationAmount + "N",
+  "Unique Donors": uniqueDonors,
+  "Total matched ": "0",
+};
 
 const NearIcon = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="near-logo">
@@ -238,28 +367,48 @@ const Arrow = (props) => (
   </svg>
 );
 
-const getName = (donation) => {
-  switch (APPLICATIONS_FILTERS[donation.type]) {
-    case APPLICATIONS_FILTERS.DIRECT:
-      return donation.donor_id;
-    case APPLICATIONS_FILTERS.PAYOUTS:
-      return donation.pot_name;
-    case APPLICATIONS_FILTERS.MATCHED_DONATIONS:
-      return donation.donor_id;
-    default:
-      return donation.donor_id;
-  }
-};
-
 return (
   <Container>
+    <Title>Potlock Funding</Title>
+    <Stats>
+      {Object.keys(stats).map((k) => (
+        <div className="item">
+          <div className="item-value">{stats[k]}</div>
+          <div className="item-label">{k}</div>
+        </div>
+      ))}
+      <div className="dropdown">
+        <Widget
+          src={`${ownerId}/widget/Inputs.Dropdown`}
+          props={{
+            sortVal: <div>{sortList[sort].label + " " + sortList[sort].count}</div>,
+            showCount: true,
+            sortList: Object.values(sortList),
+            FilterMenuCustomStyle: `left:auto; right:0;`,
+            handleSortChange: ({ val }) => {
+              const filtered = filterDonations(val);
+              setFilteredDonations(filtered);
+              setSort(val);
+            },
+          }}
+        />
+      </div>
+    </Stats>
+    <Sort>
+      <div onClick={() => sortDonation("price")}>
+        Sort Date <Arrow active={filter.price} />
+      </div>
+      <div onClick={() => sortDonation("date")}>
+        Sort Amount <Arrow active={filter.date} />
+      </div>
+    </Sort>
     <PotlockFunding>
       <div className="header">
         <div className="funding tab">funding Source</div>
         <div className="tab sort" onClick={() => sortDonation("price")}>
           Amount <Arrow active={filter.price} />
         </div>
-        <div className="tab sort" onClick={() => sortDonation("date")}>
+        <div className="tab sort date" onClick={() => sortDonation("date")}>
           Date <Arrow active={filter.date} />
         </div>
       </div>
@@ -286,7 +435,7 @@ return (
         const {
           donor_id,
           total_amount,
-          pot_id,
+          // pot_id,
           base_currency,
           ft_id,
           type,
@@ -304,7 +453,7 @@ return (
         return (
           <div className="funding-row">
             <FundingSrc>
-              {type === APPLICATIONS_FILTERS.PAYOUTS ? (
+              {type === "payout" ? (
                 <PotIcon className="profile-image" />
               ) : (
                 <ProfileImg address={donor_id} />
@@ -313,17 +462,18 @@ return (
                 <a href={hrefWithParams(url)} target="_blank">
                   {name}
                 </a>
-                <div className="type">{APPLICATIONS_FILTERS[type]}</div>
+                <div className="type">{sortList[type].label?.slice(0, -1)}</div>
               </div>
             </FundingSrc>
             <div className="price tab">
               <NearIcon />
               {donationAmount}
             </div>
-            <div className="tab">{getTimePassed(donated_at_ms || donated_at)} ago</div>
+            <div className="tab date">{getTimePassed(donated_at_ms || donated_at)} ago</div>
           </div>
         );
       })}
+      {filteredDonations.length === 0 && <div className="funding-row">No Donations</div>}
     </PotlockFunding>
     <Widget
       src="baam25.near/widget/pagination"
