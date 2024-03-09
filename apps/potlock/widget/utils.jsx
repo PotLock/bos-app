@@ -177,9 +177,9 @@ return {
       : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? "N" : " NEAR");
   },
   calculatePayouts: (allPotDonations, totalMatchingPool) => {
+    // * QF/CLR logic taken from https://github.com/gitcoinco/quadratic-funding/blob/master/quadratic-funding/clr.py *
     console.log("totalMatchingPool: ", totalMatchingPool);
     // first, flatten the list of donations into a list of contributions
-    // const projectContributions = convertDonationsToProjectContributions(allPotDonations);
     const projectContributions = [];
     for (const d of allPotDonations) {
       const amount = new Big(d.total_amount);
@@ -291,6 +291,7 @@ return {
       residual = totalPot.minus(totalAllocatedBeforeRounding);
       console.log("second round residual: ", residual.toFixed(0));
 
+      // OLD RESIDUAL ADJUSTMENT LOGIC
       // if (residual.abs().gt(Big("0"))) {
       //   console.log("MAKING FINAL ADJUSTMENT");
       //   // Step 1: Sort 'totals' in descending order based on 'matching_amount_str'

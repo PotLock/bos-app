@@ -431,10 +431,19 @@ return (
         ...props,
       }}
     />
-    <OuterTextContainer style={{ alignSelf: "flex-end" }}>
-      <OuterText>all payouts</OuterText>
-      <Count>{state.allPayouts.length}</Count>
-    </OuterTextContainer>
+    <Row>
+      <a
+        href="https://github.com/PotLock/bos-app/blob/0518cfdf75354be8d6213cacfb7935b1996e606a/apps/potlock/widget/utils.jsx#L179-L366"
+        target="_blank"
+        style={{ color: "#2b2b2b" }}
+      >
+        View payouts calculation code
+      </a>
+      <OuterTextContainer style={{ alignSelf: "flex-end" }}>
+        <OuterText>all payouts</OuterText>
+        <Count>{state.allPayouts.length}</Count>
+      </OuterTextContainer>
+    </Row>
     {!potDetail.payouts.length && (
       <InfoContainer>
         <Row style={{ justifyContent: "center" }}>
