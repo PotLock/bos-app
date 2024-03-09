@@ -421,7 +421,7 @@ const handleCancelAdminUpdateChallenge = () => {
 const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 20;
 const MAX_CHALLENGE_TEXT_LENGTH = 1000;
 
-console.log("state in payouts: ", state);
+// console.log("state in payouts: ", state);
 
 return (
   <Container>
