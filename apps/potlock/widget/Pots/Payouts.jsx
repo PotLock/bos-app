@@ -1,27 +1,36 @@
 // get donations
-const { potId, potDetail } = props; // TODO: refactor to use PotsSDK
-// potDetail.cooldown_end_ms = 1709936649000; // TODO: remove this line
+const { potId, potDetail } = props;
+// potDetail.cooldown_end_ms = 1710105146000; // TODO: remove this line
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
 };
+
+const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
+
 const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
   calculatePayouts: () => {},
   yoctosToNear: () => "",
 };
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  isUserPotAdminOrGreater: () => {},
   getPayoutsChallenges: () => {},
+  challengePayouts: () => {},
+  adminUpdatePayoutsChallenge: () => {},
 };
 
+const userIsAdminOrGreater = PotSDK.isUserPotAdminOrGreater(potId, context.accountId); // TODO: ADD THIS BACK IN
+// const userIsAdminOrGreater = true; // TODO: REMOVE THIS LINE
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-const ALERT_ICON_URL =
-  IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
+// const ALERT_ICON_URL =
+//   IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 24px;
   width: 100%;
   @media screen and (min-width: 375px) and (max-width: 768px) {
@@ -29,6 +38,40 @@ const Container = styled.div`
   }
   @media screen and (max-width: 390px) {
     width: 98%;
+  }
+`;
+
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+`;
+
+const UserLink = styled.a`
+  font-weight: 600;
+  color: black;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const StatusText = styled.div`
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const StatusTextMobile = styled.div`
+  display: none;
+  font-size: 14px;
+  font-weight: 500;
+  @media screen and (max-width: 768px) {
+    display: flex;
   }
 `;
 
@@ -197,13 +240,96 @@ const DivLink = styled.div`
   cursor: pointer;
 `;
 
+const ModalHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: white;
+  padding: 24px 24px 12px 24px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  font-weight: 500;
+`;
+
+const ModalBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 24px;
+  border-top: 1px #f0f0f0 solid;
+  background: #fafafa;
+  gap: 8px;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  background: #fafafa;
+  padding: 12px 24px 24px 24px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  gap: 24px;
+  width: 100%;
+`;
+
+const ChallengesHeaderText = styled.div`
+  color: #292929;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  word-wrap: break-word;
+  margin-top: 16px;
+`;
+
+const ChallengeRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 24px;
+  border-bottom: 1px #f0f0f0 solid;
+  width: 100%;
+`;
+
+const payoutsChallenges = PotSDK.getPayoutsChallenges(potId); // TODO: ADD THIS BACK IN
+// const payoutsChallenges = [
+//   {
+//     challenger_id: "lachlan.near",
+//     created_at: Date.now(),
+//     reason: "I don't think these payouts are accurate",
+//     admin_notes: "they are",
+//     resolved: true,
+//   },
+// ]; // TODO: REMOVE THIS
+
+const existingChallengeForUser = (payoutsChallenges || []).find(
+  (challenge) => challenge.challenger_id === context.accountId
+);
+// console.log("payoutsChallenges: ", payoutsChallenges);
+
 State.init({
   allPayouts: null,
   filteredPayouts: null,
+  showChallengePayoutsModal: false,
+  challengeReason: "",
+  challengeReasonError: "",
+  adminModalChallengerId: "",
+  challengeAdminNotes: "",
+  challengeAdminNotesError: "",
+  resolveChallenge: false,
 });
 
+if (!state.challengeReason && existingChallengeForUser) {
+  State.update({ challengeReason: existingChallengeForUser.reason });
+}
+
 const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!state.allPayout && allDonationsForPot) {
+if (!state.allPayouts && allDonationsForPot) {
   const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
@@ -241,9 +367,6 @@ if (!state.allPayout && allDonationsForPot) {
   }
 }
 
-const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
-// console.log("payoutsChallenges: ", payoutsChallenges);
-
 const columns = ["Project", "Total Raised", "Total Unique Donors", "Matching Pool Allocation"];
 
 const { base_currency } = potDetail;
@@ -262,7 +385,43 @@ const searchPayouts = (searchTerm) => {
   return filteredPayouts;
 };
 
-const maxAccountIdLength = 20;
+const handleCancelChallenge = () => {
+  State.update({ showChallengePayoutsModal: false, challengeReason: "", challengeReasonError: "" });
+};
+
+const handleSubmitChallenge = () => {
+  PotSDK.challengePayouts(potId, state.challengeReason);
+  State.update({ showChallengePayoutsModal: false });
+};
+
+const handleAdminUpdateChallenge = () => {
+  PotSDK.adminUpdatePayoutsChallenge(
+    potId,
+    state.adminModalChallengerId,
+    state.challengeAdminNotes,
+    state.resolveChallenge
+  );
+  State.update({
+    adminModalChallengerId: "",
+    challengeAdminNotes: "",
+    challengeAdminNotesError: "",
+    resolveChallenge: false,
+  });
+};
+
+const handleCancelAdminUpdateChallenge = () => {
+  State.update({
+    adminModalChallengerId: "",
+    challengeAdminNotes: "",
+    challengeAdminNotesError: "",
+    resolveChallenge: false,
+  });
+};
+
+const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 20;
+const MAX_CHALLENGE_TEXT_LENGTH = 1000;
+
+// console.log("state in payouts: ", state);
 
 return (
   <Container>
@@ -272,10 +431,19 @@ return (
         ...props,
       }}
     />
-    <OuterTextContainer>
-      <OuterText>all payouts</OuterText>
-      <Count>{state.allPayouts.length}</Count>
-    </OuterTextContainer>
+    <Row>
+      <a
+        href="https://github.com/PotLock/bos-app/blob/297df3d99c0d4423b32cb773b3912dd0b670963a/apps/potlock/widget/utils.jsx#L179-L367"
+        target="_blank"
+        style={{ color: "#2b2b2b" }}
+      >
+        View payouts calculation code
+      </a>
+      <OuterTextContainer style={{ alignSelf: "flex-end" }}>
+        <OuterText>all payouts</OuterText>
+        <Count>{state.allPayouts.length}</Count>
+      </OuterTextContainer>
+    </Row>
     {!potDetail.payouts.length && (
       <InfoContainer>
         <Row style={{ justifyContent: "center" }}>
@@ -302,7 +470,15 @@ return (
               : "These payouts are estimated amounts only and have not been set on the contract yet."}
           </WarningText>
         </Row>
-        {potDetail.cooldown_end_ms > Date.now() && <DivLink>Something doesn't look right?</DivLink>}
+        {potDetail.cooldown_end_ms > Date.now() && (
+          <DivLink onClick={() => State.update({ showChallengePayoutsModal: true })}>
+            {existingChallengeForUser && !existingChallengeForUser.resolved
+              ? `Update your challenge (submitted ${getTimePassed(
+                  existingChallengeForUser.created_at
+                )} ago)`
+              : "Something doesn't look right? Challenge payouts"}
+          </DivLink>
+        )}
       </InfoContainer>
     )}
     <TableContainer>
@@ -372,8 +548,8 @@ return (
                   }}
                 />
                 <RowText>
-                  {projectId.length > maxAccountIdLength
-                    ? projectId.slice(0, maxAccountIdLength) + "..."
+                  {projectId.length > MAX_ACCOUNT_ID_DISPLAY_LENGTH
+                    ? projectId.slice(0, MAX_ACCOUNT_ID_DISPLAY_LENGTH) + "..."
                     : projectId}
                 </RowText>
               </RowItem>
@@ -394,5 +570,217 @@ return (
         })
       )}
     </TableContainer>
+    {}
+    <ChallengesHeaderText>Payouts Challenges</ChallengesHeaderText>
+    {!payoutsChallenges ? (
+      "Loading..."
+    ) : payoutsChallenges.length === 0 ? (
+      <ChallengeRow>No payouts challenges to display</ChallengeRow>
+    ) : (
+      payoutsChallenges.map((challenge, index) => {
+        const { challenger_id, created_at, reason, admin_notes, resolved } = challenge;
+        // console.log("status: ", status);
+
+        return (
+          <ChallengeRow
+            key={index}
+            style={{
+              background: resolved ? "#F7FDE8" : "white",
+            }}
+          >
+            <Widget
+              src={`${ownerId}/widget/Project.ProfileImage`}
+              props={{
+                ...props,
+                accountId: challenger_id,
+                style: {
+                  alignSelf: "flex-start",
+                  height: "32px",
+                  width: "32px",
+                },
+                // imageWrapperStyle: {
+                //   height: "32px",
+                //   width: "32px",
+                // },
+              }}
+            />
+            <Column style={{ flex: 1 }}>
+              <ChallengeRow
+                style={{ borderBottom: "none", padding: "0px", justifyContent: "flex-start" }}
+              >
+                <UserLink href={props.hrefWithParams(`?tab=profile&accountId=${challenger_id}`)}>
+                  {challenger_id}
+                </UserLink>
+                <div style={{ fontSize: "12px" }}>{getTimePassed(created_at) + " ago"}</div>
+              </ChallengeRow>
+              <div>{reason}</div>
+              <div style={{ fontSize: "12px", marginTop: "8px" }}>
+                Admin notes: {admin_notes && admin_notes.length > 0 ? admin_notes : "None yet"}
+              </div>
+              <StatusTextMobile>{resolved ? "Resolved" : "Unresolved"}</StatusTextMobile>
+            </Column>
+            <StatusText>{resolved ? "Resolved" : "Unresolved"}</StatusText>
+            {userIsAdminOrGreater && !resolved && (
+              <Widget
+                src={`${ownerId}/widget/Components.Button`}
+                props={{
+                  type: "secondary",
+                  text: "Update/Resolve",
+                  onClick: () => State.update({ adminModalChallengerId: challenger_id }),
+                }}
+              />
+            )}
+          </ChallengeRow>
+        );
+      })
+    )}
+    {/* Challenge modal */}
+    {state.showChallengePayoutsModal && (
+      <Widget
+        src={`${ownerId}/widget/Components.Modal`}
+        props={{
+          isModalOpen: state.showChallengePayoutsModal,
+          onClose: handleCancelChallenge,
+          contentStyle: {
+            padding: "0px",
+          },
+          children: (
+            <>
+              <ModalHeader>Challenge Payouts</ModalHeader>
+              <ModalBody>
+                <div>Explain the reason for your challenge</div>
+                <Widget
+                  src={`${ownerId}/widget/Inputs.TextArea`}
+                  props={{
+                    noLabel: true,
+                    inputRows: 5,
+                    inputStyle: {
+                      background: "#FAFAFA",
+                    },
+                    placeholder: "Type the reason for your challenge here",
+                    value: state.challengeReason,
+                    onChange: (challengeReason) => State.update({ challengeReason }),
+                    validate: () => {
+                      if (state.challengeReason.length > MAX_CHALLENGE_TEXT_LENGTH) {
+                        State.update({
+                          challengeReasonError: `Challenge reason must be less than ${MAX_CHALLENGE_TEXT_LENGTH} characters`,
+                        });
+                        return;
+                      }
+
+                      State.update({ challengeReasonError: "" });
+                    },
+                    error: state.challengeReasonError,
+                  }}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Widget
+                  src={`${ownerId}/widget/Components.Button`}
+                  props={{
+                    type: "tertiary",
+                    text: "Cancel",
+                    onClick: handleCancelChallenge,
+                  }}
+                />
+                <Widget
+                  src={`${ownerId}/widget/Components.Button`}
+                  props={{
+                    type: "primary",
+                    text: "Submit Challenge",
+                    disabled: !state.challengeReason || !!state.challengeReasonError,
+                    onClick: handleSubmitChallenge,
+                  }}
+                />
+              </ModalFooter>
+            </>
+          ),
+        }}
+      />
+    )}
+    {/* Admin update challenge modal */}
+    {state.adminModalChallengerId && (
+      <Widget
+        src={`${ownerId}/widget/Components.Modal`}
+        props={{
+          isModalOpen: state.adminModalChallengerId,
+          onClose: handleCancelAdminUpdateChallenge,
+          contentStyle: {
+            padding: "0px",
+          },
+          children: (
+            <>
+              <ModalHeader>Update Challenge from {state.adminModalChallengerId}</ModalHeader>
+              <ModalBody>
+                <HeaderItemText>Challenge Reason:</HeaderItemText>
+                <div>
+                  {
+                    payoutsChallenges.find(
+                      (challenge) => challenge.challenger_id === state.adminModalChallengerId
+                    ).reason
+                  }
+                </div>
+                <Widget
+                  src={`${ownerId}/widget/Inputs.TextArea`}
+                  props={{
+                    noLabel: true,
+                    inputRows: 5,
+                    inputStyle: {
+                      background: "#FAFAFA",
+                    },
+                    placeholder: "Respond to the challenge here",
+                    value: state.challengeAdminNotes,
+                    onChange: (challengeAdminNotes) => State.update({ challengeAdminNotes }),
+                    validate: () => {
+                      if (state.challengeAdminNotes.length > MAX_CHALLENGE_TEXT_LENGTH) {
+                        State.update({
+                          challengeAdminNotesError: `Notes must be less than ${MAX_CHALLENGE_TEXT_LENGTH} characters`,
+                        });
+                        return;
+                      }
+
+                      State.update({ challengeAdminNotesError: "" });
+                    },
+                    error: state.challengeAdminNotesError,
+                  }}
+                />
+                <Widget
+                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  props={{
+                    // id: "registrationSelector",
+                    label: "Resolve this challenge?",
+                    checked: state.resolveChallenge,
+                    onClick: (e) => {
+                      State.update({
+                        resolveChallenge: e.target.checked,
+                      });
+                    },
+                  }}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Widget
+                  src={`${ownerId}/widget/Components.Button`}
+                  props={{
+                    type: "tertiary",
+                    text: "Cancel",
+                    onClick: handleCancelAdminUpdateChallenge,
+                  }}
+                />
+                <Widget
+                  src={`${ownerId}/widget/Components.Button`}
+                  props={{
+                    type: "primary",
+                    text: "Submit Challenge",
+                    disabled: !state.challengeReason || !!state.challengeReasonError,
+                    onClick: handleAdminUpdateChallenge,
+                  }}
+                />
+              </ModalFooter>
+            </>
+          ),
+        }}
+      />
+    )}
   </Container>
 );

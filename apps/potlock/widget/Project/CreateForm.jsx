@@ -23,9 +23,9 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const DEFAULT_BANNER_IMAGE_CID = "bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci";
 const DEFAULT_PROFILE_IMAGE_URL =
   IPFS_BASE_URL + "bafkreifel4bfm6hxmklcsqjilk3bhvi3acf2rxqepcgglluhginbttkyqm";
-const TRASH_ICON_URL =
-  IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
-const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
+// const TRASH_ICON_URL =
+//   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+// const EDIT_ICON_URL = IPFS_BASE_URL + "bafkreigc2laqrwu6g4ihm5n2qfxwl3g5phujtrwybone2ouxaz5ittjzee";
 
 const MAX_TEAM_MEMBERS_DISPLAY_COUNT = 5;
 
@@ -234,12 +234,15 @@ const Row = styled.div`
   justify-content: center;
 `;
 
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-
-  &:hover {
-    cursor: pointer;
+const Icon = styled.svg`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  path {
+    transition: 300ms;
+  }
+  :hover path {
+    fill: #dd3345;
   }
 `;
 
@@ -862,6 +865,15 @@ const FormSectionLeft = (title, description, isRequired) => {
   );
 };
 
+const DeleteIcon = (props) => (
+  <Icon {...props} viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M2.5 14C2.0875 14 1.73437 13.8531 1.44062 13.5594C1.14687 13.2656 1 12.9125 1 12.5V2.5H0V1H4V0H8V1H12V2.5H11V12.491C11 12.9137 10.8531 13.2708 10.5594 13.5625C10.2656 13.8542 9.9125 14 9.5 14H2.5ZM9.5 2.5H2.5V12.5H9.5V2.5ZM4 11H5.5V4H4V11ZM6.5 11H8V4H6.5V11Z"
+      fill="#7B7B7B"
+    />
+  </Icon>
+);
+
 // if (props.edit && (!registeredProject || !userHasPermissions)) { // TODO: ADD THIS BACK IN
 if (props.edit && !userHasPermissions) {
   return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
@@ -1248,14 +1260,13 @@ return (
                         />
                         {state.githubRepos.length > 1 && (
                           <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
-                            <Icon
+                            <DeleteIcon
                               onClick={() => {
                                 const updatedRepos = state.githubRepos.filter((r, i) => i != index);
                                 State.update({
                                   githubRepos: updatedRepos,
                                 });
                               }}
-                              src={TRASH_ICON_URL}
                             />
                           </div>
                         )}
@@ -1364,7 +1375,7 @@ return (
                         />
                         {state.smartContracts.length > 1 && (
                           <div style={{ height: "100%", display: "flex", alignItems: "center" }}>
-                            <Icon
+                            <DeleteIcon
                               onClick={() => {
                                 const updatedSmartContracts = state.smartContracts.filter(
                                   (sc, i) => i != index
@@ -1373,7 +1384,6 @@ return (
                                   smartContracts: updatedSmartContracts,
                                 });
                               }}
-                              src={TRASH_ICON_URL}
                             />
                           </div>
                         )}
@@ -1444,8 +1454,7 @@ return (
                             });
                           }}
                         /> */}
-                        <Icon
-                          src={TRASH_ICON_URL}
+                        <DeleteIcon
                           onClick={() => {
                             const updatedFundingSources = state.fundingSources.filter(
                               (fs, i) => i != index
