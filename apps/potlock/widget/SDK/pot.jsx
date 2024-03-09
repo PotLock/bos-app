@@ -93,7 +93,7 @@ return {
       contractName: potId,
       methodName: "chef_set_payouts",
       args: { payouts },
-      deposit: "0",
+      deposit: "1",
       gas: "300000000000000",
     };
     Near.call([transaction]);
@@ -103,7 +103,7 @@ return {
       contractName: potId,
       methodName: "admin_process_payouts",
       args: {},
-      deposit: "0",
+      deposit: "1",
       gas: "300000000000000",
     };
     Near.call([transaction]);
