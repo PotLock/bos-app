@@ -51,10 +51,6 @@ const Name = styled.div`
   @media screen and (max-width: 768px) {
     font-size: 32px;
     line-height: 40px;
-    /* white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px; */
   }
 `;
 
@@ -128,12 +124,12 @@ return (
     <Container>
       <Info>
         <NameContainer>
-          <Name>{name.length > 25 ? name.length.slice(0, 25).trim() + "..." : name}</Name>
+          <Name>{name.length > 25 ? name.slice(0, 25).trim() + "..." : name}</Name>
           <AccountInfoContainer>
             <AccountId>
               @{" "}
               {(projectId || accountId).length > 15
-                ? (projectId || accountId).length.slice(0, 15).trim() + "..."
+                ? (projectId || accountId).slice(0, 15).trim() + "..."
                 : projectId || accountId}
             </AccountId>
             <Widget

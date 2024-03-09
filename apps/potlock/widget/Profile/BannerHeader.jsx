@@ -139,12 +139,18 @@ const ProfileImageContainer = styled.div`
   }
 `;
 
-const backgroundStyleHeightPx = parseInt(backgroundStyle?.height?.replace("px", ""));
-
 const BackgroundImageContainer = styled.div`
+  img {
+    object-fit: cover;
+    width: 100%;
+    height: 318px;
+    @media screen and (max-width: 768px) {
+      height: 264px;
+    }
+  }
   svg {
     position: absolute;
-    top: ${backgroundStyleHeightPx / 2}px;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0; // Start with the image invisible
@@ -219,7 +225,6 @@ return (
           props={{
             image: backgroundImage,
             alt: "profile background",
-            className: "w-100",
             style: { ...backgroundStyle, pointerEvents: "none" },
             fallbackUrl:
               "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",

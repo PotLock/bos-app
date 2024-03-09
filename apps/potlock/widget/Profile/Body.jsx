@@ -93,10 +93,6 @@ return (
         ...props,
         ShowFollowers: true,
         accountId: projectId || accountId,
-        backgroundStyle: {
-          objectFit: "cover",
-          height: "280px",
-        },
       }}
     />
     <Container>

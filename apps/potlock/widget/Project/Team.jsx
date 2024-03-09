@@ -10,10 +10,6 @@ const Container = styled.div`
   }
 `;
 
-const Column = styled.div`
-  padding-top: 16px;
-`;
-
 const Title = styled.div`
   color: #2e2e2e;
   font-size: 16px;
@@ -71,8 +67,7 @@ const imageWidthPx = 129;
 const Col1 = styled.div`
   display: flex;
   width: 30%;
-  padding-top: 16px;
-
+  margin-bottom: 1rem;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
@@ -81,8 +76,6 @@ const Col1 = styled.div`
 const Col2 = styled.div`
   display: flex;
   width: 70%;
-  padding-top: 16px;
-
   @media screen and (max-width: 768px) {
     width: 100%;
   }
