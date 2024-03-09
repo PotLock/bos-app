@@ -269,7 +269,8 @@ return {
     console.log("first round residual: ", residual.toFixed(0));
 
     // Check if there is a residual due to rounding
-    if (residual.abs().gt(Big("0"))) {
+    // if (residual.abs().gt(Big("0"))) {
+    if (residual.toString() !== "0") {
       // Fairly distribute residual (proportionally to initial allocation)
       // NB: there may still be a residual after this step
       for (let i = 0; i < totals.length; i++) {
@@ -319,7 +320,8 @@ return {
       //   console.log("FINAL residual: ", residual.toFixed(0));
       // }
 
-      if (residual.abs().gt(Big(0))) {
+      // if (residual.abs().gt(Big(0))) {
+      if (residual.toString() !== "0") {
         // Directly adjust the matching amount of one project to correct the residual
         // Find a project to adjust. Prefer adjusting projects with larger allocations to minimize impact
         totals.sort((a, b) => Big(b.matching_amount_str).minus(Big(a.matching_amount_str)));
