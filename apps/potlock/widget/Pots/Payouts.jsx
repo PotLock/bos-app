@@ -433,7 +433,7 @@ return (
     />
     <Row>
       <a
-        href="https://github.com/PotLock/bos-app/blob/0518cfdf75354be8d6213cacfb7935b1996e606a/apps/potlock/widget/utils.jsx#L179-L366"
+        href="https://github.com/PotLock/bos-app/blob/297df3d99c0d4423b32cb773b3912dd0b670963a/apps/potlock/widget/utils.jsx#L179-L367"
         target="_blank"
         style={{ color: "#2b2b2b" }}
       >
