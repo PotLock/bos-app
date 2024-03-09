@@ -37,6 +37,7 @@ const ProfileWraper = styled.div`
   padding-left: 4rem;
   align-items: end;
   transform: translateY(-50%);
+  position: relative;
   z-index: 6;
   @media screen and (max-width: 768px) {
     padding-left: 1rem;
@@ -91,7 +92,7 @@ const ProfileImageContainer = styled.div`
   }
   > svg {
     position: absolute;
-    top: 40px;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0; // Start with the image invisible
@@ -109,7 +110,8 @@ const ProfileImageContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    height: 80px;
+    height: 100%;
+    width:100%;
     border-radius: 50%;
     background-color: rgba(45.9, 45.9, 45.9, 0); // Start with transparent overlay
     transition: background-color 0.3s; // Smooth transition for the overlay
@@ -140,6 +142,7 @@ const ProfileImageContainer = styled.div`
 `;
 
 const BackgroundImageContainer = styled.div`
+  position: relative;
   img {
     object-fit: cover;
     width: 100%;
@@ -218,36 +221,35 @@ const CameraSvg = ({ height }) => (
 
 return (
   <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
-    {backgroundImage && (
-      <BackgroundImageContainer>
-        <Widget
-          src="mob.near/widget/Image"
-          props={{
-            image: backgroundImage,
-            alt: "profile background",
-            style: { ...backgroundStyle, pointerEvents: "none" },
-            fallbackUrl:
-              "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+    <BackgroundImageContainer>
+      <Widget
+        src="mob.near/widget/Image"
+        props={{
+          image: backgroundImage,
+          alt: "profile background",
+          style: { ...backgroundStyle, pointerEvents: "none" },
+          fallbackUrl:
+            "https://ipfs.near.social/ipfs/bafkreih4i6kftb34wpdzcuvgafozxz6tk6u4f5kcr2gwvtvxikvwriteci",
+        }}
+      />
+      <CameraSvg height={48} />
+      {editable && (
+        <Files
+          multiple={false}
+          accepts={["image/*"]}
+          minFileSize={1}
+          style={{
+            zIndex: 4,
+            top: 0,
+            width: "100%",
+            height: backgroundStyle.height ?? "100%",
+            position: "absolute",
           }}
+          clickable
+          onChange={props.bgImageOnChange}
         />
-        <CameraSvg height={48} />
-        {editable && (
-          <Files
-            multiple={false}
-            accepts={["image/*"]}
-            minFileSize={1}
-            style={{
-              zIndex: 4,
-              width: "100%",
-              height: backgroundStyle.height ?? "100%",
-              position: "absolute",
-            }}
-            clickable
-            onChange={props.bgImageOnChange}
-          />
-        )}
-      </BackgroundImageContainer>
-    )}
+      )}
+    </BackgroundImageContainer>
     <ProfileWraper>
       <ProfileImageContainer>
         <CameraSvg height={24} />

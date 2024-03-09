@@ -53,7 +53,7 @@ const filteredDonations = [
 
 const externalFunding = profile.plFundingSources ? JSON.parse(profile.plFundingSources) : [];
 
-return externalFunding.length > 0 && donations.length > 0 ? (
+return externalFunding.length === 0 && donations.length === 0 ? (
   <NoResults>
     <img
       src="https://ipfs.near.social/ipfs/bafkreif5awokaip363zk6zqrsgmpehs6rap3w67engc4lxdlk4x6iystru"

@@ -55,7 +55,7 @@ const Container = styled.div`
         max-width: 156px;
         text-align: left;
         &:last-of-type {
-          text-align: right;
+          justify-content: right;
         }
       }
       .amount {
@@ -165,13 +165,13 @@ return (
           </div>
         ))}
       </div>
-      {externalFunding.map(({ investorName, description, amountReceived }) => (
+      {externalFunding.map(({ investorName, description, amountReceived, denomination }) => (
         <div className="funding-row">
           <div style={{ fontWeight: 600 }}>{investorName}</div>
           <input type="checkbox" className="toggle-check" />
           <div className="description">{description}</div>
           <div className="amount">
-            {amountReceived} <ArrowDown showFundingTable={showFundingTable} />
+            {amountReceived + " " + denomination} <ArrowDown showFundingTable={showFundingTable} />
           </div>
         </div>
       ))}
