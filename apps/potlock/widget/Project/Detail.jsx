@@ -106,11 +106,12 @@ if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {
 
 const allDonations = useMemo(() => {
   const RoundDonationsValue = Object.values(matchingRoundDonations).flat();
-  let payouts = Object.values(potPayouts).flat();
+  let payouts = Object.values(potPayouts);
   const allDonations = [...(directDonations || []), ...RoundDonationsValue, ...payouts];
   allDonations.sort((a, b) => {
-    if (a.type === "payout") return -1;
-    return (b.donated_at_ms || b.donated_at) - (a.donated_at_ms || a.donated_at);
+    const b_donated_at = b.donated_at_ms || b.donated_at || b.paid_at;
+    const a_donated_at = a.donated_at_ms || a.donated_at || a.paid_at;
+    return b_donated_at - a_donated_at;
   });
   return allDonations;
 }, [matchingRoundDonations, directDonations, potPayouts]);
@@ -139,7 +140,7 @@ return (
         donations: allDonations,
         directDonations: directDonations,
         matchingRoundDonations: Object.values(matchingRoundDonations).flat(),
-        potPayouts: Object.values(potPayouts).flat(),
+        potPayouts: Object.values(potPayouts),
         navOptions: ProjectOptions(props),
       }}
     />

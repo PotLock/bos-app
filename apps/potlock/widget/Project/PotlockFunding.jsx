@@ -60,8 +60,7 @@ const sortList = {
     count: matchingRoundDonations?.length,
   },
   payout: {
-    label: "Pot Payouts",
-    type: "Matching pool allocation",
+    label: "Matching pool allocations",
     val: "payout",
     count: potPayouts?.length,
   },
@@ -471,9 +470,7 @@ return (
                 <a href={hrefWithParams(url)} target="_blank">
                   {name}
                 </a>
-                <div className="type">
-                  {sortList[type].type || sortList[type].label?.slice(0, -1)}
-                </div>
+                <div className="type">{sortList[type].label?.slice(0, -1)}</div>
               </div>
             </FundingSrc>
             <div className="price tab">
