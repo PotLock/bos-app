@@ -767,8 +767,8 @@ return (
                   src={`${ownerId}/widget/Components.Button`}
                   props={{
                     type: "primary",
-                    text: "Submit Challenge",
-                    disabled: !state.challengeReason || !!state.challengeReasonError,
+                    text: "Submit",
+                    disabled: !state.challengeAdminNotes || !!state.challengeAdminNotesError,
                     onClick: handleAdminUpdateChallenge,
                   }}
                 />
