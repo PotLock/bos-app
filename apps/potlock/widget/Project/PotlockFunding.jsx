@@ -1,4 +1,4 @@
-const { hrefWithParams, donations, directDonations, matchingRoundDonations } = props;
+const { hrefWithParams, donations, directDonations, matchingRoundDonations, potPayouts } = props;
 
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -23,15 +23,19 @@ const [search, setSearch] = useState("");
 const perPage = 30; // need to be less than 50
 
 // Get total donations & Unique donors count
-const [totalDonationAmount, uniqueDonors] = useMemo(() => {
+const [totalDonationAmount, uniqueDonors, totalMatched] = useMemo(() => {
   let total = Big(0);
   const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
   donations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount));
+    total = total.plus(Big(donation.total_amount || donation.amount));
   });
   const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
-
-  return [totalDonationAmount, uniqueDonors?.length];
+  let totalMatched = Big(0);
+  potPayouts.forEach((payout) => {
+    totalMatched = totalMatched.plus(Big(payout.amount));
+  });
+  totalMatched = SUPPORTED_FTS["NEAR"].fromIndivisible(totalMatched.toString());
+  return [totalDonationAmount, uniqueDonors?.length, totalMatched];
 }, [donations]);
 
 useEffect(() => {
@@ -57,8 +61,9 @@ const sortList = {
   },
   payout: {
     label: "Pot Payouts",
+    type: "Matching pool allocation",
     val: "payout",
-    count: 0,
+    count: potPayouts?.length,
   },
 };
 
@@ -322,7 +327,7 @@ const Sort = styled.div`
 const stats = {
   donated: totalDonationAmount + "N",
   "Unique Donors": uniqueDonors,
-  "Total matched ": "0",
+  "Total matched ": totalMatched + "N",
 };
 
 const NearIcon = (props) => (
@@ -435,7 +440,9 @@ return (
         const {
           donor_id,
           total_amount,
-          // pot_id,
+          amount,
+          pot_id,
+          paid_at,
           base_currency,
           ft_id,
           type,
@@ -443,10 +450,12 @@ return (
           donated_at_ms,
         } = donation;
 
-        const donationAmount =
-          SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(total_amount);
+        const donationAmount = SUPPORTED_FTS[
+          (base_currency || ft_id).toUpperCase()
+        ].fromIndivisible(total_amount || amount);
 
-        const url = `?tab=profile&accountId=${donor_id}`;
+        const url =
+          type === "payout" ? `?tab=pot&potId=${pot_id}` : `?tab=profile&accountId=${donor_id}`;
 
         const name = _address(getName(donation), 20);
 
@@ -462,14 +471,18 @@ return (
                 <a href={hrefWithParams(url)} target="_blank">
                   {name}
                 </a>
-                <div className="type">{sortList[type].label?.slice(0, -1)}</div>
+                <div className="type">
+                  {sortList[type].type || sortList[type].label?.slice(0, -1)}
+                </div>
               </div>
             </FundingSrc>
             <div className="price tab">
               <NearIcon />
               {donationAmount}
             </div>
-            <div className="tab date">{getTimePassed(donated_at_ms || donated_at)} ago</div>
+            <div className="tab date">
+              {getTimePassed(donated_at_ms || donated_at || paid_at)} ago
+            </div>
           </div>
         );
       })}

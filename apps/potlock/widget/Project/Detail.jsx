@@ -49,6 +49,7 @@ if (project == undefined) {
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of Round Matching Donations for the project
 const [matchingRoundDonations, setMatchingRoundDonations] = useState({});
+const [potPayouts, setPotPayouts] = useState({});
 
 const getProjectRoundDonations = (potId, potDetail) => {
   return PotSDK.asyncGetDonationsForProject(potId, projectId)
@@ -86,6 +87,18 @@ if (donationsForRecipient && !directDonations) {
 if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
     PotSDK.asyncGetConfig(pot.id).then((potDetail) => {
+      const payout = potDetail.payouts.filter((pay) => projectId === pay.project_id)[0];
+      if (payout.paid_at)
+        setPotPayouts((prevPayout) => ({
+          ...prevPayout,
+          [pot.id]: {
+            ...payout,
+            pot_id: pot.id,
+            pot_name: potDetail.pot_name,
+            base_currency: potDetail.base_currency,
+            type: "payout",
+          },
+        }));
       getProjectRoundDonations(pot.id, potDetail);
     });
   });
@@ -93,12 +106,14 @@ if (pots && !matchingRoundDonations[pots[pots.length - 1].id]) {
 
 const allDonations = useMemo(() => {
   const RoundDonationsValue = Object.values(matchingRoundDonations).flat();
-  const allDonations = [...(directDonations || []), ...RoundDonationsValue];
-  allDonations.sort(
-    (a, b) => (b.donated_at_ms || b.donated_at) - (a.donated_at_ms || a.donated_at)
-  );
+  let payouts = Object.values(potPayouts).flat();
+  const allDonations = [...(directDonations || []), ...RoundDonationsValue, ...payouts];
+  allDonations.sort((a, b) => {
+    if (a.type === "payout") return -1;
+    return (b.donated_at_ms || b.donated_at) - (a.donated_at_ms || a.donated_at);
+  });
   return allDonations;
-}, [matchingRoundDonations, directDonations]);
+}, [matchingRoundDonations, directDonations, potPayouts]);
 
 const profile = Social.getr(`${projectId}/profile`);
 if (profile === null) {
@@ -124,6 +139,7 @@ return (
         donations: allDonations,
         directDonations: directDonations,
         matchingRoundDonations: Object.values(matchingRoundDonations).flat(),
+        potPayouts: Object.values(potPayouts).flat(),
         navOptions: ProjectOptions(props),
       }}
     />
