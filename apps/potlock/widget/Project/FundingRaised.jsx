@@ -45,12 +45,6 @@ const Line = styled.div`
   margin: 3rem 0;
 `;
 
-const filteredDonations = [
-  { potId: "Creative Dao", amount: "2", donate_at: "2days" },
-  { donor_id: "baam25.near", amount: "2", donate_at: "2days" },
-  { potId: "baam25.near", amount: "2", donate_at: "2days" },
-];
-
 const externalFunding = profile.plFundingSources ? JSON.parse(profile.plFundingSources) : [];
 
 return externalFunding.length === 0 && donations.length === 0 ? (

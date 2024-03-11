@@ -197,7 +197,7 @@ return donations.length ? (
           setCurrentPage(page);
         },
         data: donations,
-        currentPage: currentPage,
+        currentPage,
         perPage: perPage,
         bgColor: "#292929",
       }}

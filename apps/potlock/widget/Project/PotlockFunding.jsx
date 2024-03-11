@@ -15,7 +15,7 @@ const [filter, setFilter] = useState({
   price: false, // false === ascending
 });
 const [sort, setSort] = useState("all");
-const [page, setPage] = useState(0);
+const [currentPage, setCurrentPage] = useState(1);
 const [totalDonations, setTotalDonation] = useState(donations);
 const [filteredDonations, setFilteredDonations] = useState(donations);
 const [search, setSearch] = useState("");
@@ -427,7 +427,7 @@ return (
           className=""
           placeholder="Search Funding sources"
           onChange={(e) => {
-            if (page !== 0) setPage(0);
+            if (currentPage !== 1) setCurrentPage(1);
             setSearch(e.target.value);
             const filtered = searchDonations(e.target.value);
             setFilteredDonations(filtered);
@@ -435,64 +435,66 @@ return (
           type="text"
         />
       </SearchBar>
-      {filteredDonations.slice(page * perPage, (page + 1) * perPage).map((donation) => {
-        const {
-          donor_id,
-          total_amount,
-          amount,
-          pot_id,
-          paid_at,
-          base_currency,
-          ft_id,
-          type,
-          donated_at,
-          donated_at_ms,
-        } = donation;
+      {filteredDonations
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
+        .map((donation) => {
+          const {
+            donor_id,
+            total_amount,
+            amount,
+            pot_id,
+            paid_at,
+            base_currency,
+            ft_id,
+            type,
+            donated_at,
+            donated_at_ms,
+          } = donation;
 
-        const donationAmount = SUPPORTED_FTS[
-          (base_currency || ft_id).toUpperCase()
-        ].fromIndivisible(total_amount || amount);
+          const donationAmount = SUPPORTED_FTS[
+            (base_currency || ft_id).toUpperCase()
+          ].fromIndivisible(total_amount || amount);
 
-        const url =
-          type === "payout" ? `?tab=pot&potId=${pot_id}` : `?tab=profile&accountId=${donor_id}`;
+          const url =
+            type === "payout" ? `?tab=pot&potId=${pot_id}` : `?tab=profile&accountId=${donor_id}`;
 
-        const name = _address(getName(donation), 20);
+          const name = _address(getName(donation), 20);
 
-        return (
-          <div className="funding-row">
-            <FundingSrc>
-              {type === "payout" ? (
-                <PotIcon className="profile-image" />
-              ) : (
-                <ProfileImg address={donor_id} />
-              )}
-              <div className="fudning-src">
-                <a href={hrefWithParams(url)} target="_blank">
-                  {name}
-                </a>
-                <div className="type">{sortList[type].label?.slice(0, -1)}</div>
+          return (
+            <div className="funding-row">
+              <FundingSrc>
+                {type === "payout" ? (
+                  <PotIcon className="profile-image" />
+                ) : (
+                  <ProfileImg address={donor_id} />
+                )}
+                <div className="fudning-src">
+                  <a href={hrefWithParams(url)} target="_blank">
+                    {name}
+                  </a>
+                  <div className="type">{sortList[type].label?.slice(0, -1)}</div>
+                </div>
+              </FundingSrc>
+              <div className="price tab">
+                <NearIcon />
+                {donationAmount}
               </div>
-            </FundingSrc>
-            <div className="price tab">
-              <NearIcon />
-              {donationAmount}
+              <div className="tab date">
+                {getTimePassed(donated_at_ms || donated_at || paid_at)} ago
+              </div>
             </div>
-            <div className="tab date">
-              {getTimePassed(donated_at_ms || donated_at || paid_at)} ago
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
       {filteredDonations.length === 0 && <div className="funding-row">No Donations</div>}
     </PotlockFunding>
     <Widget
-      src="baam25.near/widget/pagination"
+      src={`${ownerId}/widget/Components.Pagination`}
       props={{
-        onClick: (page) => {
-          setPage(page);
+        onPageChange: (page) => {
+          setCurrentPage(page);
         },
         data: filteredDonations,
-        page: page,
+        currentPage,
         perPage: perPage,
         bgColor: "#7B7B7B",
       }}
