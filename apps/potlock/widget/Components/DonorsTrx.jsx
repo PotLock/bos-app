@@ -1,13 +1,15 @@
 const { allDonations, filter } = props;
-const [page, setPage] = useState(0);
+const [currentPage, setCurrentPage] = useState(1);
 const perPage = 30; // need to be less than 50
 
 useEffect(() => {
-  setPage(0);
+  setCurrentPage(1);
 }, [filter]);
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
+
+const { ownerId } = VM.require("potlock.near/widget/constants");
 
 const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
   `potlock.near/widget/Components.DonorsUtils`
@@ -148,7 +150,7 @@ return allDonations.length ? (
         <div>Date</div>
       </div>
       {reverseArr(allDonations)
-        .slice(page * perPage, (page + 1) * perPage)
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
         .map((donation) => {
           const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
           const projectId = recipient_id || project_id;
@@ -183,13 +185,13 @@ return allDonations.length ? (
         })}
     </div>
     <Widget
-      src="baam25.near/widget/pagination"
+      src={`${ownerId}/widget/Components.Pagination`}
       props={{
-        onClick: (page) => {
-          setPage(page);
+        onPageChange: (page) => {
+          setCurrentPage(page);
         },
         data: allDonations,
-        page: page,
+        currentPage,
         perPage: perPage,
         bgColor: "#292929",
       }}
