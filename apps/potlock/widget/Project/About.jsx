@@ -74,17 +74,6 @@ const SmartContractWrapper = styled.div`
         color: #7b7b7b;
       }
     }
-    svg {
-      cursor: pointer;
-      height: 20px;
-      transition: scale 200ms ease-in-out;
-      :hover {
-        scale: 1.1;
-      }
-      :focus {
-        background: red;
-      }
-    }
   }
 `;
 const smartContracts = profile.plSmartContracts

@@ -39,6 +39,7 @@ const Container = styled.div`
   margin-left: auto;
   .donations-info {
     display: flex;
+    gap: 4px;
     flex-direction: column;
     .amount {
       font-weight: 500;

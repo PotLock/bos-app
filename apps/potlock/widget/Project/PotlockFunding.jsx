@@ -50,12 +50,12 @@ const sortList = {
     count: donations?.length,
   },
   direct: {
-    label: "Direct Donation",
+    label: "Direct donations",
     val: "direct",
     count: directDonations?.length,
   },
   matched: {
-    label: "Matched Donations",
+    label: "Matched donations",
     val: "matched",
     count: matchingRoundDonations?.length,
   },

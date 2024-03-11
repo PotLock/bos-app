@@ -23,7 +23,7 @@ if (!tags.length) return "No tags";
 
 return (
   <Tags>
-    {projectId && projectId.endsWith(".sputnik-dao.near") && <Tag>Dao</Tag>}
+    {projectId && projectId.endsWith(".sputnik-dao.near") && <Tag>DAO</Tag>}
     {tags.map((tag, tagIndex) => (
       <Tag key={tagIndex}>{tag}</Tag>
     ))}

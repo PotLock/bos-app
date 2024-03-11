@@ -29,6 +29,10 @@ const Container = styled.div`
   align-items: center;
   font-size: 14px;
   gap: 2rem;
+  a {
+    gap: 8px;
+    display: flex;
+  }
   @media screen and (max-width: 768px) {
     gap: 1rem;
   }

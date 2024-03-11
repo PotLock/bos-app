@@ -56,6 +56,7 @@ const Name = styled.div`
 
 const AccountInfoContainer = styled.div`
   display: flex;
+  gap: 0.5rem;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
@@ -133,10 +134,10 @@ return (
                 : projectId || accountId}
             </AccountId>
             <Widget
-              src={`${ownerId}/widget/Project.Share`}
+              src={`${ownerId}/widget/Project.CopyIcon`}
               props={{
-                text: projectId ? projectLink : profileLink,
-                clipboardIcon: ShareIcon,
+                textToCopy: projectId ? projectLink : profileLink,
+                customStyle: `height: 18px;`,
               }}
             />
           </AccountInfoContainer>

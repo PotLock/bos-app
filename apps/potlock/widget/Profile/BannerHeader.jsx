@@ -1,4 +1,4 @@
-const { ShowFollowers } = props;
+const { ShowFollowers, project, projectId } = props;
 
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -26,9 +26,11 @@ const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};
 
-const isHuman = Near.view("v1.nadabot.near", "is_human", {
-  account_id: accountId,
-});
+const isVerified = projectId
+  ? project.status === "Approved"
+  : Near.view("v1.nadabot.near", "is_human", {
+      account_id: accountId,
+    });
 
 const Container = styled.div``;
 
@@ -57,12 +59,19 @@ const ProfileStats = styled.div`
   }
 `;
 const Verified = styled.div`
-  opacity: ${isHuman ? "1" : "0"};
+  opacity: 1;
   display: flex;
   align-items: center;
   font-size: 11px;
   letter-spacing: 0.88px;
   gap: 4px;
+  overflow: hidden;
+  ${!isVerified
+    ? `
+    width: 10px;
+    opacity: 0;
+    `
+    : ""}
   div {
     font-weight: 600;
     color: #0e615e;
@@ -85,11 +94,16 @@ const ProfileImageContainer = styled.div`
   border-radius: 50%;
   padding: 6px;
   position: relative;
-  img {
-    object-fit: cover;
-    width: 100%;
+  .profile-image {
     height: 100%;
+    width: 100%;
+    img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
   }
+
   > svg {
     position: absolute;
     top: 50%;
@@ -300,7 +314,7 @@ return (
           </Verified>
           <Widget
             src={`${ownerId}/widget/Profile.FollowStats`}
-            props={{ ...props, accountId: props.id }}
+            props={{ ...props, accountId: projectId || accountId }}
           />
         </ProfileStats>
       )}
