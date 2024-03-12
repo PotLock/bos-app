@@ -26,7 +26,7 @@ const ProjectOptions = (props) => [
   //   disabled: true,
   // },
   {
-    label: "Funding raised",
+    label: "Funding Raised",
     id: "funding",
     disabled: false,
     source: `${props.ownerId}/widget/Project.FundingRaised`,
