@@ -1,4 +1,15 @@
-const { hrefWithParams, donations, directDonations, matchingRoundDonations, potPayouts } = props;
+const {
+  hrefWithParams,
+  donations,
+  directDonations,
+  matchingRoundDonations,
+  potPayouts,
+  sponsorships,
+  projectId,
+  totalDonationAmount,
+  uniqueDonors,
+  totalMatched,
+} = props;
 
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -23,22 +34,6 @@ const [search, setSearch] = useState("");
 
 const perPage = 30; // need to be less than 50
 
-// Get total donations & Unique donors count
-const [totalDonationAmount, uniqueDonors, totalMatched] = useMemo(() => {
-  let total = Big(0);
-  const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
-  donations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount || donation.amount));
-  });
-  const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
-  let totalMatched = Big(0);
-  potPayouts.forEach((payout) => {
-    totalMatched = totalMatched.plus(Big(payout.amount));
-  });
-  totalMatched = SUPPORTED_FTS["NEAR"].fromIndivisible(totalMatched.toString());
-  return [totalDonationAmount, uniqueDonors?.length, totalMatched];
-}, [donations]);
-
 useEffect(() => {
   setTotalDonation(donations);
   setFilteredDonations(donations);
@@ -60,11 +55,21 @@ const sortList = {
     val: "matched",
     count: matchingRoundDonations?.length,
   },
-  payout: {
-    label: "Matching pool allocations",
-    val: "payout",
-    count: potPayouts?.length,
-  },
+  ...(projectId
+    ? {
+        payout: {
+          label: "Matching pool allocations",
+          val: "payout",
+          count: potPayouts?.length,
+        },
+      }
+    : {
+        sponsorship: {
+          label: "Sponsorships",
+          val: "sponsorship",
+          count: sponsorships?.length,
+        },
+      }),
 };
 
 const searchDonations = (searchTerm) => {
@@ -116,13 +121,15 @@ const filterDonations = (sortVal) => {
 const getName = (donation) => {
   switch (donation.type) {
     case "direct":
-      return donation.donor_id;
+      return projectId ? donation.donor_id : donation.recipient_id;
+    case "sponsorship":
+      return donation.pot_name;
     case "payout":
       return donation.pot_name;
     case "matched":
-      return donation.donor_id;
+      return projectId ? donation.donor_id : donation.project_id;
     default:
-      return donation.donor_id;
+      return projectId ? donation.donor_id : donation.recipient_id;
   }
 };
 
@@ -185,7 +192,7 @@ const PotlockFunding = styled.div`
       }
     }
     @media screen and (max-width: 768px) {
-      width: 75px;
+      width: 90px;
       gap: 0.5rem;
     }
   }
@@ -229,6 +236,11 @@ const FundingSrc = styled.div`
   .funding-src {
     display: flex;
     flex-direction: column;
+    .pot-name {
+      color: inherit;
+      font-weight: inherit;
+      display: none;
+    }
     a {
       color: #292929;
       transition: 300ms;
@@ -245,6 +257,9 @@ const FundingSrc = styled.div`
   @media screen and (max-width: 768px) {
     .funding-src .type {
       display: none;
+    }
+    .funding-src .pot-name {
+      display: inline-block;
     }
   }
 `;
@@ -348,9 +363,9 @@ const DropdownLabel = styled.div`
 `;
 
 const stats = {
-  Donated: totalDonationAmount + "N",
-  "Unique Donors": uniqueDonors,
-  "Total Matched ": totalMatched + "N",
+  ...(totalDonationAmount ? { Donated: totalDonationAmount + "N" } : {}),
+  ...(uniqueDonors ? { "Unique Donors": uniqueDonors } : {}),
+  ...(uniqueDonors ? { "Total Matched": totalMatched + "N" } : {}),
 };
 
 const NearIcon = (props) => (
@@ -397,7 +412,7 @@ const Arrow = (props) => (
 
 return (
   <Container>
-    <Title>Potlock Funding</Title>
+    {projectId && <Title>Potlock Funding</Title>}
     <Stats>
       {Object.keys(stats).map((k) => (
         <div className="item">
@@ -472,6 +487,8 @@ return (
             total_amount,
             amount,
             pot_id,
+            recipient_id,
+            project_id,
             paid_at,
             base_currency,
             ft_id,
@@ -484,21 +501,29 @@ return (
             (base_currency || ft_id).toUpperCase()
           ].fromIndivisible(total_amount || amount);
 
-          const url =
-            type === "payout" ? `?tab=pot&potId=${pot_id}` : `?tab=profile&accountId=${donor_id}`;
+          const isPot = type === "payout" || type === "sponsorship";
+
+          const url = isPot
+            ? `?tab=pot&potId=${pot_id}`
+            : projectId
+            ? `?tab=profile&accountId=${donor_id}`
+            : `?tab=project&projectId=${project_id || recipient_id}`;
 
           const name = _address(getName(donation), 15);
 
           return (
             <div className="funding-row">
               <FundingSrc>
-                {type === "payout" ? (
+                {isPot ? (
                   <PotIcon className="profile-image" />
                 ) : (
-                  <ProfileImg address={donor_id} />
+                  <ProfileImg address={projectId ? donor_id : recipient_id || project_id} />
                 )}
                 <div className="funding-src">
                   <a href={hrefWithParams(url)} target="_blank">
+                    {isPot && (
+                      <span className="pot-name"> {projectId ? "Matching Pool" : "Sponsor"} :</span>
+                    )}{" "}
                     {name}
                   </a>
                   <div className="type">{sortList[type].label?.slice(0, -1)}</div>

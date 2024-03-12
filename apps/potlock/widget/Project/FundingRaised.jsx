@@ -1,4 +1,4 @@
-const { donations, directDonations, matchingRoundDonations, profile } = props;
+const { donations, potPayouts, directDonations, matchingRoundDonations, profile } = props;
 
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -47,6 +47,22 @@ const Line = styled.div`
 
 const externalFunding = profile.plFundingSources ? JSON.parse(profile.plFundingSources) : [];
 
+// Get total donations & Unique donors count
+const [totalDonationAmount, uniqueDonors, totalMatched] = useMemo(() => {
+  let total = Big(0);
+  const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
+  donations.forEach((donation) => {
+    total = total.plus(Big(donation.total_amount || donation.amount));
+  });
+  const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
+  let totalMatched = Big(0);
+  potPayouts.forEach((payout) => {
+    totalMatched = totalMatched.plus(Big(payout.amount));
+  });
+  totalMatched = SUPPORTED_FTS["NEAR"].fromIndivisible(totalMatched.toString());
+  return [totalDonationAmount, uniqueDonors?.length, totalMatched];
+}, [donations]);
+
 return externalFunding.length === 0 && donations.length === 0 ? (
   <NoResults>
     <img
@@ -68,7 +84,7 @@ return externalFunding.length === 0 && donations.length === 0 ? (
     {donations.length > 0 && (
       <Widget
         src={`${ownerId}/widget/Project.PotlockFunding`}
-        props={{ ...props, filteredDonations, sortList, sort }}
+        props={{ ...props, totalDonationAmount, uniqueDonors, totalMatched }}
       />
     )}
   </Container>
