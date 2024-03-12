@@ -1,8 +1,8 @@
 ---
-name: Enhancement
-about: Small improvement / enhancement (not a full feature request)
-title: "[ENHANCE] "
-labels: enhancement
+name: Design
+about: UI/UX design
+title: "[DESIGN] "
+labels: design
 assignees: ""
 ---
 
