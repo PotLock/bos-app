@@ -175,7 +175,6 @@ const PotlockFunding = styled.div`
   .tab {
     display: flex;
     align-items: center;
-    text-transform: capitalize;
     gap: 0.5rem;
     width: 156px;
     justify-content: left;
@@ -227,7 +226,7 @@ const FundingSrc = styled.div`
     width: 24px;
     height: 24px;
   }
-  .fudning-src {
+  .funding-src {
     display: flex;
     flex-direction: column;
     a {
@@ -244,7 +243,7 @@ const FundingSrc = styled.div`
     }
   }
   @media screen and (max-width: 768px) {
-    .fudning-src .type {
+    .funding-src .type {
       display: none;
     }
   }
@@ -349,9 +348,9 @@ const DropdownLabel = styled.div`
 `;
 
 const stats = {
-  donated: totalDonationAmount + "N",
+  Donated: totalDonationAmount + "N",
   "Unique Donors": uniqueDonors,
-  "Total matched ": totalMatched + "N",
+  "Total Matched ": totalMatched + "N",
 };
 
 const NearIcon = (props) => (
@@ -438,7 +437,7 @@ return (
     </Sort>
     <PotlockFunding>
       <div className="header">
-        <div className="funding tab">funding Source</div>
+        <div className="funding tab">Funding Source</div>
         <div className="tab sort" onClick={() => sortDonation("price")}>
           Amount {currentFilter === "price" && <Arrow active={filter.price} />}
         </div>
@@ -455,7 +454,7 @@ return (
         </svg>
         <input
           className=""
-          placeholder="Search Funding sources"
+          placeholder="Search funding"
           onChange={(e) => {
             if (currentPage !== 1) setCurrentPage(1);
             setSearch(e.target.value);
@@ -498,7 +497,7 @@ return (
                 ) : (
                   <ProfileImg address={donor_id} />
                 )}
-                <div className="fudning-src">
+                <div className="funding-src">
                   <a href={hrefWithParams(url)} target="_blank">
                     {name}
                   </a>
@@ -510,7 +509,7 @@ return (
                 {donationAmount}
               </div>
               <div className="tab date">
-                {getTimePassed(donated_at_ms || donated_at || paid_at)} ago
+                {getTimePassed(donated_at_ms || donated_at || paid_at, true)} ago
               </div>
             </div>
           );

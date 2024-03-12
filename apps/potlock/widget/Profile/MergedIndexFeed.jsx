@@ -260,7 +260,7 @@ const NoResults = styled.div`
 const renderedItems =
   items.length === 0 ? (
     <NoResults>
-      <div className="text">The project has not posted yet.</div>
+      <div className="text">This project has not posted yet.</div>
       <img
         src="https://ipfs.near.social/ipfs/bafkreicwz5cuku3kxxp3wzldslpfzmfqgukpm2wwy7t7zuevkdp4gbl2uq"
         alt="pots"
