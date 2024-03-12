@@ -14,6 +14,7 @@ const [filter, setFilter] = useState({
   date: false, // false === ascending
   price: false, // false === ascending
 });
+const [currentFilter, setCurrentFilter] = useState("date");
 const [sort, setSort] = useState("all");
 const [currentPage, setCurrentPage] = useState(1);
 const [totalDonations, setTotalDonation] = useState(donations);
@@ -83,6 +84,7 @@ const searchDonations = (searchTerm) => {
 const getDate = (donation) => donation.donated_at_ms || donation.donated_at;
 
 const sortDonation = (type) => {
+  setCurrentFilter(type);
   const sort = !filter[type];
   setFilter({ ...filter, [type]: sort });
   if (type === "price") {
@@ -174,7 +176,7 @@ const PotlockFunding = styled.div`
     display: flex;
     align-items: center;
     text-transform: capitalize;
-    gap: 8px;
+    gap: 0.5rem;
     width: 156px;
     justify-content: left;
     &.sort {
@@ -184,7 +186,8 @@ const PotlockFunding = styled.div`
       }
     }
     @media screen and (max-width: 768px) {
-      width: initial;
+      width: 75px;
+      gap: 0.5rem;
     }
   }
   .funding {
@@ -197,14 +200,14 @@ const PotlockFunding = styled.div`
     svg {
       width: 1.5em;
     }
-    @media screen and (max-width: 768px) {
-      justify-content: right;
-    }
   }
   .date {
     justify-content: right;
   }
   @media screen and (max-width: 768px) {
+    .price {
+      gap: 0.5rem;
+    }
     .date {
       width: 100%;
       justify-content: left;
@@ -301,6 +304,10 @@ const Stats = styled.div`
   }
   .dropdown {
     margin-left: auto;
+    @media screen and (max-width: 480px) {
+      margin-right: auto;
+      margin-left: 0;
+    }
   }
 `;
 
@@ -320,6 +327,24 @@ const Sort = styled.div`
   }
   @media screen and (max-width: 768px) {
     display: flex;
+  }
+`;
+
+const DropdownLabel = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  .label {
+    font-weight: 500;
+  }
+  .count {
+    display: flex;
+    width: ${({ digit }) => 24 + (digit - 1) * 6}px;
+    height: ${({ digit }) => 24 + (digit - 1) * 6}px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ebebeb;
   }
 `;
 
@@ -385,7 +410,12 @@ return (
         <Widget
           src={`${ownerId}/widget/Inputs.Dropdown`}
           props={{
-            sortVal: <div>{sortList[sort].label + " " + sortList[sort].count}</div>,
+            sortVal: (
+              <DropdownLabel digit={sortList[sort].count.toString().length}>
+                <div className="label">{sortList[sort].label}</div>
+                <div className="count">{sortList[sort].count}</div>
+              </DropdownLabel>
+            ),
             showCount: true,
             sortList: Object.values(sortList),
             FilterMenuCustomStyle: `left:auto; right:0;`,
@@ -399,21 +429,21 @@ return (
       </div>
     </Stats>
     <Sort>
-      <div onClick={() => sortDonation("price")}>
-        Sort Date <Arrow active={filter.price} />
-      </div>
       <div onClick={() => sortDonation("date")}>
-        Sort Amount <Arrow active={filter.date} />
+        Sort Date {currentFilter === "date" && <Arrow active={!filter.date} />}
+      </div>
+      <div onClick={() => sortDonation("price")}>
+        Sort Amount {currentFilter === "price" && <Arrow active={filter.price} />}
       </div>
     </Sort>
     <PotlockFunding>
       <div className="header">
         <div className="funding tab">funding Source</div>
         <div className="tab sort" onClick={() => sortDonation("price")}>
-          Amount <Arrow active={filter.price} />
+          Amount {currentFilter === "price" && <Arrow active={filter.price} />}
         </div>
         <div className="tab sort date" onClick={() => sortDonation("date")}>
-          Date <Arrow active={filter.date} />
+          Date {currentFilter === "date" && <Arrow active={!filter.date} />}
         </div>
       </div>
       <SearchBar>
@@ -458,7 +488,7 @@ return (
           const url =
             type === "payout" ? `?tab=pot&potId=${pot_id}` : `?tab=profile&accountId=${donor_id}`;
 
-          const name = _address(getName(donation), 20);
+          const name = _address(getName(donation), 15);
 
           return (
             <div className="funding-row">

@@ -42,14 +42,14 @@ return (
   <Container>
     <div>
       <a href={`${profileLink}&nav=followers`} className="text-dark">
-        {numFollowers !== null ? <span style={{ fontWeight: 600 }}>{numFollowers}</span> : "?"}
+        {numFollowers !== null ? <span style={{ fontWeight: 600 }}>{numFollowers}</span> : "-"}
 
         <span>Follower{numFollowers !== 1 && "s"}</span>
       </a>
     </div>
     <div className="me-4">
       <a href={`${profileLink}&nav=following`} className="text-dark">
-        {numFollowing !== null ? <span style={{ fontWeight: 600 }}>{numFollowing}</span> : "?"}
+        {numFollowing !== null ? <span style={{ fontWeight: 600 }}>{numFollowing}</span> : "-"}
 
         <span>Following</span>
       </a>

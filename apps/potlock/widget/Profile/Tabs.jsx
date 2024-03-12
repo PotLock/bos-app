@@ -36,6 +36,9 @@ const NavOptionsContainer = styled.div`
   @media screen and (max-width: 768px) {
     padding: 0px 1rem;
     overflow-x: scroll;
+    .nav-option.selected {
+      order: -1;
+    }
   }
 `;
 

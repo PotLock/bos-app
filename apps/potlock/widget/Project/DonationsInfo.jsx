@@ -70,6 +70,9 @@ const Container = styled.div`
   }
   @media only screen and (max-width: 480px) {
     width: 100%;
+    .donations-info .amount {
+      font-size: 2rem;
+    }
     .btn-wrapper {
       > div,
       button {

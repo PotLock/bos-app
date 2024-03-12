@@ -13,7 +13,12 @@ const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
 
-let RegistrySDK = VM.require("potlock.near/widget/SDK.registry") || (() => ({}));
+let RegistrySDK =
+  VM.require("potlock.near/widget/SDK.registry") ||
+  (() => ({
+    getContractId: () => "",
+  }));
+
 RegistrySDK = RegistrySDK({ env: props.env });
 const registryContractId = RegistrySDK.getContractId();
 const userIsRegistryAdmin = RegistrySDK.isUserRegistryAdmin(context.accountId);
