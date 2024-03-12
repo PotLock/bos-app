@@ -14,8 +14,69 @@ const editable = props.bgImageOnChange && props.profileImageOnChange;
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
+// Loading Skeleton
+const loadingSkeleton = styled.keyframes`
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const SkeletonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  animation-name: ${loadingSkeleton};
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+`;
+
+const LoadingBackground = styled.div`
+  position: relative;
+  background: #eee;
+  width: 100%;
+  height: 318px;
+  @media screen and (max-width: 768px) {
+    height: 264px;
+  }
+`;
+const LoadingProfileImg = styled.div`
+  width: ${props.imageStyle?.width ?? "128px"};
+  height: ${props.imageStyle?.height ?? "128px"};
+  z-index: 1;
+  padding: 6px;
+  transform: translateY(-50%);
+  position: relative;
+  margin-left: 4rem;
+  background: white;
+  border-radius: 50%;
+  @media screen and (max-width: 768px) {
+    margin-left: 1rem;
+  }
+  div {
+    background: #eee;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+`;
+
+const BannerSkeleton = () => (
+  <SkeletonContainer>
+    <LoadingBackground />
+    <LoadingProfileImg>
+      <div />
+    </LoadingProfileImg>
+  </SkeletonContainer>
+);
 if (profile === null) {
-  return "Loading";
+  return <Widget src={`${ownerId}/widget/Profile.BannerSkeleton`} />;
 }
 
 const name = profile.name || "No-name profile";
@@ -103,7 +164,6 @@ const ProfileImageContainer = styled.div`
       height: 100%;
     }
   }
-
   > svg {
     position: absolute;
     top: 50%;
@@ -267,31 +327,34 @@ return (
     <ProfileWraper>
       <ProfileImageContainer>
         <CameraSvg height={24} />
-        <Files
-          multiple={false}
-          accepts={["image/*"]}
-          minFileSize={1}
-          style={{
-            width: "100%",
-            height: "100%",
-            borderRadius: "100%",
-            overflow: "hidden",
+        <Widget
+          src={`${ownerId}/widget/Project.ProfileImage`}
+          props={{
+            profile,
+            accountId,
+            style: { ...imageStyle },
+            imageClassName: "rounded-circle",
+            thumbnail: false,
+            image: profileImage,
           }}
-          clickable
-          onChange={props.profileImageOnChange}
-        >
-          <Widget
-            src={`${ownerId}/widget/Project.ProfileImage`}
-            props={{
-              profile,
-              accountId,
-              style: { ...imageStyle },
-              imageClassName: "rounded-circle",
-              thumbnail: false,
-              image: profileImage,
+        />
+
+        {editable && (
+          <Files
+            multiple={false}
+            accepts={["image/*"]}
+            minFileSize={1}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              left: 0,
+              top: 0,
             }}
-          />
-        </Files>
+            clickable
+            onChange={props.profileImageOnChange}
+          ></Files>
+        )}
       </ProfileImageContainer>
       {ShowFollowers && (
         <ProfileStats>

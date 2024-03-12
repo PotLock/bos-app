@@ -91,9 +91,6 @@ const allDonations = useMemo(() => {
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 const tags = Object.keys(profile.tags || {});
-if (profile === null) {
-  return "Loading";
-}
 
 const Wrapper = styled.div`
   display: flex;
