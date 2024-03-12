@@ -204,6 +204,9 @@ if (props.isModalOpen && !state.successfulDonation) {
     State.update({
       successfulApplication,
     });
+  } else {
+    // close modal
+    onClose();
   }
 }
 
