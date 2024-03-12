@@ -13,7 +13,7 @@ const lastWeek = currentTimestamp - oneDayTime * 7;
 const lastMonth = currentTimestamp - oneDayTime * 30;
 const lastYear = currentTimestamp - oneDayTime * 365;
 
-const getTimePassed = (timestamp) => {
+const getTimePassed = (timestamp, abbreviate) => {
   // Calculate the difference in milliseconds
   const timePassed = currentTimestamp - timestamp;
 
@@ -27,13 +27,17 @@ const getTimePassed = (timestamp) => {
 
   // Display the time passed conditionally
   if (daysPassed > 0) {
-    time = `${daysPassed} day${daysPassed === 1 ? "" : "s"}`;
+    time = !abbreviate ? `${daysPassed} day${daysPassed === 1 ? "" : "s"}` : `${daysPassed}d`;
   } else if (hoursPassed > 0) {
-    time = `${hoursPassed} hour${hoursPassed === 1 ? "" : "s"}`;
+    time = !abbreviate ? `${hoursPassed} hour${hoursPassed === 1 ? "" : "s"}` : `${hoursPassed}h`;
   } else if (minutesPassed > 0) {
-    time = `${minutesPassed} minute${minutesPassed === 1 ? "" : "s"}`;
+    time = !abbreviate
+      ? `${minutesPassed} minute${minutesPassed === 1 ? "" : "s"}`
+      : `${minutesPassed}m`;
   } else {
-    time = `${secondsPassed} second${secondsPassed === 1 ? "" : "s"}`;
+    time = !abbreviate
+      ? `${secondsPassed} second${secondsPassed === 1 ? "" : "s"}`
+      : `${secondsPassed}s`;
   }
   return time;
 };
