@@ -203,7 +203,17 @@ const SponsorWrapper = styled.div`
 `;
 
 const ProfileImg = ({ profile }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ profile: profile, style: {} }} />
+  <Widget
+    src="mob.near/widget/Image"
+    props={{
+      image: profile.image,
+      style: {},
+      className: "profile-image",
+      alt: profile.name,
+      fallbackUrl:
+        "https://ipfs.near.social/ipfs/bafkreidla73cknxbeovrhgb2blax2j2qgcgcn6ibluzza3buq2mbkoqs2e",
+    }}
+  />
 );
 
 const SponsorOverlay = ({
@@ -247,7 +257,7 @@ const Sponsor = ({ donation: { amount, donor_id, percentage_share }, colIdx, idx
       <div className="item-overlay">{percentage_share}%</div>
       <SponsorWrapper>
         <ProfileImg profile={profile} />
-        {colIdx < 3 && <div className="name">{profile.name || donor_id}</div>}
+        {colIdx < 3 && <div className="name">{_address(profile.name || donor_id, 15)}</div>}
       </SponsorWrapper>
       <div className="footer">
         <div className="amount">{amount} NEAR</div>

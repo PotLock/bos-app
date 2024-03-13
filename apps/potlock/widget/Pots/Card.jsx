@@ -158,7 +158,7 @@ const tags = [
     backgroundColor: "#F5F3FF",
     borderColor: "#A68AFB",
     textColor: "#2E0F66",
-    text: "Cooldown Period ",
+    text: "Challenge Period ",
     textStyle: { fontWeight: 500, marginLeft: "8px" },
     preElementsProps: {
       colorOuter: "#EDE9FE",
