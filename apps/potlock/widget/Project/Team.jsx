@@ -5,26 +5,15 @@ const Container = styled.div`
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  border-top: 1px #c7c7c7 solid;
-
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    // align-items: flex-start;
-    // overflow-x: auto;
-    // max-width: 100vw;
   }
-`;
-
-const Column = styled.div`
-  padding-top: 16px;
-  // border-top: 1px #c7c7c7 solid;
 `;
 
 const Title = styled.div`
   color: #2e2e2e;
   font-size: 16px;
   font-weight: 600;
-  // font-family: Mona-Sans;
 `;
 
 const TeamMembersContainer = styled.div`
@@ -32,25 +21,38 @@ const TeamMembersContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 40px;
+  gap: 2rem;
   flex-wrap: wrap;
-
-  @media screen and (max-width: 768px) {
-    overflow-x: auto;
-    // flex-wrap: nowrap; // Prevent wrapping on mobile, enable scrolling instead
-  }
 `;
 
 const TeamMemberItem = styled.a`
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
-  gap: 16px;
+  gap: 8px;
   cursor: pointer;
-
-  &:hover {
+  :hover {
     text-decoration: none;
+    .profile-image img {
+      filter: grayscale(0%);
+    }
+  }
+  .profile-image {
+    width: 180px;
+    height: 180px;
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      filter: grayscale(100%);
+      transition: 300ms ease-in-out;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .profile-image {
+      width: 160px;
+      height: 160px;
+    }
   }
 `;
 
@@ -58,23 +60,14 @@ const TeamMemberAccountId = styled.div`
   color: #2e2e2e;
   font-size: 16px;
   font-weight: 400;
-  // font-family: Mona-Sans;
 `;
 
 const imageWidthPx = 129;
 
-const ImageContainer = styled.div`
-  width: ${imageWidthPx + 7}px;
-  height: ${imageWidthPx + 7}px;
-  border-radius: 50%;
-  border: 4px #dd3345 solid;
-`;
-
 const Col1 = styled.div`
   display: flex;
-  width: 25%;
-  padding-top: 16px;
-
+  width: 30%;
+  margin-bottom: 1rem;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
@@ -82,35 +75,30 @@ const Col1 = styled.div`
 
 const Col2 = styled.div`
   display: flex;
-  width: 75%;
-  padding-top: 16px;
-
+  width: 70%;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
 `;
 
-// props.team = [
-//   "plugrel.near",
-//   "kurodenjiro.near",
-//   "lachlan.near",
-//   "root.near",
-//   "plugrel.near",
-//   "kurodenjiro.near",
-//   "lachlan.near",
-//   "root.near",
-// ];
+const ProfileImg = ({ teamMember }) => (
+  <Widget
+    src="mob.near/widget/ProfileImage"
+    props={{
+      accountId: teamMember,
+      imageClassName: "",
+      style: {},
+      thumbnail: false,
+      tooltip: true,
+    }}
+  />
+);
 
 return (
   <Container>
-    {/* <Column className="col-3"> */}
-    {/* <Column> */}
     <Col1>
       <Title>Team members</Title>
     </Col1>
-    {/* </Column> */}
-    {/* <Column className="col-9"> */}
-    {/* <Column> */}
     <Col2>
       <TeamMembersContainer>
         {!props.team.length ? (
@@ -123,22 +111,7 @@ return (
                   href={props.hrefWithParams(`?tab=profile&accountId=${teamMember}`)}
                   target="_blank"
                 >
-                  <Widget
-                    src="mob.near/widget/ProfileImage"
-                    props={{
-                      accountId: teamMember,
-                      style: {
-                        width: `${imageWidthPx}px`,
-                        height: `${imageWidthPx}px`,
-                        border: `4px #dd3345 solid`,
-                        borderRadius: "50%",
-                      },
-                      className: "mb-2",
-                      imageClassName: "rounded-circle w-100 h-100 d-block",
-                      thumbnail: false,
-                      tooltip: true,
-                    }}
-                  />
+                  <ProfileImg teamMember={teamMember} />
                   <TeamMemberAccountId>@{teamMember}</TeamMemberAccountId>
                 </TeamMemberItem>
               );

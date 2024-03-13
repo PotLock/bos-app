@@ -16,6 +16,10 @@ const POT_DETAIL_TAB = "pot";
 const DONORS_TAB = "donors";
 const PROFILE_TAB = "profile";
 
+const loraCss = fetch(
+  "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+).body;
+
 const Theme = styled.div`
   position: relative;
   * {
@@ -51,6 +55,7 @@ const Theme = styled.div`
     src: local("Mona-Sans"),
       url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Bold.woff) format("woff");
   }
+  ${loraCss}
 `;
 
 State.init({

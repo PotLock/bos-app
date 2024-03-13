@@ -14,8 +14,6 @@ const potFactoryConfig = PotFactorySDK.getConfig();
 const pots = PotFactorySDK.getPots();
 const canDeploy = PotFactorySDK.canUserDeployPot(context.accountId);
 
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -57,7 +55,6 @@ const HeaderDescription = styled.div`
   word-wrap: break-word;
   text-align: center;
   font-family: "Lora";
-  ${loraCss}
 `;
 
 const Divider = styled.div`

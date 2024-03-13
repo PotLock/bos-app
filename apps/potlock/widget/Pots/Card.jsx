@@ -19,14 +19,12 @@ const MAX_TITLE_LENGTH = 36;
 const Card = styled.a`
   display: flex;
   flex-direction: column;
-  // width: 100%;
-  // max-width: 45%;
   min-width: 320px;
   min-height: 300px;
-  // border-radius: 12px;
+  border-radius: 8px;
   background: white;
-  box-shadow: 0px -2px 0px #464646 inset;
-  border: 1px solid #292929;
+  box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
+  padding-bottom: 5px;
   &:hover {
     text-decoration: none;
     cursor: pointer;

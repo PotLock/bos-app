@@ -1,9 +1,13 @@
 const {
+  DONATION_CONTRACT_ID,
+  ownerId,
   SUPPORTED_FTS: { NEAR },
-} = props;
-const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+} = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
+  SUPPORTED_FTS: {
+    NEAR: {},
+  },
 };
 
 const accountId = props.accountId ?? context.accountId;
@@ -37,10 +41,9 @@ if (!accountId) {
 
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of sponsorship (matching pool) donations to this pot for this user
-const [sponsorshipDonations, setSponsorshipDonations] = useState({});
-const [potDonations, setPotDonations] = useState([]);
+const [potDonations, setPotDonations] = useState({});
 
-const getSponsorshipDonations = (potId, potDetail) => {
+const getpotDonations = (potId, potDetail) => {
   return PotSDK.asyncGetDonationsForDonor(potId, accountId)
     .then((donations) => {
       donations = donations.filter((donations) => donations.donor_id === accountId);
@@ -49,17 +52,17 @@ const getSponsorshipDonations = (potId, potDetail) => {
         base_currency: potDetail.base_currency,
         pot_name: potDetail.pot_name,
         pot_id: potId,
-        type: donation.project_id ? "MATCHED_DONATIONS" : "SPONSORSHIP",
+        type: donation.project_id ? "matched" : "sponsorship",
       }));
-      if (sponsorshipDonations[potId]) return "";
-      setSponsorshipDonations((prevSponsorshipDonations) => {
-        return { ...prevSponsorshipDonations, [potId]: updatedDonations };
+      if (potDonations[potId]) return "";
+      setPotDonations((prevpotDonations) => {
+        return { ...prevpotDonations, [potId]: updatedDonations };
       });
     })
     .catch(() => {
-      if (sponsorshipDonations[potId]) return "";
-      setSponsorshipDonations((prevSponsorshipDonations) => {
-        return { ...prevSponsorshipDonations, [potId]: [] };
+      if (potDonations[potId]) return "";
+      setPotDonations((prevpotDonations) => {
+        return { ...prevpotDonations, [potId]: [] };
       });
     });
 };
@@ -69,31 +72,46 @@ let donationsForDonor = DonateSDK.getDonationsForDonor(accountId);
 if (donationsForDonor && !directDonations) {
   donationsForDonor = donationsForDonor.map((donation) => ({
     ...donation,
-    type: "DIRECT",
+    type: "direct",
   }));
   setDirectDonations(donationsForDonor);
 }
 // Get Sponsorship Donations
-if (pots && !sponsorshipDonations[pots[pots.length - 1].id]) {
+if (pots && !potDonations[pots[pots.length - 1].id]) {
   pots.forEach((pot) => {
     PotSDK.asyncGetConfig(pot.id).then((potDetail) => {
-      getSponsorshipDonations(pot.id, potDetail);
+      getpotDonations(pot.id, potDetail);
     });
   });
 }
 
-const allDonations = useMemo(() => {
-  const sponsorshipDonationsValue = Object.values(sponsorshipDonations).flat();
-  const allDonations = [...(directDonations || []), ...sponsorshipDonationsValue];
-  allDonations.sort((a, b) => b.donated_at - a.donated_at);
-  return allDonations;
-}, [sponsorshipDonations, directDonations]);
+const [allDonations, sponsorships, matchingRoundDonations] = useMemo(() => {
+  const potDonationsValue = Object.values(potDonations).flat();
+
+  const sponsorships = potDonationsValue.filter((donation) => donation.type === "sponsorship");
+  const matchingRoundDonations = potDonationsValue.filter(
+    (donation) => donation.type === "matched"
+  );
+  const allDonations = [...(directDonations || []), ...potDonationsValue];
+  allDonations.sort(
+    (a, b) => (b.donated_at || b.donated_at_ms) - (a.donated_at || a.donated_at_ms)
+  );
+  return [allDonations, sponsorships, matchingRoundDonations];
+}, [potDonations, directDonations]);
+
+// Get total donations & Unique donors count
+const [totalDonationAmount] = useMemo(() => {
+  let total = Big(0);
+  allDonations.forEach((donation) => {
+    total = total.plus(Big(donation.total_amount || donation.amount));
+  });
+  const totalDonationAmount = NEAR.fromIndivisible(total.toString());
+
+  return [totalDonationAmount];
+}, [allDonations]);
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 const tags = Object.keys(profile.tags || {});
-if (profile === null) {
-  return "Loading";
-}
 
 const Wrapper = styled.div`
   display: flex;
@@ -108,7 +126,11 @@ return (
         profile,
         tags,
         accounts: [accountId],
-        donations: allDonations, // TODO: why is this fetched here when it's not used in this component?
+        donations: allDonations,
+        totalDonationAmount,
+        matchingRoundDonations,
+        sponsorships,
+        directDonations,
         nav: props.nav ?? "donations",
         navOptions: ProfileOptions(props),
       }}

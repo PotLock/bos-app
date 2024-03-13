@@ -133,8 +133,6 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
 
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
-
 const headerTitleFontSizePx = 88;
 
 const HeaderContainer = styled.div`
@@ -164,8 +162,6 @@ const HeaderTitle = styled.div`
   z-index: 1;
   position: relative;
   font-family: "Lora";
-  ${loraCss}
-
   @media (max-width: 768px) {
     font-size: 48px;
   }

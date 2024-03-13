@@ -131,11 +131,11 @@ const AddTeamMembers = styled.a`
 const FormBody = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 260px 68px 32px 68px;
+  padding: 0px 68px 32px 68px;
   width: 100%;
 
   @media screen and (max-width: 768px) {
-    padding: 320px 32px 32px 32px;
+    padding: 0px 32px 32px 32px;
   }
 `;
 
@@ -958,12 +958,6 @@ return (
           props={{
             ...props,
             projectId: state.isDao && state.daoAddress ? state.daoAddress : context.accountId, // TODO: consider updating to use dao address if available, but will look weird bc no DAOs prob have a banner image on near social
-            backgroundStyle: {
-              objectFit: "cover",
-              left: 0,
-              top: 0,
-              height: "280px",
-            },
             // allowEdit: true,
             backgroundImage: state.backgroundImage,
             profileImage: state.profileImage,

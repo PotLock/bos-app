@@ -1,30 +1,52 @@
-const { profile, ownerId, accountId, projectId } = props;
+const {
+  profile: { name },
+  ownerId,
+  accountId,
+  projectId,
+} = props;
 
 const Header = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0 50px;
+  padding: 0 4rem;
+  margin-bottom: 66px;
   width: 100%;
   gap: 0.5rem;
   @media screen and (max-width: 768px) {
     padding: 0 1rem;
   }
 `;
+
+const Container = styled.div`
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 2rem;
+  @media only screen and (max-width: 480px) {
+    flex-direction: column;
+  }
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
 const NameContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  align-items: end;
+  gap: 1rem;
 `;
 
 const Name = styled.div`
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 500;
   color: #2e2e2e;
-  line-height: 56px;
+  line-height: 1;
   font-family: "Lora";
-  ${loraCss}
 
   @media screen and (max-width: 768px) {
     font-size: 32px;
@@ -34,20 +56,17 @@ const Name = styled.div`
 
 const AccountInfoContainer = styled.div`
   display: flex;
+  gap: 0.5rem;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 16px;
 `;
 
 const AccountId = styled.div`
-  color: #7b7b7b;
   font-size: 16px;
   font-weight: 400;
-
   @media screen and (max-width: 768px) {
     font-size: 14px;
-    line-height: 24px;
   }
 `;
 
@@ -96,48 +115,61 @@ const isOwner = projectId === context.accountId;
 const isPermissionedMember = isDao && userHasPermissions;
 const canEdit = isOwner || isPermissionedMember;
 
-const projectLink = `https://near.social/potlock.near/widget/Index?tab=project&projectId=${projectId}${
-  context.accountId && `&referrerId=${context.accountId}`
-}`;
-const profileLink = `https://near.social/potlock.near/widget/Index?tab=profile&accountId=${accountId}`;
-
 return (
   <Header>
-    <NameContainer>
-      <Name>{profile.name}</Name>
-      {canEdit && (
+    <Container>
+      <Info>
+        <NameContainer>
+          <Name>{name.length > 25 ? name.slice(0, 25).trim() + "..." : name}</Name>
+          <AccountInfoContainer>
+            <AccountId>
+              @{" "}
+              {(projectId || accountId).length > 15
+                ? (projectId || accountId).slice(0, 15).trim() + "..."
+                : projectId || accountId}
+            </AccountId>
+            <Widget
+              src={`${ownerId}/widget/Project.CopyIcon`}
+              props={{
+                textToCopy: projectId ? projectId : accountId,
+                customStyle: `height: 18px;`,
+              }}
+            />
+          </AccountInfoContainer>
+          {canEdit && (
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: "secondary",
+                text: "Edit profile",
+                disabled: false,
+                href: props.hrefWithParams(`?tab=editproject&projectId=${projectId}`),
+              }}
+            />
+          )}
+        </NameContainer>
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={`${ownerId}/widget/Profile.Tags`}
           props={{
-            type: "secondary",
-            text: "Edit profile",
-            disabled: false,
-            href: props.hrefWithParams(`?tab=editproject&projectId=${projectId}`),
+            ...props,
+          }}
+        />
+        <Widget
+          src={`${ownerId}/widget/Profile.Linktree`}
+          props={{
+            ...props,
+          }}
+        />
+      </Info>
+      {projectId && (
+        <Widget
+          src={`${ownerId}/widget/Project.DonationsInfo`}
+          props={{
+            ...props,
+            accountId: projectId || accountId,
           }}
         />
       )}
-    </NameContainer>
-    <AccountInfoContainer>
-      <AccountId>@{projectId || accountId}</AccountId>
-      <Widget
-        src={`${ownerId}/widget/Project.Share`}
-        props={{
-          text: projectId ? projectLink : profileLink,
-          clipboardIcon: ShareIcon,
-        }}
-      />
-    </AccountInfoContainer>
-    <Widget
-      src={`${ownerId}/widget/Profile.Tags`}
-      props={{
-        ...props,
-      }}
-    />
-    <Widget
-      src={`${ownerId}/widget/Project.Actions`}
-      props={{
-        ...props,
-      }}
-    />
+    </Container>
   </Header>
 );

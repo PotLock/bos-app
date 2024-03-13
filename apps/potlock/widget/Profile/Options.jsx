@@ -10,7 +10,7 @@ const ProfileOptions = (props) => [
     label: "Donations",
     id: "donations",
     disabled: false,
-    source: `${props.ownerId}/widget/Profile.DonationsTable`,
+    source: `${props.ownerId}/widget/Project.PotlockFunding`,
     href: props.hrefWithParams(`?tab=profile&accountId=${props.accountId}&nav=donations`),
   },
   {
