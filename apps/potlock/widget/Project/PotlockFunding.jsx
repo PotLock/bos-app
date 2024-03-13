@@ -192,8 +192,8 @@ const PotlockFunding = styled.div`
       }
     }
     @media screen and (max-width: 768px) {
-      width: 90px;
-      gap: 0.5rem;
+      white-space: nowrap;
+      width: 60px;
     }
   }
   .funding {
@@ -218,6 +218,7 @@ const PotlockFunding = styled.div`
       width: 100%;
       justify-content: left;
       color: #7b7b7b;
+      margin-left: 2.5rem;
     }
   }
 `;
@@ -497,10 +498,15 @@ return (
             donated_at_ms,
           } = donation;
 
-          const donationAmount = SUPPORTED_FTS[
-            (base_currency || ft_id).toUpperCase()
-          ].fromIndivisible(total_amount || amount);
-
+          const donationAmount = parseFloat(
+            SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
+              total_amount || amount
+            )
+          );
+          const addTrailingZeros = (number) => {
+            if ((number < 100) & (number >= 0.1)) return number.toFixed(1);
+            return number;
+          };
           const isPot = type === "payout" || type === "sponsorship";
 
           const url = isPot
@@ -530,8 +536,10 @@ return (
                 </div>
               </FundingSrc>
               <div className="price tab">
-                <NearIcon />
-                {donationAmount}
+                <div className="near-icon">
+                  <NearIcon />
+                </div>
+                {addTrailingZeros(donationAmount)}
               </div>
               <div className="tab date">
                 {getTimePassed(donated_at_ms || donated_at || paid_at, true)} ago
