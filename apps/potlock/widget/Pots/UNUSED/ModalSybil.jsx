@@ -10,8 +10,6 @@ const ERROR_ICON_URL =
   IPFS_BASE_URL + "bafkreicqarojxk6jhdtsk2scfsmnigqpxjfgar6om4wlhn5xmqbbu74u5i";
 const IMAGE_URL = IPFS_BASE_URL + "bafkreidwashbfmlr7qo2yoqcfdsqi4ouisgt6h6jwxymz53v2f7hhoy75a";
 
-const loraCss = fetch("https://fonts.googleapis.com/css2?family=Lora&display=swap").body;
-
 const ModalHeader = styled.div`
   width: 100%;
   padding: 10px 20px;
@@ -56,7 +54,6 @@ const ContentHeaderText = styled.div`
   line-height: 40px;
   color: #525252;
   font-family: "Lora";
-  ${loraCss}
 `;
 
 const ContentDescriptionText = styled.div`

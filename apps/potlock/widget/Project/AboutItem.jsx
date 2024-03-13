@@ -5,7 +5,6 @@ const Container = styled.div`
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  border-top: 1px #c7c7c7 solid;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
@@ -13,15 +12,10 @@ const Container = styled.div`
   }
 `;
 
-const Column = styled.div`
-  padding-top: 16px;
-`;
-
 const Col1 = styled.div`
   display: flex;
-  width: 25%;
-  padding-top: 16px;
-
+  width: 30%;
+  margin-bottom: 1rem;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
@@ -30,8 +24,7 @@ const Col1 = styled.div`
 const Col2 = styled.div`
   display: flex;
   flex-direction: column;
-  width: 75%;
-  padding-top: 16px;
+  width: 70%;
   p {
     margin: 0;
   }
@@ -44,17 +37,13 @@ const Title = styled.div`
   color: #2e2e2e;
   font-size: 16px;
   font-weight: 600;
-  // font-family: Mona-Sans;
 `;
 
 return (
   <Container>
-    {/* <Column className="col-3"> */}
     <Col1>
       <Title>{title}</Title>
-      {/* </Column> */}
     </Col1>
-    {/* <Column className="col-9">{text}</Column> */}
     <Col2>{text}</Col2>
   </Container>
 );

@@ -43,16 +43,39 @@ const socialArgs = {
 const buttonText = loading ? "Loading" : follow ? "Following" : inverse ? "Follow back" : "Follow";
 
 const FollowContainer = styled.div`
-  padding: 10px 16px;
+  position: relative;
   cursor: pointer;
-`;
-
-const FollowText = styled.div`
+  border-radius: 6px;
+  border: 1px solid #dd3345;
   font-size: 14px;
   font-weight: 600;
-  line-height: 20px;
   color: #dd3345;
   word-wrap: break-word;
+  transition: all 300ms;
+  &::before {
+    background: #dd3345;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    content: "Unfollow";
+    color: white;
+    opacity: 0;
+    transition: all 300ms;
+  }
+  :hover {
+    background: #dd3345;
+    color: white;
+    ${buttonText === "Following"
+      ? `
+      ::before {
+        opacity: 1;
+      }
+    `
+      : ""}
+  }
 `;
 
 return (
@@ -69,8 +92,6 @@ return (
       Near.call(transactions);
     }}
   >
-    <FollowText>
-      {loading ? "Loading" : follow ? "Following" : inverse ? "Follow back" : "Follow"}
-    </FollowText>
+    {buttonText}
   </FollowContainer>
 );

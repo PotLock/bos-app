@@ -236,7 +236,7 @@ const APPLICATIONS_FILTERS = projectId
       MATCHED_DONATIONS: "Matched donations",
     };
 
-const [page, setPage] = useState(0);
+const [currentPage, setCurrentPage] = useState(1);
 const [totalDonations, setTotalDonation] = useState(donations);
 const [filteredDonations, setFilteredDonations] = useState(donations);
 const [search, setSearch] = useState("");
@@ -354,78 +354,78 @@ return (
           <div>Extra Fee</div>
         </div>
         {!filteredDonations.length && <div>No donations to display</div>}
-        {filteredDonations.map((donation) => {
-          const {
-            recipient_id,
-            donor_id,
-            total_amount,
-            pot_id,
-            base_currency,
-            ft_id,
-            referrer_fee,
-            chef_fee,
-            protocol_fee,
-            type,
-            project_id,
-          } = donation;
+        {filteredDonations
+          .slice((currentPage - 1) * perPage, currentPage * perPage)
+          .map((donation) => {
+            const {
+              recipient_id,
+              donor_id,
+              total_amount,
+              pot_id,
+              base_currency,
+              ft_id,
+              referrer_fee,
+              chef_fee,
+              protocol_fee,
+              type,
+              project_id,
+            } = donation;
 
-          const isPot = !!pot_id;
-          const donationAmount =
-            SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(total_amount);
+            const isPot = !!pot_id;
+            const donationAmount =
+              SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(total_amount);
 
-          const recepientUrl = isPot
-            ? `?tab=pot&potId=${pot_id}`
-            : `?tab=project&projectId=${recipient_id}`;
-          const profileUrl = `?tab=profile&accountId=${donor_id}`;
-          const url = projectId ? profileUrl : recepientUrl;
+            const recepientUrl = isPot
+              ? `?tab=pot&potId=${pot_id}`
+              : `?tab=project&projectId=${recipient_id}`;
+            const profileUrl = `?tab=profile&accountId=${donor_id}`;
+            const url = projectId ? profileUrl : recepientUrl;
 
-          const name = projectId ? _address(donor_id) : getName(donation);
-          const profileImg = projectId ? donor_id : project_id || recipient_id;
+            const name = projectId ? _address(donor_id) : getName(donation);
+            const profileImg = projectId ? donor_id : project_id || recipient_id;
 
-          const fees = SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
-            referrer_fee || 0 + chef_fee || 0 + protocol_fee || 0,
-            3
-          );
-          return (
-            <TrRow>
-              <a href={hrefWithParams(url)} className="address" target="_blank">
-                {type === "SPONSORSHIP" ? (
-                  <img
-                    className="profile-image"
-                    src="https://ipfs.near.social/ipfs/bafkreib447lbtzgo4mbegsush6ybv5evwreeydgmlg2agn6vxlsf5gpmdq"
-                    alt="pot"
-                  />
-                ) : (
-                  <Widget
-                    src="mob.near/widget/ProfileImage"
-                    props={{ accountId: profileImg, style: {} }}
-                  />
-                )}
-                {name}
-              </a>
-              <div className="type">{APPLICATIONS_FILTERS[type]}</div>
-              <div className="price">
-                <img src={nearLogo} alt="NEAR" />
-                {donationAmount}
-              </div>
-              <div className="price">
-                <img src={nearLogo} alt="NEAR" />
-                {fees}
-              </div>
-            </TrRow>
-          );
-        })}
+            const fees = SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
+              referrer_fee || 0 + chef_fee || 0 + protocol_fee || 0,
+              3
+            );
+            return (
+              <TrRow>
+                <a href={hrefWithParams(url)} className="address" target="_blank">
+                  {type === "SPONSORSHIP" ? (
+                    <img
+                      className="profile-image"
+                      src="https://ipfs.near.social/ipfs/bafkreib447lbtzgo4mbegsush6ybv5evwreeydgmlg2agn6vxlsf5gpmdq"
+                      alt="pot"
+                    />
+                  ) : (
+                    <Widget
+                      src="mob.near/widget/ProfileImage"
+                      props={{ accountId: profileImg, style: {} }}
+                    />
+                  )}
+                  {name}
+                </a>
+                <div className="type">{APPLICATIONS_FILTERS[type]}</div>
+                <div className="price">
+                  <img src={nearLogo} alt="NEAR" />
+                  {donationAmount}
+                </div>
+                <div className="price">
+                  <img src={nearLogo} alt="NEAR" />
+                  {fees}
+                </div>
+              </TrRow>
+            );
+          })}
       </div>
       <Widget
-        src="baam25.near/widget/pagination"
+        src={`${ownerId}/widget/Components.Pagination`}
         props={{
-          onClick: (page) => {
-            setPage(page);
-            setTotalDonation(donations.slice(page * perPage, (page + 1) * perPage));
-            setFilteredDonations(donations.slice(page * perPage, (page + 1) * perPage));
+          onPageChange: (page) => {
+            setCurrentPage(page);
           },
           data: donations,
-          page: page,
+          currentPage,
           perPage: perPage,
           bgColor: "#7B7B7B",
         }}

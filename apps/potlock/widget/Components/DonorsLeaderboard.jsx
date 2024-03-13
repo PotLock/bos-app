@@ -7,11 +7,11 @@ const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
 };
 
-const [page, setPage] = useState(0);
+const [currentPage, setCurrentPage] = useState(1);
 const perPage = 30; // need to be less than 50
 
 useEffect(() => {
-  setPage(0);
+  setCurrentPage(1);
 }, [filter]);
 
 const nearLogo =
@@ -163,7 +163,7 @@ return donations.length ? (
         {isInPot && <div>Percentage</div>}
         {nearToUsd && !isInPot && <div>Amount (USD)</div>}
       </div>
-      {donations.slice(page * perPage, (page + 1) * perPage).map((donation, idx) => {
+      {donations.slice((currentPage - 1) * perPage, currentPage * perPage).map((donation, idx) => {
         const { donor_id, amount, percentage_share } = donation;
 
         return (
@@ -191,13 +191,13 @@ return donations.length ? (
       })}
     </div>
     <Widget
-      src="baam25.near/widget/pagination"
+      src={`${ownerId}/widget/Components.Pagination`}
       props={{
-        onClick: (page) => {
-          setPage(page);
+        onPageChange: (page) => {
+          setCurrentPage(page);
         },
         data: donations,
-        page: page,
+        currentPage,
         perPage: perPage,
         bgColor: "#292929",
       }}
