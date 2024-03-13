@@ -96,7 +96,6 @@ const {
   public_round_start_ms,
   public_round_end_ms,
 } = potConfig;
-// console.log("potConfig", potConfig);
 
 // const totalAmount =
 //   props.SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_public_donations);
@@ -119,10 +118,84 @@ const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 // const publicRoundOpen = true;
-const publicRoundClosed = now >= public_round_end_ms;
+const publicRoundCooldown = now >= public_round_end_ms && matching_pool_balance > 0;
+const publicRoundClosed = now >= public_round_end_ms && matching_pool_balance === "0";
 
 const amountNear = yoctosToNear(matching_pool_balance);
 const amountUsd = yoctosToUsd(matching_pool_balance);
+
+const tags = [
+  /* Application tag */
+  {
+    backgroundColor: "#EFFEFA",
+    borderColor: "#33DDCB",
+    textColor: "#023131",
+    text: daysUntil(application_end_ms) + " left to apply",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#CAFDF3",
+      colorInner: "#33DDCB",
+      animate: true,
+    },
+    visibility: applicationOpen,
+  },
+  /* Matching round open tag */
+  {
+    backgroundColor: "#F7FDE8",
+    borderColor: "#9ADD33",
+    textColor: "#192C07",
+    text: daysUntil(public_round_end_ms) + " left to donate",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#D7F5A1",
+      colorInner: "#9ADD33",
+      animate: true,
+    },
+    visibility: publicRoundOpen,
+  },
+  /* Matching round cooldown tag */
+  {
+    backgroundColor: "#F5F3FF",
+    borderColor: "#A68AFB",
+    textColor: "#2E0F66",
+    text: "Cooldown Period ",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#EDE9FE",
+      colorInner: "#A68AFB",
+      animate: true,
+    },
+    visibility: publicRoundCooldown,
+  },
+  /* Matching round closed tag */
+  {
+    backgroundColor: "#EBEBEB",
+    borderColor: "#DBDBDB",
+    textColor: "#192C07",
+    text: "Cooldown Period ",
+    textStyle: { fontWeight: 500 },
+    visibility: publicRoundClosed,
+  },
+];
+
+const Tag = (props) => (
+  <Widget
+    src={`${ownerId}/widget/Pots.Tag`}
+    props={{
+      ...props,
+      ...(props.preElementsProps
+        ? {
+            preElements: (
+              <Widget
+                src={`${ownerId}/widget/Components.Indicator`}
+                props={props.preElementsProps}
+              />
+            ),
+          }
+        : {}),
+    }}
+  />
+);
 
 return (
   <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}>
@@ -142,56 +215,7 @@ return (
           <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
         )}
       </Title>
-      {/* Application tag */}
-      {applicationOpen && (
-        <Widget
-          src={`${ownerId}/widget/Pots.Tag`}
-          props={{
-            ...props,
-            backgroundColor: "#EFFEFA",
-            borderColor: "#33DDCB",
-            textColor: "#023131",
-            text: daysUntil(application_end_ms) + " left to apply",
-            textStyle: { fontWeight: 500, marginLeft: "8px" },
-            preElements: (
-              <Widget
-                src={`${ownerId}/widget/Components.Indicator`}
-                props={{
-                  colorOuter: "#CAFDF3",
-                  colorInner: "#33DDCB",
-                  animate: true,
-                }}
-              />
-            ),
-          }}
-        />
-      )}
-      {/* Matching round tag */}
-      {publicRoundOpen && (
-        <Widget
-          src={`${ownerId}/widget/Pots.Tag`}
-          props={{
-            ...props,
-            backgroundColor: publicRoundOpen ? "#F7FDE8" : "#EBEBEB",
-            borderColor: publicRoundOpen ? "#9ADD33" : "#DBDBDB",
-            textColor: publicRoundOpen ? "#192C07" : "#192C07",
-            text: publicRoundOpen
-              ? daysUntil(public_round_end_ms) + " left to donate"
-              : "Round closed",
-            textStyle: { fontWeight: 500, marginLeft: "8px" },
-            preElements: (
-              <Widget
-                src={`${ownerId}/widget/Components.Indicator`}
-                props={{
-                  colorOuter: publicRoundOpen ? "#D7F5A1" : "#DBDBDB",
-                  colorInner: publicRoundOpen ? "#9ADD33" : "#A6A6A6",
-                  animate: publicRoundOpen,
-                }}
-              />
-            ),
-          }}
-        />
-      )}
+      {tags.map((tag) => (tag.visibility ? <Tag {...tag} /> : ""))}
     </CardSection>
   </Card>
 );
