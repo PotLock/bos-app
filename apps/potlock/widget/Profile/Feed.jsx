@@ -1,8 +1,12 @@
-const post = props.post || true;
+const { groupId, permissions } = props;
+
+const post = props.post === undefined ?? true;
 const hashtags = props.hashtags || [];
 
 const indexKey = props.indexKey ?? "main";
-const { groupId, permissions, ownerId } = props;
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
 
 const index = [
   {

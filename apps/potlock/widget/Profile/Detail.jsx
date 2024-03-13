@@ -117,6 +117,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
+
 return (
   <Wrapper>
     <Widget
@@ -133,6 +134,7 @@ return (
         directDonations,
         nav: props.nav ?? "donations",
         navOptions: ProfileOptions(props),
+        post: accountId === context.accountId,
       }}
     />
   </Wrapper>

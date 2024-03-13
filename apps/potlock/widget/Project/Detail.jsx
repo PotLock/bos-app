@@ -1,5 +1,7 @@
 const { projectId, tab } = props;
 
+const accountId = context.accountId;
+
 const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
@@ -100,9 +102,9 @@ const BannerSkeleton = () => (
   </SkeletonContainer>
 );
 
-if (!project || project === null) return <BannerSkeleton />;
+if (project === null) return <BannerSkeleton />;
 if (project == undefined) {
-  return "Project not found";
+  return <div style={{ marginTop: "1rem", fontSize: "1.5rem" }}>Project not found</div>;
 }
 
 const [directDonations, setDirectDonations] = useState(null);
@@ -183,15 +185,16 @@ const Wrapper = styled.div`
 
 return (
   <Wrapper>
-    {/* {project.status !== "Approved" && (
+    {project.status !== "Approved" && (
       <Widget src={`${ownerId}/widget/Project.ProjectBanner`} props={{ ...props, project }} />
-    )} */}
+    )}
     <Widget
       src={`${ownerId}/widget/Profile.Body`}
       props={{
         ...props,
         profile,
         project,
+        post: projectId === accountId,
         nav: props.nav ?? "home",
         donations: allDonations,
         directDonations: directDonations,

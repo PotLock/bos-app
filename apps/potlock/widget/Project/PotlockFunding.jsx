@@ -453,7 +453,7 @@ return (
     </Sort>
     <PotlockFunding>
       <div className="header">
-        <div className="funding tab">Funding Source</div>
+        <div className="funding tab">{projectId ? "Funding Source" : "Project Name"}</div>
         <div className="tab sort" onClick={() => sortDonation("price")}>
           Amount {currentFilter === "price" && <Arrow active={filter.price} />}
         </div>
