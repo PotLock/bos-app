@@ -8,23 +8,19 @@ const onSearchChange = (event) => {
 
 const SearchBarContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   width: 100%;
   background: #f0f0f0;
   padding: 12px 24px;
-
-  @media screen and (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 `;
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  flex: 1;
 `;
 
 const SearchBar = styled.input`
