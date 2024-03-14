@@ -406,7 +406,7 @@ return (
       <NavLeft>
         <NavLogo href={props.hrefWithParams(`?tab=projects`)}>
           <img
-            src="https://ipfs.near.social/ipfs/bafkreiacvudmiizuhqi6undkncv2nce3bnrv4yriwobfhzbn736qvtkk34"
+            src="https://ipfs.near.social/ipfs/bafkreiafms2jag3gjbypfceafz2uvs66o25qc7m6u6hkxfyrzfoeyvj7ru"
             alt="logo"
           />
           POTLOCK

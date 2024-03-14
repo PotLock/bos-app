@@ -213,7 +213,7 @@ return (
           <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
         )}
       </Title>
-      {tags.map((tag) => (tag.visibility ? <Tag {...tag} /> : ""))}
+      {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
     </CardSection>
   </Card>
 );
