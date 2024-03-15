@@ -24,7 +24,7 @@ const SearchBarContainer = styled.div`
   background: #f0f0f0;
   padding: 12px 24px;
   @media only screen and (max-width: 480px) {
-    padding: 12px 16px;
+    padding: 12px 16px 12px 0px;
   }
 `;
 
