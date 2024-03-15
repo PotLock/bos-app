@@ -31,7 +31,7 @@ const Info = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 100%;
+  flex: 1;
 `;
 
 const NameContainer = styled.div`

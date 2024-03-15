@@ -156,7 +156,7 @@ const tags = [
     backgroundColor: "#F5F3FF",
     borderColor: "#A68AFB",
     textColor: "#2E0F66",
-    text: "Challenge Period ",
+    text: "Cooldown period",
     textStyle: { fontWeight: 500, marginLeft: "8px" },
     preElementsProps: {
       colorOuter: "#EDE9FE",
@@ -167,10 +167,15 @@ const tags = [
   },
   /* Matching round closed tag */
   {
-    backgroundColor: "#EBEBEB",
-    borderColor: "#DBDBDB",
-    textColor: "#192C07",
-    text: "Cooldown Period ",
+    backgroundColor: "#464646",
+    borderColor: "#292929",
+    textColor: "#FFF",
+    text: "Round closed",
+    preElementsProps: {
+      colorOuter: "#656565",
+      colorInner: "#A6A6A6",
+      animate: false,
+    },
     textStyle: { fontWeight: 500 },
     visibility: publicRoundClosed,
   },
