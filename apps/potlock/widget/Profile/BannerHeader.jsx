@@ -217,13 +217,15 @@ const ProfileImageContainer = styled.div`
 
 const BackgroundImageContainer = styled.div`
   position: relative;
+  width: 100%;
+  height: 318px;
   img {
     object-fit: cover;
+    height: 100%;
     width: 100%;
-    height: 318px;
-    @media screen and (max-width: 768px) {
-      height: 264px;
-    }
+  }
+  @media screen and (max-width: 768px) {
+    height: 264px;
   }
   svg {
     position: absolute;

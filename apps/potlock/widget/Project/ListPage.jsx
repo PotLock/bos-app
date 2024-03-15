@@ -918,6 +918,7 @@ return (
           numItems: filteredProjects.length,
           itemName: tab == "pots" ? "pot" : "project",
           sortList: Object.values(SORT_FILTERS),
+          FilterMenuCustomStyle: `left:auto !important; right:0;`,
           setSearchTerm: (value) => {
             searchByWords(projects, value);
           },

@@ -1,5 +1,12 @@
+const { groupId, permissions } = props;
+
+const post = props.post === undefined ?? true;
+const hashtags = props.hashtags || [];
+
 const indexKey = props.indexKey ?? "main";
-const { groupId, permissions, ownerId } = props;
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
 
 const index = [
   {
@@ -164,9 +171,26 @@ const renderRepost = (a) => {
 const renderItem = (item) => {
   return item.action === "post" ? renderPost(item) : renderRepost(item);
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  .post-btn {
+    background: rgb(46, 46, 46);
+    border-radius: 6px;
+    padding: 12px 16px;
+    border: none;
+    color: white;
+  }
+`;
+
 return (
-  <Widget
-    src={`${ownerId}/widget/Profile.MergedIndexFeed`}
-    props={{ index, renderItem, filter: props.filter, threshold: 800 }}
-  />
+  <Container>
+    {post && <Widget src="potlock.near/widget/Profile.Compose" props={{ initialText }} />}
+
+    <Widget
+      src={`${ownerId}/widget/Profile.MergedIndexFeed`}
+      props={{ index, renderItem, filter: props.filter, threshold: 800 }}
+    />
+  </Container>
 );

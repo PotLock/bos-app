@@ -59,6 +59,9 @@ const NavRightMobile = styled.div`
 `;
 
 const NavLogo = styled.a`
+  display: flex;
+  gap: 7px;
+  align-items: baseline;
   text-align: center;
   color: #2e2e2e;
   font-size: 23.95px;
@@ -73,6 +76,9 @@ const NavLogo = styled.a`
   }
   :hover {
     text-decoration: none;
+  }
+  img {
+    height: 1em;
   }
 `;
 
@@ -284,6 +290,7 @@ const BannerLinkContainer = styled.a`
     font-size: 12px;
     margin-left: 8px;
     gap: 4px;
+  }
 `;
 
 const BannerLinkSvg = styled.svg`
@@ -323,7 +330,7 @@ const NavMenu = styled.div`
     justify-content: flex-start;
     align-items: flex-start;
   }
-}`;
+`;
 
 const NavMenuItem = styled.a`
   color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
@@ -397,7 +404,13 @@ return (
     )}
     <Nav>
       <NavLeft>
-        <NavLogo href={props.hrefWithParams(`?tab=projects`)}>🫕 Potlock</NavLogo>
+        <NavLogo href={props.hrefWithParams(`?tab=projects`)}>
+          <img
+            src="https://ipfs.near.social/ipfs/bafkreiafms2jag3gjbypfceafz2uvs66o25qc7m6u6hkxfyrzfoeyvj7ru"
+            alt="logo"
+          />
+          POTLOCK
+        </NavLogo>
       </NavLeft>
       <NavRight>
         <NavTabs>

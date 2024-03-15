@@ -31,10 +31,12 @@ const Info = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1;
 `;
 
 const NameContainer = styled.div`
   display: flex;
+  width: 100%;
   flex-wrap: wrap;
   flex-direction: row;
   align-items: end;
@@ -142,8 +144,21 @@ return (
               props={{
                 type: "secondary",
                 text: "Edit profile",
+                style: { marginLeft: "auto" },
                 disabled: false,
                 href: props.hrefWithParams(`?tab=editproject&projectId=${projectId}`),
+              }}
+            />
+          )}
+          {accountId === context.accountId && !projectId && (
+            <Widget
+              src={`${ownerId}/widget/Components.Button`}
+              props={{
+                type: "secondary",
+                style: { marginLeft: "auto" },
+                text: "Edit profile",
+                disabled: false,
+                href: props.hrefWithParams(`?tab=editprofile`),
               }}
             />
           )}

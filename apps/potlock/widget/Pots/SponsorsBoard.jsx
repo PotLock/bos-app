@@ -1,5 +1,11 @@
 const { donations, base_currency } = props;
 
+const sponsorsLeaderboard = [
+  donations.slice(0, 1),
+  donations.slice(1, 3),
+  donations.slice(3, 6),
+].filter((subList) => subList.length > 0);
+
 const { _address } = VM.require("potlock.near/widget/Components.DonorsUtils") || {
   _address: () => "",
 };
@@ -203,7 +209,17 @@ const SponsorWrapper = styled.div`
 `;
 
 const ProfileImg = ({ profile }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ profile: profile, style: {} }} />
+  <Widget
+    src="mob.near/widget/Image"
+    props={{
+      image: profile.image,
+      style: {},
+      className: "profile-image",
+      alt: profile.name,
+      fallbackUrl:
+        "https://ipfs.near.social/ipfs/bafkreidla73cknxbeovrhgb2blax2j2qgcgcn6ibluzza3buq2mbkoqs2e",
+    }}
+  />
 );
 
 const SponsorOverlay = ({
@@ -247,7 +263,7 @@ const Sponsor = ({ donation: { amount, donor_id, percentage_share }, colIdx, idx
       <div className="item-overlay">{percentage_share}%</div>
       <SponsorWrapper>
         <ProfileImg profile={profile} />
-        {colIdx < 3 && <div className="name">{profile.name || donor_id}</div>}
+        {colIdx < 3 && <div className="name">{_address(profile.name || donor_id, 15)}</div>}
       </SponsorWrapper>
       <div className="footer">
         <div className="amount">{amount} NEAR</div>
@@ -257,26 +273,14 @@ const Sponsor = ({ donation: { amount, donor_id, percentage_share }, colIdx, idx
   );
 };
 
-const sponsorsLeaderboard = [
-  [donations[0]],
-  [donations[1], donations[2]],
-  [donations[3], donations[4], donations[5]],
-];
 return (
   <Container>
-    {sponsorsLeaderboard.map(
-      (donationsCol, colIdx) =>
-        donationsCol[0] && (
-          <div className="col">
-            {donationsCol.map((donation, idx) => {
-              return donation ? (
-                <Sponsor donation={donation} colIdx={colIdx + 1} idx={idx + 1} />
-              ) : (
-                ""
-              );
-            })}
-          </div>
-        )
-    )}
+    {sponsorsLeaderboard.map((donationsCol, colIdx) => (
+      <div className="col">
+        {donationsCol.map((donation, idx) => (
+          <Sponsor donation={donation} colIdx={colIdx + 1} idx={idx + 1} />
+        ))}
+      </div>
+    ))}
   </Container>
 );

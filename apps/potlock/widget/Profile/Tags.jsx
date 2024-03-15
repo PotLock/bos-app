@@ -6,6 +6,7 @@ const Tags = styled.div`
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  max-width: 600px;
 `;
 
 const Tag = styled.span`

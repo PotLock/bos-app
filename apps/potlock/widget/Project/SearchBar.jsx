@@ -1,4 +1,13 @@
-const { title, numItems, itemName, sortList, sortVal, handleSortChange, setSearchTerm } = props;
+const {
+  title,
+  numItems,
+  itemName,
+  sortList,
+  sortVal,
+  handleSortChange,
+  setSearchTerm,
+  FilterMenuCustomStyle,
+} = props;
 
 const [openFilter, setOpenFilter] = useState(false);
 
@@ -8,15 +17,14 @@ const onSearchChange = (event) => {
 
 const SearchBarContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   width: 100%;
   background: #f0f0f0;
   padding: 12px 24px;
-
-  @media screen and (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+  @media only screen and (max-width: 480px) {
+    padding: 12px 16px 12px 0px;
   }
 `;
 
@@ -24,7 +32,7 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  flex: 1;
 `;
 
 const SearchBar = styled.input`
@@ -73,6 +81,7 @@ const FilterMenu = styled.div`
   box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
     0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
   z-index: 2;
+  ${FilterMenuCustomStyle || ""}
   @media screen and (max-width: 768px) {
     left: 0;
     background: #fff;

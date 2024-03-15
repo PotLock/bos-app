@@ -15,6 +15,7 @@ const DEPLOY_POT_TAB = "deploypot";
 const POT_DETAIL_TAB = "pot";
 const DONORS_TAB = "donors";
 const PROFILE_TAB = "profile";
+const EDIT_PROFILE_TAB = "editprofile";
 
 const loraCss = fetch(
   "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
@@ -103,6 +104,7 @@ const tabContentWidget = {
   [POT_DETAIL_TAB]: "Pots.Detail",
   [DONORS_TAB]: "Components.Donors",
   [PROFILE_TAB]: "Profile.Detail",
+  [EDIT_PROFILE_TAB]: "Profile.Edit",
 };
 
 const getTabWidget = (tab) => {
