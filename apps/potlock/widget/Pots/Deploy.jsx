@@ -1,36 +1,32 @@
-const { ownerId } = props;
-// const potFactoryContractId = "potfactory1.tests.potlock.near"; // TODO: update to production address when contract is deployed to prod
+const { canDeploy, hrefWithParams } = props;
 
-// const DEFAULT_REGISTRY_PROVIDER = "registry.potlock.near";
-// const DEFAULT_SYBIL_WRAPPER_PROVIDER = "sybil.potlock.near";
-// const DEFAULT_PROTOCOL_CONFIG_PROVIDER = potFactoryContractId;
-// const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
-// const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
+};
+
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
-
-// Big.PE = 100;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0px 175px;
-  @media only screen and (max-width: 1160px) {
-    padding: 0px;
+  > div:last-of-type {
+    padding: 0px 175px;
+  }
+  @media only screen and (max-width: 992px) {
+    > div:last-of-type {
+      padding: 0px 20px;
+    }
   }
 `;
 
-const HeaderContent = styled.div`
+const SuccessContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  width: 100%;
   gap: 24px;
-  padding: 48px;
-  @media only screen and (max-width: 480px) {
-    padding: 48px 0;
-  }
 `;
 
 const HeaderTitle = styled.div`
@@ -42,204 +38,131 @@ const HeaderTitle = styled.div`
   font-family: Lora;
 `;
 
-const HeaderDescription = styled.div`
-  color: #292929;
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 24px;
-  word-wrap: break-word;
-  text-align: center;
-`;
-
-const SuccessContainer = styled.div`
+const HeaderContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  //   justify-content: center;
+  position: relative;
   width: 100%;
-  padding: 24px;
-  gap: 24px;
+  justify-content: center;
+  min-height: 400px;
+  overflow: hidden;
+  .background {
+    position: absolute;
+    pointer-events: none;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 175px;
+  }
+  .sub-title {
+    letter-spacing: 1.12px;
+    font-weight: 500;
+    font-size: 14px;
+    margin-top: 0;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .title {
+    letter-spacing: -0.4px;
+    font-weight: 500;
+    font-size: 40px;
+    font-family: "Lora";
+    margin: 0;
+  }
+
+  .info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-top: 24px;
+    > svg {
+      height: 1em;
+    }
+  }
+
+  @media only screen and (max-width: 992px) {
+    .content {
+      padding: 64px 20px;
+    }
+    .title {
+      font-size: 36px;
+    }
+    .btns {
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 24px;
+    }
+    .line-break {
+      display: none;
+    }
+  }
+  @media only screen and (max-width: 480px) {
+    .btns a {
+      width: 100%;
+      padding: 12px 0;
+    }
+  }
 `;
 
-// State.init({
-//   // owner: context.accountId,
-//   // ownerError: "",
-//   // name: "",
-//   // nameError: "",
-//   // description: "",
-//   // descriptionError: "",
-//   // referrerFeeMatchingPoolBasisPoints: "",
-//   // referrerFeeMatchingPoolBasisPointsError: "",
-//   // referrerFeePublicRoundBasisPoints: "",
-//   // referrerFeePublicRoundBasisPointsError: "",
-//   //   protocolFeeBasisPoints: "",
-//   //   protocolFeeBasisPointsError: "",
-//   // applicationStartDate: "",
-//   // applicationStartDateError: "",
-//   // applicationEndDate: "",
-//   // applicationEndDateError: "",
-//   // matchingRoundStartDate: "",
-//   // matchingRoundStartDateError: "",
-//   // matchingRoundEndDate: "",
-//   // matchingRoundEndDateError: "",
-//   // chef: "",
-//   // chefError: "",
-//   // chefFeeBasisPoints: "",
-//   // chefFeeBasisPointsError: "",
-//   // maxProjects: "",
-//   // maxProjectsError: "",
-//   // latestSourceCodeCommitHash: "",
-//   // deploymentSuccess: false,
-// });
-
-// const MAX_DESCRIPTION_LENGTH = 320;
-
-// const userIsWhitelisted = props.QF_WHITELISTED_ACCOUNTS.includes(context.accountId);
-
-// if (!userIsWhitelisted) return "Unauthorized";
-
-// if (!state.latestSourceCodeCommitHash) {
-//   const res = fetch("https://api.github.com/repos/PotLock/core/commits");
-//   console.log("res: ", res);
-//   if (res.ok && res.body.length > 0) {
-//     State.update({
-//       latestSourceCodeCommitHash: res.body[0].sha,
-//     });
-//   }
-// }
-
-// // TODO: GET PROTOCOL FEES FROM POTFACTORY CONTRACT AND SET ON STATE & DISPLAY IN FORM AS READ-ONLY INPUTS
-
-// const handleDeploy = () => {
-//   // create deploy pot args
-//   const deployArgs = {
-//     owner: state.owner,
-//     admins: [], // TODO: CHANGE TO TAKE FROM STATE
-//     chef: state.chef,
-//     pot_name: state.name,
-//     pot_description: state.description,
-//     max_projects: parseInt(state.maxProjects),
-//     application_start_ms: convertToUTCTimestamp(state.applicationStartDate),
-//     application_end_ms: convertToUTCTimestamp(state.applicationEndDate),
-//     public_round_start_ms: convertToUTCTimestamp(state.matchingRoundStartDate),
-//     public_round_end_ms: convertToUTCTimestamp(state.matchingRoundEndDate),
-//     registry_provider: DEFAULT_REGISTRY_PROVIDER,
-//     sybil_wrapper_provider: DEFAULT_SYBIL_WRAPPER_PROVIDER,
-//     custom_sybil_checks: null, // not necessary to include null values but doing so for clarity
-//     custom_min_threshold_score: null,
-//     referral_fee_matching_pool_basis_points: state.referrerFeeMatchingPoolBasisPoints,
-//     referral_fee_public_round_basis_points: state.referrerFeePublicRoundBasisPoints,
-//     chef_fee_basis_points: state.chefFeeBasisPoints,
-//     protocol_config_provider: DEFAULT_PROTOCOL_CONFIG_PROVIDER, // TODO: this should not be passed in here, as it's too easy to override. Should be set by factory contract when deploying.
-//     source_metadata: {
-//       version: CURRENT_SOURCE_CODE_VERSION,
-//       commit_hash: state.latestSourceCodeCommitHash,
-//       link: SOURCE_CODE_LINK,
-//     },
-//   };
-//   console.log("deployargs: ", deployArgs);
-
-//   Near.asyncView(potFactoryContractId, "calculate_min_deployment_deposit", {
-//     args: deployArgs,
-//   }).then((amount) => {
-//     const amountYoctos = Big(amount).plus(Big("20000000000000000000000")); // add extra 0.02 NEAR as buffer
-//     const transactions = [
-//       {
-//         contractName: potFactoryContractId,
-//         methodName: "deploy_pot",
-//         deposit: amountYoctos,
-//         args: { pot_args: deployArgs },
-//         gas: props.ONE_TGAS.mul(300),
-//       },
-//     ];
-//     const now = Date.now();
-//     Near.call(transactions);
-//     // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
-//     // <---- EXTENSION WALLET HANDLING ---->
-//     // poll for updates
-//     const pollIntervalMs = 1000;
-//     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
-//     const pollId = setInterval(() => {
-//       Near.asyncView(potFactoryContractId, "get_pots", {}).then((pots) => {
-//         console.log("pots: ", pots);
-//         const pot = pots.find(
-//           (pot) => pot.deployed_by === context.accountId && pot.deployed_at_ms > now
-//         );
-//         if (pot) {
-//           clearInterval(pollId);
-//           State.update({ deploymentSuccess: true });
-//         }
-//       });
-//     }, pollIntervalMs);
-//   });
-// };
-
-// console.log("state: ", state);
-
-// const convertToUTCTimestamp = (localDateTime) => {
-//   if (!localDateTime) {
-//     return;
-//   }
-//   return new Date(localDateTime).getTime();
-// };
-
-// const validateAndUpdatePercentages = (percent, stateKey, errorKey) => {
-//   // TODO: move this to separate component for percentage input that accepts "basisPoints" bool parameter
-//   const percentFloat = parseFloat(percent);
-//   const updates = {
-//     [errorKey]: "",
-//   };
-//   if (!percent) {
-//     updates[stateKey] = "";
-//   } else if (percentFloat && percentFloat <= 100) {
-//     updates[stateKey] = percentFloat * 100;
-//   }
-//   State.update(updates);
-// };
-
-// const FormSectionLeft = (title, description) => {
-//   return (
-//     <FormSectionLeftDiv>
-//       <FormSectionTitle>{title}</FormSectionTitle>
-//       <FormSectionDescription>{description}</FormSectionDescription>
-//     </FormSectionLeftDiv>
-//   );
-// };
-
-return (
+return props.deploymentSuccess || state.deploymentSuccess ? (
+  <SuccessContainer>
+    <HeaderTitle>Deployment Successful!</HeaderTitle>
+    <Widget
+      src={`${ownerId}/widget/Components.Button`}
+      props={{
+        type: "primary",
+        text: "View all pots",
+        style: props.style || {},
+        href: props.hrefWithParams(`?tab=pots`),
+      }}
+    />
+  </SuccessContainer>
+) : (
   <Container>
-    {props.deploymentSuccess || state.deploymentSuccess ? (
-      <SuccessContainer>
-        <HeaderTitle>Deployment Successful!</HeaderTitle>
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "primary",
-            text: "View all pots",
-            style: props.style || {},
-            href: props.hrefWithParams(`?tab=pots`),
-          }}
-        />
-      </SuccessContainer>
-    ) : (
-      <>
-        <HeaderContent>
-          <HeaderTitle>Deploy Pot</HeaderTitle>
-          <HeaderDescription>
-            Create a profile for your impact project to receive direct donations, qualify for
-            funding rounds, join NEAR's accelerator, and get discovered across social platforms.
-          </HeaderDescription>
-          <a href={POT_CODE_LINK} target="_blank">
-            View code
-          </a>
-        </HeaderContent>
-        <Widget
-          src={`${ownerId}/widget/Pots.ConfigForm`}
-          props={{
-            ...props,
-          }}
-        />
-      </>
-    )}
+    <HeaderContainer>
+      <Widget
+        src={`${ownerId}/widget/Pots.HomeBannerBackground`}
+        props={{
+          className: "background",
+        }}
+      />
+      <div className="content">
+        <h3 className="sub-title">Deploy pot</h3>
+        <h1 className="title">
+          Deploy a Quadratic <br className="line-break" />
+          Funding Round
+        </h1>
+        <div className="info">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M6.3335 3.66732H7.66683V5.00065H6.3335V3.66732ZM6.3335 6.33398H7.66683V10.334H6.3335V6.33398ZM7.00016 0.333984C3.32016 0.333984 0.333496 3.32065 0.333496 7.00065C0.333496 10.6807 3.32016 13.6673 7.00016 13.6673C10.6802 13.6673 13.6668 10.6807 13.6668 7.00065C13.6668 3.32065 10.6802 0.333984 7.00016 0.333984ZM7.00016 12.334C4.06016 12.334 1.66683 9.94065 1.66683 7.00065C1.66683 4.06065 4.06016 1.66732 7.00016 1.66732C9.94016 1.66732 12.3335 4.06065 12.3335 7.00065C12.3335 9.94065 9.94016 12.334 7.00016 12.334Z"
+              fill="#7B7B7B"
+            />
+          </svg>
+
+          <div>Know More about Quadratic Funding</div>
+        </div>
+      </div>
+    </HeaderContainer>
+    <Widget
+      src={`${ownerId}/widget/Pots.ConfigForm`}
+      props={{
+        ...props,
+      }}
+    />
   </Container>
 );
