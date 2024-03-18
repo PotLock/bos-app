@@ -34,6 +34,7 @@ const Card = styled.a`
   flex-direction: column;
   max-width: 400px;
   width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: 12px;
   background: white;
