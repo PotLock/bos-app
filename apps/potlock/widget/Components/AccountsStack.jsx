@@ -8,6 +8,9 @@ const StackContainer = styled.div`
   margin-bottom: 16px;
   display: flex;
   flex-direction: row;
+  @media screen and (max-width: 768px) {
+    margin-left: 36px;
+  }
 `;
 
 const MoreAccountsContainer = styled.div`
