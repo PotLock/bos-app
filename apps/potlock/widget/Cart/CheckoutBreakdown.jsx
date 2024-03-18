@@ -4,6 +4,13 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   SUPPORTED_FTS: {},
 };
 
+const { getCart, clearCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
+  getCart: () => {},
+  clearCart: () => {},
+};
+
+const cart = getCart();
+
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
 };
@@ -131,7 +138,7 @@ const MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT = 0.1;
 const [amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   const amountsByFt = {};
   let donationTooSmall = false;
-  Object.entries(props.cart || {}).forEach(([projectId, { ft, amount }]) => {
+  Object.entries(cart || {}).forEach(([projectId, { ft, amount }]) => {
     if (!amountsByFt[ft]) amountsByFt[ft] = 0;
     amountsByFt[ft] += parseFloat(amount || 0);
     if (amountsByFt[ft] < MIN_REQUIRED_DONATION_AMOUNT_PER_PROJECT) donationTooSmall = true;
@@ -144,12 +151,12 @@ const handleDonate = () => {
   const transactions = [];
   let potIdContained;
 
-  Object.entries(props.cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
+  Object.entries(cart).forEach(([projectId, { ft, amount, referrerId, note, potId }]) => {
     const amountFloat = 0;
     if (ft == "NEAR") {
       amountFloat = parseFloat(amount || 0);
     } else {
-      amountFloat = parseFloat((amount / props.cart[props.projectId]?.price).toFixed(2) || 0);
+      amountFloat = parseFloat((amount / cart[props.projectId]?.price).toFixed(2) || 0);
     }
     const amountIndivisible = SUPPORTED_FTS[ft].toIndivisible(amountFloat);
     const donateContractArgs = {};
@@ -190,7 +197,7 @@ const handleDonate = () => {
       // go through donations, add to foundDonations list
       for (const donation of donations) {
         const { recipient_id, project_id, donated_at_ms, donated_at, total_amount } = donation;
-        const matchingCartItem = props.cart[project_id || recipient_id];
+        const matchingCartItem = cart[project_id || recipient_id];
         if (matchingCartItem && (donated_at_ms > now || donated_at > now)) {
           foundDonations.push(donation);
         }
@@ -201,7 +208,7 @@ const handleDonate = () => {
         clearInterval(pollId);
         props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
         props.setCheckoutSuccess(true);
-        props.clearCart();
+        clearCart();
       }
     });
   }, pollIntervalMs);
@@ -212,16 +219,14 @@ return (
     <Title>Breakdown summary</Title>
     <CurrencyHeader>
       <CurrencyHeaderText>Currency</CurrencyHeaderText>
-      <CurrencyHeaderText>
-        {props.cart[props.projectId]?.ft == "USD" ? "USD" : "NEAR"}
-      </CurrencyHeaderText>
+      <CurrencyHeaderText>{cart[props.projectId]?.ft == "USD" ? "USD" : "NEAR"}</CurrencyHeaderText>
     </CurrencyHeader>
     {Object.entries(amountsByFt).map(([ft, amount]) => {
       const amountFloat = parseFloat(amount || 0);
       return (
         <BreakdownItemContainer>
           <BreakdownItemLeft>
-            {props.cart[props.projectId]?.ft == "NEAR" ? (
+            {cart[props.projectId]?.ft == "NEAR" ? (
               <CurrencyIcon src={SUPPORTED_FTS[ft].iconUrl} />
             ) : (
               "$"
@@ -243,7 +248,7 @@ return (
       props={{
         type: "primary",
         text: `Donate ${`${totalAmount.toFixed(2)} N`}`,
-        disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
+        disabled: !Object.keys(cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
         style: {
           width: "100%",

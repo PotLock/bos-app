@@ -17,6 +17,13 @@ const DONORS_TAB = "donors";
 const PROFILE_TAB = "profile";
 const EDIT_PROFILE_TAB = "editprofile";
 
+const { getCartItemCount, clearCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
+  getCartItemCount: () => {},
+  clearCart: () => {},
+};
+
+const numCartItems = getCartItemCount();
+
 const loraCss = fetch(
   "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 ).body;
@@ -60,11 +67,8 @@ const Theme = styled.div`
 `;
 
 State.init({
-  cart: null,
   checkoutSuccess: false,
   checkoutSuccessTxHash: null,
-  // previousCart: null,
-  isCartModalOpen: false,
   isNavMenuOpen: false,
   donnorProjectId: null,
   amount: null,
@@ -72,13 +76,6 @@ State.init({
   referrerId: null,
   currency: null,
   // isSybilModalOpen: false,
-  donateToProjectModal: {
-    isOpen: false,
-    recipientId: null,
-    referrerId: null,
-    potId: null,
-    potDetail: null,
-  },
   successModal: {
     isOpen:
       (!props.tab ||
@@ -115,18 +112,6 @@ const getTabWidget = (tab) => {
   return defaultTabWidget;
 };
 
-const CART_KEY = "cart";
-
-// const PREVIOUS_CART_KEY = "previousCart";
-const storageCart = Storage.get(CART_KEY);
-const StorageCurrency = Storage.get("currency");
-const StorageNote = Storage.get("note");
-const StorageAmount = Storage.get("amount");
-const StorageProjectId = Storage.get("projectId");
-const StorageReferrerId = Storage.get("referrerId");
-// const storagePreviousCart = Storage.get(PREVIOUS_CART_KEY);
-const DEFAULT_CART = {};
-
 const props = {
   ...props,
   ...state,
@@ -158,47 +143,8 @@ const props = {
     State.update({ referrerId: referrerId });
     Storage.set("referrerId", referrerId);
   },
-  addProjectsToCart: (projects) => {
-    const cart = state.cart ?? {};
-    projects.forEach((item) => {
-      if (!item.ft) item.ft = "NEAR"; // default to NEAR
-      cart[item.id] = item; // default to NEAR
-    });
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  removeProjectsFromCart: (projectIds) => {
-    const cart = state.cart ?? {};
-    projectIds.forEach((projectId) => {
-      delete cart[projectId];
-    });
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  updateCartItem: ({ projectId, amount, ft, price, referrerId, potId, potDetail, note }) => {
-    const cart = state.cart ?? {};
-    const updated = {};
-    // if (amount === "") updated.amount = "0";
-    if (amount || amount === "") updated.amount = amount;
-    if (ft) updated.ft = ft;
-    if (price) updated.price = price;
-    if (referrerId) updated.referrerId = referrerId;
-    if (potId) updated.potId = potId;
-    if (potDetail) updated.potDetail = potDetail;
-    if (note) updated.note = note;
-    cart[projectId] = updated;
-    State.update({ cart });
-    Storage.set(CART_KEY, JSON.stringify(cart));
-  },
-  clearCart: () => {
-    State.update({ cart: {} });
-    Storage.set(CART_KEY, JSON.stringify(DEFAULT_CART));
-  },
   setCheckoutSuccess: (checkoutSuccess) => {
     State.update({ checkoutSuccess });
-  },
-  setIsCartModalOpen: (isOpen) => {
-    State.update({ isCartModalOpen: isOpen });
   },
   setIsNavMenuOpen: (isOpen) => {
     State.update({ isNavMenuOpen: isOpen });
@@ -213,11 +159,6 @@ const props = {
     }
     return href;
   },
-  openDonateToProjectModal: (recipientId, referrerId, potId, potDetail) => {
-    State.update({
-      donateToProjectModal: { isOpen: true, recipientId, referrerId, potId, potDetail },
-    });
-  },
 };
 
 if (props.transactionHashes && props.tab === CART_TAB) {
@@ -230,17 +171,6 @@ if (props.transactionHashes && props.tab === DEPLOY_POT_TAB) {
   // if transaction hashes are in URL but haven't been added to props, override state:
   props.deploymentSuccessTxHash = props.transactionHashes;
   props.deploymentSuccess = true;
-}
-
-if (state.cart === null && storageCart !== null) {
-  // cart hasn't been set on state yet, and storageCart has been fetched
-  // if storageCart isn't undefined, set it on state
-  // otherwise, set default cart on state
-  let cart = DEFAULT_CART;
-  if (storageCart) {
-    cart = JSON.parse(storageCart);
-  }
-  State.update({ cart });
 }
 
 if (
@@ -258,22 +188,11 @@ if (
   State.update({ referrerId: StorageReferrerId });
 }
 
-// if (state.previousCart === null && storagePreviousCart !== null) {
-//   // previousCart hasn't been set on state yet, and storagePreviousCart has been fetched
-//   // if storagePreviousCart isn't undefined, set it on state
-//   if (storagePreviousCart && Object.keys(JSON.parse(storagePreviousCart)).length > 0) {
-//     console.log("updating previous cart");
-//     State.update({ previousCart: JSON.parse(storagePreviousCart) });
-//   }
-// }
-
-// console.log("state in Index: ", state);
-
-if (props.checkoutSuccessTxHash && state.cart && Object.keys(state.cart).length > 0) {
+if (props.checkoutSuccessTxHash && numCartItems > 0) {
   // if checkout was successful after wallet redirect, clear cart
   // store previous cart in local storage to show success message
   // console.log("previous cart: ", state.cart);
-  props.clearCart();
+  clearCart();
 }
 
 if (props.tab === EDIT_PROJECT_TAB) {
@@ -299,39 +218,12 @@ const Content = styled.div`
 
 const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
-if (!state.cart) {
-  return "";
-}
-
 return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
     {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (
       <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
-    )}
-
-    {state.donateToProjectModal.isOpen && (
-      <Widget
-        src={`${ownerId}/widget/Project.ModalDonation`}
-        props={{
-          ...props,
-          isModalOpen: state.donateToProjectModal.isOpen,
-          onClose: () =>
-            State.update({
-              donateToProjectModal: {
-                isOpen: false,
-                recipientId: null,
-                referrerId: null,
-                potId: null,
-                potDetail: null,
-              },
-            }),
-          recipientId: state.donateToProjectModal.recipientId,
-          referrerId: state.donateToProjectModal.referrerId,
-          potId: state.donateToProjectModal.potId,
-        }}
-      />
     )}
     <Widget
       src={`${ownerId}/widget/Project.ModalSuccess`}

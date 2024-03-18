@@ -273,6 +273,11 @@ const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
 };
 
+const { addItemsToCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
+  addItemsToCart: () => {},
+  clearCart: () => {},
+};
+
 const approvedProjectIds = useMemo(
   // TODO: get projects for pot if potId
   () => {
@@ -442,7 +447,7 @@ const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoin
 const profileName = profile?.name || "No name";
 
 const handleAddToCart = () => {
-  props.addProjectsToCart([
+  addItemsToCart([
     {
       id: recipientId,
       amount: state.amount,
@@ -813,15 +818,19 @@ return (
           <ModalFooter>
             {recipientId && (
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={`${ownerId}/widget/Cart.AddToCart`}
                 props={{
-                  type: "tertiary",
-                  text: "Add to cart",
-                  onClick: handleAddToCart,
+                  ownerId: ownerId,
                   disabled: donateDisabled,
-                  style: {
-                    padding: "12px 16px",
+                  item: {
+                    id: recipientId,
+                    amount: state.amount,
+                    ft: "NEAR",
+                    referrerId,
+                    potId: activeRound || null,
+                    potDetail: activeRound ? state.detailForPots[activeRound] : null,
                   },
+                  handleCallback: () => handleModalClose(),
                 }}
               />
             )}

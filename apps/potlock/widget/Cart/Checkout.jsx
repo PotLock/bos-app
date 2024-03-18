@@ -5,6 +5,17 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const TRASH_ICON_URL =
 //   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
+const { getCart, getCartItemCount, removeItemsFromCart } = VM.require(
+  `${ownerId}/widget/SDK.cart`
+) || {
+  getCart: () => {},
+  getCartItemCount: () => 0,
+  removeItemsFromCart: () => {},
+};
+
+const numCartItems = getCartItemCount();
+const cart = getCart();
+
 const DEFAULT_GATEWAY = "https://bos.potlock.org/";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
 
@@ -137,8 +148,7 @@ State.init({
 });
 
 const allSelected =
-  state.selectedProjectIds.length !== 0 &&
-  state.selectedProjectIds.length === Object.keys(props.cart).length;
+  state.selectedProjectIds.length !== 0 && state.selectedProjectIds.length === numCartItems;
 
 if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
   const transactionHashes = props.transactionHashes.split(",");
@@ -296,12 +306,12 @@ return (
                 src={`${ownerId}/widget/Inputs.Checkbox`}
                 props={{
                   id: "masterSelector",
-                  disabled: Object.keys(props.cart).length === 0,
+                  disabled: numCartItems === 0,
                   checked: state.masterSelectorSelected,
                   onClick: (e) => {
                     // if allSelected, then deselect all
                     // if not allSelected, then select all
-                    const selectedProjectIds = Object.keys(props.cart).filter((_) => {
+                    const selectedProjectIds = Object.keys(cart).filter((_) => {
                       if (allSelected) {
                         return false;
                       }
@@ -322,7 +332,7 @@ return (
                 // doesn't do anything if nothing selected
                 if (state.selectedProjectIds.length === 0) return;
                 // delete selected projects
-                props.removeProjectsFromCart(state.selectedProjectIds);
+                removeItemsFromCart(state.selectedProjectIds.map((id) => ({ id })));
                 // uncheck box
                 State.update({ selectedProjectIds: [], masterSelectorSelected: false });
               }}
@@ -336,10 +346,10 @@ return (
               <SubTitle>Delete</SubTitle>
             </InnerContainer>
           </ActionsContainer>
-          {Object.keys(props.cart).length === 0 ? (
+          {numCartItems === 0 ? (
             <div>No items in cart</div>
           ) : (
-            Object.keys(props.cart).map((projectId) => {
+            Object.keys(cart).map((projectId) => {
               // setProjectId(projectId); // wtf is this?? commenting out
               const checked = state.selectedProjectIds.includes(projectId);
               return (
@@ -347,7 +357,7 @@ return (
                   src={`${ownerId}/widget/Cart.CheckoutItem`}
                   props={{
                     ...props,
-                    projectId,
+                    cartItem: cart[projectId],
                     checked,
                     handleCheckboxClick: (e) => {
                       // if selected, then deselect
@@ -363,7 +373,7 @@ return (
                       };
                       if (
                         selectedProjectIds.length !== 0 &&
-                        selectedProjectIds.length !== Object.keys(props.cart).length
+                        selectedProjectIds.length !== numCartItems
                       ) {
                         updatedState.masterSelectorSelected = false;
                       }
