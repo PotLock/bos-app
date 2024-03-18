@@ -116,9 +116,8 @@ const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
-// const publicRoundOpen = true;
-const publicRoundCooldown = now >= public_round_end_ms && !cooldown_end_ms;
 const publicRoundClosed = now >= public_round_end_ms && cooldown_end_ms;
+const cooldownOpen = publicRoundClosed && now < cooldown_end_ms;
 const amountNear = yoctosToNear(matching_pool_balance);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
@@ -163,7 +162,7 @@ const tags = [
       colorInner: "#A68AFB",
       animate: true,
     },
-    visibility: publicRoundCooldown,
+    visibility: cooldownOpen,
   },
   /* Matching round closed tag */
   {
