@@ -26,24 +26,8 @@ const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
 const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
-// const registeredProject = projects.find(
-//   (project) => project.id == props.projectId && project.status == "Approved"
-// );
-
-// const name = profile.name || "No-name profile";
-// const image = profile.image;
-// const backgroundImage = profile.backgroundImage;
-// const tags = Object.keys(profile.tags ?? {});
-
 const Wrapper = styled.div`
   margin-top: calc(-1 * var(--body-top-padding, 0));
-  /* overflow-x: hidden; */
-  // @media screen and (max-width: 768px) {
-  //   .mb-2 {
-  //     width: 64px;
-  //     height: 64px;
-  //   }
-  // }
 `;
 
 const SidebarContainer = styled.div`
@@ -67,13 +51,13 @@ const Container = styled.div`
 
 const ContainerInner = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+  flex-direction: column;
   padding: 68px 0px;
 `;
 
 const BodyContainer = styled.div`
+  margin-top: 52px;
+  padding: 0 4rem;
   flex: 1;
   width: 100%;
 `;
@@ -282,11 +266,6 @@ const handleSendApplication = () => {
 };
 
 const verifyIsOnRegistry = (address) => {
-  // removing custom registry logic for now to better handle Potlock registry statuses, due to user confusion
-  // const { registry_provider } = potDetail;
-  // if (registry_provider) {
-  //   const [registryId, registryMethod] = registry_provider.split(":");
-  //   if (registryId && registryMethod) {
   Near.asyncView("registry.potlock.near", "get_project_by_id", { project_id: address }).then(
     (project) => {
       if (project) {
@@ -294,8 +273,6 @@ const verifyIsOnRegistry = (address) => {
       }
     }
   );
-  //   }
-  // }
 };
 
 useEffect(() => {
@@ -326,32 +303,22 @@ return (
           registryStatus: state.registryStatus,
         }}
       />
-      <Container>
-        <ContainerInner>
-          <SidebarContainer
-          // class="col-3"
-          >
-            <Widget
-              src={`${ownerId}/widget/Components.NavOptions`}
-              props={{
-                ...props,
-              }}
-            />
-          </SidebarContainer>
-          <BodyContainer
-          // class="col-9"
-          >
-            <Widget
-              src={props.navOptions.find((option) => option.id == props.nav).source}
-              props={{
-                ...props,
-                potDetail: potDetail,
-                sybilRequirementMet: state.sybilRequirementMet,
-              }}
-            />
-          </BodyContainer>
-        </ContainerInner>
-      </Container>
+      <Widget
+        src={`${ownerId}/widget/Profile.Tabs`}
+        props={{
+          ...props,
+        }}
+      />
+      <BodyContainer>
+        <Widget
+          src={props.navOptions.find((option) => option.id == props.nav).source}
+          props={{
+            ...props,
+            potDetail: potDetail,
+            sybilRequirementMet: state.sybilRequirementMet,
+          }}
+        />
+      </BodyContainer>
     </>
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
