@@ -33,7 +33,9 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
 };
 
-const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`);
+const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`) || {
+  ProfileOptions: () => [],
+};
 
 if (!accountId) {
   return "No account ID";
