@@ -190,7 +190,7 @@ return (
 
     <Widget
       src={`${ownerId}/widget/Profile.MergedIndexFeed`}
-      props={{ index, renderItem, filter: props.filter, threshold: 800 }}
+      props={{ ...props, index, renderItem, filter: props.filter, threshold: 800 }}
     />
   </Container>
 );
