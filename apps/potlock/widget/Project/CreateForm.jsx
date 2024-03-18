@@ -72,17 +72,18 @@ const Container = styled.div`
 
 const LowerBannerContainer = styled.div`
   position: absolute;
-  bottom: -250px;
+  top: 340px;
   left: 0px;
   display: flex;
   align-items: stretch; /* Ensuring child elements stretch to full height */
   justify-content: space-between;
   width: 100%;
-
-  // background: green;
-
+  z-index: 10;
   @media screen and (max-width: 768px) {
-    bottom: -310px;
+    top: 310px;
+    align-items: flex-start;
+    gap: 10px;
+    flex-direction: column;
   }
 `;
 
@@ -125,6 +126,9 @@ const AddTeamMembers = styled.a`
 
   &:hover {
     text-decoration: none;
+  }
+  @media screen and (max-width: 768px) {
+    margin-bottom: 0;
   }
 `;
 
