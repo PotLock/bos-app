@@ -6,7 +6,9 @@ const {
   DONATION_CONTRACT_ID: "",
   ownerId: "",
   SUPPORTED_FTS: {
-    NEAR: {},
+    NEAR: {
+      fromIndivisible: () => {},
+    },
   },
 };
 
