@@ -6,7 +6,9 @@ const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/consta
   DONATION_CONTRACT_ID: "",
   ownerId: "",
 };
-const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`);
+const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`) || {
+  ProjectOptions: () => [],
+};
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
