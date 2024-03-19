@@ -1,7 +1,14 @@
 {
-  "appAccount": "potlock.near",
-  "aliases": {
-    "nui": "nearui.near",
-    "there": []
+  "account": "potlock.near",
+  "aliases": ["./aliases.mainnet.json"],
+  "overrides": {
+    "testnet": {
+      "account": "potlock.testnet",
+      "aliases": ["./aliases.testnet.json"]
+    },
+    "staging": {
+      "account": "staging.potlock.near",
+      "aliases": ["./aliases.staging.json"]
+    }
   }
 }

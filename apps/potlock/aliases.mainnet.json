@@ -1,0 +1,6 @@
+{
+  "registryContractId": "registry.potlock.near",
+  "nadabotContractId": "v1.nadabot.near",
+  "donateContractId": "donate.potlock.near",
+  "potFactoryContractId": "v1.potfactory.potlock.near"
+}
