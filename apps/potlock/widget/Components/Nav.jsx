@@ -1,3 +1,9 @@
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
+const active = props.tab;
+
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -91,7 +97,7 @@ const NavTabs = styled.div`
   }
 `;
 
-const NavTab = styled.a`
+const NavTab = styled("Link")`
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
   font-size: 14px;
@@ -227,6 +233,8 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
+const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+
 return (
   <>
     {false && (
@@ -268,7 +276,11 @@ return (
     )}
     <Nav>
       <NavLeft>
-        <NavLogo href={props.hrefWithParams(`?tab=projects`)}>
+        <NavLogo
+          href={href({
+            widgetSrc: "${config_account}/widget/Index",
+          })}
+        >
           <img
             src="https://ipfs.near.social/ipfs/bafkreiafms2jag3gjbypfceafz2uvs66o25qc7m6u6hkxfyrzfoeyvj7ru"
             alt="logo"
@@ -281,30 +293,32 @@ return (
           {tabOptions.map((tab) => {
             return (
               <NavTab
-                href={tab.href ?? props.hrefWithParams(`?tab=${tab.link}`)}
+                href={
+                  tab.href ??
+                  href({
+                    widgetSrc: "${config_account}/widget/Index",
+                    params: {
+                      tab: tab.link,
+                    },
+                  })
+                }
                 disabled={tab.disabled}
                 target={tab.newTab ? "_blank" : ""}
                 onClick={(e) => {
                   if (tab.disabled) e.preventDefault();
                 }}
-                selected={props.tab === tab.link}
+                selected={active === tab.link}
               >
                 {tab.text}
               </NavTab>
             );
           })}
-          <Widget
-            src={"${config_account}/widget/Cart.NavItem"}
-            props={{ hrefWithParams: props.hrefWithParams }}
-          />
+          <Widget src={"${config_account}/widget/Cart.NavItem"} />
         </NavTabs>
       </NavRight>
       <NavRightMobile>
-        <Widget
-          src={"${config_account}/widget/Cart.NavItem"}
-          props={{ hrefWithParams: props.hrefWithParams }}
-        />
-        <NavTab onClick={() => props.setIsNavMenuOpen(!props.isNavMenuOpen)}>
+        <Widget src={"${config_account}/widget/Cart.NavItem"} />
+        <NavTab onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -317,17 +331,22 @@ return (
         </NavTab>
       </NavRightMobile>
     </Nav>
-    {props.isNavMenuOpen && (
+    {isNavMenuOpen && (
       <NavMenu>
         {tabOptions.map((tab) => {
           return (
             <NavMenuItem
-              href={props.hrefWithParams(`?tab=${tab.link}`)}
+              href={href({
+                widgetSrc: "${config_account}/widget/Index",
+                params: {
+                  tab: tab.link,
+                },
+              })}
               disabled={tab.disabled}
               onClick={(e) => {
                 if (tab.disabled) e.preventDefault();
               }}
-              selected={props.tab === tab.link}
+              selected={active === tab.link}
             >
               {tab.text}
               {tab.disabled && " (Coming Soon)"}

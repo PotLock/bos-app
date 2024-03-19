@@ -1,5 +1,9 @@
 const donationContractId = "donate.potlock.near";
 
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const TRASH_ICON_URL =
 //   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
@@ -262,7 +266,12 @@ return (
         <Widget
           src={"${config_account}/widget/Components.Button"}
           props={{
-            href: props.hrefWithParams(`?tab=projects`),
+            href: href({
+              widgetSrc: "${config_account}/widget/Index",
+              params: {
+                tab: "projects",
+              },
+            }),
             type: twitterIntent ? "secondary" : "primary",
             text: "Explore projects",
             style: {

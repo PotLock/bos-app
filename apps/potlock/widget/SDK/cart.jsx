@@ -12,7 +12,7 @@ return {
     return cart;
   },
   getCartItemCount: () => {
-    return Object.keys(cart).length;
+    return Object.keys(cart ?? {}).length;
   },
   getCartTotal: () => {
     let total = 0;

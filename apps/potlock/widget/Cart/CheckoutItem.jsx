@@ -12,6 +12,10 @@ const { removeItemsFromCart, updateItemInCart } = VM.require(
   updateItemInCart: () => {},
 };
 
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
 const { cartItem, checked, handleCheckboxClick } = props;
 
 const projectId = cartItem?.id;
@@ -157,7 +161,15 @@ return (
       </ImageContainer>
       <DetailsContainer>
         <Row>
-          <Title href={props.hrefWithParams(`?tab=project&projectId=${projectId}`)}>
+          <Title
+            href={href({
+              widgetSrc: "${config_account}/widget/Index",
+              params: {
+                tab: "project",
+                projectId,
+              },
+            })}
+          >
             {profile.name ?? ""}
           </Title>
           <Widget
