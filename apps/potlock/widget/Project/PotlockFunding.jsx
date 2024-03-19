@@ -21,10 +21,6 @@ const { _address, getTimePassed } = VM.require(`potlock.near/widget/Components.D
   getTimePassed: () => "",
 };
 
-const { asyncGetFtMetadata } = VM.require("potlock.near/widget/SDK.ft") || {
-  asyncGetFtMetadata: () => {},
-};
-
 const [filter, setFilter] = useState({
   date: false, // false === ascending
   price: false, // false === ascending
@@ -432,7 +428,7 @@ useEffect(() => {
     return acc;
   }, new Set());
   ftIds.forEach((ftId) => {
-    asyncGetFtMetadata(ftId)
+    Near.asyncView(ftId, "ft_metadata", {})
       .then((ftMetadata) => {
         metadata[ftId] = ftMetadata;
         if (Object.keys(metadata).length === ftIds.size) {
