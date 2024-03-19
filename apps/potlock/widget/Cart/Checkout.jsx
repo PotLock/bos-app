@@ -158,10 +158,20 @@ if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
       body,
     });
     if (res.ok) {
+      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
       const successVal = res.body.result.status?.SuccessValue;
-      let decoded = Buffer.from(successVal, "base64").toString("utf-8"); // atob not working
-      decoded = JSON.parse(decoded);
-      const recipientId = decoded.recipient_id;
+      const result = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+      const args = JSON.parse(
+        Buffer.from(res.body.result.transaction.actions[0].FunctionCall.args, "base64").toString(
+          "utf-8"
+        )
+      );
+      const recipientId =
+        methodName === "donate"
+          ? result.recipient_id
+          : methodName === "ft_transfer_call"
+          ? JSON.parse(args.msg).recipient_id
+          : "";
       if (recipientId) {
         Near.asyncView("social.near", "get", { keys: [`${recipientId}/profile/**`] }).then(
           (socialData) => {
