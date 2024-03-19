@@ -447,11 +447,12 @@ return (
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: registrationApproved
-                    ? state.isDao
-                      ? "Propose to Send Application"
-                      : "Send application"
-                    : "Register to apply",
+                  text:
+                    registrationApproved || !potDetail?.registry_provider
+                      ? state.isDao
+                        ? "Propose to Send Application"
+                        : "Send application"
+                      : "Register to apply",
                   onClick: registrationApproved ? handleSendApplication : null,
                   disabled: isError,
                   href: registrationApproved ? null : props.hrefWithParams(`?tab=createproject`),
