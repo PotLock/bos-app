@@ -1,4 +1,3 @@
-const { ownerId } = props;
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -294,11 +293,17 @@ return (
               </NavTab>
             );
           })}
-          <Widget src={`${ownerId}/widget/Cart.NavItem`} props={props} />
+          <Widget
+            src={"${config_account}/widget/Cart.NavItem"}
+            props={{ hrefWithParams: props.hrefWithParams }}
+          />
         </NavTabs>
       </NavRight>
       <NavRightMobile>
-        <Widget src={`${ownerId}/widget/Cart.NavItem`} props={props} />
+        <Widget
+          src={"${config_account}/widget/Cart.NavItem"}
+          props={{ hrefWithParams: props.hrefWithParams }}
+        />
         <NavTab onClick={() => props.setIsNavMenuOpen(!props.isNavMenuOpen)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"

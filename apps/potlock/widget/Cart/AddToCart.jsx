@@ -1,7 +1,7 @@
-const { ownerId, handleCallback, item } = props;
+const { handleCallback, item } = props;
 
 const { addItemsToCart, removeItemsFromCart, itemExistsInCart } = VM.require(
-  `${ownerId}/widget/SDK.cart`
+  "${config_account}/widget/SDK.cart"
 ) ?? {
   addItemsToCart: () => {},
   removeItemsFromCart: () => {},
@@ -12,7 +12,7 @@ const existsInCart = itemExistsInCart(item);
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Button`}
+    src={"${config_account}/widget/Components.Button"}
     props={{
       type: "tertiary",
       text: existsInCart ? "Remove from cart" : "Add to cart",

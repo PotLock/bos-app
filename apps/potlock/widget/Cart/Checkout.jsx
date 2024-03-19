@@ -1,4 +1,3 @@
-const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -6,7 +5,7 @@ const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 //   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
 
 const { getCart, getCartItemCount, removeItemsFromCart } = VM.require(
-  `${ownerId}/widget/SDK.cart`
+  "${config_account}/widget/SDK.cart"
 ) || {
   getCart: () => {},
   getCartItemCount: () => 0,
@@ -194,7 +193,7 @@ const twitterIntent = useMemo(() => {
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
 
   // if more than one recipient, share the Explore Projects page; otherwise, share the project page
-  let url = DEFAULT_GATEWAY + `${ownerId}/widget/Index?referrerId=${context.accountId}`;
+  let url = DEFAULT_GATEWAY + `${config_account}/widget/Index?referrerId=${context.accountId}`;
   if (recipientIds.length === 1) {
     url = url + `&tab=project&projectId=${recipientIds[0]}`;
   } else {
@@ -247,7 +246,7 @@ return (
         <Title>Thanks for donating!</Title>
         {twitterIntent && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               href: twitterIntent,
               target: "_blank",
@@ -261,7 +260,7 @@ return (
           />
         )}
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"${config_account}/widget/Components.Button"}
           props={{
             href: props.hrefWithParams(`?tab=projects`),
             type: twitterIntent ? "secondary" : "primary",
@@ -281,7 +280,7 @@ return (
         ) : (
           props.checkoutSuccessTxHash && (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
                 target: "_blank",
@@ -303,7 +302,7 @@ return (
           <ActionsContainer>
             <InnerContainer>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"${config_account}/widget/Inputs.Checkbox"}
                 props={{
                   id: "masterSelector",
                   disabled: numCartItems === 0,
@@ -354,7 +353,7 @@ return (
               const checked = state.selectedProjectIds.includes(projectId);
               return (
                 <Widget
-                  src={`${ownerId}/widget/Cart.CheckoutItem`}
+                  src={"${config_account}/widget/Cart.CheckoutItem"}
                   props={{
                     ...props,
                     cartItem: cart[projectId],
@@ -387,7 +386,7 @@ return (
         </ColumnLeft>
         <ColumnRight>
           <Widget
-            src={`${ownerId}/widget/Cart.CheckoutBreakdown`}
+            src={"${config_account}/widget/Cart.CheckoutBreakdown"}
             props={{
               ...props,
               projectId: projectId,

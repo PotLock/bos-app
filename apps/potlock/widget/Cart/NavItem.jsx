@@ -1,7 +1,5 @@
-const { ownerId } = props;
-
 const { getCartItemCount, getCart, removeItemsFromCart } = VM.require(
-  `${ownerId}/widget/SDK.cart`
+  "${config_account}/widget/SDK.cart"
 ) ?? {
   getCartItemCount: () => 0,
   getCart: () => {},
@@ -178,7 +176,7 @@ return (
         (Object.keys(cart) ?? []).map((projectId) => {
           return (
             <Widget
-              src={`${ownerId}/widget/Cart.CartModalItem`}
+              src={"${config_account}/widget/Cart.CartModalItem"}
               props={{
                 ...props,
                 projectId,
@@ -195,7 +193,7 @@ return (
       )}
       <ButtonContainer>
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"${config_account}/widget/Components.Button"}
           props={{
             type: "primary",
             text: "Proceed to donate",
@@ -208,7 +206,7 @@ return (
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"${config_account}/widget/Components.Button"}
           props={{
             type: numCartItems === 0 ? "primary" : "secondary",
             text: "Continue shopping",

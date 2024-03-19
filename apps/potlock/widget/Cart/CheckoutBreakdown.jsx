@@ -1,22 +1,21 @@
-const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { yoctosToNear } = VM.require("potlock.near/widget/utils") ?? { yoctosToNear: () => "" };
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") ?? {
   SUPPORTED_FTS: {},
 };
 
-const { getCart, clearCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
+const { getCart, clearCart } = VM.require("${config_account}/widget/SDK.cart") ?? {
   getCart: () => {},
   clearCart: () => {},
 };
 
 const cart = getCart();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") ?? {
   asyncGetDonationsForDonor: () => {},
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("potlock.near/widget/SDK.donate") ??
   (() => ({
     asyncGetDonationsForDonor: () => {},
   }));
@@ -244,7 +243,7 @@ return (
       <TotalText>{totalAmount.toFixed(2)} N</TotalText>
     </TotalContainer>
     <Widget
-      src={`${ownerId}/widget/Components.Button`}
+      src={"${config_account}/widget/Components.Button"}
       props={{
         type: "primary",
         text: `Donate ${`${totalAmount.toFixed(2)} N`}`,
