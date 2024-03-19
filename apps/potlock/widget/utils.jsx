@@ -20,6 +20,7 @@ const formatWithCommas = (amount) => {
 };
 
 return {
+  formatWithCommas,
   formatDate: (timestamp) => {
     const months = [
       "Jan",

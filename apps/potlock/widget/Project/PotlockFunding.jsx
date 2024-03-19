@@ -6,7 +6,7 @@ const {
   potPayouts,
   sponsorships,
   projectId,
-  totalDonationAmount,
+  totalDonationAmountNear,
   uniqueDonors,
   totalMatched,
 } = props;
@@ -21,6 +21,10 @@ const { _address, getTimePassed } = VM.require(`potlock.near/widget/Components.D
   getTimePassed: () => "",
 };
 
+const { asyncGetFtMetadata } = VM.require("potlock.near/widget/SDK.ft") || {
+  asyncGetFtMetadata: () => {},
+};
+
 const [filter, setFilter] = useState({
   date: false, // false === ascending
   price: false, // false === ascending
@@ -28,14 +32,14 @@ const [filter, setFilter] = useState({
 const [currentFilter, setCurrentFilter] = useState("date");
 const [sort, setSort] = useState("all");
 const [currentPage, setCurrentPage] = useState(1);
-const [totalDonations, setTotalDonation] = useState(donations);
+const [totalDonations, setTotalDonations] = useState(donations);
 const [filteredDonations, setFilteredDonations] = useState(donations);
 const [search, setSearch] = useState("");
 
 const perPage = 30; // need to be less than 50
 
 useEffect(() => {
-  setTotalDonation(donations);
+  setTotalDonations(donations);
   setFilteredDonations(donations);
 }, [donations]);
 
@@ -363,8 +367,13 @@ const DropdownLabel = styled.div`
   }
 `;
 
+const ImgIcon = styled.img`
+  width: 21px;
+  height: 21px;
+`;
+
 const stats = {
-  ...(totalDonationAmount ? { Donated: totalDonationAmount + "N" } : {}),
+  ...(totalDonationAmountNear ? { Donated: totalDonationAmountNear + "N" } : {}),
   ...(uniqueDonors ? { "Unique Donors": uniqueDonors } : {}),
   ...(uniqueDonors ? { "Total Matched": totalMatched + "N" } : {}),
 };
@@ -410,6 +419,31 @@ const Arrow = (props) => (
     />
   </svg>
 );
+
+const [ftMetadata, setFtMetadata] = useState({});
+
+useEffect(() => {
+  // Fetches FT metadata (required for icons & decimals)
+  const metadata = {};
+  const ftIds = totalDonations.reduce((acc, donation) => {
+    if (donation.ft_id && donation.ft_id !== "near") {
+      acc.add(donation.ft_id);
+    }
+    return acc;
+  }, new Set());
+  ftIds.forEach((ftId) => {
+    asyncGetFtMetadata(ftId)
+      .then((ftMetadata) => {
+        metadata[ftId] = ftMetadata;
+        if (Object.keys(metadata).length === ftIds.size) {
+          setFtMetadata(metadata);
+        }
+      })
+      .catch((e) => {
+        console.error("error getting ft metadata: ", e);
+      });
+  });
+}, [totalDonationa]);
 
 return (
   <Container>
@@ -498,10 +532,12 @@ return (
             donated_at_ms,
           } = donation;
 
+          const ftId = ft_id || base_currency;
+
           const donationAmount = parseFloat(
-            SUPPORTED_FTS[(base_currency || ft_id).toUpperCase()].fromIndivisible(
-              total_amount || amount
-            )
+            Big(total_amount || amount)
+              .div(Big(10).pow(ftId === "near" ? 24 : ftMetadata[ftId]?.decimals || 24))
+              .toFixed(2)
           );
           const addTrailingZeros = (number) => {
             if ((number < 100) & (number >= 0.1)) return number.toFixed(1);
@@ -537,7 +573,7 @@ return (
               </FundingSrc>
               <div className="price tab">
                 <div className="near-icon">
-                  <NearIcon />
+                  {ftId === "near" ? <NearIcon /> : <ImgIcon src={ftMetadata[ftId]?.icon} />}
                 </div>
                 {addTrailingZeros(donationAmount)}
               </div>

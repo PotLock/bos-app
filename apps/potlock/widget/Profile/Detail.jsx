@@ -104,14 +104,16 @@ const [allDonations, sponsorships, matchingRoundDonations] = useMemo(() => {
 }, [potDonations, directDonations]);
 
 // Get total donations & Unique donors count
-const [totalDonationAmount] = useMemo(() => {
+const [totalDonationAmountNear] = useMemo(() => {
   let total = Big(0);
   allDonations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount || donation.amount));
+    if (donation.ft_id === "near" || donation.base_currency === "near") {
+      total = total.plus(Big(donation.total_amount || donation.amount));
+    }
   });
-  const totalDonationAmount = NEAR.fromIndivisible(total.toString());
+  const totalDonationAmountNear = NEAR.fromIndivisible(total.toString());
 
-  return [totalDonationAmount];
+  return [totalDonationAmountNear];
 }, [allDonations]);
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
@@ -132,7 +134,7 @@ return (
         tags,
         accounts: [accountId],
         donations: allDonations,
-        totalDonationAmount,
+        totalDonationAmountNear,
         matchingRoundDonations,
         sponsorships,
         directDonations,

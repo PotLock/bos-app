@@ -48,19 +48,21 @@ const Line = styled.div`
 const externalFunding = profile.plFundingSources ? JSON.parse(profile.plFundingSources) : [];
 
 // Get total donations & Unique donors count
-const [totalDonationAmount, uniqueDonors, totalMatched] = useMemo(() => {
-  let total = Big(0);
+const [totalDonationAmountNear, uniqueDonors, totalMatched] = useMemo(() => {
+  let totalNear = Big(0);
   const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
   donations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount || donation.amount));
+    if (donation.ft_id === "near" || donation.base_currency === "NEAR") {
+      totalNear = totalNear.plus(Big(donation.total_amount || donation.amount));
+    }
   });
-  const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
+  const totalDonationAmountNear = SUPPORTED_FTS["NEAR"].fromIndivisible(totalNear.toString());
   let totalMatched = Big(0);
   potPayouts.forEach((payout) => {
     totalMatched = totalMatched.plus(Big(payout.amount));
   });
   totalMatched = SUPPORTED_FTS["NEAR"].fromIndivisible(totalMatched.toString());
-  return [totalDonationAmount, uniqueDonors?.length, totalMatched];
+  return [totalDonationAmountNear, uniqueDonors?.length, totalMatched];
 }, [donations]);
 
 return externalFunding.length === 0 && donations.length === 0 ? (
@@ -84,7 +86,7 @@ return externalFunding.length === 0 && donations.length === 0 ? (
     {donations.length > 0 && (
       <Widget
         src={`${ownerId}/widget/Project.PotlockFunding`}
-        props={{ ...props, totalDonationAmount, uniqueDonors, totalMatched }}
+        props={{ ...props, totalDonationAmountNear, uniqueDonors, totalMatched }}
       />
     )}
   </Container>
