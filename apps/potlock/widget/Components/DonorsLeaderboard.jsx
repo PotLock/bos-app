@@ -168,7 +168,7 @@ return donations.length ? (
 
         return (
           <TrRow>
-            <div className="rank">#{idx + 1 + page * perPage}</div>
+            <div className="rank">#{idx + 1 + (currentPage - 1) * perPage}</div>
 
             <a
               href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
