@@ -289,37 +289,35 @@ const isError = state.applicationMessageError || state.daoAddressError;
 
 return (
   <Wrapper>
-    <>
+    <Widget
+      src={`${ownerId}/widget/Pots.Header`}
+      props={{
+        ...props,
+        potDetail: potDetail,
+        setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
+        handleApplyToPot,
+        sybilRequirementMet: state.sybilRequirementMet,
+        applicationSuccess: state.applicationSuccess,
+        registrationApproved,
+        registryStatus: state.registryStatus,
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Profile.Tabs`}
+      props={{
+        ...props,
+      }}
+    />
+    <BodyContainer>
       <Widget
-        src={`${ownerId}/widget/Pots.Header`}
+        src={props.navOptions.find((option) => option.id == props.nav).source}
         props={{
           ...props,
           potDetail: potDetail,
-          setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
-          handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
-          applicationSuccess: state.applicationSuccess,
-          registrationApproved,
-          registryStatus: state.registryStatus,
         }}
       />
-      <Widget
-        src={`${ownerId}/widget/Profile.Tabs`}
-        props={{
-          ...props,
-        }}
-      />
-      <BodyContainer>
-        <Widget
-          src={props.navOptions.find((option) => option.id == props.nav).source}
-          props={{
-            ...props,
-            potDetail: potDetail,
-            sybilRequirementMet: state.sybilRequirementMet,
-          }}
-        />
-      </BodyContainer>
-    </>
+    </BodyContainer>
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
       props={{
