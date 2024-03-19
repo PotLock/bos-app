@@ -17,6 +17,7 @@ let RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
   (() => ({
     getContractId: () => "",
+    isUserRegistryAdmin: () => {},
   }));
 
 RegistrySDK = RegistrySDK({ env: props.env });

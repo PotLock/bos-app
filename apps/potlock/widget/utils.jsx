@@ -235,7 +235,7 @@ return {
         _num += 1;
         _sum = _sum.plus(v1);
         for (const [k2, v2] of Object.entries(contribz)) {
-          if (k2 > k1) {
+          if (k2 > k1 || Object.keys(contribz).length === 1) {
             // not entirely sure of this "if" statement's purpose as the values being compared are account IDs. Originally taken from Gitcoin's CLR logic (see link at top of file)
             const sqrt = v1.times(v2).sqrt();
             tot = tot.plus(sqrt.div(pairTotals[k1][k2].div(threshold)));
