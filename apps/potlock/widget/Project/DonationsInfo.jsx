@@ -89,7 +89,7 @@ const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
     return ["", ""];
   }
   const donors = [];
-  let totalDonationAmount = new Big(0);
+  let totalDonationAmountNear = new Big(0);
   let totalReferralFees = new Big(0);
   for (const donation of donationsForProject) {
     if (!donors.includes(donation.donor_id)) {
@@ -98,13 +98,15 @@ const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
     const totalAmount = new Big(donation.total_amount);
     const referralAmount = new Big(donation.referrer_fee || "0");
     const protocolAmount = new Big(donation.protocol_fee || "0");
-    totalDonationAmount = totalDonationAmount.plus(
-      totalAmount.minus(referralAmount).minus(protocolAmount)
-    );
+    if (donation.ft_id === "near" || donation.base_currency === "near") {
+      totalDonationAmountNear = totalDonationAmountNear.plus(
+        totalAmount.minus(referralAmount).minus(protocolAmount)
+      );
+    }
     totalReferralFees = totalReferralFees.plus(referralAmount);
   }
   return [
-    totalDonationAmount.div(1e24).toNumber().toFixed(2),
+    totalDonationAmountNear.div(1e24).toNumber().toFixed(2),
     donors.length,
     totalReferralFees.div(1e24).toNumber().toFixed(2),
   ];

@@ -46,7 +46,7 @@ const PointerIcon = styled.svg`
   }
 `;
 
-const Icon = styled.svg`
+const SvgIcon = styled.svg`
   width: 20px;
   height: 20px;
 `;
@@ -202,7 +202,7 @@ const LinkSvg = styled.svg`
 `;
 
 const NearIcon = (props) => (
-  <Icon
+  <SvgIcon
     {...props}
     viewBox="0 0 24 24"
     fill="none"
@@ -214,7 +214,7 @@ const NearIcon = (props) => (
       d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
       fill="black"
     />
-  </Icon>
+  </SvgIcon>
 );
 
 const {
@@ -269,8 +269,9 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
 };
 
-const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, formatWithCommas } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
+  formatWithCommas: () => {},
 };
 
 const approvedProjectIds = useMemo(
@@ -299,8 +300,6 @@ const MAX_DESCRIPTION_LENGTH = 77;
 
 const profile = Social.getr(`${recipientId}/profile`);
 
-const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR" }];
-
 const DEFAULT_DONATION_AMOUNT = "1";
 
 const MAX_NOTE_LENGTH = 60;
@@ -319,6 +318,9 @@ const initialState = {
   approvedProjectsForPots: {},
   activeRoundsForProject: potId ? [potId] : null, // mapping of potId to { potDetail }
   intervalId: null,
+  ftBalances: null,
+  nearBalance: null,
+  denominationOptions: [{ text: "NEAR", value: "NEAR", selected: true, decimals: 24 }],
 };
 
 State.init(initialState);
@@ -326,6 +328,80 @@ State.init(initialState);
 const resetState = () => {
   State.update({ ...initialState });
 };
+
+const activeRound = useMemo(() => {
+  if (!state.activeRoundsForProject) return;
+  return state.activeRoundsForProject[0];
+}, [state.activeRoundsForProject]);
+
+const selectedDenomination = useMemo(
+  () => state.denominationOptions.find((option) => option.selected),
+  [state.denominationOptions]
+);
+
+const ftBalancesRes = useCache(
+  () =>
+    asyncFetch(
+      `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+        },
+      }
+    )
+      .then((res) => res.body)
+      .catch((e) => console.log("error fetching ft balances: ", e)),
+  `ft-balances-${context.accountId}`
+);
+// console.log("ftBalancesRes: ", ftBalancesRes);
+
+useEffect(() => {
+  if (context.accountId && !potId && !activeRound && ftBalancesRes && !state.ftBalances) {
+    State.update({
+      ftBalances: ftBalancesRes.balances,
+      denominationOptions: state.denominationOptions.concat(
+        ftBalancesRes.balances
+          .map(({ amount, contract_account_id, metadata }) => ({
+            amount,
+            id: contract_account_id,
+            text: metadata.symbol,
+            value: metadata.symbol,
+            icon: metadata.icon,
+            decimals: metadata.decimals,
+            selected: false,
+          }))
+          .filter((option) => option.text.length < 10)
+      ),
+    });
+  }
+}, [context.accountId, state.ftBalances, ftBalancesRes, potId, activeRound]);
+
+const nearBalanceRes = useCache(
+  () =>
+    asyncFetch(
+      `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/NEAR`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+        },
+      }
+    )
+      .then((res) => res.body)
+      .catch((e) => console.log("error fetching near balance: ", e)),
+  `near-balance-${context.accountId}`
+);
+
+useEffect(() => {
+  if (context.accountId && nearBalanceRes && !state.nearBalance) {
+    State.update({
+      nearBalance: nearBalanceRes.balance,
+    });
+  }
+}, [context.accountId, state.nearBalance, nearBalanceRes]);
+
+// console.log("state in modal donation: ", state);
 
 useEffect(() => {
   if (
@@ -400,11 +476,6 @@ const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD,
   account_id: context.accountId,
 });
 
-const activeRound = useMemo(() => {
-  if (!state.activeRoundsForProject) return;
-  return state.activeRoundsForProject[0];
-}, [state.activeRoundsForProject]);
-
 const potDetail = state.detailForPots[activeRound];
 
 const protocolConfigContractId = potDetail ? potDetail.protocol_config_provider.split(":")[0] : "";
@@ -446,7 +517,7 @@ const handleAddToCart = () => {
     {
       id: recipientId,
       amount: state.amount,
-      ft: "NEAR",
+      token: selectedDenomination,
       referrerId,
       potId: activeRound || null,
       potDetail: activeRound ? state.detailForPots[activeRound] : null,
@@ -455,12 +526,31 @@ const handleAddToCart = () => {
   handleModalClose();
 };
 
-const amountNear =
-  state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
+const isFtDonation = selectedDenomination.text !== "NEAR";
+
+const storageBalanceBounds = Near.view(selectedDenomination.id, "storage_balance_bounds", {});
+const storageBalanceProtocolFeeRecipient = Near.view(
+  selectedDenomination.id,
+  "storage_balance_of",
+  { account_id: protocolFeeRecipientAccount }
+);
+const storageBalanceReferrer = referrerId
+  ? Near.view(selectedDenomination.id, "storage_balance_of", {
+      account_id: referrerId,
+    })
+  : null;
+const storageBalanceDonationContract = Near.view(selectedDenomination.id, "storage_balance_of", {
+  account_id: DONATION_CONTRACT_ID,
+});
+
+// const amountNear =
+//   state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
 const handleDonate = () => {
-  const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
-  // TODO: get projectId for random donation
+  // const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
+  const donationAmountIndivisible = Big(state.amount).mul(
+    new Big(10).pow(selectedDenomination.decimals)
+  );
   let projectId = recipientId;
   if (!projectId) {
     // get random project
@@ -485,21 +575,118 @@ const handleDonate = () => {
   } else {
     args.recipient_id = projectId;
   }
+  // FT WORKFLOW:
+  // 1. SEND DEPOSIT TO DONATION CONTRACT
+  /// 2. CALL FT CONTRACT:
+  /// - check for storage balance for all accounts (protocol fee recipient, referrer, project, donation contract)
+  const transactions = [];
 
-  const transactions = [
-    {
+  if (isFtDonation) {
+    const ftId = selectedDenomination.id;
+    // add storage deposit transaction
+    let requiredDepositFloat = 0.012; // base amount for donation storage
+    requiredDepositFloat += 0.0001 * args.message.length; // add 0.0001 NEAR per character in message
+    transactions.push({
+      contractName: DONATION_CONTRACT_ID,
+      methodName: "storage_deposit",
+      args: {},
+      deposit: Big(requiredDepositFloat).mul(Big(10).pow(selectedDenomination.decimals)),
+      gas: "100000000000000",
+    });
+    const { min, max } = storageBalanceBounds;
+    const storageMaxBig = Big(max);
+    // check storage balance for each account
+    if (
+      !args.bypass_protocol_fee &&
+      (!storageBalanceProtocolFeeRecipient ||
+        Big(storageBalanceProtocolFeeRecipient.total).lt(storageMaxBig))
+    ) {
+      transactions.push({
+        contractName: ftId,
+        methodName: "storage_deposit",
+        args: { account_id: protocolFeeRecipientAccount },
+        deposit: storageMaxBig.minus(Big(storageBalanceProtocolFeeRecipient || 0)),
+        gas: "100000000000000",
+      });
+    }
+    // referrer
+    if (
+      referrerId &&
+      (!storageBalanceReferrer || Big(storageBalanceReferrer.total).lt(storageMaxBig))
+    ) {
+      transactions.push({
+        contractName: ftId,
+        methodName: "storage_deposit",
+        args: { account_id: referrerId },
+        deposit: storageMaxBig.minus(Big(storageBalanceReferrer || 0)),
+        gas: "100000000000000",
+      });
+    }
+    // donation contract
+    if (
+      !storageBalanceDonationContract ||
+      Big(storageBalanceDonationContract.total).lt(storageMaxBig)
+    ) {
+      transactions.push({
+        contractName: ftId,
+        methodName: "storage_deposit",
+        args: { account_id: DONATION_CONTRACT_ID },
+        deposit: storageMaxBig.minus(Big(storageBalanceDonationContract || 0)),
+        gas: "100000000000000",
+      });
+    }
+    // project (can't do this till this point)
+    Near.asyncView(ftId, "storage_balance_of", { account_id: projectId }).then((balance) => {
+      if (!balance || Big(balance.total).lt(storageMaxBig)) {
+        transactions.push({
+          contractName: ftId,
+          methodName: "storage_deposit",
+          args: { account_id: projectId },
+          deposit: storageMaxBig.minus(Big(balance || 0)),
+          gas: "100000000000000",
+        });
+      }
+
+      // add donation transaction
+      transactions.push({
+        contractName: ftId,
+        methodName: "ft_transfer_call",
+        args: {
+          receiver_id: DONATION_CONTRACT_ID,
+          amount: donationAmountIndivisible.toFixed(0),
+          msg: JSON.stringify({
+            recipient_id: projectId,
+            referrer_id: referrerId || null,
+            bypass_protocol_fee: state.bypassProtocolFee,
+            message: args.message,
+          }),
+        },
+        deposit: "1",
+        gas: "300000000000000",
+      });
+      const now = Date.now();
+      Near.call(transactions);
+      // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+      // <-------- EXTENSION WALLET HANDLING -------->
+      pollForDonationSuccess(now);
+    });
+  } else {
+    transactions.push({
       contractName: isPotDonation ? potId : DONATION_CONTRACT_ID,
       methodName: "donate",
       args,
-      deposit: amountIndivisible.toString(),
+      deposit: donationAmountIndivisible.toFixed(0),
       gas: "300000000000000",
-    },
-  ];
+    });
+    const now = Date.now();
+    Near.call(transactions);
+    // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+    // <-------- EXTENSION WALLET HANDLING -------->
+    pollForDonationSuccess(now);
+  }
+};
 
-  const now = Date.now();
-  Near.call(transactions);
-  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
-  // <-------- EXTENSION WALLET HANDLING -------->
+const pollForDonationSuccess = (afterTs) => {
   // poll for updates
   // TODO: update this to also poll Pot contract
   const pollIntervalMs = 1000;
@@ -511,8 +698,8 @@ const handleDonate = () => {
         for (const donation of donations) {
           const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
           if (
-            ((recipient_id === projectId || project_id === projectId) && donated_at_ms > now) ||
-            donated_at > now
+            ((recipient_id === projectId || project_id === projectId) && donated_at_ms > afterTs) ||
+            donated_at > afterTs
           ) {
             // display success message & clear cart
             clearInterval(pollId);
@@ -523,7 +710,24 @@ const handleDonate = () => {
   }, pollIntervalMs);
 };
 
-const donateDisabled = !state.activeRoundsForProject || isUserHumanVerified === null;
+const donateLoading = !state.activeRoundsForProject || isUserHumanVerified === null;
+const donateDisabled = donateLoading || state.amountError || state.donationNoteError;
+
+const ftBalance = useMemo(() => {
+  if (selectedDenomination.text === "NEAR") {
+    return state.nearBalance
+      ? formatWithCommas(Big(state.nearBalance.amount).div(Big(10).pow(24)).toFixed(2))
+      : "-";
+  }
+  const balance = state.denominationOptions.find(
+    (option) => option.text === selectedDenomination.text
+  );
+  return balance
+    ? formatWithCommas(Big(balance.amount).div(Big(10).pow(balance.decimals)).toFixed(2))
+    : "-";
+}, [selectedDenomination, state.ftBalances, state.nearBalance]);
+
+// console.log("ftBalance: ", ftBalance);
 
 return (
   <Widget
@@ -610,8 +814,19 @@ return (
                   onChange: (amount) => {
                     amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
                     if (amount === ".") amount = "0.";
-                    State.update({ amount });
+                    State.update({ amount, amountError: "" });
+                    // error if amount is greater than balance
+                    if (
+                      Big(amount)
+                        .mul(Big(10).pow(isFtDonation ? selectedDenomination.decimals : 24))
+                        .gt(isFtDonation ? selectedDenomination.amount : state.nearBalance.amount)
+                    ) {
+                      State.update({ amountError: "Insufficient balance" });
+                    } else if (!isFtDonation && parseFloat(amount) < 0.1) {
+                      State.update({ amountError: "Minimum donation is 0.1 NEAR" });
+                    }
                   },
+                  error: state.amountError,
                   inputStyles: {
                     textAlign: "right",
                     borderRadius: "0px 4px 4px 0px",
@@ -622,10 +837,18 @@ return (
                       props={{
                         noLabel: true,
                         placeholder: "",
-                        options: DENOMINATION_OPTIONS,
-                        value: { text: state.denomination, value: state.denomination },
+                        options: state.denominationOptions,
+                        value: {
+                          text: selectedDenomination.text,
+                          value: selectedDenomination.value,
+                        },
                         onChange: ({ text, value }) => {
-                          State.update({ denomination: value });
+                          State.update({
+                            denominationOptions: state.denominationOptions.map((option) => {
+                              option.selected = option.value === value;
+                              return option;
+                            }),
+                          });
                         },
                         containerStyles: {
                           width: "auto",
@@ -639,7 +862,14 @@ return (
                           padding: "12px 16px",
                           boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                         },
-                        iconLeft: state.denomination == "NEAR" ? <NearIcon /> : "$",
+                        iconLeft: selectedDenomination.icon ? (
+                          <img
+                            src={selectedDenomination.icon}
+                            style={{ height: "24px", width: "24px" }}
+                          />
+                        ) : (
+                          <NearIcon />
+                        ),
                       }}
                     />
                   ),
@@ -650,9 +880,16 @@ return (
                 <div style={{ display: "flex" }}>
                   <HintText style={{ marginRight: "6px" }}>Account balance: </HintText>
 
-                  <NearIcon style={{ width: "14px", height: "14px", marginRight: "2px" }} />
+                  {selectedDenomination.icon ? (
+                    <img
+                      src={selectedDenomination.icon}
+                      style={{ height: "14px", width: "14px" }}
+                    />
+                  ) : (
+                    <NearIcon style={{ height: "14px", width: "14px" }} />
+                  )}
 
-                  <HintText>-- Max</HintText>
+                  <HintText style={{ marginLeft: "4px" }}>{ftBalance}</HintText>
                 </div>
               </Row>
             </Column>
@@ -731,8 +968,9 @@ return (
               props={{
                 ...props,
                 referrerId,
-                amountNear,
+                totalAmount: state.amount,
                 bypassProtocolFee: state.bypassProtocolFee,
+                ftIcon: selectedDenomination.icon,
               }}
             />
             {state.addNote ? (
@@ -761,7 +999,7 @@ return (
               />
             ) : (
               <Row style={{ padding: "0px", gap: "0px", cursor: "pointer" }}>
-                <Icon
+                <SvgIcon
                   viewBox="0 0 14 14"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -775,18 +1013,18 @@ return (
                     d="M11.5275 0.219375C11.235 -0.073125 10.7625 -0.073125 10.47 0.219375L9.0975 1.59187L11.91 4.40437L13.2825 3.03188C13.575 2.73938 13.575 2.26688 13.2825 1.97438L11.5275 0.219375Z"
                     fill="#7B7B7B"
                   />
-                </Icon>
+                </SvgIcon>
                 <AddNote onClick={() => State.update({ addNote: true })}>Add Note</AddNote>
               </Row>
             )}
             {activeRound && isUserHumanVerified === false && (
               <InfoSection>
-                <Icon viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <SvgIcon viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z"
                     fill="#DD3345"
                   />
-                </Icon>
+                </SvgIcon>
                 <Column>
                   <TitleText>Increase your impact!</TitleText>
                   <SubtitleText>
@@ -811,12 +1049,12 @@ return (
             )}
           </ModalBody>
           <ModalFooter>
-            {recipientId && (
+            {recipientId && !isFtDonation && (
               <Widget
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "tertiary",
-                  text: "Add to cart",
+                  text: donateLoading ? "Loading..." : "Add to cart",
                   onClick: handleAddToCart,
                   disabled: donateDisabled,
                   style: {
@@ -829,7 +1067,11 @@ return (
               src={`${ownerId}/widget/Components.Button`}
               props={{
                 type: "primary",
-                text: userShouldVerify ? "Nah, I want to have less impact" : "Donate",
+                text: donateLoading
+                  ? "Loading..."
+                  : userShouldVerify
+                  ? "Nah, I want to have less impact"
+                  : "Donate",
                 // disabled: !state.reviewMessage || !!state.reviewMessageError,
                 disabled: donateDisabled,
                 onClick: handleDonate,
