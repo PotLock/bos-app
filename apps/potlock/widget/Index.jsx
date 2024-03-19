@@ -25,6 +25,7 @@ const Theme = styled.div`
   position: relative;
   * {
     font-family: "Mona-Sans";
+    font-feature-settings: "ss01" on, "salt" on;
     font-style: normal;
     font-weight: 400;
   }
