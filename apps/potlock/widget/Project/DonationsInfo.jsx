@@ -121,16 +121,14 @@ return (
       </div>
     </div>
     <div className="btn-wrapper">
-      {projectIsApproved && (
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: "primary",
-            text: "Donate",
-            onClick: () => setIsModalDonationOpen(true),
-          }}
-        />
-      )}
+      <Widget
+        src={`${ownerId}/widget/Components.Button`}
+        props={{
+          type: "primary",
+          text: "Donate",
+          onClick: () => setIsModalDonationOpen(true),
+        }}
+      />
       <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: accountId }} />
     </div>
 

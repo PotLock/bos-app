@@ -20,6 +20,7 @@ const { _address, getTimePassed } = VM.require(`potlock.near/widget/Components.D
   _address: () => "",
   getTimePassed: () => "",
 };
+const { nearToUsd } = VM.require("potlock.near/widget/utils");
 
 const [filter, setFilter] = useState({
   date: false, // false === ascending
@@ -369,7 +370,16 @@ const ImgIcon = styled.img`
 `;
 
 const stats = {
-  ...(totalDonationAmountNear ? { Donated: totalDonationAmountNear + "N" } : {}),
+  ...(totalDonationAmountNear
+    ? {
+        Donated: (
+          <>
+            {totalDonationAmountNear}N
+            {nearToUsd && <span>~${(totalDonationAmountNear * nearToUsd).toFixed(2)}</span>}
+          </>
+        ),
+      }
+    : {}),
   ...(uniqueDonors ? { "Unique Donors": uniqueDonors } : {}),
   ...(uniqueDonors ? { "Total Matched": totalMatched + "N" } : {}),
 };
