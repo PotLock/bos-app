@@ -171,7 +171,8 @@ return (
           <input type="checkbox" className="toggle-check" />
           <div className="description">{description}</div>
           <div className="amount">
-            {amountReceived + " " + denomination} <ArrowDown showFundingTable={showFundingTable} />
+            {parseFloat(amountReceived).toLocaleString() + " " + denomination}{" "}
+            <ArrowDown showFundingTable={showFundingTable} />
           </div>
         </div>
       ))}

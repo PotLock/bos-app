@@ -21,11 +21,6 @@ const CHEVRON_DOWN_URL =
 const CHEVRON_UP_URL =
   IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
-const getPriceUSD = () => {
-  const res = fetch(`https://api.nearblocks.io/v1/stats`, { mode: "cors" });
-  return res.body.stats[0].near_price;
-};
-
 const ItemContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -103,12 +98,58 @@ const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") 
 
 State.init({
   showBreakdown: false,
+  ftBalances: null,
+  denominationOptions: [
+    { text: "NEAR", value: "NEAR", selected: cartItem?.token.text === "NEAR", decimals: 24 },
+  ],
 });
 
 if (!donationContractConfig) return "";
 
 const cartItem = props.cart[projectId];
 const isPotDonation = !!cartItem?.potId;
+
+// * REMOVING FTs FROM CHECKOUT FOR NOW *
+// const ftBalancesRes = useCache(
+//   () =>
+//     asyncFetch(
+//       `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+//         },
+//       }
+//     )
+//       .then((res) => res.body)
+//       .catch((e) => console.log("error fetching ft balances: ", e)),
+//   `ft-balances-${context.accountId}`
+// );
+// console.log("ftBalancesRes: ", ftBalancesRes);
+
+// console.log("state in CheckoutItem: ", state);
+
+// * REMOVING FTs FROM CHECKOUT FOR NOW *
+// useEffect(() => {
+//   if (context.accountId && !isPotDonation && ftBalancesRes && !state.ftBalances) {
+//     State.update({
+//       ftBalances: ftBalancesRes.balances,
+//       denominationOptions: state.denominationOptions.concat(
+//         ftBalancesRes.balances
+//           .map(({ amount, contract_account_id, metadata }) => ({
+//             amount,
+//             id: contract_account_id,
+//             text: metadata.symbol,
+//             value: metadata.symbol,
+//             icon: metadata.icon,
+//             decimals: metadata.decimals,
+//             selected: false,
+//           }))
+//           .filter((option) => option.text.length < 10)
+//       ),
+//     });
+//   }
+// }, [context.accountId, state.ftBalances, ftBalancesRes, isPotDonation]);
 
 return (
   <ItemContainer>
@@ -170,11 +211,12 @@ return (
             onChange: (amount) => {
               amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
               if (amount === ".") amount = "0.";
+              // error if amount is greater than balance
               props.updateCartItem({
                 projectId,
                 amount,
-                ft: cartItem?.ft,
-                price: cartItem?.price ?? getPriceUSD(),
+                token: cartItem?.token,
+                // price: cartItem?.price ?? getPriceUSD(),
                 referrerId: cartItem?.referrerId,
                 potId: cartItem?.potId,
                 potDetail: cartItem?.potDetail,
@@ -191,18 +233,15 @@ return (
                 props={{
                   noLabel: true,
                   placeholder: "",
-                  options: [
-                    { text: "", value: "" },
-                    { text: "NEAR", value: "NEAR" },
-                    { text: "USD", value: "USD" },
-                  ],
-                  value: { text: cartItem?.ft, value: cartItem?.ft },
+                  options: state.denominationOptions,
+                  value: { text: cartItem?.token.text, value: cartItem?.token.value },
                   onChange: ({ text, value }) => {
+                    const token = state.denominationOptions.find((option) => option.text === text);
                     props.updateCartItem({
                       projectId,
                       amount: undefined,
-                      ft: value,
-                      price: cartItem?.price ?? getPriceUSD(),
+                      token,
+                      // price: cartItem?.price ?? getPriceUSD(),
                       referrerId: cartItem?.referrerId,
                       potId: cartItem?.potId,
                       potDetail: cartItem?.potDetail,
@@ -222,10 +261,10 @@ return (
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
                   iconLeft:
-                    cartItem?.ft == "NEAR" ? (
-                      <FtIcon src={SUPPORTED_FTS[cartItem.ft].iconUrl} />
+                    cartItem?.token.text == "NEAR" ? (
+                      <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
                     ) : (
-                      "$"
+                      <FtIcon src={cartItem?.token.icon} />
                     ),
                 }}
               />
@@ -236,8 +275,9 @@ return (
           src={`${ownerId}/widget/Cart.BreakdownSummary`}
           props={{
             ...props,
+            ftIcon: cartItem?.token.icon,
             referrerId,
-            amountNear: cartItem?.amount,
+            totalAmount: cartItem?.amount,
             bypassProtocolFee: false, // TODO: allow user to choose
             containerStyle: { marginTop: "16px" },
           }}

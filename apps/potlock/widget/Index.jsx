@@ -25,6 +25,7 @@ const Theme = styled.div`
   position: relative;
   * {
     font-family: "Mona-Sans";
+    font-feature-settings: "ss01" on, "salt" on;
     font-style: normal;
     font-weight: 400;
   }
@@ -161,7 +162,6 @@ const props = {
   addProjectsToCart: (projects) => {
     const cart = state.cart ?? {};
     projects.forEach((item) => {
-      if (!item.ft) item.ft = "NEAR"; // default to NEAR
       cart[item.id] = item; // default to NEAR
     });
     State.update({ cart });
@@ -175,12 +175,12 @@ const props = {
     State.update({ cart });
     Storage.set(CART_KEY, JSON.stringify(cart));
   },
-  updateCartItem: ({ projectId, amount, ft, price, referrerId, potId, potDetail, note }) => {
+  updateCartItem: ({ projectId, amount, token, price, referrerId, potId, potDetail, note }) => {
     const cart = state.cart ?? {};
     const updated = {};
     // if (amount === "") updated.amount = "0";
     if (amount || amount === "") updated.amount = amount;
-    if (ft) updated.ft = ft;
+    if (token) updated.token = token;
     if (price) updated.price = price;
     if (referrerId) updated.referrerId = referrerId;
     if (potId) updated.potId = potId;
@@ -307,6 +307,7 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
+    <Widget src={`${ownerId}/widget/Components.Attribution`} />
     {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (
       <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
     )}

@@ -17,6 +17,7 @@ const {
   owner,
   pot_name,
   pot_description,
+  registry_provider,
   matching_pool_balance,
   public_round_end_ms,
   public_round_start_ms,
@@ -178,18 +179,26 @@ return (
             }}
           />
         )}
-        {!projectNotRegistered && (
+        {now < public_round_end_ms && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
-              type: "secondary",
+              type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: !registrationApproved
-                ? "Apply to pot"
-                : `Project Registration ${registryStatus}`,
+              text:
+                projectNotRegistered && registry_provider
+                  ? "Register to Apply"
+                  : registrationApproved || !registry_provider
+                  ? "Apply to pot"
+                  : `Project Registration ${registryStatus}`,
+
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
-              onClick: handleApplyToPot,
               style: { marginRight: "24px" },
+              onClick: projectNotRegistered && registry_provider ? null : handleApplyToPot,
+              href:
+                projectNotRegistered && registry_provider
+                  ? props.hrefWithParams(`?tab=createproject`)
+                  : null,
             }}
           />
         )}
