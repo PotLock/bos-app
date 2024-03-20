@@ -263,6 +263,7 @@ const ProjectsContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
+  overflow-y: hidden;
   // padding: 0px 64px 96px 64px;
   // background: #fafafa;
 
