@@ -30,7 +30,7 @@ const CardSkeletonContainer = styled.div`
   border: 1px solid #dbdbdb;
   margin-left: auto;
   margin-right: auto;
-  overflow: hidden;
+
   animation-name: ${loadingSkeleton};
   animation-duration: 1s;
   animation-iteration-count: infinite;
@@ -263,6 +263,7 @@ const ProjectsContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
+  overflow-y: hidden;
   // padding: 0px 64px 96px 64px;
   // background: #fafafa;
 
