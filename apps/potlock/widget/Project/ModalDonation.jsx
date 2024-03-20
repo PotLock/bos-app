@@ -617,7 +617,7 @@ const handleDonate = () => {
       contractName: DONATION_CONTRACT_ID,
       methodName: "storage_deposit",
       args: {},
-      deposit: Big(requiredDepositFloat).mul(Big(10).pow(selectedDenomination.decimals)),
+      deposit: Big(requiredDepositFloat).mul(Big(10).pow(24)),
       gas: "100000000000000",
     });
     const { min, max } = storageBalanceBounds;
