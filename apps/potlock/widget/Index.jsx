@@ -25,6 +25,7 @@ const Theme = styled.div`
   position: relative;
   * {
     font-family: "Mona-Sans";
+    font-feature-settings: "ss01" on, "salt" on;
     font-style: normal;
     font-weight: 400;
   }
@@ -306,6 +307,7 @@ return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
+    <Widget src={`${ownerId}/widget/Components.Attribution`} />
     {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (
       <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
     )}

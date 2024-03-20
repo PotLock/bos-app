@@ -307,6 +307,7 @@ useEffect(() => {
 // const registryRequirementMet = state.isOnRegistry || !potDetail.registry_provider;
 const registrationApproved = state.registryStatus === "Approved";
 const registrationNotApproved = state.registryStatus && state.registryStatus !== "Approved";
+const canApply = registrationApproved || !potDetail?.registry_provider;
 
 const isError = state.applicationMessageError || state.daoAddressError;
 
@@ -447,15 +448,15 @@ return (
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: registrationApproved
+                  text: canApply
                     ? state.isDao
                       ? "Propose to Send Application"
                       : "Send application"
                     : "Register to apply",
-                  onClick: registrationApproved ? handleSendApplication : null,
+                  onClick: canApply ? handleSendApplication : null,
                   disabled: isError,
-                  href: registrationApproved ? null : props.hrefWithParams(`?tab=createproject`),
-                  target: registrationApproved ? "_self" : "_blank",
+                  href: canApply ? null : props.hrefWithParams(`?tab=createproject`),
+                  target: canApply ? "_self" : "_blank",
                 }}
               />
             </Row>
