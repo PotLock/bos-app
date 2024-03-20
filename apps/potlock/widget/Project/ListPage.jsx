@@ -30,7 +30,7 @@ const CardSkeletonContainer = styled.div`
   border: 1px solid #dbdbdb;
   margin-left: auto;
   margin-right: auto;
-  overflow: hidden;
+
   animation-name: ${loadingSkeleton};
   animation-duration: 1s;
   animation-iteration-count: infinite;
