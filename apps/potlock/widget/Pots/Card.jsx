@@ -25,6 +25,7 @@ const Card = styled.a`
   background: white;
   box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
   padding-bottom: 5px;
+  height: 100%;
   &:hover {
     text-decoration: none;
     cursor: pointer;
@@ -207,7 +208,14 @@ return (
         <Markdown text={description} />
       </Description>
     </CardSection>
-    <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
+    <CardSection
+      style={{
+        background: "#F6F5F3",
+        borderTop: "1px #7B7B7B solid",
+        marginTop: "auto",
+        height: "fit-content",
+      }}
+    >
       <Title>
         <div>
           {amountNear}{" "}

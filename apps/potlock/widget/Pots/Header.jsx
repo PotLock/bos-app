@@ -132,6 +132,14 @@ const ButtonsWrapper = styled.div`
     width: 180px;
     padding: 16px;
   }
+  @media only screen and (max-width: 480px) {
+    flex-direction: column;
+    gap: 1rem;
+    a,
+    button {
+      width: 100%;
+    }
+  }
 `;
 const Referral = styled.div`
   font-size: 14px;

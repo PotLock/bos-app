@@ -1,4 +1,4 @@
-const { sponsors, filter, tab } = props;
+const { sponsors, filter, tab, hrefWithParams } = props;
 const isInPot = tab === "pot";
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
@@ -156,7 +156,7 @@ return sponsors.length ? (
             <div className="rank">#{idx + 1 + (currentPage - 1) * perPage}</div>
 
             <a
-              href={props.hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
+              href={hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
               className="address"
               target="_blank"
             >

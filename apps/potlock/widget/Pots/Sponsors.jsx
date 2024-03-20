@@ -151,31 +151,23 @@ const { base_currency } = potDetail;
 const maxRowItemLength = 14;
 
 return (
-  <>
+  <Container>
     <Widget
-      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      src={`${ownerId}/widget/Pots.SponsorsBoard`}
       props={{
         ...props,
+        donations: state.sponsorshipDonations.slice(0, 6),
+        base_currency: base_currency,
       }}
     />
-    <Container>
+    <TableContainer>
       <Widget
-        src={`${ownerId}/widget/Pots.SponsorsBoard`}
+        src={`${ownerId}/widget/Pots.SponsorsTable`}
         props={{
           ...props,
-          donations: state.sponsorshipDonations.slice(0, 6),
-          base_currency: base_currency,
+          sponsors: state.sponsorshipDonations,
         }}
       />
-      <TableContainer>
-        <Widget
-          src={`${ownerId}/widget/Pots.SponsorsTable`}
-          props={{
-            ...props,
-            sponsors: state.sponsorshipDonations,
-          }}
-        />
-      </TableContainer>
-    </Container>
-  </>
+    </TableContainer>
+  </Container>
 );
