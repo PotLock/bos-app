@@ -21,11 +21,13 @@ const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.Don
 
 const applications = PotSDK.getApplications(potId);
 
-const getApplicationCount = (sortVal) =>
-  applications?.filter((application) => {
+const getApplicationCount = (sortVal) => {
+  if (!applications) return;
+  return applications?.filter((application) => {
     if (sortVal === "All") return true;
     return application.status === sortVal;
-  }).length;
+  })?.length;
+};
 
 const APPLICATIONS_FILTERS = {
   ALL: {
@@ -186,7 +188,6 @@ const handleSubmit = () => {
       gas: ONE_TGAS.mul(100),
     },
   ];
-  console.log(transactions);
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <---- TODO: IMPLEMENT EXTENSION WALLET HANDLING ---->
@@ -194,7 +195,7 @@ const handleSubmit = () => {
 
 const searchApplications = (searchTerm) => {
   // filter applications that match the search term (message, project_id, review_notes or status)
-  const filteredApplications = allApplications.filter((application) => {
+  const filteredApplications = allApplications?.filter((application) => {
     const { message, project_id, review_notes, status } = application;
     const searchFields = [message, project_id, review_notes, status];
     return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -206,7 +207,7 @@ const sortApplications = (key) => {
   if (key === "ALL") {
     return searchApplications(searchTerm);
   }
-  const filtered = allApplications.filter((application) => {
+  const filtered = allApplications?.filter((application) => {
     return application.status === APPLICATIONS_FILTERS[key].label.split(" ")[0];
   });
   return filtered;
@@ -358,7 +359,7 @@ const ApplicationRow = styled.div`
     gap: 1rem;
     overflow: hidden;
     transition: all 300ms ease-in-out;
-    max-height: 100%;
+    max-height: 0;
     .message {
       padding-top: 1rem;
     }
@@ -375,6 +376,7 @@ const ApplicationRow = styled.div`
     }
   }
   .arrow {
+    rotate: 180deg;
     transition: all 300ms;
   }
   .toggle-check {
@@ -388,10 +390,10 @@ const ApplicationRow = styled.div`
     cursor: pointer;
   }
   .toggle-check:checked + .header .arrow {
-    rotate: 180deg;
+    rotate: 0deg;
   }
   .toggle-check:checked + .header + .content {
-    max-height: 0;
+    max-height: 100%;
   }
   @media only screen and (max-width: 768px) {
     padding: 1rem;

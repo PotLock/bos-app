@@ -151,7 +151,7 @@ return (
       items: projects,
       responsive: [
         {
-          breakpoint: 1024,
+          breakpoint: 1200,
           items: 2,
         },
         {

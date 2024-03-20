@@ -298,7 +298,6 @@ return (
         ...props,
         potDetail: potDetail,
         setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
-        handleApplyToPot,
         sybilRequirementMet: state.sybilRequirementMet,
         applicationSuccess: state.applicationSuccess,
         registrationApproved,

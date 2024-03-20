@@ -2,7 +2,6 @@ const {
   potDetail,
   setApplicationModalOpen,
   potId,
-  handleApplyToPot,
   sybilRequirementMet,
   applicationSuccess,
   registrationApproved,
@@ -179,12 +178,11 @@ return (
             }}
           />
         )}
-        {now < public_round_end_ms && (
+        {applicationOpen && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
-              // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
               text:
                 projectNotRegistered && registry_provider
                   ? "Register to Apply"
@@ -192,9 +190,11 @@ return (
                   ? "Apply to pot"
                   : `Project Registration ${registryStatus}`,
 
-              // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
               style: { marginRight: "24px" },
-              onClick: projectNotRegistered && registry_provider ? null : handleApplyToPot,
+              onClick:
+                projectNotRegistered && registry_provider
+                  ? null
+                  : () => setApplicationModalOpen(true),
               href:
                 projectNotRegistered && registry_provider
                   ? props.hrefWithParams(`?tab=createproject`)
