@@ -237,7 +237,6 @@ const handleDonate = () => {
         // display success message & clear cart
         clearInterval(pollId);
         props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
-        props.setCheckoutSuccess(true);
         clearCart();
       }
     });

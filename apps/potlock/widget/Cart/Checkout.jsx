@@ -142,7 +142,6 @@ State.init({
   selectedProjectIds: [],
   masterSelectorSelected: false,
   successfulDonationRecipientId: null,
-  successfulDonationRecipientProfile: null,
   successfulDonationsRecipientProfiles: null,
 });
 
@@ -150,6 +149,7 @@ const allSelected =
   state.selectedProjectIds.length !== 0 && state.selectedProjectIds.length === numCartItems;
 
 if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
+  // handles the case where the user is redirected from the wallet after a successful donation
   const transactionHashes = props.transactionHashes.split(",");
   for (let i = 0; i < transactionHashes.length; i++) {
     const txHash = transactionHashes[i];
@@ -196,6 +196,23 @@ if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
     }
   }
 }
+
+useEffect(() => {
+  // handles extension wallet case, where user is not redirected (therefore no props.transactionHashes)
+  if (state.successfulDonationRecipientId && !state.successfulDonationsRecipientProfiles) {
+    Near.asyncView("social.near", "get", {
+      keys: [`${state.successfulDonationRecipientId}/profile/**`],
+    }).then((socialData) => {
+      State.update({
+        successfulDonationsRecipientProfiles: {
+          // don't spread the existing state, as it may be null
+          [state.successfulDonationRecipientId]:
+            socialData[state.successfulDonationRecipientId]["profile"],
+        },
+      });
+    });
+  }
+}, [state.successfulDonationRecipientId, state.successfulDonationsRecipientProfiles]);
 
 const twitterIntent = useMemo(() => {
   if (!state.successfulDonationsRecipientProfiles) return;
@@ -251,7 +268,7 @@ const twitterIntent = useMemo(() => {
 return (
   // <div>
   <Container>
-    {props.checkoutSuccess ? (
+    {props.transactionHashes || state.successfulDonationRecipientId ? (
       <SuccessContainer>
         <Title>Thanks for donating!</Title>
         {twitterIntent && (

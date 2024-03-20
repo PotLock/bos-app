@@ -60,7 +60,17 @@ const Theme = styled.div`
   ${loraCss}
 `;
 
-// console.log("state in Index: ", state);
+State.init({
+  successModal: {
+    isOpen:
+      (!props.tab ||
+        props.tab === PROJECTS_LIST_TAB ||
+        props.tab === PROJECT_DETAIL_TAB ||
+        props.tab === POT_DETAIL_TAB) &&
+      props.transactionHashes,
+    successfulDonation: null,
+  },
+});
 
 const tabContentWidget = {
   [CREATE_PROJECT_TAB]: "Project.Create",
@@ -91,9 +101,6 @@ const props = {
   ownerId: "potlock.near",
   NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
-  setCheckoutSuccess: (checkoutSuccess) => {
-    State.update({ checkoutSuccess });
-  },
   hrefWithParams: (href) => {
     // pass env & referrerId to all links
     if (props.env) {
@@ -104,6 +111,9 @@ const props = {
     }
     return href;
   },
+  openDonationSuccessModal: (donation) => {
+    State.update({ successModal: { isOpen: true, successfulDonation: donation } });
+  },
 };
 
 if (props.transactionHashes) {
@@ -113,7 +123,6 @@ if (props.transactionHashes) {
         clearCart: () => {},
       };
       // if checkout was successful after wallet redirect, clear cart
-      // store previous cart in local storage to show success message
       clearCart();
       break;
     default:
@@ -144,6 +153,8 @@ const Content = styled.div`
 
 const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
+// console.log("props in Index: ", props);
+
 return (
   <Theme>
     <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
@@ -156,15 +167,9 @@ return (
       src={`${ownerId}/widget/Project.ModalSuccess`}
       props={{
         ...props,
-        successfulDonation: state.successModal.successfulDonation,
         isModalOpen: state.successModal.isOpen,
-        onClose: () =>
-          State.update({
-            successModal: {
-              isOpen: false,
-              successfulDonation: null,
-            },
-          }),
+        successfulDonation: state.successModal.successfulDonation,
+        onClose: () => State.update({ successModal: { isOpen: false, successfulDonation: null } }),
       }}
     />
   </Theme>

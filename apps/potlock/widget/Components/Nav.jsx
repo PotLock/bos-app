@@ -1,7 +1,3 @@
-const { href } = VM.require("devs.near/widget/lib.url") ?? {
-  href: () => {},
-};
-
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -220,16 +216,6 @@ const tabOptions = [
   { text: "Donors", link: "donors", disabled: false },
   // { text: "Feedback", href: "https://potlock.org/feedback", newTab: true, disabled: false },
 ];
-
-const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <CartModal onClick={onClose}>
-      <CartModalContent onClick={(e) => e.stopPropagation()}>{children}</CartModalContent>
-    </CartModal>
-  );
-};
 
 const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
 

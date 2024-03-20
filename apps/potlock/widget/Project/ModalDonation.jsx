@@ -406,8 +406,6 @@ useEffect(() => {
   }
 }, [context.accountId, state.nearBalance, nearBalanceRes]);
 
-// console.log("state in modal donation: ", state);
-
 useEffect(() => {
   if (
     pots &&
@@ -551,6 +549,30 @@ const storageBalanceDonationContract = Near.view(selectedDenomination.id, "stora
 // const amountNear =
 //   state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
+const pollForDonationSuccess = (projectId, afterTs) => {
+  // poll for updates
+  // TODO: update this to also poll Pot contract
+  const pollIntervalMs = 1000;
+  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
+  const pollId = setInterval(() => {
+    (isPotDonation ? PotSDK : DonateSDK)
+      .asyncGetDonationsForDonor(context.accountId)
+      .then((donations) => {
+        for (const donation of donations) {
+          const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
+          if (
+            ((recipient_id === projectId || project_id === projectId) && donated_at_ms > afterTs) ||
+            donated_at > afterTs
+          ) {
+            // display success message
+            clearInterval(pollId);
+            props.openDonationSuccessModal(donation);
+          }
+        }
+      });
+  }, pollIntervalMs);
+};
+
 const handleDonate = () => {
   // const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
   const donationAmountIndivisible = Big(state.amount).mul(
@@ -673,7 +695,7 @@ const handleDonate = () => {
       Near.call(transactions);
       // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
       // <-------- EXTENSION WALLET HANDLING -------->
-      pollForDonationSuccess(now);
+      pollForDonationSuccess(projectId, now);
     });
   } else {
     transactions.push({
@@ -687,32 +709,8 @@ const handleDonate = () => {
     Near.call(transactions);
     // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
     // <-------- EXTENSION WALLET HANDLING -------->
-    pollForDonationSuccess(now);
+    pollForDonationSuccess(projectId, now);
   }
-};
-
-const pollForDonationSuccess = (afterTs) => {
-  // poll for updates
-  // TODO: update this to also poll Pot contract
-  const pollIntervalMs = 1000;
-  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
-  const pollId = setInterval(() => {
-    (isPotDonation ? PotSDK : DonateSDK)
-      .asyncGetDonationsForDonor(context.accountId)
-      .then((donations) => {
-        for (const donation of donations) {
-          const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
-          if (
-            ((recipient_id === projectId || project_id === projectId) && donated_at_ms > afterTs) ||
-            donated_at > afterTs
-          ) {
-            // display success message & clear cart
-            clearInterval(pollId);
-            props.openDonationSuccessModal(donation);
-          }
-        }
-      });
-  }, pollIntervalMs);
 };
 
 const donateLoading = !state.activeRoundsForProject || isUserHumanVerified === null;
