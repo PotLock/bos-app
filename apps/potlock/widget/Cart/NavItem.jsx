@@ -2,13 +2,12 @@ const { getCartItemCount } = VM.require("potlock.near/widget/SDK.cart") ?? {
   getCartItemCount: () => 0,
 };
 
-const { href } = VM.require("devs.near/widget/lib.url") || {
-  href: () => {},
-};
-
 const { CartModal } = VM.require("potlock.near/widget/Cart.Modal") ?? {
   CartModal: () => <></>,
 };
+
+const navHeightPx = 110;
+const navHeightPxMobile = 96;
 
 const numCartItems = getCartItemCount();
 

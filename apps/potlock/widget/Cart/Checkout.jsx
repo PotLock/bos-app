@@ -1,7 +1,4 @@
 const donationContractId = "donate.potlock.near";
-const { href } = VM.require("devs.near/widget/lib.url") || {
-  href: () => {},
-};
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const TRASH_ICON_URL =
@@ -292,10 +289,7 @@ return (
         <Widget
           src={"potlock.near/widget/Components.Button"}
           props={{
-            href: href({
-              widgetSrc: "potlock.near/widget/Index",
-              params: { tab: "projects", referrerId: props.referrerId },
-            }),
+            href: props.hrefWithParams(`?tab=projects`),
             type: twitterIntent ? "secondary" : "primary",
             text: "Explore projects",
             style: {
