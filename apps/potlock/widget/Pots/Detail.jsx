@@ -43,7 +43,6 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    //padding: 240px 16px 32px 16px;
     width: 100%;
     padding: 0;
   }
@@ -60,6 +59,9 @@ const BodyContainer = styled.div`
   padding: 0 4rem;
   flex: 1;
   width: 100%;
+  @media screen and (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const Divider = styled.div`

@@ -77,8 +77,8 @@ const Container = styled.div`
       margin: auto;
     }
   }
-  @media only screen and (max-width: 480px) {
-    padding: 3rem;
+  @media only screen and (max-width: 768px) {
+    padding: 3rem 0;
 
     .pool-table {
       max-width: 100%;
