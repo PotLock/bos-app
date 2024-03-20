@@ -1,9 +1,19 @@
-const { ownerId } = props;
 const donationContractId = "donate.potlock.near";
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const TRASH_ICON_URL =
 //   IPFS_BASE_URL + "bafkreifuvrxly3wuy4xdmavmdeb2o47nv6pzxwz3xmy6zvkxv76e55lj3y";
+
+const { getCart, getCartItemCount, removeItemsFromCart } = VM.require(
+  "potlock.near/widget/SDK.cart"
+) || {
+  getCart: () => {},
+  getCartItemCount: () => 0,
+  removeItemsFromCart: () => {},
+};
+
+const numCartItems = getCartItemCount();
+const cart = getCart();
 
 const DEFAULT_GATEWAY = "https://bos.potlock.org/";
 const POTLOCK_TWITTER_ACCOUNT_ID = "PotLock_";
@@ -132,15 +142,14 @@ State.init({
   selectedProjectIds: [],
   masterSelectorSelected: false,
   successfulDonationRecipientId: null,
-  successfulDonationRecipientProfile: null,
   successfulDonationsRecipientProfiles: null,
 });
 
 const allSelected =
-  state.selectedProjectIds.length !== 0 &&
-  state.selectedProjectIds.length === Object.keys(props.cart).length;
+  state.selectedProjectIds.length !== 0 && state.selectedProjectIds.length === numCartItems;
 
 if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
+  // handles the case where the user is redirected from the wallet after a successful donation
   const transactionHashes = props.transactionHashes.split(",");
   for (let i = 0; i < transactionHashes.length; i++) {
     const txHash = transactionHashes[i];
@@ -188,13 +197,30 @@ if (props.transactionHashes && !state.successfulDonationsRecipientProfiles) {
   }
 }
 
+useEffect(() => {
+  // handles extension wallet case, where user is not redirected (therefore no props.transactionHashes)
+  if (state.successfulDonationRecipientId && !state.successfulDonationsRecipientProfiles) {
+    Near.asyncView("social.near", "get", {
+      keys: [`${state.successfulDonationRecipientId}/profile/**`],
+    }).then((socialData) => {
+      State.update({
+        successfulDonationsRecipientProfiles: {
+          // don't spread the existing state, as it may be null
+          [state.successfulDonationRecipientId]:
+            socialData[state.successfulDonationRecipientId]["profile"],
+        },
+      });
+    });
+  }
+}, [state.successfulDonationRecipientId, state.successfulDonationsRecipientProfiles]);
+
 const twitterIntent = useMemo(() => {
   if (!state.successfulDonationsRecipientProfiles) return;
   const recipientIds = Object.keys(state.successfulDonationsRecipientProfiles);
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
 
   // if more than one recipient, share the Explore Projects page; otherwise, share the project page
-  let url = DEFAULT_GATEWAY + `${ownerId}/widget/Index?referrerId=${context.accountId}`;
+  let url = DEFAULT_GATEWAY + `potlock.near/widget/Index?referrerId=${context.accountId}`;
   if (recipientIds.length === 1) {
     url = url + `&tab=project&projectId=${recipientIds[0]}`;
   } else {
@@ -242,12 +268,12 @@ const twitterIntent = useMemo(() => {
 return (
   // <div>
   <Container>
-    {props.checkoutSuccess ? (
+    {props.transactionHashes || state.successfulDonationRecipientId ? (
       <SuccessContainer>
         <Title>Thanks for donating!</Title>
         {twitterIntent && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"potlock.near/widget/Components.Button"}
             props={{
               href: twitterIntent,
               target: "_blank",
@@ -261,7 +287,7 @@ return (
           />
         )}
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"potlock.near/widget/Components.Button"}
           props={{
             href: props.hrefWithParams(`?tab=projects`),
             type: twitterIntent ? "secondary" : "primary",
@@ -281,7 +307,7 @@ return (
         ) : (
           props.checkoutSuccessTxHash && (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"potlock.near/widget/Components.Button"}
               props={{
                 href: `https://nearblocks.io/txns/${props.checkoutSuccessTxHash}`,
                 target: "_blank",
@@ -303,15 +329,15 @@ return (
           <ActionsContainer>
             <InnerContainer>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"potlock.near/widget/Inputs.Checkbox"}
                 props={{
                   id: "masterSelector",
-                  disabled: Object.keys(props.cart).length === 0,
+                  disabled: numCartItems === 0,
                   checked: state.masterSelectorSelected,
                   onClick: (e) => {
                     // if allSelected, then deselect all
                     // if not allSelected, then select all
-                    const selectedProjectIds = Object.keys(props.cart).filter((_) => {
+                    const selectedProjectIds = Object.keys(cart).filter((_) => {
                       if (allSelected) {
                         return false;
                       }
@@ -332,7 +358,7 @@ return (
                 // doesn't do anything if nothing selected
                 if (state.selectedProjectIds.length === 0) return;
                 // delete selected projects
-                props.removeProjectsFromCart(state.selectedProjectIds);
+                removeItemsFromCart(state.selectedProjectIds.map((id) => ({ id })));
                 // uncheck box
                 State.update({ selectedProjectIds: [], masterSelectorSelected: false });
               }}
@@ -346,18 +372,18 @@ return (
               <SubTitle>Delete</SubTitle>
             </InnerContainer>
           </ActionsContainer>
-          {Object.keys(props.cart).length === 0 ? (
+          {numCartItems === 0 ? (
             <div>No items in cart</div>
           ) : (
-            Object.keys(props.cart).map((projectId) => {
+            Object.keys(cart).map((projectId) => {
               // setProjectId(projectId); // wtf is this?? commenting out
               const checked = state.selectedProjectIds.includes(projectId);
               return (
                 <Widget
-                  src={`${ownerId}/widget/Cart.CheckoutItem`}
+                  src={"potlock.near/widget/Cart.CheckoutItem"}
                   props={{
                     ...props,
-                    projectId,
+                    cartItem: cart[projectId],
                     checked,
                     handleCheckboxClick: (e) => {
                       // if selected, then deselect
@@ -373,7 +399,7 @@ return (
                       };
                       if (
                         selectedProjectIds.length !== 0 &&
-                        selectedProjectIds.length !== Object.keys(props.cart).length
+                        selectedProjectIds.length !== numCartItems
                       ) {
                         updatedState.masterSelectorSelected = false;
                       }
@@ -387,7 +413,7 @@ return (
         </ColumnLeft>
         <ColumnRight>
           <Widget
-            src={`${ownerId}/widget/Cart.CheckoutBreakdown`}
+            src={"potlock.near/widget/Cart.CheckoutBreakdown"}
             props={{
               ...props,
               projectId: projectId,
