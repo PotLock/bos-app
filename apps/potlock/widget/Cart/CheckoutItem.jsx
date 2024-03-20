@@ -1,12 +1,11 @@
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { removeItemsFromCart, updateItemInCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
+const { removeItemsFromCart, updateItemInCart } = VM.require("potlock.near/widget/SDK.cart") || {
   removeItemsFromCart: () => {},
   updateItemInCart: () => {},
 };
@@ -121,9 +120,7 @@ const [itemFt, setItemFt] = useState(cartItem?.ft);
 
 State.init({
   ftBalances: null,
-  denominationOptions: [
-    { text: "NEAR", value: "NEAR", selected: cartItem?.token.text === "NEAR", decimals: 24 },
-  ],
+  denominationOptions: [{ text: "NEAR", value: "NEAR", selected: itemFt === "NEAR", decimals: 24 }],
 });
 
 // * REMOVING FTs FROM CHECKOUT FOR NOW *
@@ -172,7 +169,7 @@ return (
   <ItemContainer>
     <ItemLeft>
       <Widget
-        src={`${ownerId}/widget/Inputs.Checkbox`}
+        src={"potlock.near/widget/Inputs.Checkbox"}
         props={{
           id: "selector-" + projectId,
           checked,
@@ -204,7 +201,7 @@ return (
             {profile.name ?? ""}
           </Title>
           <Widget
-            src={`${ownerId}/widget/Pots.Tag`}
+            src={"potlock.near/widget/Pots.Tag"}
             props={{
               ...props,
               backgroundColor: isPotDonation ? "#FEF6EE" : "#F6F5F3",
@@ -220,7 +217,7 @@ return (
         </Row>
         <Description>{profile.description ?? ""}</Description>
         <Widget
-          src={`${ownerId}/widget/Inputs.Text`}
+          src={"potlock.near/widget/Inputs.Text"}
           props={{
             label: "Amount",
             placeholder: "0",
@@ -242,7 +239,7 @@ return (
             },
             preInputChildren: (
               <Widget
-                src={`${ownerId}/widget/Inputs.Select`}
+                src={"potlock.near/widget/Inputs.Select"}
                 props={{
                   noLabel: true,
                   placeholder: "",
@@ -270,20 +267,15 @@ return (
                     padding: "12px 16px",
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
-                  // iconLeft: itemFt == "NEAR" ? <NearIcon /> : "$",
-                  iconLeft:
-                    cartItem?.token.text == "NEAR" ? (
-                      <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
-                    ) : (
-                      <FtIcon src={cartItem?.token.icon} />
-                    ),
+                  // iconLeft: itemFt == "NEAR" ?  : "$",
+                  iconLeft: itemFt == "NEAR" ? <NearIcon /> : <FtIcon src={cartItem?.token.icon} />,
                 }}
               />
             ),
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Cart.BreakdownSummary`}
+          src={"potlock.near/widget/Cart.BreakdownSummary"}
           props={{
             ...props,
             ftIcon: cartItem?.token.icon,
