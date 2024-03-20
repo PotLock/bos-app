@@ -17,13 +17,6 @@ const DONORS_TAB = "donors";
 const PROFILE_TAB = "profile";
 const EDIT_PROFILE_TAB = "editprofile";
 
-const { getCartItemCount, clearCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
-  getCartItemCount: () => {},
-  clearCart: () => {},
-};
-
-const numCartItems = getCartItemCount();
-
 const loraCss = fetch(
   "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 ).body;
@@ -67,27 +60,6 @@ const Theme = styled.div`
   ${loraCss}
 `;
 
-State.init({
-  checkoutSuccess: false,
-  checkoutSuccessTxHash: null,
-  isNavMenuOpen: false,
-  donnorProjectId: null,
-  amount: null,
-  note: null,
-  referrerId: null,
-  currency: null,
-  // isSybilModalOpen: false,
-  successModal: {
-    isOpen:
-      (!props.tab ||
-        props.tab === PROJECTS_LIST_TAB ||
-        props.tab === PROJECT_DETAIL_TAB ||
-        props.tab === POT_DETAIL_TAB) &&
-      props.transactionHashes,
-    successfulDonation: null,
-  },
-});
-
 // console.log("state in Index: ", state);
 
 const tabContentWidget = {
@@ -114,41 +86,13 @@ const getTabWidget = (tab) => {
 };
 
 const props = {
-  ...props,
-  ...state,
+  ...(props ?? {}),
+  ...(state ?? {}),
   ownerId: "potlock.near",
   NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
-  setCurrency: (cur) => {
-    const currency = state.currency ?? cur;
-    State.update({ currency: currency });
-    Storage.set("currency", currency);
-  },
-  setNote: (n) => {
-    const note = state.note ?? n;
-    State.update({ note: note });
-    Storage.set("note", note);
-  },
-  setAmount: (value) => {
-    const amount = state.amount ?? value;
-    State.update({ amount: amount });
-    Storage.set("amount", amount);
-  },
-  setProjectId: (id) => {
-    const donnorProjectId = state.donnorProjectId ?? id;
-    State.update({ donnorProjectId: donnorProjectId });
-    Storage.set("projectId", donnorProjectId);
-  },
-  setReferrerId: (ref) => {
-    const referrerId = state.referrerId ?? ref;
-    State.update({ referrerId: referrerId });
-    Storage.set("referrerId", referrerId);
-  },
   setCheckoutSuccess: (checkoutSuccess) => {
     State.update({ checkoutSuccess });
-  },
-  setIsNavMenuOpen: (isOpen) => {
-    State.update({ isNavMenuOpen: isOpen });
   },
   hrefWithParams: (href) => {
     // pass env & referrerId to all links
@@ -162,38 +106,19 @@ const props = {
   },
 };
 
-if (props.transactionHashes && props.tab === CART_TAB) {
-  // if transaction hashes are in URL but haven't been added to props, override state:
-  props.checkoutSuccessTxHash = props.transactionHashes;
-  props.checkoutSuccess = true;
-}
-
-if (props.transactionHashes && props.tab === DEPLOY_POT_TAB) {
-  // if transaction hashes are in URL but haven't been added to props, override state:
-  props.deploymentSuccessTxHash = props.transactionHashes;
-  props.deploymentSuccess = true;
-}
-
-if (
-  state.currency === null &&
-  state.donnorProjectId === null &&
-  state.amount === null &&
-  StorageCurrency !== null &&
-  StorageAmount !== null &&
-  StorageProjectId !== null
-) {
-  State.update({ currency: StorageCurrency });
-  State.update({ amount: StorageAmount });
-  State.update({ donnorProjectId: StorageProjectId });
-  State.update({ note: StorageNote });
-  State.update({ referrerId: StorageReferrerId });
-}
-
-if (props.checkoutSuccessTxHash && numCartItems > 0) {
-  // if checkout was successful after wallet redirect, clear cart
-  // store previous cart in local storage to show success message
-  // console.log("previous cart: ", state.cart);
-  clearCart();
+if (props.transactionHashes) {
+  switch (props.tab) {
+    case CART_TAB:
+      const { clearCart } = VM.require("potlock.near/widget/SDK.cart") ?? {
+        clearCart: () => {},
+      };
+      // if checkout was successful after wallet redirect, clear cart
+      // store previous cart in local storage to show success message
+      clearCart();
+      break;
+    default:
+      console.log("transactionHash callback case not handled, tab: ", props.tab);
+  }
 }
 
 if (props.tab === EDIT_PROJECT_TAB) {

@@ -1,10 +1,9 @@
 const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { getCart, clearCart } = VM.require(`${ownerId}/widget/SDK.cart`) || {
+const { getCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
   getCart: () => {},
   clearCart: () => {},
 };
@@ -282,7 +281,7 @@ return (
         </TotalContainer>
       )}
     <Widget
-      src={`${ownerId}/widget/Components.Button`}
+      src={"potlock.near/widget/Components.Button"}
       props={{
         type: "primary",
         text: `Process Donation`,

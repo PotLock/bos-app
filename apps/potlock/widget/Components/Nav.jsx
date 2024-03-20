@@ -1,4 +1,7 @@
-const { ownerId } = props;
+const { href } = VM.require("devs.near/widget/lib.url") ?? {
+  href: () => {},
+};
+
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -58,7 +61,7 @@ const NavRightMobile = styled.div`
   }
 `;
 
-const NavLogo = styled.a`
+const NavLogo = styled("Link")`
   display: flex;
   gap: 7px;
   align-items: baseline;
@@ -92,7 +95,7 @@ const NavTabs = styled.div`
   }
 `;
 
-const NavTab = styled.a`
+const NavTab = styled("Link")`
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
   font-size: 14px;
@@ -228,6 +231,8 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
+const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+
 return (
   <>
     {false && (
@@ -279,7 +284,7 @@ return (
       </NavLeft>
       <NavRight>
         <NavTabs>
-          {tabOptions.map((tab) => {
+          {(tabOptions ?? []).map((tab) => {
             return (
               <NavTab
                 href={tab.href ?? props.hrefWithParams(`?tab=${tab.link}`)}
@@ -294,12 +299,12 @@ return (
               </NavTab>
             );
           })}
-          <Widget src={`${ownerId}/widget/Cart.NavItem`} props={props} />
+          <Widget src={"potlock.near/widget/Cart.NavItem"} props={props} />
         </NavTabs>
       </NavRight>
       <NavRightMobile>
-        <Widget src={`${ownerId}/widget/Cart.NavItem`} props={props} />
-        <NavTab onClick={() => props.setIsNavMenuOpen(!props.isNavMenuOpen)}>
+        <Widget src={"potlock.near/widget/Cart.NavItem"} props={props} />
+        <NavTab onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -312,7 +317,7 @@ return (
         </NavTab>
       </NavRightMobile>
     </Nav>
-    {props.isNavMenuOpen && (
+    {isNavMenuOpen && (
       <NavMenu>
         {tabOptions.map((tab) => {
           return (
