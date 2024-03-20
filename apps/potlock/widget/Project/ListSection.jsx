@@ -18,8 +18,8 @@ const Grid = styled.div`
   display: grid;
   width: 100%;
 
-  padding-top: "20px";
-  padding-bottom: "32px";
+  padding-top: 20px;
+  padding-bottom: 32px;
 
   gap: 31px;
 
