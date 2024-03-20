@@ -6,12 +6,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "bosworkspace": "bos-workspace",
-    "dev": "npm run bosworkspace dev"
+    "bw": "bos-workspace",
+    "dev": "npm run bw dev"
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
-    "bos-workspace": "github:NEARBuilders/bos-workspace",
+    "bos-workspace": "^0.0.1-alpha.6",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
     "prettier": "^2.8.8"

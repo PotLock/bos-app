@@ -157,7 +157,13 @@ const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
 return (
   <Theme>
-    <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
+    <Widget
+      src={`${ownerId}/widget/Components.Nav`}
+      props={{
+        active: props.tab,
+        referrerId: props.referrerId,
+      }}
+    />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
     <Widget src={`${ownerId}/widget/Components.Attribution`} />
     {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (

@@ -6,6 +6,10 @@ const { getCartItemCount, getCart, removeItemsFromCart } = VM.require(
   removeItemsFromCart: () => {},
 };
 
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -198,7 +202,10 @@ return (
             type: "primary",
             text: "Proceed to donate",
             disabled: numCartItems === 0,
-            href: props.hrefWithParams(`?tab=cart`),
+            href: href({
+              widgetSrc: "potlock.near/widget/Index",
+              params: { tab: "cart", referrerId: props.referrerId },
+            }),
             style: {
               width: "100%",
               marginBottom: "16px",

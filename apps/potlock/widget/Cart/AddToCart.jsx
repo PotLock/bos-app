@@ -22,7 +22,6 @@ return (
         if (existsInCart) {
           removeItemsFromCart([item]);
         } else {
-          // item.ft = "NEAR";
           addItemsToCart([item]);
         }
         if (handleCallback) {

@@ -1,3 +1,7 @@
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
@@ -64,7 +68,7 @@ const DetailsContainer = styled.div`
   overflow: hidden;
 `;
 
-const Title = styled.a`
+const Title = styled("Link")`
   color: #2e2e2e;
   font-size: 16px;
   line-height: 24px;
@@ -199,7 +203,12 @@ return (
       </ImageContainer>
       <DetailsContainer>
         <Row>
-          <Title href={props.hrefWithParams(`?tab=project&projectId=${projectId}`)}>
+          <Title
+            href={href({
+              widgetSrc: "potlock.near/widget/Index",
+              params: { tab: "project", projectId: projectId, referrerId: props.referrerId },
+            })}
+          >
             {profile.name ?? ""}
           </Title>
           <Widget

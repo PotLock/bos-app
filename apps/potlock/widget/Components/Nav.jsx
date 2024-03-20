@@ -1,3 +1,9 @@
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
+const active = props.tab;
+
 const navHeightPx = 110;
 const navHeightPxMobile = 96;
 
@@ -135,7 +141,7 @@ const BannerText = styled.div`
     margin-left: 4px;
   }
 `;
-const BannerLinkContainer = styled.a`
+const BannerLinkContainer = styled("Link")`
   display: flex;
   cursor: pointer;
   text-align: center;
@@ -196,7 +202,7 @@ const NavMenu = styled.div`
   }
 `;
 
-const NavMenuItem = styled.a`
+const NavMenuItem = styled("Link")`
   color: ${(props) => (props.selected ? "#2E2E2E" : "#7B7B7B")};
   font-size: 14px;
   font-weight: ${(props) => (props.selected ? 500 : 400)};
@@ -260,7 +266,14 @@ return (
     )}
     <Nav>
       <NavLeft>
-        <NavLogo href={props.hrefWithParams(`?tab=projects`)}>
+        <NavLogo
+          href={href({
+            widgetSrc: "potlock.near/widget/Index",
+            params: {
+              referrerId: props.referrerId,
+            },
+          })}
+        >
           <img
             src="https://ipfs.near.social/ipfs/bafkreiafms2jag3gjbypfceafz2uvs66o25qc7m6u6hkxfyrzfoeyvj7ru"
             alt="logo"
@@ -273,13 +286,22 @@ return (
           {(tabOptions ?? []).map((tab) => {
             return (
               <NavTab
-                href={tab.href ?? props.hrefWithParams(`?tab=${tab.link}`)}
+                href={
+                  tab.href ??
+                  href({
+                    widgetSrc: "potlock.near/widget/Index",
+                    params: {
+                      tab: tab.link,
+                      referrerId: props.referrerId,
+                    },
+                  })
+                }
                 disabled={tab.disabled}
                 target={tab.newTab ? "_blank" : ""}
                 onClick={(e) => {
                   if (tab.disabled) e.preventDefault();
                 }}
-                selected={props.tab === tab.link}
+                selected={active === tab.link}
               >
                 {tab.text}
               </NavTab>
@@ -308,12 +330,18 @@ return (
         {tabOptions.map((tab) => {
           return (
             <NavMenuItem
-              href={props.hrefWithParams(`?tab=${tab.link}`)}
+              href={href({
+                widgetSrc: "potlock.near/widget/Index",
+                params: {
+                  tab: tab.link,
+                  referrerId: props.referrerId,
+                },
+              })}
               disabled={tab.disabled}
               onClick={(e) => {
                 if (tab.disabled) e.preventDefault();
               }}
-              selected={props.tab === tab.link}
+              selected={active === tab.link}
             >
               {tab.text}
               {tab.disabled && " (Coming Soon)"}
