@@ -770,7 +770,7 @@ const handleTag = (key) => {
 return (
   <>
     <HeroContainer>
-      <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" />
+      {/* <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" /> */}
       <HeaderContainer style={containerStyleHeader}>
         <HeaderContent>
           <HeaderTitle>

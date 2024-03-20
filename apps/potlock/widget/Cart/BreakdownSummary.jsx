@@ -1,4 +1,4 @@
-const { referrerId, amountNear, bypassProtocolFee, recipientId } = props;
+const { referrerId, totalAmount, bypassProtocolFee, recipientId, ftIcon } = props;
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
@@ -22,7 +22,7 @@ const CHEVRON_DOWN_URL =
 const CHEVRON_UP_URL =
   IPFS_BASE_URL + "bafkreibdm7w6zox4znipjqlmxr66wsjjpqq4dguswo7evvrmzlnss3c3vi";
 
-const FtIcon = styled.svg`
+const SvgIcon = styled.svg`
   width: 20px;
   height: 20px;
 `;
@@ -127,8 +127,13 @@ const BreakdownAmount = styled.div`
   word-wrap: break-word;
 `;
 
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
 const NearIcon = (props) => (
-  <FtIcon
+  <SvgIcon
     {...props}
     viewBox="0 0 24 24"
     fill="none"
@@ -140,7 +145,7 @@ const NearIcon = (props) => (
       d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
       fill="black"
     />
-  </FtIcon>
+  </SvgIcon>
 );
 
 State.init({
@@ -163,11 +168,11 @@ if (referrerId) {
 }
 const projectAllocationPercent = basisPointsToPercent(projectAllocationBasisPoints);
 const projectAllocationAmount =
-  (parseFloat(amountNear) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
+  (parseFloat(totalAmount) * projectAllocationBasisPoints) / TOTAL_BASIS_POINTS;
 const protocolFeePercent = basisPointsToPercent(protocolFeeBasisPoints);
-const protocolFeeAmount = (parseFloat(amountNear) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
+const protocolFeeAmount = (parseFloat(totalAmount) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
 const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
-const referrerFeeAmount = (parseFloat(amountNear) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
+const referrerFeeAmount = (parseFloat(totalAmount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
 const nearIconUrl = SUPPORTED_FTS.NEAR.iconUrl;
 
@@ -207,7 +212,7 @@ return (
             <BreakdownAmount>
               {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
             </BreakdownAmount>
-            <NearIcon />
+            {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}{" "}
           </BreakdownItemRight>
         </BreakdownItem>
       )}
@@ -220,7 +225,7 @@ return (
             <BreakdownAmount>
               {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
             </BreakdownAmount>
-            <NearIcon />
+            {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
           </BreakdownItemRight>
         </BreakdownItem>
       )}
@@ -228,7 +233,7 @@ return (
         <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
         <BreakdownItemRight>
           <BreakdownAmount>{"<0.01"}</BreakdownAmount>
-          <NearIcon />
+          {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
         </BreakdownItemRight>
       </BreakdownItem>
       <BreakdownItem>
@@ -237,7 +242,7 @@ return (
         </BreakdownItemLeft>
         <BreakdownItemRight>
           <BreakdownAmount>~{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
-          <NearIcon />
+          {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
         </BreakdownItemRight>
       </BreakdownItem>
     </div>

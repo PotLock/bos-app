@@ -24,7 +24,7 @@ if (sponsorshipDonations && !state.sponsorshipDonations) {
     accumulator[currentDonation.donor_id] = {
       amount:
         parseFloat(accumulator[currentDonation.donor_id].amount || 0) +
-        parseFloat(SUPPORTED_FTS.NEAR.fromIndivisible(currentDonation.total_amount)),
+        parseFloat(SUPPORTED_FTS.NEAR.fromIndivisible(currentDonation.net_amount)),
       ...currentDonation,
     };
     return accumulator;

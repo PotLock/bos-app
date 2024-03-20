@@ -10,6 +10,17 @@ const {
 };
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
 
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    asyncGetDonationsForDonor: () => {},
+    getContractId: () => "",
+  }));
+
+DonateSDK = DonateSDK({ env: props.env });
+
+const DONATION_CONTRACT_ID = DonateSDK.getContractId();
+
 // const HEADER_ICON_URL =
 //   IPFS_BASE_URL + "bafkreiholfe7utobo5y2znjdr6ou26qmlcgf5teoxtyjo2undgfpl5kcwe";
 // const TWITTER_ICON_URL =
@@ -68,7 +79,7 @@ const HeaderIcon = styled.div`
     height: 100%;
   }
 `;
-const AmountNear = styled.div`
+const Amount = styled.div`
   color: #292929;
   font-size: 32px;
   font-weight: 600;
@@ -85,6 +96,11 @@ const AmountUsd = styled.div`
 `;
 
 const NearIcon = styled.svg`
+  width: 28px;
+  height: 28px;
+`;
+
+const ImgIcon = styled.img`
   width: 28px;
   height: 28px;
 `;
@@ -152,63 +168,114 @@ State.init({
   successfulDonation: null,
 });
 
+// [Log] null – "transactionHashes: " – ["Dit7Tr3XAu3951BmMzMSTGbrpXmTnyz4uda2BYekjcS9", "A3brwxMVYY7aYbLfKMZt2gHwic2PhiPNyUVVqS9GRGKE"] (2) (main.302622478fe5b49ecaaa.bundle.js, line 8)
+
+// const body = JSON.stringify({
+//   jsonrpc: "2.0",
+//   id: "dontcare",
+//   method: "tx",
+//   params: ["Dit7Tr3XAu3951BmMzMSTGbrpXmTnyz4uda2BYekjcS9", context.accountId],
+// });
+// console.log("body: ", body);
+// const res = fetch("https://rpc.mainnet.near.org", {
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   body,
+// });
+// console.log("res line 180: ", res);
+
 if (props.isModalOpen && !state.successfulDonation) {
-  let successfulDonation = props.successfulDonation;
-  let successfulApplication = props.successfulApplication;
+  /// NEW APPROACH:
+  // get donations for donor
+  // let successfulDonation = props.successfulDonation;
+  // let successfulApplication = props.successfulApplication;
   // if !successfulDonation and !successfulApplication, then we need to fetch the transaction
   // once fetched, determine whether it was a donation or an application & set on state accordingly
   if (!successfulDonation && !successfulApplication && props.transactionHashes) {
-    const body = JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "tx",
-      params: [props.transactionHashes, context.accountId],
-    });
-    const res = fetch("https://rpc.mainnet.near.org", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
-    if (res.ok) {
-      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
-      const successVal = res.body.result.status?.SuccessValue;
-      let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
-      if (methodName === "donate") {
-        // donation
-        successfulDonation = decoded;
-      } else if (methodName === "apply") {
-        // application
-        successfulApplication = decoded;
+    const transactionHashes = props.transactionHashes.split(",");
+    for (let i = 0; i < transactionHashes.length; i++) {
+      const txHash = transactionHashes[i];
+      const body = JSON.stringify({
+        jsonrpc: "2.0",
+        id: "dontcare",
+        method: "tx",
+        params: [txHash, context.accountId],
+      });
+      const res = fetch("https://rpc.mainnet.near.org", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+      // console.log("tx res: ", res);
+      if (res.ok) {
+        const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
+        const successVal = res.body.result.status?.SuccessValue;
+        let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+        if (methodName === "donate") {
+          // NEAR donation
+          getProfileDataForSuccessfulDonation(decoded);
+          break;
+        } else if (methodName === "apply") {
+          // application
+          State.update({
+            successfulApplication: decoded,
+          });
+          break;
+        } else if (methodName === "ft_transfer_call") {
+          console.log("res: ", res.body);
+          const args = JSON.parse(
+            Buffer.from(
+              res.body.result.transaction.actions[0].FunctionCall.args,
+              "base64"
+            ).toString("utf-8")
+          );
+          console.log("args: ", args);
+          // ft donation
+          const signerId = res.body.result.transaction.signer_id;
+          Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
+            donor_id: signerId,
+          })
+            .then((donations) => {
+              if (donations.length) {
+                const donation = donations.sort((a, b) => b.donated_at_ms - a.donated_at_ms)[0];
+                getProfileDataForSuccessfulDonation(donation);
+              }
+            })
+            .catch((e) => console.log("error fetching donations for donor: ", e));
+          break;
+        } else {
+          if (i === transactionHashes.length - 1) {
+            // close modal
+            onClose();
+          }
+        }
       }
     }
   }
-  // if (successfulDonation) console.log("successful donation: ", successfulDonation);
-  if (successfulDonation) {
-    const { donor_id, recipient_id, project_id } = successfulDonation;
+}
+
+const ftMetadata = Near.view(state.successfulDonation?.ft_id, "ft_metadata", {});
+
+const getProfileDataForSuccessfulDonation = (donation) => {
+  const { donor_id, recipient_id, project_id } = donation;
+  Near.asyncView("social.near", "get", {
+    keys: [`${recipient_id || project_id}/profile/**`],
+  }).then((recipientData) => {
     Near.asyncView("social.near", "get", {
-      keys: [`${recipient_id || project_id}/profile/**`],
-    }).then((recipientData) => {
-      Near.asyncView("social.near", "get", {
-        keys: [`${donor_id}/profile/**`],
-      }).then((donorData) => {
-        State.update({
-          successfulDonation,
-          recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
-          donorProfile: donorData[donor_id]?.profile || {},
-        });
+      keys: [`${donor_id}/profile/**`],
+    }).then((donorData) => {
+      State.update({
+        successfulDonation: donation,
+        recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
+        donorProfile: donorData[donor_id]?.profile || {},
       });
     });
-  } else if (successfulApplication) {
-    State.update({
-      successfulApplication,
-    });
-  } else {
-    // close modal
-    onClose();
-  }
-}
+  });
+};
 
 const twitterIntent = useMemo(() => {
   if (!state.recipientProfile) return;
@@ -256,26 +323,34 @@ return (
             </HeaderIcon>
             <Column>
               <Row style={{ gap: "9px" }}>
-                <AmountNear>
+                <Amount>
                   {state.successfulDonation?.total_amount
                     ? parseFloat(
-                        NEAR.fromIndivisible(state.successfulDonation.total_amount).toString()
+                        // NEAR.fromIndivisible(state.successfulDonation.total_amount).toString()
+                        Big(state.successfulDonation.total_amount)
+                          .div(Big(10).pow(ftMetadata?.decimals || 24))
+                          .toFixed(2)
                       )
                     : "-"}
-                </AmountNear>
-                <NearIcon viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="24" height="24" rx="12" fill="#CECECE" />
-                  <path
-                    d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
-                    fill="black"
-                  />
-                </NearIcon>
+                </Amount>
+                {ftMetadata?.icon ? (
+                  <ImgIcon src={ftMetadata.icon} />
+                ) : (
+                  <NearIcon viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="24" height="24" rx="12" fill="#CECECE" />
+                    <path
+                      d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
+                      fill="black"
+                    />
+                  </NearIcon>
+                )}
               </Row>
-              <AmountUsd>
-                {(state.successfulDonation?.total_amount
-                  ? yoctosToUsd(state.successfulDonation.total_amount)
-                  : "$-") + " USD"}
-              </AmountUsd>
+              {state.successfulDonation?.total_amount &&
+                yoctosToUsd(state.successfulDonation.total_amount) && (
+                  <AmountUsd>
+                    {yoctosToUsd(state.successfulDonation.total_amount) + " USD"}
+                  </AmountUsd>
+                )}
             </Column>
             <Row style={{ gap: "8px" }}>
               <TextBold>Has been donated to</TextBold>
@@ -310,13 +385,14 @@ return (
               props={{
                 ...props,
                 referrerId: state.successfulDonation?.referrer_id,
-                amountNear: NEAR.fromIndivisible(
+                totalAmount: NEAR.fromIndivisible(
                   state.successfulDonation?.total_amount || "0"
                 ).toString(),
                 bypassProtocolFee:
                   !state.successfulDonation?.protocol_fee ||
                   state.successfulDonation?.protocol_fee === "0", // TODO: allow user to choose
                 headerStyle: { justifyContent: "center" },
+                ftIcon: ftMetadata?.icon,
               }}
             />
             <Row style={{ width: "100%", justifyContent: "center", gap: "24px" }}>

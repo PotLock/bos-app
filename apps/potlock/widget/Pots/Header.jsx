@@ -641,15 +641,19 @@ return (
             props={{
               type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               // text: registryRequirementMet ? "Apply to pot" : "Register to Apply",
-              text: projectNotRegistered
-                ? "Register to Apply"
-                : registrationApproved
-                ? "Apply to pot"
-                : `Project Registration ${registryStatus}`,
+              text:
+                projectNotRegistered && registry_provider
+                  ? "Register to Apply"
+                  : registrationApproved || !registry_provider
+                  ? "Apply to pot"
+                  : `Project Registration ${registryStatus}`,
               // onClick: registryRequirementMet ? handleApplyToPot : null, // TODO: ADD BACK IN
-              onClick: projectNotRegistered ? null : handleApplyToPot,
-              disabled: !registrationApproved,
-              href: projectNotRegistered ? props.hrefWithParams(`?tab=createproject`) : null,
+              onClick: projectNotRegistered && registry_provider ? null : handleApplyToPot,
+              disabled: !registrationApproved && registry_provider,
+              href:
+                projectNotRegistered && registry_provider
+                  ? props.hrefWithParams(`?tab=createproject`)
+                  : null,
               // target: "_self",
               style: { marginRight: "24px" },
             }}
@@ -662,7 +666,6 @@ return (
               type: publicRoundOpen || canApply ? "secondary" : "primary",
               text: "Fund matching pool",
               onClick: handleFundMatchingPool,
-              style: { width: "100%" },
             }}
           />
         )}
@@ -677,7 +680,6 @@ return (
                 : NADA_BOT_URL,
               target: sybilRequirementMet ? "_self" : "_blank",
               iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,
-              style: { width: "100%" },
             }}
           />
         )}

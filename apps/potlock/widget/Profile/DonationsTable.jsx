@@ -243,19 +243,21 @@ const [search, setSearch] = useState("");
 const [sortVal, setSortVal] = useState(APPLICATIONS_FILTERS.ALL);
 const perPage = 30; // need to be less than 50
 
-const total = useMemo(() => {
+const totalAmountNear = useMemo(() => {
   let total = Big(0);
   donations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount));
+    if (donation.ft_id === "near" || donation.base_currency === "near") {
+      total = total.plus(Big(donation.total_amount));
+    }
   });
   return total;
 }, [donations]);
 
-const totalDonationAmount = SUPPORTED_FTS["NEAR"].fromIndivisible(total.toString());
+const totalDonationAmountNear = SUPPORTED_FTS["NEAR"].fromIndivisible(totalAmountNear.toString());
 
 const stats = [
   ...(nearToUsd
-    ? [{ label: "Donated", amount: (totalDonationAmount * nearToUsd).toFixed(2) }]
+    ? [{ label: "Donated", amount: (totalDonationAmountNear * nearToUsd).toFixed(2) }]
     : []),
 ];
 

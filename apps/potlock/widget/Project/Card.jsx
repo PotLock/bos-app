@@ -385,17 +385,19 @@ const donationsForProject = potId
 // console.log(donationsForProject);
 if (donationsForProject === null) return <CardSkeleton />;
 
-const [totalAmount, totalDonors] = useMemo(() => {
+const [totalAmountNear, totalDonors] = useMemo(() => {
   if (!donationsForProject) return ["0", 0];
   const donors = [];
-  let totalDonationAmount = new Big(0);
+  let totalDonationAmountNear = new Big(0);
   for (const donation of donationsForProject) {
     if (!donors.includes(donation.donor_id)) {
       donors.push(donation.donor_id);
     }
-    totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+    if (donation.ft_id === "near" || donation.base_currency === "near") {
+      totalDonationAmountNear = totalDonationAmountNear.plus(new Big(donation.total_amount));
+    }
   }
-  return [totalDonationAmount.toString(), donors.length];
+  return [totalDonationAmountNear.toString(), donors.length];
 }, [donationsForProject]);
 
 const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
@@ -505,7 +507,7 @@ return (
       </Info>
       <DonationsInfoContainer>
         <DonationsInfoItem>
-          <Amount>{totalAmount ? yoctosToUsdWithFallback(totalAmount, true) : "-"}</Amount>
+          <Amount>{totalAmountNear ? yoctosToUsdWithFallback(totalAmountNear, true) : "-"}</Amount>
           <AmountDescriptor>Raised</AmountDescriptor>
         </DonationsInfoItem>
         {payoutDetails && (
