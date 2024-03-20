@@ -1065,7 +1065,8 @@ return (
                   item: {
                     id: recipientId,
                     amount: state.amount,
-                    ft: "NEAR",
+                    // ft: "NEAR",
+                    token: selectedDenomination,
                     referrerId,
                     potId: activeRound || null,
                     potDetail: activeRound ? state.detailForPots[activeRound] : null,

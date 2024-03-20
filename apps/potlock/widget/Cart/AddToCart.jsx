@@ -15,14 +15,14 @@ return (
     src={"potlock.near/widget/Components.Button"}
     props={{
       type: "tertiary",
-      text: text ?? (existsInCart ? "Remove from cart" : "Add to cart"),
+      text: text || (existsInCart ? "Remove from cart" : "Add to cart"),
       style: { padding: "12px 16px" },
       disabled: props.disabled ?? false,
       onClick: () => {
         if (existsInCart) {
           removeItemsFromCart([item]);
         } else {
-          item.ft = "NEAR";
+          // item.ft = "NEAR";
           addItemsToCart([item]);
         }
         if (handleCallback) {

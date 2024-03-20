@@ -116,11 +116,13 @@ const NearIcon = (props) => (
 );
 
 const [itemAmount, setItemAmount] = useState(cartItem?.amount);
-const [itemFt, setItemFt] = useState(cartItem?.ft);
+const [itemToken, setItemToken] = useState(cartItem?.token);
 
 State.init({
   ftBalances: null,
-  denominationOptions: [{ text: "NEAR", value: "NEAR", selected: itemFt === "NEAR", decimals: 24 }],
+  denominationOptions: [
+    { text: "NEAR", value: "NEAR", selected: itemToken.text === "NEAR", decimals: 24 },
+  ],
 });
 
 // * REMOVING FTs FROM CHECKOUT FOR NOW *
@@ -244,10 +246,10 @@ return (
                   noLabel: true,
                   placeholder: "",
                   options: state.denominationOptions,
-                  value: { text: itemFt, value: itemFt },
+                  value: { text: itemToken.text, value: itemToken.value },
                   onChange: ({ text, value }) => {
                     const token = state.denominationOptions.find((option) => option.text === text);
-                    setItemFt(token);
+                    setItemToken(token);
                     setItemAmount(undefined);
                     updateCartItem({
                       ...cartItem,
@@ -267,8 +269,8 @@ return (
                     padding: "12px 16px",
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
-                  // iconLeft: itemFt == "NEAR" ?  : "$",
-                  iconLeft: itemFt == "NEAR" ? <NearIcon /> : <FtIcon src={cartItem?.token.icon} />,
+                  iconLeft:
+                    itemToken.text == "NEAR" ? <NearIcon /> : <FtIcon src={itemToken.icon} />,
                 }}
               />
             ),
@@ -278,7 +280,7 @@ return (
           src={"potlock.near/widget/Cart.BreakdownSummary"}
           props={{
             ...props,
-            ftIcon: cartItem?.token.icon,
+            ftIcon: itemToken.icon,
             referrerId,
             totalAmount: itemAmount,
             bypassProtocolFee: false, // TODO: allow user to choose
