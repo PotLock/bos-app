@@ -45,7 +45,7 @@ const stats = [
     progress:
       now > cooldown_end_ms && !!cooldown_end_ms
         ? 1
-        : (cooldown_end_ms - now) / (cooldown_end_ms - public_round_end_ms),
+        : (cooldown_end_ms - now) / (public_round_end_ms - cooldown_end_ms),
   },
   {
     label: "Project paidout",
@@ -104,8 +104,8 @@ const containerHeight = 181;
 const showActiveState = getIndexOfActive() * (containerHeight / 4);
 
 const Wrapper = styled.div`
-  border-bottom: 1px solid #c7c7c7;
-  border-top: 1px solid #c7c7c7;
+  border-top: 1px solid rgb(199 199 199 / 50%);
+  border-bottom: 1px solid rgb(199 199 199 / 50%);
   position: relative;
   display: flex;
   align-items: center;
