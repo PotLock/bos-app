@@ -10,11 +10,11 @@
         },
         {
           "name": "near_app_wallet_auth_key",
-          "value": "{\"accountId\":\"efiz.near\"}"
+          "value": "{\"accountId\":\"staging.potlock.near\"}"
         },
         {
           "name": "near-social-vm:v01::accountId:",
-          "value": "efiz.near"
+          "value": "staging.potlock.near"
         },
         {
           "name": "flags",
