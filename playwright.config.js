@@ -49,7 +49,7 @@ export default defineConfig({
           localStorage: [
             {
               name: "flags",
-              value: JSON.stringify({ bosLoaderUrl: "http://127.0.0.1:3030" }),
+              value: JSON.stringify({ bosLoaderUrl: "http://127.0.0.1:8080/api/loader" }),
             },
           ],
         },
@@ -100,8 +100,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run gateway",
-    port: 3030,
+    command: "npm run dev -p 8080",
+    port: 8080,
     reuseExistingServer: !process.env.CI,
   },
 });
