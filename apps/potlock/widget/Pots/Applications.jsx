@@ -198,7 +198,9 @@ const searchApplications = (searchTerm) => {
   const filteredApplications = allApplications?.filter((application) => {
     const { message, project_id, review_notes, status } = application;
     const searchFields = [message, project_id, review_notes, status];
-    return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+    return searchFields.some((field) =>
+      field.toLowerCase().includes(searchTerm.toLowerCase().trim())
+    );
   });
   return filteredApplications;
 };

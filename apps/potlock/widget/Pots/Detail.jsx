@@ -26,9 +26,7 @@ const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
 const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
-const Wrapper = styled.div`
-  margin-top: calc(-1 * var(--body-top-padding, 0));
-`;
+const Wrapper = styled.div``;
 
 const SidebarContainer = styled.div`
   width: 25%;
@@ -292,6 +290,13 @@ const isError = state.applicationMessageError || state.daoAddressError;
 
 return (
   <Wrapper>
+    <Widget
+      src={`${ownerId}/widget/Pots.HeaderStatus`}
+      props={{
+        ...props,
+        potDetail: potDetail,
+      }}
+    />
     <Widget
       src={`${ownerId}/widget/Pots.Header`}
       props={{
