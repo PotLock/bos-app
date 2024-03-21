@@ -1,19 +1,21 @@
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
-  (() => ({
-    getConfig: () => {},
-  }));
-DonateSDK = DonateSDK({ env: props.env });
+const { removeItemsFromCart, updateItemInCart } = VM.require("potlock.near/widget/SDK.cart") || {
+  removeItemsFromCart: () => {},
+  updateItemInCart: () => {},
+};
 
-const donationContractConfig = DonateSDK.getConfig();
+const { cartItem, checked, handleCheckboxClick } = props;
+
+const projectId = cartItem?.id;
+const isPotDonation = cartItem?.potId;
+
+const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") || {};
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const CHEVRON_DOWN_URL =
@@ -92,22 +94,36 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const { projectId, checked, handleCheckboxClick } = props;
+const Icon = styled.svg`
+  width: 20px;
+  height: 20px;
+`;
 
-const profile = props.profile || Social.get(`${projectId}/profile/**`, "final") || {};
+const NearIcon = (props) => (
+  <Icon
+    {...props}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    id="near-logo"
+  >
+    <rect width="24" height="24" rx="12" fill="#CECECE" />
+    <path
+      d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
+      fill="black"
+    />
+  </Icon>
+);
+
+const [itemAmount, setItemAmount] = useState(cartItem?.amount);
+const [itemToken, setItemToken] = useState(cartItem?.token);
 
 State.init({
-  showBreakdown: false,
   ftBalances: null,
   denominationOptions: [
-    { text: "NEAR", value: "NEAR", selected: cartItem?.token.text === "NEAR", decimals: 24 },
+    { text: "NEAR", value: "NEAR", selected: itemToken.text === "NEAR", decimals: 24 },
   ],
 });
-
-if (!donationContractConfig) return "";
-
-const cartItem = props.cart[projectId];
-const isPotDonation = !!cartItem?.potId;
 
 // * REMOVING FTs FROM CHECKOUT FOR NOW *
 // const ftBalancesRes = useCache(
@@ -155,7 +171,7 @@ return (
   <ItemContainer>
     <ItemLeft>
       <Widget
-        src={`${ownerId}/widget/Inputs.Checkbox`}
+        src={"potlock.near/widget/Inputs.Checkbox"}
         props={{
           id: "selector-" + projectId,
           checked,
@@ -187,7 +203,7 @@ return (
             {profile.name ?? ""}
           </Title>
           <Widget
-            src={`${ownerId}/widget/Pots.Tag`}
+            src={"potlock.near/widget/Pots.Tag"}
             props={{
               ...props,
               backgroundColor: isPotDonation ? "#FEF6EE" : "#F6F5F3",
@@ -203,25 +219,21 @@ return (
         </Row>
         <Description>{profile.description ?? ""}</Description>
         <Widget
-          src={`${ownerId}/widget/Inputs.Text`}
+          src={"potlock.near/widget/Inputs.Text"}
           props={{
             label: "Amount",
             placeholder: "0",
-            value: cartItem?.amount,
+            value: itemAmount,
             onChange: (amount) => {
               amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
               if (amount === ".") amount = "0.";
-              // error if amount is greater than balance
-              props.updateCartItem({
-                projectId,
-                amount,
-                token: cartItem?.token,
-                // price: cartItem?.price ?? getPriceUSD(),
-                referrerId: cartItem?.referrerId,
-                potId: cartItem?.potId,
-                potDetail: cartItem?.potDetail,
-                note: cartItem?.note,
-              }); // TODO: update this to use selected FT ID
+              setItemAmount(amount);
+            },
+            onBlur: (e) => {
+              updateItemInCart({
+                ...cartItem,
+                amount: e.target.value,
+              });
             },
             inputStyles: {
               textAlign: "right",
@@ -229,23 +241,20 @@ return (
             },
             preInputChildren: (
               <Widget
-                src={`${ownerId}/widget/Inputs.Select`}
+                src={"potlock.near/widget/Inputs.Select"}
                 props={{
                   noLabel: true,
                   placeholder: "",
                   options: state.denominationOptions,
-                  value: { text: cartItem?.token.text, value: cartItem?.token.value },
+                  value: { text: itemToken.text, value: itemToken.value },
                   onChange: ({ text, value }) => {
                     const token = state.denominationOptions.find((option) => option.text === text);
-                    props.updateCartItem({
-                      projectId,
+                    setItemToken(token);
+                    setItemAmount(undefined);
+                    updateCartItem({
+                      ...cartItem,
+                      token: token,
                       amount: undefined,
-                      token,
-                      // price: cartItem?.price ?? getPriceUSD(),
-                      referrerId: cartItem?.referrerId,
-                      potId: cartItem?.potId,
-                      potDetail: cartItem?.potDetail,
-                      note: Storage.get("note"),
                     });
                   },
                   containerStyles: {
@@ -261,23 +270,19 @@ return (
                     boxShadow: "0px -2px 0px rgba(93, 93, 93, 0.24) inset",
                   },
                   iconLeft:
-                    cartItem?.token.text == "NEAR" ? (
-                      <FtIcon src={SUPPORTED_FTS.NEAR.iconUrl} />
-                    ) : (
-                      <FtIcon src={cartItem?.token.icon} />
-                    ),
+                    itemToken.text == "NEAR" ? <NearIcon /> : <FtIcon src={itemToken.icon} />,
                 }}
               />
             ),
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Cart.BreakdownSummary`}
+          src={"potlock.near/widget/Cart.BreakdownSummary"}
           props={{
             ...props,
-            ftIcon: cartItem?.token.icon,
+            ftIcon: itemToken.icon,
             referrerId,
-            totalAmount: cartItem?.amount,
+            totalAmount: itemAmount,
             bypassProtocolFee: false, // TODO: allow user to choose
             containerStyle: { marginTop: "16px" },
           }}

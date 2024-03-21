@@ -3,6 +3,7 @@ const label = props.label ?? "";
 const placeholder = props.placeholder ?? "";
 const value = props.value ?? "";
 const onChange = props.onChange ?? (() => {});
+const onBlur = props.onBlur ?? (() => {});
 const validate = props.validate ?? (() => {});
 const error = props.error ?? "";
 
@@ -97,7 +98,10 @@ return (
         placeholder={placeholder}
         value={value}
         onChange={({ target: { value } }) => onChange(value)}
-        onBlur={() => validate()}
+        onBlur={(value) => {
+          validate();
+          if (onBlur) onBlur(value);
+        }}
         disabled={!!props.disabled}
         onKeyDown={props.handleKeyPress ?? null}
         style={props.inputStyles || {}}
