@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "bw": "bos-workspace",
-    "dev": "npm run bw dev",
+    "dev": "npm run bw ws dev",
     "test": "npx playwright test"
   },
   "devDependencies": {
@@ -15,7 +15,7 @@
     "http-server": "^14.1.1",
     "near-bos-webcomponent": "^0.0.5",
     "@types/styled-components": "^5.1.26",
-    "bos-workspace": "^0.0.1-alpha.6",
+    "bos-workspace": "github:nearbuilders/bos-workspace#main",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
     "prettier": "^2.8.8"
