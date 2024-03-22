@@ -623,7 +623,7 @@ return (
                 <div className="message">{message}</div>
                 {review_notes && (
                   <div className="notes">
-                    <div className="title">Admin notes.</div>
+                    <div className="title">Admin notes:</div>
                     <div>{review_notes}</div>
                   </div>
                 )}

@@ -454,14 +454,14 @@ return (
               {/* Total Raised */}
               <RowItem>
                 <RowText>
-                  {yoctosToNear(totalAmount, true)} <span>Raised</span>{" "}
+                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>{" "}
                 </RowText>
               </RowItem>
               <input type="checkbox" className="toggle-check" />
               <ArrowDown />
               <MobileAmount>
-                <span>{yoctosToNear(matchingAmount, true)}</span> Allocated From
-                <span>{donorCount}</span> Unique donors
+                <span>{yoctosToNear(totalAmount, true)}</span> raised from
+                <span>{donorCount}</span> unique donors
               </MobileAmount>
               {/* Total Unique Donors */}
               <RowItem className="donors">

@@ -164,7 +164,7 @@ return (
         <Markdown text={pot_description} />
       </Description>
       <Fund>
-        <div className="label">Matching Funds Available</div>
+        <div className="label">Matching Funds Available:</div>
         <div>
           <div className="near-price">{yoctosToNear(matching_pool_balance, true)}</div>
           <div lassName="usd-price"> {yoctosToUsdWithFallback(matching_pool_balance, true)}</div>
