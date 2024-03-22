@@ -120,6 +120,16 @@ if (loading) return <div class="spinner-border text-secondary" role="status" />;
 
 if (noPot) return "No pot found";
 
+const now = Date.now();
+const applicationNotStarted = now < potDetail.application_start_ms;
+const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
+
+const publicRoundOpen =
+  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
+const publicRoundClosed = now >= potDetail.public_round_end_ms;
+
+const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
+
 // these will be passed down to child components
 props.navOptions = [
   {
@@ -153,8 +163,7 @@ props.navOptions = [
   {
     label: "Payouts",
     id: "payouts",
-    // disabled: !state.potDetail.payouts.length, // TODO: ADD BACK IN
-    disabled: false,
+    disabled: now < potDetail.public_round_start_ms, // TODO: ADD BACK IN
     source: `${ownerId}/widget/Pots.Payouts`,
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=payouts`),
   },
@@ -166,18 +175,6 @@ props.navOptions = [
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=settings`),
   },
 ];
-
-const now = Date.now();
-const applicationNotStarted = now < potDetail.application_start_ms;
-const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
-
-const publicRoundOpen =
-  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
-const publicRoundClosed = now >= potDetail.public_round_end_ms;
-
-const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
-
-//console.log("state", canPayoutsBeSet);
 
 if (!props.nav) {
   let nav;

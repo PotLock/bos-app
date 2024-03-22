@@ -129,6 +129,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   display: flex;
   width: 100%;
+  justify-content: center;
   transition: all 300ms ease-in-out;
   .mobile-selected {
     display: flex;
@@ -138,6 +139,7 @@ const Container = styled.div`
     transition: all 300ms ease-in-out;
   }
   @media only screen and (max-width: 1010px) {
+    justify-content: left;
     height: ${containerHeight / 4}px;
     overflow: hidden;
     .mobile-selected {

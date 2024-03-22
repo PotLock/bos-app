@@ -43,15 +43,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  .donations-table {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: 24px;
-    padding-bottom: 1rem;
-    border-radius: 6px;
-    border: 1px solid #7b7b7b;
-  }
+
   @media screen and (min-width: 375px) and (max-width: 768px) {
     width: 99%;
   }
@@ -198,7 +190,7 @@ const ProfileImg = (address) => (
 return (
   <Container>
     <OuterTextContainer>
-      <OuterText>all donations</OuterText>
+      <OuterText>All donations</OuterText>
       <DonationsCount>{allDonations.length}</DonationsCount>
     </OuterTextContainer>
     <Sort>
@@ -209,18 +201,16 @@ return (
         Sort Amount {currentFilter === "price" && <Arrow active={filter.price} />}
       </div>
     </Sort>
-    <div className="donations-table">
-      <Widget
-        src={`${ownerId}/widget/Pots.DonationsTable`}
-        props={{
-          ...props,
-          allDonations: filteredDonations,
-          filter,
-          currentFilter,
-          handleSearch,
-          sortDonation,
-        }}
-      />
-    </div>
+    <Widget
+      src={`${ownerId}/widget/Pots.DonationsTable`}
+      props={{
+        ...props,
+        allDonations: filteredDonations,
+        filter,
+        currentFilter,
+        handleSearch,
+        sortDonation,
+      }}
+    />
   </Container>
 );

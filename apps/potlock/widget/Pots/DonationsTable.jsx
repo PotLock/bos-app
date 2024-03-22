@@ -18,9 +18,13 @@ const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.requir
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin-top: 24px;
+  padding-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid #7b7b7b;
   align-items: center;
   gap: 2rem;
-  width: 100%;
   .transcation {
     display: flex;
     flex-direction: column;
@@ -179,11 +183,6 @@ const MobileProjectAddress = styled.a`
   }
 `;
 
-const NoResult = styled.div`
-  font-size: 2rem;
-  text-align: center;
-`;
-
 const Arrow = (props) => (
   <svg
     {...props}
@@ -290,5 +289,5 @@ return allDonations.length ? (
     />
   </Container>
 ) : (
-  <NoResult>No Donations</NoResult>
+  ""
 );

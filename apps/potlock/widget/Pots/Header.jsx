@@ -22,9 +22,11 @@ const {
   public_round_start_ms,
   application_start_ms,
   application_end_ms,
+  cooldown_end_ms,
 } = potDetail;
 
 const [isMatchingPoolModalOpen, setIsMatchingPoolModalOpen] = useState(false);
+const [showChallengePayoutsModal, setShowChallengePayoutsModal] = useState(false);
 
 const NADABOT_ICON_URL =
   IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
@@ -147,6 +149,13 @@ const Referral = styled.div`
   display: flex;
   align-items: center;
 `;
+
+const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
+
+const existingChallengeForUser = (payoutsChallenges || []).find(
+  (challenge) => challenge.challenger_id === context.accountId
+);
+
 return (
   <Container>
     <Header>
@@ -210,6 +219,17 @@ return (
             }}
           />
         )}
+        {now > public_round_end_ms && now < cooldown_end_ms && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              type: "secondary",
+              existingChallengeForUser,
+              text: existingChallengeForUser ? "Update challenge" : "Challenge payout",
+              onClick: () => setShowChallengePayoutsModal(true),
+            }}
+          />
+        )}
       </ButtonsWrapper>
       <Referral>
         <Widget
@@ -230,6 +250,14 @@ return (
         ...props,
         isMatchingPoolModalOpen,
         onClose: () => setIsMatchingPoolModalOpen(false),
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Pots.ChallengeModal`}
+      props={{
+        ...props,
+        showChallengePayoutsModal,
+        onClose: () => setShowChallengePayoutsModal(false),
       }}
     />
   </Container>
