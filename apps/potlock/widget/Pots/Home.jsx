@@ -56,7 +56,6 @@ const compareFunction = (a, b) => {
 };
 
 const potsConfig = useMemo(() => {
-  console.log("pots", pots);
   if (pots) {
     const potsVal = Object.values(pots);
     const sortedPots = potsVal.sort(compareFunction);
@@ -65,8 +64,6 @@ const potsConfig = useMemo(() => {
     return [];
   }
 }, [pots]);
-
-console.log(potsConfig);
 
 const canDeploy = PotFactorySDK.canUserDeployPot(context.accountId);
 
