@@ -1,7 +1,3 @@
 {
-  "appAccount": "potlock.near",
-  "aliases": {
-    "nui": "nearui.near",
-    "there": []
-  }
+  "account": "potlock.near"
 }
