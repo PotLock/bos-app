@@ -277,6 +277,7 @@ const Detail = styled.div`
     color: #7b7b7b;
   }
   @media only screen and (max-width: 768px) {
+    padding: 1rem;
     gap: 1.5rem;
     .row-field {
       flex-direction: column;
@@ -335,28 +336,30 @@ return editSettings ? (
           <div>{_address(owner, 15)}</div>
         </div>
       </div>
-      <div className="admins">
-        <div>Admins</div>
-        <div className="avaters">
-          {admins.slice(0, 4).map((admin, idx) => (
-            <OverlayTrigger
-              placement="bottom"
-              overlay={<Tooltip id={`tooltip-${idx}`}>{admin}</Tooltip>}
-              key={admin}
-            >
-              <a href={hrefWithParams(`?tab=profile&accountId=${admin}`)} target="_blank">
-                <ProfileImage address={admin} />
-              </a>
-            </OverlayTrigger>
-          ))}
-          {admins.length > 4 && (
-            <div className="icons-tolltip">
-              +{admins.length - 4}
-              <AdminsTooltip />
-            </div>
-          )}
+      {admins.length > 0 && (
+        <div className="admins">
+          <div>Admins</div>
+          <div className="avaters">
+            {admins.slice(0, 4).map((admin, idx) => (
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id={`tooltip-${idx}`}>{admin}</Tooltip>}
+                key={admin}
+              >
+                <a href={hrefWithParams(`?tab=profile&accountId=${admin}`)} target="_blank">
+                  <ProfileImage address={admin} />
+                </a>
+              </OverlayTrigger>
+            ))}
+            {admins.length > 4 && (
+              <div className="icons-tolltip">
+                +{admins.length - 4}
+                <AdminsTooltip />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       {userIsAdminOrGreater && (
         <div className="edit" onClick={() => setEditSettings(true)}>
           <svg

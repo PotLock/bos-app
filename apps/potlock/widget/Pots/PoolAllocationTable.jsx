@@ -11,6 +11,10 @@ const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget
   SUPPORTED_FTS: {},
 };
 
+const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+  _address: (address) => address,
+};
+
 const { nearToUsdWithFallback, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
@@ -21,6 +25,7 @@ const { nearToUsdWithFallback, yoctosToUsdWithFallback } = VM.require(
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
   asyncGetApprovedApplications: () => {},
+  getMatchingPoolDonations: () => {},
 };
 const RegistrySDK =
   VM.require("potlock.near/widget/SDK.registry") ||
@@ -40,6 +45,9 @@ if (!projectsId) {
   });
 }
 
+let sponsorshipDonations = PotSDK.getMatchingPoolDonations(potId);
+if (sponsorshipDonations) sponsorshipDonations.sort((a, b) => b.net_amount - a.net_amount);
+
 const lastProject = projectsId[projectsId.length - 1].project_id;
 
 if (projectsId && !projectsDonations[lastProject]) {
@@ -58,10 +66,23 @@ if (projectsId && !projectsDonations[lastProject]) {
   );
 }
 
+const calcUniqueDonors = (donations) => {
+  // Get the count of unique donors
+  const uniqueDonorIds = new Set();
+  // Iterate through each object and collect unique donor_id values
+  donations.forEach((project) => {
+    project.donations.forEach((donation) => {
+      uniqueDonorIds.add(donation.donor_id);
+    });
+  });
+  // Get the number of unique donor_id values
+  return uniqueDonorIds.size;
+};
+
 const calcMatchedAmount = (donations) => {
   const total = Big(0);
   donations.forEach((donation) => {
-    total = total.plus(Big(donation.total_amount));
+    total = total.plus(Big(donation.net_amount));
   });
   const amount = SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total.toString());
   return amount;
@@ -81,16 +102,8 @@ const [projectsTotalDonations, numberOfUniqueDonorIds] = useMemo(() => {
       return b.amount - a.amount;
     });
 
-    // Get the count of unique donors
-    const uniqueDonorIds = new Set();
-    // Iterate through each object and collect unique donor_id values
-    projectsDonationsVals.forEach((project) => {
-      project.donations.forEach((donation) => {
-        uniqueDonorIds.add(donation.donor_id);
-      });
-    });
     // Get the number of unique donor_id values
-    const numberOfUniqueDonorIds = uniqueDonorIds.size;
+    const numberOfUniqueDonorIds = calcUniqueDonors(projectsDonationsVals);
 
     return [totalProjectDonations.slice(0, 5), numberOfUniqueDonorIds];
   } else {
@@ -165,14 +178,38 @@ const Row = styled.div`
   }
 `;
 
-return (
+const TableRow = ({ donation: { id, donor_id, amount, net_amount }, idx }) => {
+  id = donor_id || id;
+  amount = amount || SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(net_amount);
+
+  const profile = Social.getr(`${id}/profile`);
+  const matchedAmout = usdToggle ? nearToUsdWithFallback(parseFloat(amount), true) : amount;
+  return (
+    <Row>
+      <div>#{idx + 1}</div>
+      <a className="address" href={hrefWithParams(`?tab=project&projectId=${id}`)}>
+        <ProfileImg profile={profile} />
+        {profile.name || id}
+      </a>
+      <div>
+        {matchedAmout} {usdToggle ? " " : "N"}
+      </div>
+    </Row>
+  );
+};
+
+const publicRoundStarted = projectsTotalDonations.length > 0;
+
+const Table = ({ donations, totalAmount, totalUniqueDonors, title }) => (
   <Container>
     <div className="header">
-      {yoctosToUsdWithFallback(total_public_donations, true)} <span>raised from</span>{" "}
-      {numberOfUniqueDonorIds} <span>donors</span>
+      {totalAmount}
+      <span>raised from</span>
+      {totalUniqueDonors}
+      <span>donors</span>
     </div>
     <div className="sort">
-      <p>Top matching pool allocations</p>
+      <p>Top {title} </p>
       <div onClick={() => setUsdToggle(!usdToggle)}>
         <svg
           width="12"
@@ -189,7 +226,10 @@ return (
         {usdToggle ? "USD" : "NEAR"}
       </div>
     </div>
-    {projectsTotalDonations?.map(({ amount, id }, idx) => {
+    {donations.map(({ id, donor_id, amount, net_amount }, idx) => {
+      id = donor_id || id;
+      amount = amount || SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(net_amount);
+
       const profile = Social.getr(`${id}/profile`);
       const matchedAmout = usdToggle ? nearToUsdWithFallback(parseFloat(amount), true) : amount;
       return (
@@ -197,7 +237,7 @@ return (
           <div>#{idx + 1}</div>
           <a className="address" href={hrefWithParams(`?tab=project&projectId=${id}`)}>
             <ProfileImg profile={profile} />
-            {profile.name || id}
+            {_address(profile.name || id, 15)}
           </a>
           <div>
             {matchedAmout} {usdToggle ? " " : "N"}
@@ -206,4 +246,22 @@ return (
       );
     })}
   </Container>
+);
+
+return projectsTotalDonations.length > 0 ? (
+  <Table
+    title="matching pool allocations"
+    totalAmount={yoctosToUsdWithFallback(total_public_donations, true)}
+    totalUniqueDonors={numberOfUniqueDonorIds}
+    donations={projectsTotalDonations}
+  />
+) : sponsorshipDonations.length > 0 ? (
+  <Table
+    title="sponsors"
+    totalAmount={nearToUsdWithFallback(calcMatchedAmount(sponsorshipDonations))}
+    totalUniqueDonors={new Set(sponsorshipDonations.map((obj) => obj.donor_id)).size}
+    donations={sponsorshipDonations.slice(0, 5)}
+  />
+) : (
+  ""
 );
