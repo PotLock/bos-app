@@ -74,6 +74,7 @@ const Container = styled.div`
   @media only screen and (max-width: 480px) {
     .transcation .address {
       width: 135px;
+      flex: 1;
     }
   }
 `;
@@ -126,7 +127,7 @@ const Percentage = styled.div`
 `;
 
 const NoResult = styled.div`
-  font-size: 2rem;
+  font-size: 1.125rem;
   text-align: center;
 `;
 
@@ -186,5 +187,5 @@ return sponsors.length ? (
     />
   </Container>
 ) : (
-  <NoResult>No Donations</NoResult>
+  <NoResult>No Sponsors</NoResult>
 );
