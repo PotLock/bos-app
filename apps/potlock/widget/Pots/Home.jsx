@@ -5,13 +5,69 @@ let PotFactorySDK =
   (() => ({
     getContractId: () => {},
     getConfig: () => {},
-    getPots: () => {},
+    asyncGetPots: () => {},
     canUserDeployPot: () => {},
   }));
+
+const [pots, setPots] = useState(null);
+
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const potFactoryContractId = PotFactorySDK.getContractId();
 const potFactoryConfig = PotFactorySDK.getConfig();
-const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetConfig: () => {},
+};
+
+if (!pots) {
+  PotFactorySDK.asyncGetPots().then((pots) => {
+    pots.forEach(({ id }) => {
+      PotSDK.asyncGetConfig(id).then((potConfig) =>
+        setPots((prevPot) => ({
+          ...prevPot,
+          [id]: { ...potConfig, id },
+        }))
+      );
+    });
+  });
+}
+const currentDate = Date.now();
+
+const compareFunction = (a, b) => {
+  if (currentDate >= a.public_round_start_ms && currentDate < a.public_round_end_ms) {
+    return -1; // a comes first
+  } else if (currentDate >= b.public_round_start_ms && currentDate < b.public_round_end_ms) {
+    return 1; // b comes first
+  }
+  // current date is between application_start_ms and application_end_ms
+  else if (currentDate >= a.application_start_ms && currentDate < a.application_end_ms) {
+    return -1; // a comes first
+  } else if (currentDate >= b.application_start_ms && currentDate < b.application_end_ms) {
+    return 1; // b comes first
+  }
+  //  current date is greater than public_round_end_ms
+  else if (currentDate > a.public_round_end_ms) {
+    return -1; // a comes first
+  } else if (currentDate > b.public_round_end_ms) {
+    return 1; // b comes first
+  }
+  // Default case: no change in order
+  return 0;
+};
+
+const potsConfig = useMemo(() => {
+  console.log("pots", pots);
+  if (pots) {
+    const potsVal = Object.values(pots);
+    const sortedPots = potsVal.sort(compareFunction);
+    return sortedPots;
+  } else {
+    return [];
+  }
+}, [pots]);
+
+console.log(potsConfig);
+
 const canDeploy = PotFactorySDK.canUserDeployPot(context.accountId);
 
 const Container = styled.div`
@@ -63,7 +119,6 @@ const Count = styled.div`
 if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
-
 return (
   <Container>
     <Widget
@@ -85,7 +140,7 @@ return (
           src={`${ownerId}/widget/Project.ListSection`}
           props={{
             ...props,
-            items: pots,
+            items: potsConfig,
             renderItem: (pot) => (
               <Widget
                 src={`${ownerId}/widget/Pots.Card`}
