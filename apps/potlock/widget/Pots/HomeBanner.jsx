@@ -54,6 +54,7 @@ const Container = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
+      font-weight: 500;
       border-radius: 6px;
       box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
       text-decoration: none;
