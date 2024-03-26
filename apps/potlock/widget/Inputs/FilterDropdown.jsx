@@ -1,4 +1,4 @@
-const { onClick, customMenuStyle, label, multipleOptions, selected } = props;
+const { onClick, menuClass, label, multipleOptions, selected } = props;
 const labelIcon = props.labelIcon ?? "center";
 
 const filterBy = [
@@ -107,7 +107,6 @@ const Menu = styled.div`
     left: 0;
     right: auto;
   }
-  ${customMenuStyle || ""}
 `;
 
 const Screen = styled.div`
@@ -130,7 +129,10 @@ return (
     <Label onClick={() => setToggleMenu(!toggleMenu)}>
       {label || "Filter"} {icons[labelIcon]}
     </Label>
-    <Menu className={`${toggleMenu ? "active" : ""}`}>
+    <Menu
+      className={`${toggleMenu ? "active" : ""} ${menuClass ?? ""}
+`}
+    >
       <div className="title">Filter by</div>
       {options?.map(({ label, val }) => (
         <div

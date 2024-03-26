@@ -151,7 +151,11 @@ const {
 } = state;
 
 if (applications && !allApplications) {
-  State.update({ filteredApplications: applications, allApplications: applications });
+  applications.reverse();
+  State.update({
+    filteredApplications: applications,
+    allApplications: applications,
+  });
 }
 
 if (!allApplications) return <div class="spinner-border text-secondary" role="status" />;

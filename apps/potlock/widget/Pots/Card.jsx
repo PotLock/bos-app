@@ -51,6 +51,8 @@ const Title = styled.div`
   word-wrap: break-word;
   > div {
     font-weight: inherit;
+    display: flex;
+    align-items: baseline;
   }
 `;
 
@@ -119,7 +121,7 @@ const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 const publicRoundClosed = now >= public_round_end_ms && now > cooldown_end_ms;
 const cooldownOpen = now >= public_round_end_ms && now < cooldown_end_ms;
-const amountNear = yoctosToNear(matching_pool_balance);
+const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
 const tags = [
@@ -218,12 +220,14 @@ return (
     >
       <Title>
         <div>
-          {amountNear}{" "}
+          {amountNear}
+          {amountUsd && (
+            <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>
+              {amountUsd}
+            </span>
+          )}
           <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>in pot</span>
         </div>
-        {amountUsd && (
-          <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
-        )}
       </Title>
       {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
     </CardSection>

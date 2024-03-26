@@ -29,19 +29,20 @@ const NavOptionsContainer = styled.div`
     white-space: nowrap;
     border-bottom: 2px solid transparent;
     transition: 300ms ease;
-    &.selected {
-      color: #292929;
-      border-bottom-color: #292929;
-    }
+
     :hover {
       border-bottom-color: #292929;
       text-decoration: none;
     }
   }
+  .selected .nav-option {
+    color: #292929;
+    border-bottom-color: #292929;
+  }
   @media screen and (max-width: 768px) {
     padding: 0px 1rem;
     overflow-x: scroll;
-    .nav-option.selected {
+    .selected {
       order: -1;
     }
   }
@@ -52,8 +53,11 @@ return (
     {navOptions.map((option) => {
       const selected = option.id == getSelectedNavOption().id;
       return option.label ? (
-        <div key={option.label} className={`${option.disabled && "disabled"}`}>
-          <a className={`nav-option ${selected && "selected"}`} href={option.href}>
+        <div
+          key={option.label}
+          className={`${option.disabled ? "disabled" : ""} ${selected ? "selected" : ""}`}
+        >
+          <a className={`nav-option `} href={option.href}>
             {option.label}
           </a>
         </div>

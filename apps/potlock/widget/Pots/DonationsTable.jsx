@@ -11,7 +11,7 @@ const nearLogo =
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
 
-const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
+const { getTimePassed, _address, calcNetDonationAmount } = VM.require(
   `potlock.near/widget/Components.DonorsUtils`
 );
 
@@ -23,6 +23,7 @@ const Container = styled.div`
   padding-bottom: 1rem;
   border-radius: 6px;
   border: 1px solid #7b7b7b;
+  overflow: hidden;
   align-items: center;
   gap: 2rem;
   .transcation {
@@ -38,6 +39,7 @@ const Container = styled.div`
     padding: 0.5rem 1rem;
     gap: 1rem;
     color: #292929;
+    border-bottom: 1px solid rgba(199, 199, 199, 0.5);
     div {
       width: 100px;
       display: flex;
@@ -52,17 +54,18 @@ const Container = styled.div`
         }
       }
     }
+    .price {
+      width: 70px;
+    }
   }
   .address {
     width: 143px !important;
     justify-content: flex-start !important;
   }
   @media only screen and (max-width: 768px) {
-    .header div:not(:first-of-type) {
+    .header {
       display: none;
     }
-  }
-  @media only screen and (max-width: 480px) {
   }
 `;
 
@@ -71,9 +74,12 @@ const SearchBarContainer = styled.div`
   align-items: center;
   gap: 16px;
   width: 100%;
+  font-size: 14px;
   background: #f6f5f3;
-  border-top: 1px solid rgb(199 199 199 / 50%);
   padding: 0.5rem 1rem;
+  @media only screen and (max-width: 780px) {
+    gap: 0.5rem;
+  }
 `;
 
 const SearchBar = styled.input`
@@ -84,9 +90,6 @@ const SearchBar = styled.input`
   &:focus {
     outline: none;
     border: none;
-  }
-  @media only screen and (max-width: 480px) {
-    font-size: 12px;
   }
 `;
 
@@ -116,6 +119,8 @@ const TrRow = styled.div`
     gap: 1rem;
     align-items: center;
     font-weight: 600;
+    width: 70px;
+    justify-content: flex-start;
     span {
       display: none;
     }
@@ -137,16 +142,19 @@ const TrRow = styled.div`
       margin-right: 1rem;
     }
   }
+  .date span {
+    display: none;
+  }
   @media only screen and (max-width: 768px) {
     flex-wrap: wrap;
-    > div {
-      width: fit-content;
-    }
     .project {
       display: none !important;
     }
     .price {
+      min-width: 120px;
       gap: 8px;
+      width: fit-content;
+      justify-content: flex-start;
       span {
         display: inline-block;
       }
@@ -154,7 +162,10 @@ const TrRow = styled.div`
     .date {
       width: 100%;
       justify-content: start;
-      gap: 8px;
+      gap: 4px;
+      span {
+        display: inline;
+      }
     }
     .address .profile-image {
       margin-right: 0.5rem;
@@ -172,7 +183,8 @@ const MobileProjectAddress = styled.a`
   cursor: pointer;
   display: none;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  margin-left: 4px;
   .profile-image {
     width: 1.125rem;
     height: 1.125rem;
@@ -204,7 +216,7 @@ const ProfileImg = ({ address }) => (
   <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
-return allDonations.length ? (
+return (
   <Container>
     <div className="transcation">
       <div className="header">
@@ -230,9 +242,8 @@ return allDonations.length ? (
         </SearchIcon>
         <SearchBar placeholder="Search donations" onChange={handleSearch} />
       </SearchBarContainer>
-      {reverseArr(allDonations)
-        .slice((currentPage - 1) * perPage, currentPage * perPage)
-        .map((donation) => {
+      {allDonations.length > 0 ? (
+        allDonations.slice((currentPage - 1) * perPage, currentPage * perPage).map((donation) => {
           const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
           const projectId = recipient_id || project_id;
           return (
@@ -243,7 +254,9 @@ return allDonations.length ? (
                 target="_blank"
               >
                 <ProfileImg address={donor_id} />
-                {_address(donor_id)}
+                <OverlayTrigger placement="top" overlay={<Tooltip>{donor_id}</Tooltip>}>
+                  <div>{_address(donor_id)}</div>
+                </OverlayTrigger>
               </a>
 
               <a
@@ -252,7 +265,9 @@ return allDonations.length ? (
                 target="_blank"
               >
                 <ProfileImg address={projectId} />
-                {_address(projectId)}
+                <OverlayTrigger placement="top" overlay={<Tooltip>{projectId}</Tooltip>}>
+                  <div>{_address(projectId)}</div>
+                </OverlayTrigger>
               </a>
 
               <div className="price">
@@ -262,7 +277,7 @@ return allDonations.length ? (
               </div>
 
               <div className="date">
-                {getTimePassed(donated_at_ms || donated_at)} ago
+                {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
                 <MobileProjectAddress
                   href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
                   target="_blank"
@@ -273,7 +288,10 @@ return allDonations.length ? (
               </div>
             </TrRow>
           );
-        })}
+        })
+      ) : (
+        <TrRow>No donations</TrRow>
+      )}
     </div>
     <Widget
       src={`${ownerId}/widget/Components.Pagination`}
@@ -288,6 +306,4 @@ return allDonations.length ? (
       }}
     />
   </Container>
-) : (
-  ""
 );

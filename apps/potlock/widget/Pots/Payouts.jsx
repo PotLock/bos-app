@@ -82,6 +82,10 @@ const Header = styled.div`
   width: 100%;
   gap: 2rem;
   padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(199, 199, 199, 0.5);
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const HeaderItem = styled.div`
@@ -220,8 +224,10 @@ const SearchBarContainer = styled.div`
   gap: 16px;
   width: 100%;
   background: #f6f5f3;
-  border-top: 1px solid rgb(199 199 199 / 50%);
   padding: 0.5rem 1rem;
+  @media only screen and (max-width: 768px) {
+    gap: 8px;
+  }
 `;
 
 const SearchBar = styled.input`
@@ -280,7 +286,7 @@ const DivLink = styled.div`
 // const existingChallengeForUser = (payoutsChallenges || []).find(
 //   (challenge) => challenge.challenger_id === context.accountId
 // );
-// if (!state.challengeReason && existingChallengeForUser) {
+// if (!challengeReason && existingChallengeForUser) {
 //   State.update({ challengeReason: existingChallengeForUser.reason });
 // }
 State.init({
@@ -289,8 +295,10 @@ State.init({
   showChallengePayoutsModal: false,
 });
 
+const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
+
 const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!state.allPayouts && allDonationsForPot) {
+if (!allPayouts && allDonationsForPot) {
   const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
@@ -299,7 +307,7 @@ if (!state.allPayouts && allDonationsForPot) {
     // loop through potDetail payouts and synthesize the two sets of payouts, so projectId and matchingAmount are taken from potDetail payouts, and donorCount and totalAmount are taken from calculatedPayouts
     const synthesizedPayouts = potDetail.payouts.map((payout) => {
       const { project_id, amount } = payout;
-      const { totalAmount, matchingAmount, donorCount } = calculatedPayouts[project_id];
+      const { totalAmount, donorCount } = calculatedPayouts[project_id];
       return {
         projectId: project_id,
         totalAmount,
@@ -334,7 +342,7 @@ const { base_currency } = potDetail;
 
 const searchPayouts = (searchTerm) => {
   // filter payouts that match the search term (donor_id, project_id)
-  const filteredPayouts = state.allPayouts.filter((payout) => {
+  const filteredPayouts = allPayouts.filter((payout) => {
     const { projectId } = payout;
     const searchFields = [projectId];
     return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -433,12 +441,12 @@ return (
           }}
         />
       </SearchBarContainer>
-      {!state.filteredPayouts ? (
+      {!filteredPayouts ? (
         <div>Loading</div>
-      ) : state.filteredPayouts.length === 0 ? (
+      ) : filteredPayouts.length === 0 ? (
         <Row style={{ padding: "12px" }}>No payouts to display</Row>
       ) : (
-        state.filteredPayouts.map((payout, index) => {
+        filteredPayouts.map((payout, index) => {
           const { projectId, donorCount, matchingAmount, totalAmount } = payout;
 
           return (
@@ -454,7 +462,7 @@ return (
               {/* Total Raised */}
               <RowItem>
                 <RowText>
-                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>{" "}
+                  {yoctosToNear(totalAmount, true)} <span>Allocated</span>{" "}
                 </RowText>
               </RowItem>
               <input type="checkbox" className="toggle-check" />

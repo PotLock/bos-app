@@ -56,7 +56,8 @@ const Container = styled.div`
       justify-content: start !important;
     }
     .rank {
-      width: 80px;
+      width: 40px;
+      margin-right: 2rem;
       justify-content: center;
     }
   }
@@ -67,6 +68,7 @@ const Container = styled.div`
         padding: 0.5rem;
       }
       .rank {
+        margin-right: 0;
         width: 30px;
       }
     }
@@ -124,6 +126,8 @@ const Percentage = styled.div`
   box-shadow: 0px -1px 0px 0px #dbdbdb inset, 0px 0px 0px 0.5px #dbdbdb;
   border-radius: 4px;
   padding: 2px 4px;
+  min-width: 60px;
+  text-align: right;
 `;
 
 const NoResult = styled.div`
@@ -163,7 +167,9 @@ return sponsors.length ? (
             >
               <ProfileImg donor_id={donor_id} />
 
-              {_address(donor_id, 15)}
+              <OverlayTrigger placement="top" overlay={<Tooltip>{donor_id}</Tooltip>}>
+                <div> {_address(donor_id, 15)}</div>
+              </OverlayTrigger>
             </a>
             <div className="sponsors-amount">
               {amount.toFixed(2).replace(/[.,]00$/, "")}N{" "}

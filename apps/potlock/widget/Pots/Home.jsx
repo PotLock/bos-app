@@ -152,6 +152,20 @@ const Container = styled.div`
       gap: 1rem;
       display: flex;
       align-items: center;
+      .sort {
+        width: 286px;
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0;
+        .title {
+          display: none;
+        }
+        .option {
+          border: none;
+          width: 100%;
+          padding: 0.5rem;
+        }
+      }
     }
   }
   @media only screen and (max-width: 768px) {
@@ -177,7 +191,7 @@ if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
 
-const customMenuStyle = `
+const menuClass = `
 width: 286px;
 flex-direction: column;
 padding: 0.5rem;
@@ -272,7 +286,7 @@ return (
               options: sortOptions,
               selected: sortBy,
               onClick: handleSort,
-              customMenuStyle,
+              menuClass: "sort",
             }}
           />
         </div>

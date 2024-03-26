@@ -1,7 +1,7 @@
 const { potDetail } = props;
 
-const { daysUntil } = VM.require("potlock.near/widget/utils") || {
-  daysUntil: () => "",
+const { ownerId } = VM.require("potlock.near/widget/constants") || {
+  ownerId: "",
 };
 
 const [mobileMenuActive, setMobileMenuActive] = useState(false);
@@ -19,7 +19,7 @@ const now = Date.now();
 const stats = [
   {
     label: "Applications round",
-    daysLeft: daysUntil(application_end_ms),
+    daysLeft: application_end_ms,
     started: now >= application_start_ms,
     completed: now > application_end_ms,
     progress:
@@ -29,7 +29,7 @@ const stats = [
   },
   {
     label: "Matching round",
-    daysLeft: daysUntil(public_round_end_ms),
+    daysLeft: public_round_end_ms,
     started: now >= public_round_start_ms,
     completed: now > public_round_end_ms,
     progress:
@@ -39,7 +39,7 @@ const stats = [
   },
   {
     label: "Cooldown period",
-    daysLeft: daysUntil(cooldown_end_ms),
+    daysLeft: cooldown_end_ms,
     started: now >= public_round_end_ms,
     completed: now > cooldown_end_ms && !!cooldown_end_ms,
     progress:
@@ -78,7 +78,7 @@ const ProgressBar = ({ progress, completed, started }) => (
         strokeDashoffset={439.6 * progress + "px"}
       ></circle>
     </svg>
-    <svg className="cicle-icon" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="check" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M3.72667 7.05333L0.946667 4.27333L0 5.21333L3.72667 8.94L11.7267 0.94L10.7867 0L3.72667 7.05333Z"
         style={{
@@ -117,7 +117,7 @@ const Wrapper = styled.div`
     transition: all 300ms ease-in-out;
     display: none;
   }
-  @media only screen and (max-width: 1010px) {
+  @media only screen and (max-width: 1100px) {
     pointer-events: all;
     cursor: pointer;
     .spread-indicator {
@@ -138,7 +138,7 @@ const Container = styled.div`
     margin: 1rem 0;
     transition: all 300ms ease-in-out;
   }
-  @media only screen and (max-width: 1010px) {
+  @media only screen and (max-width: 1100px) {
     justify-content: left;
     height: ${containerHeight / 4}px;
     overflow: hidden;
@@ -156,6 +156,7 @@ const State = styled.div`
   position: relative;
   gap: 1rem;
   font-size: 14px;
+  white-space: nowrap;
   color: ${(props) => (props.active ? "#000" : "#7b7b7b")};
   span {
     font-weight: 600;
@@ -168,8 +169,11 @@ const Loader = styled.div`
   background: #dbdbdb;
   border-radius: 1px;
   height: 4px;
-  width: 150px;
-  @media only screen and (max-width: 1010px) {
+  width: 130px;
+  @media only screen and (max-width: 1400px) {
+    width: 90px;
+  }
+  @media only screen and (max-width: 1100px) {
     height: 40px;
     width: 4px;
     position: absolute;
@@ -187,13 +191,14 @@ const ProgressBarWrapper = styled.div`
     height: 24px;
     transform: rotate(-90deg);
   }
-  .cicle-icon {
+  .check {
+    width: 12px;
     position: absolute;
     transform: translate(-50%, -50%);
     top: 50%;
     left: 50%;
   }
-  @media only screen and (max-width: 1010px) {
+  @media only screen and (max-width: 1100px) {
     z-index: 1;
     background: white;
     padding: 2px 0;
@@ -221,23 +226,35 @@ return (
             : {}
         }
       >
-        {stats.map(({ label, daysLeft, progress, started, completed }, idx) => (
-          <State key={label} active={completed || started}>
-            <ProgressBar progress={progress} started={started} completed={completed} />
-            <div>
-              {label}
-              {started && !completed && <span> ends in {daysLeft}</span>}
-              {idx === 0 && !started && " hasn’t started"}
-            </div>
+        {stats.map(({ label, daysLeft, progress, started, completed }, idx) => {
+          return (
+            <State active={completed || started} key={timeLeft}>
+              <ProgressBar progress={progress} started={started} completed={completed} />
+              <div>
+                {label}
+                {started && !completed && (
+                  <span>
+                    ends in
+                    <Widget
+                      src={`${ownerId}/widget/Pots.TimeLeft`}
+                      props={{
+                        daysLeft,
+                      }}
+                    />
+                  </span>
+                )}
+                {idx === 0 && !started && " hasn’t started"}
+              </div>
 
-            <Loader
-              style={{
-                background: completed ? "#629D13" : "#dbdbdb",
-                display: idx === 3 ? "none" : "flex",
-              }}
-            />
-          </State>
-        ))}
+              <Loader
+                style={{
+                  background: completed ? "#629D13" : "#dbdbdb",
+                  display: idx === 3 ? "none" : "flex",
+                }}
+              />
+            </State>
+          );
+        })}
       </div>
     </Container>
     <svg

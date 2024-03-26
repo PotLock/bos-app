@@ -31,6 +31,7 @@ State.init({
 const { allDonations, filteredDonations, currentFilter, filter } = state;
 
 if (publicRoundDonations && !allDonations) {
+  publicRoundDonations.reverse();
   State.update({ filteredDonations: publicRoundDonations, allDonations: publicRoundDonations });
 }
 
@@ -56,6 +57,7 @@ const OuterTextContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1.5rem;
+  align-items: center;
   @media screen and (max-width: 768px) {
     padding-right: 10px;
   }
@@ -119,6 +121,10 @@ const Sort = styled.div`
     font-weight: 500;
     cursor: pointer;
     gap: 8px;
+    color: #7b7b7b;
+    &.active {
+      color: #292929;
+    }
     svg {
       transition: rotate 300ms;
     }
@@ -194,10 +200,16 @@ return (
       <DonationsCount>{allDonations.length}</DonationsCount>
     </OuterTextContainer>
     <Sort>
-      <div onClick={() => sortDonation("date")}>
+      <div
+        className={`${currentFilter === "date" ? "active" : ""}`}
+        onClick={() => sortDonation("date")}
+      >
         Sort Date {currentFilter === "date" && <Arrow active={!filter.date} />}
       </div>
-      <div onClick={() => sortDonation("price")}>
+      <div
+        onClick={() => sortDonation("price")}
+        className={`${currentFilter === "price" ? "active" : ""}`}
+      >
         Sort Amount {currentFilter === "price" && <Arrow active={filter.price} />}
       </div>
     </Sort>

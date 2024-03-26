@@ -14,7 +14,7 @@ const usePagination = ({ totalCount, perPage, siblingCount, currentPage }) => {
 
     const totalPageNumbers = siblingCount + 3;
 
-    if (totalPageNumbers >= totalPageCount) {
+    if (totalPageNumbers >= totalPageCount || totalPageCount < 6) {
       return range(1, totalPageCount);
     }
 
@@ -22,13 +22,13 @@ const usePagination = ({ totalCount, perPage, siblingCount, currentPage }) => {
     const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPageCount);
 
     const shouldShowLeftDots = leftSiblingIndex > 2;
-    const shouldShowRightDots = rightSiblingIndex < totalPageCount - 2;
+    const shouldShowRightDots = rightSiblingIndex <= totalPageCount - 3;
 
     const firstPageIndex = 1;
     const lastPageIndex = totalPageCount;
 
     if (!shouldShowLeftDots && shouldShowRightDots) {
-      let leftItemCount = 3 + 2 * siblingCount;
+      let leftItemCount = 3 + siblingCount;
       let leftRange = range(1, leftItemCount);
 
       return [...leftRange, DOTS, totalPageCount];
@@ -43,6 +43,9 @@ const usePagination = ({ totalCount, perPage, siblingCount, currentPage }) => {
     if (shouldShowLeftDots && shouldShowRightDots) {
       let middleRange = range(leftSiblingIndex, rightSiblingIndex);
       return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
+    }
+    if (!shouldShowLeftDots && !shouldShowRightDots) {
+      return range(1, totalPageCount);
     }
   }, [totalCount, perPage, siblingCount, currentPage]);
 
@@ -139,7 +142,6 @@ const Container = styled.div`
     }
   }
 `;
-
 return (
   <Container>
     {showArrows && (
@@ -147,20 +149,21 @@ return (
         <div className="arrow left" />
       </li>
     )}
-    {paginationRange.map((pageNumber) => {
-      if (pageNumber === DOTS) {
-        return <li className="pagination-item dots">&#8230;</li>;
-      }
+    {paginationRange?.length > 0 &&
+      paginationRange.map((pageNumber) => {
+        if (pageNumber === DOTS) {
+          return <li className="pagination-item dots">&#8230;</li>;
+        }
 
-      return (
-        <li
-          className={`pagination-item ${pageNumber === currentPage ? "selected" : ""}`}
-          onClick={() => onPageChange(pageNumber)}
-        >
-          {pageNumber}
-        </li>
-      );
-    })}
+        return (
+          <li
+            className={`pagination-item ${pageNumber === currentPage ? "selected" : ""}`}
+            onClick={() => onPageChange(pageNumber)}
+          >
+            {pageNumber}
+          </li>
+        );
+      })}
     {showArrows && (
       <li className={`${currentPage === lastPage ? "disabled" : ""}`} onClick={onNext}>
         <div className="arrow right" />
