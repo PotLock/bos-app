@@ -586,11 +586,6 @@ const donateRandomly = () => {
   });
 };
 
-const handleDonateRandomly = (e) => {
-  e.preventDefault();
-  props.openDonateToProjectModal();
-};
-
 const containerStyleHeader = {
   position: "absolute",
   height: "100%",

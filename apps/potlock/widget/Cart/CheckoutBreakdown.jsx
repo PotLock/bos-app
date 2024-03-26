@@ -1,8 +1,14 @@
 const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   SUPPORTED_FTS: {},
 };
+
+const { getCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
+  getCart: () => {},
+  clearCart: () => {},
+};
+
+const cart = getCart();
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
@@ -133,7 +139,7 @@ const [tokens, amountsByFt, totalAmount, donationTooSmall] = useMemo(() => {
   const tokens = {};
   const amountsByFt = {};
   let donationTooSmall = false;
-  Object.entries(props.cart || {}).forEach(([projectId, { token, amount }]) => {
+  Object.entries(cart || {}).forEach(([projectId, { token, amount }]) => {
     const ft = token.text;
     if (!amountsByFt[ft]) amountsByFt[ft] = 0;
     amountsByFt[ft] += parseFloat(amount || 0);
@@ -151,7 +157,7 @@ const handleDonate = () => {
   const transactions = [];
   let potIdContained;
 
-  Object.entries(props.cart).forEach(([projectId, { token, amount, referrerId, note, potId }]) => {
+  Object.entries(cart).forEach(([projectId, { token, amount, referrerId, note, potId }]) => {
     const isFtDonation = token.text != "NEAR";
     const amountIndivisible = Big(parseFloat(amount)).mul(
       Big(10).pow(isFtDonation ? token.decimals : 24)
@@ -221,7 +227,7 @@ const handleDonate = () => {
       // go through donations, add to foundDonations list
       for (const donation of donations) {
         const { recipient_id, project_id, donated_at_ms, donated_at, total_amount } = donation;
-        const matchingCartItem = props.cart[project_id || recipient_id];
+        const matchingCartItem = cart[project_id || recipient_id];
         if (matchingCartItem && (donated_at_ms > now || donated_at > now)) {
           foundDonations.push(donation);
         }
@@ -231,8 +237,7 @@ const handleDonate = () => {
         // display success message & clear cart
         clearInterval(pollId);
         props.updateSuccessfulDonationRecipientId(foundDonations[0].recipient_id);
-        props.setCheckoutSuccess(true);
-        props.clearCart();
+        clearCart();
       }
     });
   }, pollIntervalMs);
@@ -275,11 +280,11 @@ return (
         </TotalContainer>
       )}
     <Widget
-      src={`${ownerId}/widget/Components.Button`}
+      src={"potlock.near/widget/Components.Button"}
       props={{
         type: "primary",
         text: `Process Donation`,
-        disabled: !Object.keys(props.cart).length || donationTooSmall || !context.accountId,
+        disabled: !Object.keys(cart).length || donationTooSmall || !context.accountId,
         onClick: handleDonate,
         style: {
           width: "100%",

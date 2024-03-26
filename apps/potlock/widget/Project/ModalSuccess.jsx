@@ -1,4 +1,4 @@
-const { onClose } = props;
+const { onClose, successfulDonation } = props;
 const {
   ownerId,
   SUPPORTED_FTS: { NEAR },
@@ -165,100 +165,8 @@ const SocialIcon = styled.svg`
 
 State.init({
   showBreakdown: false,
-  successfulDonation: null,
+  successfulDonation,
 });
-
-// [Log] null – "transactionHashes: " – ["Dit7Tr3XAu3951BmMzMSTGbrpXmTnyz4uda2BYekjcS9", "A3brwxMVYY7aYbLfKMZt2gHwic2PhiPNyUVVqS9GRGKE"] (2) (main.302622478fe5b49ecaaa.bundle.js, line 8)
-
-// const body = JSON.stringify({
-//   jsonrpc: "2.0",
-//   id: "dontcare",
-//   method: "tx",
-//   params: ["Dit7Tr3XAu3951BmMzMSTGbrpXmTnyz4uda2BYekjcS9", context.accountId],
-// });
-// console.log("body: ", body);
-// const res = fetch("https://rpc.mainnet.near.org", {
-//   method: "POST",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-//   body,
-// });
-// console.log("res line 180: ", res);
-
-if (props.isModalOpen && !state.successfulDonation) {
-  /// NEW APPROACH:
-  // get donations for donor
-  // let successfulDonation = props.successfulDonation;
-  // let successfulApplication = props.successfulApplication;
-  // if !successfulDonation and !successfulApplication, then we need to fetch the transaction
-  // once fetched, determine whether it was a donation or an application & set on state accordingly
-  if (!successfulDonation && !successfulApplication && props.transactionHashes) {
-    const transactionHashes = props.transactionHashes.split(",");
-    for (let i = 0; i < transactionHashes.length; i++) {
-      const txHash = transactionHashes[i];
-      const body = JSON.stringify({
-        jsonrpc: "2.0",
-        id: "dontcare",
-        method: "tx",
-        params: [txHash, context.accountId],
-      });
-      const res = fetch("https://rpc.mainnet.near.org", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-      // console.log("tx res: ", res);
-      if (res.ok) {
-        const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
-        const successVal = res.body.result.status?.SuccessValue;
-        let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
-        if (methodName === "donate") {
-          // NEAR donation
-          getProfileDataForSuccessfulDonation(decoded);
-          break;
-        } else if (methodName === "apply") {
-          // application
-          State.update({
-            successfulApplication: decoded,
-          });
-          break;
-        } else if (methodName === "ft_transfer_call") {
-          console.log("res: ", res.body);
-          const args = JSON.parse(
-            Buffer.from(
-              res.body.result.transaction.actions[0].FunctionCall.args,
-              "base64"
-            ).toString("utf-8")
-          );
-          console.log("args: ", args);
-          // ft donation
-          const signerId = res.body.result.transaction.signer_id;
-          Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
-            donor_id: signerId,
-          })
-            .then((donations) => {
-              if (donations.length) {
-                const donation = donations.sort((a, b) => b.donated_at_ms - a.donated_at_ms)[0];
-                getProfileDataForSuccessfulDonation(donation);
-              }
-            })
-            .catch((e) => console.log("error fetching donations for donor: ", e));
-          break;
-        } else {
-          if (i === transactionHashes.length - 1) {
-            // close modal
-            onClose();
-          }
-        }
-      }
-    }
-  }
-}
-
-const ftMetadata = Near.view(state.successfulDonation?.ft_id, "ft_metadata", {});
 
 const getProfileDataForSuccessfulDonation = (donation) => {
   const { donor_id, recipient_id, project_id } = donation;
@@ -269,13 +177,85 @@ const getProfileDataForSuccessfulDonation = (donation) => {
       keys: [`${donor_id}/profile/**`],
     }).then((donorData) => {
       State.update({
-        successfulDonation: donation,
         recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
         donorProfile: donorData[donor_id]?.profile || {},
       });
     });
   });
 };
+
+if (state.successfulDonation && !state.recipientProfile) {
+  getProfileDataForSuccessfulDonation(state.successfulDonation);
+}
+
+if (props.isModalOpen && !state.successfulDonation) {
+  const transactionHashes = props.transactionHashes.split(",");
+  for (let i = 0; i < transactionHashes.length; i++) {
+    const txHash = transactionHashes[i];
+    const body = JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "tx",
+      params: [txHash, context.accountId],
+    });
+    const res = fetch("https://rpc.mainnet.near.org", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+    // console.log("tx res: ", res);
+    if (res.ok) {
+      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
+      const successVal = res.body.result.status?.SuccessValue;
+      let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+      if (methodName === "donate") {
+        // NEAR donation
+        State.update({
+          successfulDonation: decoded,
+        });
+        break;
+      } else if (methodName === "apply") {
+        // application
+        State.update({
+          successfulApplication: decoded,
+        });
+        break;
+      } else if (methodName === "ft_transfer_call") {
+        // FT donation
+        const args = JSON.parse(
+          Buffer.from(res.body.result.transaction.actions[0].FunctionCall.args, "base64").toString(
+            "utf-8"
+          )
+        );
+        const signerId = res.body.result.transaction.signer_id;
+        Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
+          donor_id: signerId,
+        })
+          .then((donations) => {
+            if (donations.length) {
+              const donation = donations.sort((a, b) => b.donated_at_ms - a.donated_at_ms)[0];
+              State.update({
+                successfulDonation: donation,
+              });
+            }
+          })
+          .catch((e) => console.log("error fetching donations for donor: ", e));
+        break;
+      } else {
+        if (i === transactionHashes.length - 1) {
+          // close modal
+          onClose();
+        }
+      }
+    }
+  }
+}
+
+const ftMetadata = Near.view(state.successfulDonation?.ft_id, "ft_metadata", {});
+
+// console.log("state in modal success: ", state);
 
 const twitterIntent = useMemo(() => {
   if (!state.recipientProfile) return;
@@ -403,7 +383,6 @@ return (
                   text: "Do it again!",
                   onClick: () => {
                     onClose();
-                    props.openDonateToProjectModal();
                   },
                   style: { width: "100%" },
                 }}
