@@ -19,7 +19,7 @@ const filterBy = [
   //   val: "round_end",
   // },
   {
-    label: "Cooldown period",
+    label: "Challenge period",
     val: "cooldown",
   },
 ];

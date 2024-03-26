@@ -112,7 +112,7 @@ return (
       </h1>
       <div className="btns">
         {canDeploy && <a href={hrefWithParams(`?tab=deploypot`)}>Deploy Pot</a>}
-        <a href="https://potlock.org/chef-training" target="_blank">
+        <a href="https://wtfisqf.com" target="_blank">
           Learn More
         </a>
       </div>

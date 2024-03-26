@@ -38,7 +38,7 @@ const stats = [
         : (now - public_round_start_ms) / (public_round_end_ms - public_round_start_ms),
   },
   {
-    label: "Cooldown period",
+    label: "Challenge period",
     daysLeft: cooldown_end_ms,
     started: now >= public_round_end_ms,
     completed: now > cooldown_end_ms && !!cooldown_end_ms,
@@ -48,7 +48,7 @@ const stats = [
         : (cooldown_end_ms - now) / (public_round_end_ms - cooldown_end_ms),
   },
   {
-    label: "Project paidout",
+    label: "Payouts completed",
     daysLeft: null,
     started: null,
     completed: now > cooldown_end_ms && cooldown_end_ms,

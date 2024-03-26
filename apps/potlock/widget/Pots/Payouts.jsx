@@ -462,7 +462,7 @@ return (
               {/* Total Raised */}
               <RowItem>
                 <RowText>
-                  {yoctosToNear(totalAmount, true)} <span>Allocated</span>{" "}
+                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>{" "}
                 </RowText>
               </RowItem>
               <input type="checkbox" className="toggle-check" />

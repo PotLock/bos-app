@@ -225,7 +225,7 @@ return (
             props={{
               type: "secondary",
               existingChallengeForUser,
-              text: existingChallengeForUser ? "Update challenge" : "Challenge payout",
+              text: existingChallengeForUser ? "Update challenge" : "Challenge payouts",
               onClick: () => setShowChallengePayoutsModal(true),
             }}
           />
