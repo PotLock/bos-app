@@ -1,9 +1,15 @@
-const { getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } = VM.require(
-  "potlock.near/widget/utils"
-) || {
+const {
+  getTagsFromSocialProfileData,
+  getTeamMembersFromSocialProfileData,
+  yoctosToUsdWithFallback,
+} = VM.require("potlock.near/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
   getTeamMembersFromSocialProfileData: () => [],
+  yoctosToUsdWithFallback: () => "",
 };
+const { calcNetDonationAmount, filterByDate } = VM.require(
+  `${ownerId}/widget/Components.DonorsUtils`
+);
 
 // Card Skeleton - Loading fallback
 const loadingSkeleton = styled.keyframes`
@@ -124,7 +130,7 @@ const CardSkeleton = () => (
 
 // ListPage Content
 
-const { tab } = props;
+const { userIsRegistryAdmin, tab } = props;
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
@@ -570,11 +576,65 @@ useEffect(() => {
   }
 }, [projects]);
 
+const arrange = (project_1, project_2) => {
+  const sort = (a, b) => {
+    return parseFloat(b) - parseFloat(a);
+  };
+  const total_amounts = (project) => {
+    const donationsForProject = DonateSDK.getDonationsForRecipient(project.id);
+    if (donationsForProject) {
+      const [totalAmount] = useMemo(() => {
+        if (!donationsForProject) return [null, null];
+        let totalDonationAmount = new Big(0);
+        for (const donation of donationsForProject) {
+          totalDonationAmount = totalDonationAmount.plus(new Big(donation.total_amount));
+        }
+        return [totalDonationAmount.toString()];
+      }, [donationsForProject]);
+      const latestDonation = new Big(totalAmount).div(1e24).toFixed(2);
+      return latestDonation;
+    }
+  };
+  return sort(total_amounts(project_1), total_amounts(project_2));
+};
+const sortHighestToLowests = (projects) => {
+  const projectLength = projects.length;
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      //console.log(total_amounts(projects[j]));
+      if (arrange(projects[j], projects[j + 1]) > 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  Storage.set("sortHighestToLowest", projects);
+};
+const sortLowestToHighests = (projects) => {
+  const projectLength = projects.length;
+  for (let i = 0; i < projectLength - 1; i++) {
+    for (let j = 0; j < projectLength - 1 - i; j++) {
+      //console.log(total_amounts(projects[j]));
+      if (arrange(projects[j], projects[j + 1]) < 0) {
+        const temp = projects[j];
+        projects[j] = projects[j + 1];
+        projects[j + 1] = temp;
+      }
+    }
+  }
+  Storage.set("sortLowestToHighest", projects);
+};
+useEffect(() => {
+  sortHighestToLowests(projects);
+  sortLowestToHighests(projects);
+}, []);
 // console.log("filter", filteredProjects);
 
 const donateConfig = DonateSDK.getConfig();
 if (donateConfig && !totalDonated && !totalDonation) {
   const lastDonationAmount = yoctosToUsd(donateConfig.net_donations_amount);
+  console.log("donated", lastDonationAmount);
   setTotalDonated(lastDonationAmount);
   setTotalDonation(donateConfig.total_donations_count);
 }
@@ -599,46 +659,22 @@ const SORT_FILTERS = {
   ALL: "All",
   NEW_TO_OLD: "Newest to Oldest",
   OLD_TO_NEW: "Oldest to Newest",
-  // MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
-  // LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
+  MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
+  LEAST_TO_MOST_DONATIONS: "Least to Most Donations",
 };
 
-const sortHighestToLowest = (projects) => {
-  const sort = (a, b) => {
-    return parseFloat(b.total) - parseFloat(a.total);
-  };
-  const projectLength = projects.length;
-
-  for (let i = 0; i < projectLength - 1; i++) {
-    for (let j = 0; j < projectLength - 1 - i; j++) {
-      if (sort(projects[j], projects[j + 1]) > 0) {
-        const temp = projects[j];
-        projects[j] = projects[j + 1];
-        projects[j + 1] = temp;
-      }
-    }
-  }
-
-  setFilteredProjects(projects);
+const sortHighestToLowest = () => {
+  const project = Storage.get("sortHighestToLowest")
+    ? Storage.get("sortHighestToLowest")
+    : sortHighestToLowests(projects);
+  setFilteredProjects(project);
 };
 
-const sortLowestToHighest = (projects) => {
-  const sort = (a, b) => {
-    return parseFloat(b.total) - parseFloat(a.total);
-  };
-  const projectLength = projects.length;
-
-  for (let i = 0; i < projectLength - 1; i++) {
-    for (let j = 0; j < projectLength - 1 - i; j++) {
-      if (sort(projects[j], projects[j + 1]) < 0) {
-        const temp = projects[j];
-        projects[j] = projects[j + 1];
-        projects[j + 1] = temp;
-      }
-    }
-  }
-
-  setFilteredProjects(projects);
+const sortLowestToHighest = () => {
+  const project = Storage.get("sortLowestToHighest")
+    ? Storage.get("sortLowestToHighest")
+    : sortLowestToHighests(projects);
+  setFilteredProjects(project);
 };
 
 const sortNewToOld = (projects) => {
@@ -684,10 +720,10 @@ const handleSortChange = (sortType) => {
       sortOldToNew(projects);
       break;
     case "Most to Least Donations":
-      sortHighestToLowest(projects);
+      sortHighestToLowest();
       break;
     case "Least to Most Donations":
-      sortLowestToHighest(projects);
+      sortLowestToHighest();
       break;
   }
 };
