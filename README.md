@@ -1,6 +1,6 @@
 # PotLock BOS App
 
-This repository holds the front-end widgets for [PotLock](project is configured as a [bos-workspace](https://github.com/nearbuilders/bos-workspace).
+This repository holds the front-end widgets for [PotLock](https://app.potlock.org/). This project is configured as a [bos-workspace](https://github.com/nearbuilders/bos-workspace).
 
 ## Getting started
 
