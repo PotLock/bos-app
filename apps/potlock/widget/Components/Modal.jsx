@@ -1,3 +1,7 @@
+const { href } = VM.require("devs.near/widget/lib.url") || {
+  href: () => {},
+};
+
 const ModalOverlay = styled.div`
   position: fixed;
   padding: 0 10px;
@@ -5,16 +9,14 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  // background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
   align-items: center;
-  // padding-top: 30vh;
   z-index: 1000;
 `;
 
-const ModalContent = styled.div`
+const ModalContainer = styled.div`
   border-radius: 6px;
   width: 100%;
   max-width: 600px;
@@ -25,32 +27,21 @@ const ModalContent = styled.div`
   flex-direction: column;
 `;
 
-const overlayStyle = props.overlayStyle || {};
-const contentStyle = props.contentStyle || {};
-
-State.init({
-  isModalOpen: false,
-});
-
-const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return "";
+const Modal = ({ Trigger, Content }) => {
+  Trigger = Trigger ?? (() => <></>);
+  Content = Content ?? (() => <></>);
 
   return (
-    <ModalOverlay onClick={onClose} style={overlayStyle}>
-      <ModalContent onClick={(e) => e.stopPropagation()} style={contentStyle}>
-        {children}
-      </ModalContent>
-    </ModalOverlay>
+    <Widget
+      src={"devs.near/widget/Modal"}
+      props={{
+        Trigger: Trigger,
+        ModalOverlay: ModalOverlay,
+        ModalContainer: ModalContainer,
+        Content: Content,
+      }}
+    />
   );
 };
 
-return (
-  <Modal
-    isOpen={props.hasOwnProperty("isModalOpen") ? props.isModalOpen : state.isModalOpen}
-    onClose={
-      props.hasOwnProperty("onClose") ? props.onClose : () => State.update({ isModalOpen: false })
-    }
-  >
-    {props.children}
-  </Modal>
-);
+return { Modal };
