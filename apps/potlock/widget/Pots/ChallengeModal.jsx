@@ -69,7 +69,7 @@ const MAX_CHALLENGE_TEXT_LENGTH = 1000;
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={`${ownerId}/widget/Components.Modal@114153398`}
     props={{
       isModalOpen: showChallengePayoutsModal,
       onClose: handleCancelChallenge,

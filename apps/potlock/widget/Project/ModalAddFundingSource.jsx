@@ -80,7 +80,7 @@ const Row = styled.div`
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={`${ownerId}/widget/Components.Modal@114153398`}
     props={{
       isModalOpen,
       onClose,
