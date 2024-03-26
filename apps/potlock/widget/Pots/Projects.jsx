@@ -120,12 +120,74 @@ const CardSkeleton = () => (
   </CardSkeletonContainer>
 );
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const Title = styled.div`
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: fit-content;
+  margin-bottom: 1.5rem;
+  div:first-of-type {
+    font-weight: 600;
+  }
+`;
+
+const SearchBar = styled.div`
+  display: flex;
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  border: 0.5px solid #292929;
+  margin-bottom: 0.5rem;
+  svg {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  input {
+    font-size: 14px;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    padding: 12px 16px 12px 3rem;
+    border: none;
+    outline: none;
+  }
+  @media only screen and (max-width: 768px) {
+    svg {
+      left: 1rem;
+    }
+
+    input {
+      padding: 8px 24px 8px 54px;
+    }
+  }
+`;
+
+const [searchTerm, setSearchTerm] = useState("");
+const [filteredProjects, setFilteredProjects] = useState([]);
+const [projects, setProjects] = useState(null);
+
 // get projects
 const { ownerId, potId, potDetail, sybilRequirementMet } = props;
-const { calculatePayouts } = VM.require("potlock.near/widget/utils") || {
-  calculatePayouts: () => {},
-};
-const projects = PotSDK.getApprovedApplications(potId);
+const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
+  VM.require("potlock.near/widget/utils") || {
+    calculatePayouts: () => {},
+    getTagsFromSocialProfileData: () => [],
+    getTeamMembersFromSocialProfileData: () => [],
+  };
+
+if (!projects) {
+  PotSDK.asyncGetApprovedApplications(potId).then((projects) => {
+    setProjects(projects);
+    setFilteredProjects(projects);
+  });
+}
 
 if (!projects) return <div class="spinner-border text-secondary" role="status" />;
 
@@ -141,24 +203,66 @@ const payouts = useMemo(() => {
     return calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
 }, [allDonationsForPot]);
 
+const searchByWords = (searchTerm) => {
+  if (projects.length) {
+    searchTerm = searchTerm.toLowerCase().trim();
+    setSearchTerm(searchTerm);
+    const updatedProjects = projects.filter((project) => {
+      const profile = Social.getr(`${id}/profile`);
+      const fields = [
+        project.project_id,
+        project.status,
+        profile.description,
+        profile.name,
+        getTagsFromSocialProfileData(profile).join(" "),
+        getTeamMembersFromSocialProfileData(profile).join(" "),
+      ];
+      return fields.some((item) => (item || "").toLowerCase().includes(searchTerm.toLowerCase()));
+    });
+    setFilteredProjects(updatedProjects);
+  }
+};
+
 return (
-  <>
-    <Widget
-      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
-      props={{
-        ...props,
-      }}
-    />
+  <Container>
+    <Title>
+      <div>Projects</div>
+      <div>{filteredProjects?.length}</div>
+    </Title>
+    <SearchBar>
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.81641 8.69141H9.22391L9.01391 8.48891C9.74891 7.63391 10.1914 6.52391 10.1914 5.31641C10.1914 2.62391 8.00891 0.441406 5.31641 0.441406C2.62391 0.441406 0.441406 2.62391 0.441406 5.31641C0.441406 8.00891 2.62391 10.1914 5.31641 10.1914C6.52391 10.1914 7.63391 9.74891 8.48891 9.01391L8.69141 9.22391V9.81641L12.4414 13.5589L13.5589 12.4414L9.81641 8.69141ZM5.31641 8.69141C3.44891 8.69141 1.94141 7.18391 1.94141 5.31641C1.94141 3.44891 3.44891 1.94141 5.31641 1.94141C7.18391 1.94141 8.69141 3.44891 8.69141 5.31641C8.69141 7.18391 7.18391 8.69141 5.31641 8.69141Z"
+          fill="#7B7B7B"
+        />
+      </svg>
+      <input
+        type="text"
+        placeholder="Search projects"
+        onChange={(e) => searchByWords(e.target.value)}
+        className="search-input"
+      />
+    </SearchBar>
     <Widget
       src={`${ownerId}/widget/Project.ListSection`}
       props={{
         ...props,
         shouldShuffle: true,
-        maxCols: 2,
-        items: projects,
+        maxCols: 3,
+        items: filteredProjects,
         responsive: [
           {
-            breakpoint: 1024,
+            breakpoint: 1200,
+            items: 2,
+          },
+          {
+            breakpoint: 870,
             items: 1,
           },
         ],
@@ -187,5 +291,5 @@ return (
         },
       }}
     />
-  </>
+  </Container>
 );

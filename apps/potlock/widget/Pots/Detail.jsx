@@ -26,25 +26,7 @@ const FIFTY_TGAS = "50000000000000";
 const THREE_HUNDRED_TGAS = "300000000000000";
 const MIN_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
-// const registeredProject = projects.find(
-//   (project) => project.id == props.projectId && project.status == "Approved"
-// );
-
-// const name = profile.name || "No-name profile";
-// const image = profile.image;
-// const backgroundImage = profile.backgroundImage;
-// const tags = Object.keys(profile.tags ?? {});
-
-const Wrapper = styled.div`
-  margin-top: calc(-1 * var(--body-top-padding, 0));
-  /* overflow-x: hidden; */
-  // @media screen and (max-width: 768px) {
-  //   .mb-2 {
-  //     width: 64px;
-  //     height: 64px;
-  //   }
-  // }
-`;
+const Wrapper = styled.div``;
 
 const SidebarContainer = styled.div`
   width: 25%;
@@ -59,7 +41,6 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
-    //padding: 240px 16px 32px 16px;
     width: 100%;
     padding: 0;
   }
@@ -67,15 +48,18 @@ const Container = styled.div`
 
 const ContainerInner = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+  flex-direction: column;
   padding: 68px 0px;
 `;
 
 const BodyContainer = styled.div`
+  margin-top: 52px;
+  padding: 0 4rem;
   flex: 1;
   width: 100%;
+  @media screen and (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const Divider = styled.div`
@@ -136,6 +120,16 @@ if (loading) return <div class="spinner-border text-secondary" role="status" />;
 
 if (noPot) return "No pot found";
 
+const now = Date.now();
+const applicationNotStarted = now < potDetail.application_start_ms;
+const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
+
+const publicRoundOpen =
+  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
+const publicRoundClosed = now >= potDetail.public_round_end_ms;
+
+const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
+
 // these will be passed down to child components
 props.navOptions = [
   {
@@ -169,8 +163,7 @@ props.navOptions = [
   {
     label: "Payouts",
     id: "payouts",
-    // disabled: !state.potDetail.payouts.length, // TODO: ADD BACK IN
-    disabled: false,
+    disabled: now < potDetail.public_round_start_ms, // TODO: ADD BACK IN
     source: `${ownerId}/widget/Pots.Payouts`,
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=payouts`),
   },
@@ -182,18 +175,6 @@ props.navOptions = [
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=settings`),
   },
 ];
-
-const now = Date.now();
-const applicationNotStarted = now < potDetail.application_start_ms;
-const applicationOpen = now >= potDetail.application_start_ms && now < potDetail.application_end_ms;
-
-const publicRoundOpen =
-  now >= potDetail.public_round_start_ms && now < potDetail.public_round_end_ms;
-const publicRoundClosed = now >= potDetail.public_round_end_ms;
-
-const payoutsPending = publicRoundClosed && !potDetail.cooldown_end_ms;
-
-//console.log("state", canPayoutsBeSet);
 
 if (!props.nav) {
   let nav;
@@ -282,11 +263,6 @@ const handleSendApplication = () => {
 };
 
 const verifyIsOnRegistry = (address) => {
-  // removing custom registry logic for now to better handle Potlock registry statuses, due to user confusion
-  // const { registry_provider } = potDetail;
-  // if (registry_provider) {
-  //   const [registryId, registryMethod] = registry_provider.split(":");
-  //   if (registryId && registryMethod) {
   Near.asyncView("registry.potlock.near", "get_project_by_id", { project_id: address }).then(
     (project) => {
       if (project) {
@@ -294,8 +270,6 @@ const verifyIsOnRegistry = (address) => {
       }
     }
   );
-  //   }
-  // }
 };
 
 useEffect(() => {
@@ -313,47 +287,41 @@ const isError = state.applicationMessageError || state.daoAddressError;
 
 return (
   <Wrapper>
-    <>
+    <Widget
+      src={`${ownerId}/widget/Pots.HeaderStatus`}
+      props={{
+        ...props,
+        potDetail: potDetail,
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Pots.Header`}
+      props={{
+        ...props,
+        potDetail: potDetail,
+        setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
+        sybilRequirementMet: state.sybilRequirementMet,
+        applicationSuccess: state.applicationSuccess,
+        registrationApproved,
+        registryStatus: state.registryStatus,
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Profile.Tabs`}
+      props={{
+        ...props,
+      }}
+    />
+    <BodyContainer>
       <Widget
-        src={`${ownerId}/widget/Pots.Header`}
+        src={props.navOptions.find((option) => option.id == props.nav).source}
         props={{
           ...props,
           potDetail: potDetail,
-          setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
-          handleApplyToPot,
           sybilRequirementMet: state.sybilRequirementMet,
-          applicationSuccess: state.applicationSuccess,
-          registrationApproved,
-          registryStatus: state.registryStatus,
         }}
       />
-      <Container>
-        <ContainerInner>
-          <SidebarContainer
-          // class="col-3"
-          >
-            <Widget
-              src={`${ownerId}/widget/Components.NavOptions`}
-              props={{
-                ...props,
-              }}
-            />
-          </SidebarContainer>
-          <BodyContainer
-          // class="col-9"
-          >
-            <Widget
-              src={props.navOptions.find((option) => option.id == props.nav).source}
-              props={{
-                ...props,
-                potDetail: potDetail,
-                sybilRequirementMet: state.sybilRequirementMet,
-              }}
-            />
-          </BodyContainer>
-        </ContainerInner>
-      </Container>
-    </>
+    </BodyContainer>
     <Widget
       src={`${ownerId}/widget/Components.Modal`}
       props={{

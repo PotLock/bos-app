@@ -12,6 +12,15 @@ const NavOptionsContainer = styled.div`
   width: 100%;
   border-bottom: 1px solid #c7c7c7;
   padding: 0 4rem;
+  > div {
+    display: flex;
+  }
+  > div.disabled {
+    cursor: not-allowed;
+    a {
+      pointer-events: none;
+    }
+  }
   .nav-option {
     font-size: 14px;
     color: #7b7b7b;
@@ -20,23 +29,20 @@ const NavOptionsContainer = styled.div`
     white-space: nowrap;
     border-bottom: 2px solid transparent;
     transition: 300ms ease;
-    &.disabled {
-      pointer-events: none;
-      cursor: not-allowed;
-    }
-    &.selected {
-      color: #292929;
-      border-bottom-color: #292929;
-    }
+
     :hover {
       border-bottom-color: #292929;
       text-decoration: none;
     }
   }
+  .selected .nav-option {
+    color: #292929;
+    border-bottom-color: #292929;
+  }
   @media screen and (max-width: 768px) {
     padding: 0px 1rem;
     overflow-x: scroll;
-    .nav-option.selected {
+    .selected {
       order: -1;
     }
   }
@@ -47,12 +53,14 @@ return (
     {navOptions.map((option) => {
       const selected = option.id == getSelectedNavOption().id;
       return option.label ? (
-        <a
-          className={`nav-option ${selected && "selected"} ${option.disabled && "disabled"}`}
-          href={option.href}
+        <div
+          key={option.label}
+          className={`${option.disabled ? "disabled" : ""} ${selected ? "selected" : ""}`}
         >
-          {option.label}
-        </a>
+          <a className={`nav-option `} href={option.href}>
+            {option.label}
+          </a>
+        </div>
       ) : (
         ""
       );

@@ -71,9 +71,6 @@ const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 0.5px rgba(41, 41, 41, 0.5) solid;
-  box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
-  border-radius: 2px;
   width: 100%;
   margin-top: 35px;
   padding-bottom: 1rem;
@@ -154,31 +151,23 @@ const { base_currency } = potDetail;
 const maxRowItemLength = 14;
 
 return (
-  <>
+  <Container>
     <Widget
-      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
+      src={`${ownerId}/widget/Pots.SponsorsBoard`}
       props={{
         ...props,
+        donations: state.sponsorshipDonations.slice(0, 6),
+        base_currency: base_currency,
       }}
     />
-    <Container>
+    <TableContainer>
       <Widget
-        src={`${ownerId}/widget/Pots.SponsorsBoard`}
+        src={`${ownerId}/widget/Pots.SponsorsTable`}
         props={{
           ...props,
-          donations: state.sponsorshipDonations.slice(0, 6),
-          base_currency: base_currency,
+          sponsors: state.sponsorshipDonations,
         }}
       />
-      <TableContainer>
-        <Widget
-          src={`${ownerId}/widget/Components.DonorsLeaderboard`}
-          props={{
-            ...props,
-            sortedDonations: state.sponsorshipDonations,
-          }}
-        />
-      </TableContainer>
-    </Container>
-  </>
+    </TableContainer>
+  </Container>
 );

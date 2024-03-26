@@ -475,7 +475,6 @@ const FormSectionLeft = (title, description) => {
 
 return (
   <FormBody>
-    <FormDivider />
     <FormSectionContainer>
       {FormSectionLeft("Pot details", "")}
       <FormSectionRightDiv>

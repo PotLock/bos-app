@@ -25,6 +25,7 @@ const Card = styled.a`
   background: white;
   box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
   padding-bottom: 5px;
+  height: 100%;
   &:hover {
     text-decoration: none;
     cursor: pointer;
@@ -50,6 +51,8 @@ const Title = styled.div`
   word-wrap: break-word;
   > div {
     font-weight: inherit;
+    display: flex;
+    align-items: baseline;
   }
 `;
 
@@ -116,9 +119,9 @@ const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
-const publicRoundClosed = now >= public_round_end_ms && cooldown_end_ms;
-const cooldownOpen = publicRoundClosed && now < cooldown_end_ms;
-const amountNear = yoctosToNear(matching_pool_balance);
+const publicRoundClosed = now >= public_round_end_ms && now > cooldown_end_ms;
+const cooldownOpen = now >= public_round_end_ms && now < cooldown_end_ms;
+const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
 const tags = [
@@ -207,15 +210,24 @@ return (
         <Markdown text={description} />
       </Description>
     </CardSection>
-    <CardSection style={{ background: "#F6F5F3", borderTop: "1px #7B7B7B solid" }}>
+    <CardSection
+      style={{
+        background: "#F6F5F3",
+        borderTop: "1px #7B7B7B solid",
+        marginTop: "auto",
+        height: "fit-content",
+      }}
+    >
       <Title>
         <div>
-          {amountNear}{" "}
+          {amountNear}
+          {amountUsd && (
+            <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>
+              {amountUsd}
+            </span>
+          )}
           <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>in pot</span>
         </div>
-        {amountUsd && (
-          <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>{amountUsd}</span>
-        )}
       </Title>
       {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
     </CardSection>

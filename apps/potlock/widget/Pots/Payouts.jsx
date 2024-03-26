@@ -5,9 +5,6 @@ const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") |
   ownerId: "",
   SUPPORTED_FTS: {},
 };
-
-const { getTimePassed } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
-
 const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
   calculatePayouts: () => {},
   yoctosToNear: () => "",
@@ -31,47 +28,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
   width: 100%;
   @media screen and (min-width: 375px) and (max-width: 768px) {
     width: 99%;
   }
   @media screen and (max-width: 390px) {
     width: 98%;
-  }
-`;
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-`;
-
-const UserLink = styled.a`
-  font-weight: 600;
-  color: black;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const StatusText = styled.div`
-  display: flex;
-  font-size: 14px;
-  font-weight: 500;
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const StatusTextMobile = styled.div`
-  display: none;
-  font-size: 14px;
-  font-weight: 500;
-  @media screen and (max-width: 768px) {
-    display: flex;
   }
 `;
 
@@ -105,9 +67,8 @@ const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 0.5px rgba(41, 41, 41, 0.5) solid;
-  box-shadow: 0px 4px 12px -4px rgba(82, 82, 82, 0.2);
   border-radius: 6px;
+  border: 1px solid #7b7b7b;
   width: 100%;
   overflow-x: auto;
   flex-wrap: nowrap;
@@ -118,8 +79,13 @@ const Header = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background: #f6f5f3;
   width: 100%;
+  gap: 2rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(199, 199, 199, 0.5);
+  @media only screen and (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const HeaderItem = styled.div`
@@ -127,8 +93,19 @@ const HeaderItem = styled.div`
   flex-direction: row;
   align-items: space-between;
   justify-content: flex-start;
-  padding: 10px 20px;
-  width: ${100 / columns.length}%;
+  justify-content: space-between;
+  width: 110px;
+  justify-content: right;
+  &.project {
+    flex: 1;
+    justify-content: left;
+  }
+  @media only screen and (max-width: 768px) {
+    display: none;
+    &.project {
+      display: flex;
+    }
+  }
 `;
 
 const HeaderItemText = styled.div`
@@ -139,33 +116,106 @@ const HeaderItemText = styled.div`
   word-wrap: break-word;
 `;
 
+const MobileAmount = styled.div`
+  width: 100%;
+  margin-left: 2rem;
+  display: none;
+  max-height: 0px;
+  overflow: hidden;
+  transition: all 200ms;
+  span {
+    font-weight: 600;
+  }
+  @media screen and (max-width: 768px) {
+    display: block;
+  }
+`;
+
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  padding: 1rem;
+  gap: 2rem;
+  border-top: 1px solid rgba(199, 199, 199, 0.5);
+  position: relative;
+  .toggle-check {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    display: none;
+  }
+  .toggle-check:checked + svg {
+    rotate: 0deg;
+  }
+  .toggle-check:checked + svg + ${MobileAmount} {
+    max-height: 100px;
+  }
+  @media screen and (max-width: 768px) {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    .toggle-check {
+      display: block;
+    }
+  }
 `;
 
-const RowItem = styled.a`
+const RowItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
-  padding: 20px;
-  width: ${100 / columns.length}%;
+  width: 110px;
+  justify-content: right;
   &:hover {
     text-decoration: none;
+  }
+  &.project {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    justify-content: left;
+    transition: 200ms;
+    a {
+      color: #292929;
+      font-weight: 600;
+      transition: 200ms;
+      &:hover {
+        color: #dd3345;
+        text-decoration: none;
+      }
+    }
+  }
+  @media screen and (max-width: 768px) {
+    &.project {
+      gap: 0.5rem;
+    }
+    &.donors,
+    &.amount {
+      display: none;
+    }
   }
 `;
 
 const RowText = styled.div`
   color: #292929;
   font-size: 14px;
-  font-weight: 400;
-  line-height: 24px;
+  font-weight: 600;
   word-wrap: break-word;
+  span {
+    color: #7b7b7b;
+    font-weight: 600;
+    display: none;
+    @media screen and (max-width: 768px) {
+      display: inline-block;
+    }
+  }
 `;
 
 const SearchBarContainer = styled.div`
@@ -173,8 +223,11 @@ const SearchBarContainer = styled.div`
   align-items: center;
   gap: 16px;
   width: 100%;
-  border-bottom: 1px #dbdbdb solid;
-  padding: 12px 24px;
+  background: #f6f5f3;
+  padding: 0.5rem 1rem;
+  @media only screen and (max-width: 768px) {
+    gap: 8px;
+  }
 `;
 
 const SearchBar = styled.input`
@@ -182,7 +235,6 @@ const SearchBar = styled.input`
   width: 100%;
   outline: none;
   border: none;
-  color: #525252;
   &:focus {
     outline: none;
     border: none;
@@ -199,37 +251,28 @@ const SearchIcon = styled.div`
 
 const InfoContainer = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 20px;
-  background: ${potDetail.all_paid_out
-    ? "green"
-    : potDetail.cooldown_end_ms
-    ? "#E6B800"
-    : "#dd3345"};
+  padding: 8px;
+  border: 1px solid #f4b37d;
   border-radius: 6px;
-  gap: 10px;
+  background: #fef6ee;
+  gap: 1rem;
+  margin-left: auto;
+  margin-bottom: 1.5rem;
 `;
 
 const WarningText = styled.div`
   text-align: center;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 8px;
-
-  @media screen and (max-width: 768px) {
-    font-size: 12px;
-    margin-left: 4px;
-  }
+  color: #dd3345;
+  font-weight: 500;
+  font-size: 14px;
 `;
 const AlertSvg = styled.svg`
-  width: 24px;
-  // @media screen and (max-width: 768px) {
-  //   width: 24px;
-  // }
+  width: 18px;
+  @media screen and (max-width: 768px) {
+    width: 1rem;
+  }
 `;
 
 const DivLink = styled.div`
@@ -240,96 +283,22 @@ const DivLink = styled.div`
   cursor: pointer;
 `;
 
-const ModalHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  background: white;
-  padding: 24px 24px 12px 24px;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  font-weight: 500;
-`;
-
-const ModalBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 24px;
-  border-top: 1px #f0f0f0 solid;
-  background: #fafafa;
-  gap: 8px;
-`;
-
-const ModalFooter = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  background: #fafafa;
-  padding: 12px 24px 24px 24px;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  gap: 24px;
-  width: 100%;
-`;
-
-const ChallengesHeaderText = styled.div`
-  color: #292929;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 24px;
-  word-wrap: break-word;
-  margin-top: 16px;
-`;
-
-const ChallengeRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  gap: 24px;
-  border-bottom: 1px #f0f0f0 solid;
-  width: 100%;
-`;
-
-const payoutsChallenges = PotSDK.getPayoutsChallenges(potId); // TODO: ADD THIS BACK IN
-// const payoutsChallenges = [
-//   {
-//     challenger_id: "lachlan.near",
-//     created_at: Date.now(),
-//     reason: "I don't think these payouts are accurate",
-//     admin_notes: "they are",
-//     resolved: true,
-//   },
-// ]; // TODO: REMOVE THIS
-
-const existingChallengeForUser = (payoutsChallenges || []).find(
-  (challenge) => challenge.challenger_id === context.accountId
-);
-// console.log("payoutsChallenges: ", payoutsChallenges);
-
+// const existingChallengeForUser = (payoutsChallenges || []).find(
+//   (challenge) => challenge.challenger_id === context.accountId
+// );
+// if (!challengeReason && existingChallengeForUser) {
+//   State.update({ challengeReason: existingChallengeForUser.reason });
+// }
 State.init({
   allPayouts: null,
   filteredPayouts: null,
   showChallengePayoutsModal: false,
-  challengeReason: "",
-  challengeReasonError: "",
-  adminModalChallengerId: "",
-  challengeAdminNotes: "",
-  challengeAdminNotesError: "",
-  resolveChallenge: false,
 });
 
-if (!state.challengeReason && existingChallengeForUser) {
-  State.update({ challengeReason: existingChallengeForUser.reason });
-}
+const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
 
 const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!state.allPayouts && allDonationsForPot) {
+if (!allPayouts && allDonationsForPot) {
   const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
@@ -338,7 +307,7 @@ if (!state.allPayouts && allDonationsForPot) {
     // loop through potDetail payouts and synthesize the two sets of payouts, so projectId and matchingAmount are taken from potDetail payouts, and donorCount and totalAmount are taken from calculatedPayouts
     const synthesizedPayouts = potDetail.payouts.map((payout) => {
       const { project_id, amount } = payout;
-      const { totalAmount, matchingAmount, donorCount } = calculatedPayouts[project_id];
+      const { totalAmount, donorCount } = calculatedPayouts[project_id];
       return {
         projectId: project_id,
         totalAmount,
@@ -373,7 +342,7 @@ const { base_currency } = potDetail;
 
 const searchPayouts = (searchTerm) => {
   // filter payouts that match the search term (donor_id, project_id)
-  const filteredPayouts = state.allPayouts.filter((payout) => {
+  const filteredPayouts = allPayouts.filter((payout) => {
     const { projectId } = payout;
     const searchFields = [projectId];
     return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -385,99 +354,76 @@ const searchPayouts = (searchTerm) => {
   return filteredPayouts;
 };
 
-const handleCancelChallenge = () => {
-  State.update({ showChallengePayoutsModal: false, challengeReason: "", challengeReasonError: "" });
-};
-
-const handleSubmitChallenge = () => {
-  PotSDK.challengePayouts(potId, state.challengeReason);
-  State.update({ showChallengePayoutsModal: false });
-};
-
-const handleAdminUpdateChallenge = () => {
-  PotSDK.adminUpdatePayoutsChallenge(
-    potId,
-    state.adminModalChallengerId,
-    state.challengeAdminNotes,
-    state.resolveChallenge
-  );
-  State.update({
-    adminModalChallengerId: "",
-    challengeAdminNotes: "",
-    challengeAdminNotesError: "",
-    resolveChallenge: false,
-  });
-};
-
-const handleCancelAdminUpdateChallenge = () => {
-  State.update({
-    adminModalChallengerId: "",
-    challengeAdminNotes: "",
-    challengeAdminNotesError: "",
-    resolveChallenge: false,
-  });
-};
-
 const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 20;
-const MAX_CHALLENGE_TEXT_LENGTH = 1000;
+
+const ProfileImage = ({ projectId }) => (
+  <Widget
+    src={`${ownerId}/widget/Project.ProfileImage`}
+    props={{
+      ...props,
+      accountId: projectId,
+      style: {
+        height: "24px",
+        width: "24px",
+      },
+    }}
+  />
+);
+
+const Arrow = styled.svg`
+  width: 12px;
+  rotate: 180deg;
+  transition: all 200ms;
+  display: none;
+  @media screen and (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const ArrowDown = (props) => (
+  <Arrow {...props} viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M6 0.294983L0 6.29498L1.41 7.70498L6 3.12498L10.59 7.70498L12 6.29498L6 0.294983Z"
+      fill="#7B7B7B"
+    />
+  </Arrow>
+);
 
 return (
   <Container>
-    <Widget
-      src={`${ownerId}/widget/Pots.NavOptionsMobile`}
-      props={{
-        ...props,
-      }}
-    />
-    <Row>
-      <a
-        href="https://github.com/PotLock/bos-app/blob/297df3d99c0d4423b32cb773b3912dd0b670963a/apps/potlock/widget/utils.jsx#L179-L367"
-        target="_blank"
-        style={{ color: "#2b2b2b" }}
-      >
-        View payouts calculation code
-      </a>
-      <OuterTextContainer style={{ alignSelf: "flex-end" }}>
-        <OuterText>all payouts</OuterText>
-        <Count>{state.allPayouts.length}</Count>
-      </OuterTextContainer>
-    </Row>
-    <InfoContainer>
-      <Row style={{ justifyContent: "center" }}>
-        <AlertSvg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="white"
-          aria-hidden="true"
-          // width="18px"
-        >
+    <Widget src={`${ownerId}/widget/Pots.PayoutsChallenges`} props={props} />
+
+    {!potDetail.all_paid_out && (
+      <InfoContainer>
+        <AlertSvg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-          ></path>
+            d="M7.25 4.25H8.75V5.75H7.25V4.25ZM7.25 7.25H8.75V11.75H7.25V7.25ZM8 0.5C3.86 0.5 0.5 3.86 0.5 8C0.5 12.14 3.86 15.5 8 15.5C12.14 15.5 15.5 12.14 15.5 8C15.5 3.86 12.14 0.5 8 0.5ZM8 14C4.6925 14 2 11.3075 2 8C2 4.6925 4.6925 2 8 2C11.3075 2 14 4.6925 14 8C14 11.3075 11.3075 14 8 14Z"
+            fill="#EE8949"
+          />
         </AlertSvg>
+
         <WarningText>
-          {potDetail.all_paid_out
-            ? "All payouts have been paid out."
-            : potDetail.cooldown_end_ms
+          {potDetail.cooldown_end_ms
             ? "These payouts have been set on the contract but have not been paid out yet."
             : "These payouts are estimated amounts only and have not been set on the contract yet."}
         </WarningText>
-      </Row>
-      {potDetail.cooldown_end_ms > Date.now() && (
-        <DivLink onClick={() => State.update({ showChallengePayoutsModal: true })}>
-          {existingChallengeForUser && !existingChallengeForUser.resolved
-            ? `Update your challenge (submitted ${getTimePassed(
-                existingChallengeForUser.created_at
-              )} ago)`
-            : "Something doesn't look right? Challenge payouts"}
-        </DivLink>
-      )}
-    </InfoContainer>
+      </InfoContainer>
+    )}
     <TableContainer>
+      <Header>
+        <HeaderItem className="project">
+          <HeaderItemText>Project</HeaderItemText>
+        </HeaderItem>
+        <HeaderItem>
+          <HeaderItemText>Total Raised</HeaderItemText>
+        </HeaderItem>
+        <HeaderItem>
+          <HeaderItemText>Unique Donors</HeaderItemText>
+        </HeaderItem>
+        <HeaderItem>
+          <HeaderItemText>Pool Allocation</HeaderItemText>
+        </HeaderItem>
+      </Header>
       <SearchBarContainer>
         <SearchIcon>
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -495,70 +441,42 @@ return (
           }}
         />
       </SearchBarContainer>
-      <Header>
-        {/* {columns.map((column, index) => (
-          <HeaderItem>
-            <HeaderItemText key={index}>{column}</HeaderItemText>
-          </HeaderItem>
-        ))} */}
-        <HeaderItem style={{ width: "40%" }}>
-          <HeaderItemText>Project</HeaderItemText>
-        </HeaderItem>
-        <HeaderItem style={{ width: "20%" }}>
-          <HeaderItemText>Total Raised</HeaderItemText>
-        </HeaderItem>
-        <HeaderItem style={{ width: "20%" }}>
-          <HeaderItemText>Unique Donors</HeaderItemText>
-        </HeaderItem>
-        <HeaderItem style={{ width: "20%" }}>
-          <HeaderItemText>Pool Allocation</HeaderItemText>
-        </HeaderItem>
-      </Header>
-      {!state.filteredPayouts ? (
+      {!filteredPayouts ? (
         <div>Loading</div>
-      ) : state.filteredPayouts.length === 0 ? (
+      ) : filteredPayouts.length === 0 ? (
         <Row style={{ padding: "12px" }}>No payouts to display</Row>
       ) : (
-        state.filteredPayouts.map((payout, index) => {
+        filteredPayouts.map((payout, index) => {
           const { projectId, donorCount, matchingAmount, totalAmount } = payout;
-          // const totalDonationAmount =
-          //   SUPPORTED_FTS[base_currency.toUpperCase()].fromIndivisible(total_amount);
 
           return (
             <Row key={index}>
-              {/* Project */}
-              <RowItem
-                href={`?tab=project&projectId=${projectId}`}
-                target={"_blank"}
-                style={{ width: "40%" }}
-              >
-                <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
-                  props={{
-                    ...props,
-                    accountId: projectId,
-                    style: {
-                      height: "24px",
-                      width: "24px",
-                    },
-                  }}
-                />
-                <RowText>
+              <RowItem className="project">
+                <ProfileImage projectId={projectId} />
+                <a href={`?tab=project&projectId=${projectId}`} target={"_blank"}>
                   {projectId.length > MAX_ACCOUNT_ID_DISPLAY_LENGTH
                     ? projectId.slice(0, MAX_ACCOUNT_ID_DISPLAY_LENGTH) + "..."
                     : projectId}
-                </RowText>
+                </a>
               </RowItem>
               {/* Total Raised */}
-              <RowItem style={{ width: "20%" }}>
-                <RowText>{yoctosToNear(totalAmount, true)}</RowText>
+              <RowItem>
+                <RowText>
+                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>{" "}
+                </RowText>
               </RowItem>
+              <input type="checkbox" className="toggle-check" />
+              <ArrowDown />
+              <MobileAmount>
+                <span>{yoctosToNear(totalAmount, true)}</span> raised from
+                <span>{donorCount}</span> unique donors
+              </MobileAmount>
               {/* Total Unique Donors */}
-              <RowItem style={{ width: "20%" }}>
+              <RowItem className="donors">
                 <RowText>{donorCount}</RowText>
               </RowItem>
               {/* Matching Pool Allocation */}
-              <RowItem style={{ width: "20%" }}>
+              <RowItem className="amount">
                 <RowText>{yoctosToNear(matchingAmount, true)}</RowText>
               </RowItem>
             </Row>
@@ -566,217 +484,5 @@ return (
         })
       )}
     </TableContainer>
-    {}
-    <ChallengesHeaderText>Payouts Challenges</ChallengesHeaderText>
-    {!payoutsChallenges ? (
-      "Loading..."
-    ) : payoutsChallenges.length === 0 ? (
-      <ChallengeRow>No payouts challenges to display</ChallengeRow>
-    ) : (
-      payoutsChallenges.map((challenge, index) => {
-        const { challenger_id, created_at, reason, admin_notes, resolved } = challenge;
-        // console.log("status: ", status);
-
-        return (
-          <ChallengeRow
-            key={index}
-            style={{
-              background: resolved ? "#F7FDE8" : "white",
-            }}
-          >
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
-                accountId: challenger_id,
-                style: {
-                  alignSelf: "flex-start",
-                  height: "32px",
-                  width: "32px",
-                },
-                // imageWrapperStyle: {
-                //   height: "32px",
-                //   width: "32px",
-                // },
-              }}
-            />
-            <Column style={{ flex: 1 }}>
-              <ChallengeRow
-                style={{ borderBottom: "none", padding: "0px", justifyContent: "flex-start" }}
-              >
-                <UserLink href={props.hrefWithParams(`?tab=profile&accountId=${challenger_id}`)}>
-                  {challenger_id}
-                </UserLink>
-                <div style={{ fontSize: "12px" }}>{getTimePassed(created_at) + " ago"}</div>
-              </ChallengeRow>
-              <div>{reason}</div>
-              <div style={{ fontSize: "12px", marginTop: "8px" }}>
-                Admin notes: {admin_notes && admin_notes.length > 0 ? admin_notes : "None yet"}
-              </div>
-              <StatusTextMobile>{resolved ? "Resolved" : "Unresolved"}</StatusTextMobile>
-            </Column>
-            <StatusText>{resolved ? "Resolved" : "Unresolved"}</StatusText>
-            {userIsAdminOrGreater && !resolved && (
-              <Widget
-                src={`${ownerId}/widget/Components.Button`}
-                props={{
-                  type: "secondary",
-                  text: "Update/Resolve",
-                  onClick: () => State.update({ adminModalChallengerId: challenger_id }),
-                }}
-              />
-            )}
-          </ChallengeRow>
-        );
-      })
-    )}
-    {/* Challenge modal */}
-    {state.showChallengePayoutsModal && (
-      <Widget
-        src={`${ownerId}/widget/Components.Modal`}
-        props={{
-          isModalOpen: state.showChallengePayoutsModal,
-          onClose: handleCancelChallenge,
-          contentStyle: {
-            padding: "0px",
-          },
-          children: (
-            <>
-              <ModalHeader>Challenge Payouts</ModalHeader>
-              <ModalBody>
-                <div>Explain the reason for your challenge</div>
-                <Widget
-                  src={`${ownerId}/widget/Inputs.TextArea`}
-                  props={{
-                    noLabel: true,
-                    inputRows: 5,
-                    inputStyle: {
-                      background: "#FAFAFA",
-                    },
-                    placeholder: "Type the reason for your challenge here",
-                    value: state.challengeReason,
-                    onChange: (challengeReason) => State.update({ challengeReason }),
-                    validate: () => {
-                      if (state.challengeReason.length > MAX_CHALLENGE_TEXT_LENGTH) {
-                        State.update({
-                          challengeReasonError: `Challenge reason must be less than ${MAX_CHALLENGE_TEXT_LENGTH} characters`,
-                        });
-                        return;
-                      }
-
-                      State.update({ challengeReasonError: "" });
-                    },
-                    error: state.challengeReasonError,
-                  }}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "tertiary",
-                    text: "Cancel",
-                    onClick: handleCancelChallenge,
-                  }}
-                />
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "primary",
-                    text: "Submit Challenge",
-                    disabled: !state.challengeReason || !!state.challengeReasonError,
-                    onClick: handleSubmitChallenge,
-                  }}
-                />
-              </ModalFooter>
-            </>
-          ),
-        }}
-      />
-    )}
-    {/* Admin update challenge modal */}
-    {state.adminModalChallengerId && (
-      <Widget
-        src={`${ownerId}/widget/Components.Modal`}
-        props={{
-          isModalOpen: state.adminModalChallengerId,
-          onClose: handleCancelAdminUpdateChallenge,
-          contentStyle: {
-            padding: "0px",
-          },
-          children: (
-            <>
-              <ModalHeader>Update Challenge from {state.adminModalChallengerId}</ModalHeader>
-              <ModalBody>
-                <HeaderItemText>Challenge Reason:</HeaderItemText>
-                <div>
-                  {
-                    payoutsChallenges.find(
-                      (challenge) => challenge.challenger_id === state.adminModalChallengerId
-                    ).reason
-                  }
-                </div>
-                <Widget
-                  src={`${ownerId}/widget/Inputs.TextArea`}
-                  props={{
-                    noLabel: true,
-                    inputRows: 5,
-                    inputStyle: {
-                      background: "#FAFAFA",
-                    },
-                    placeholder: "Respond to the challenge here",
-                    value: state.challengeAdminNotes,
-                    onChange: (challengeAdminNotes) => State.update({ challengeAdminNotes }),
-                    validate: () => {
-                      if (state.challengeAdminNotes.length > MAX_CHALLENGE_TEXT_LENGTH) {
-                        State.update({
-                          challengeAdminNotesError: `Notes must be less than ${MAX_CHALLENGE_TEXT_LENGTH} characters`,
-                        });
-                        return;
-                      }
-
-                      State.update({ challengeAdminNotesError: "" });
-                    },
-                    error: state.challengeAdminNotesError,
-                  }}
-                />
-                <Widget
-                  src={`${ownerId}/widget/Inputs.Checkbox`}
-                  props={{
-                    // id: "registrationSelector",
-                    label: "Resolve this challenge?",
-                    checked: state.resolveChallenge,
-                    onClick: (e) => {
-                      State.update({
-                        resolveChallenge: e.target.checked,
-                      });
-                    },
-                  }}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "tertiary",
-                    text: "Cancel",
-                    onClick: handleCancelAdminUpdateChallenge,
-                  }}
-                />
-                <Widget
-                  src={`${ownerId}/widget/Components.Button`}
-                  props={{
-                    type: "primary",
-                    text: "Submit",
-                    disabled: !state.challengeAdminNotes || !!state.challengeAdminNotesError,
-                    onClick: handleAdminUpdateChallenge,
-                  }}
-                />
-              </ModalFooter>
-            </>
-          ),
-        }}
-      />
-    )}
   </Container>
 );

@@ -129,7 +129,7 @@ return (
           onClick: () => setIsModalDonationOpen(true),
         }}
       />
-      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: accountId }} />
+      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: projectId }} />
     </div>
 
     <Widget
