@@ -5,14 +5,127 @@ let PotFactorySDK =
   (() => ({
     getContractId: () => {},
     getConfig: () => {},
-    getPots: () => {},
+    asyncGetPots: () => {},
     canUserDeployPot: () => {},
   }));
+
+const [pots, setPots] = useState(null);
+const [inProgressRounds, setInProgressRounds] = useState([]);
+const [filteredRounds, setFilteredRounds] = useState([]);
+const [completedRounds, setCompletedRounds] = useState([]);
+const [filterSelcted, setFilterSelected] = useState([]);
+const [sortBy, setSortBy] = useState("");
+
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const potFactoryContractId = PotFactorySDK.getContractId();
 const potFactoryConfig = PotFactorySDK.getConfig();
-const pots = PotFactorySDK.getPots();
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  asyncGetConfig: () => {},
+};
+
+const currentDate = Date.now();
+
+const filters = {
+  application_open: (round) =>
+    currentDate > round.application_start_ms && currentDate < round.application_end_ms,
+  application_closed: (round) => currentDate > round.application_end_ms,
+  round_end: (round) => currentDate > round.public_round_end_ms,
+  round_open: (round) =>
+    currentDate > round.public_round_start_ms && currentDate < round.public_round_end_ms,
+  cooldown: (round) =>
+    currentDate > round.public_round_end_ms && currentDate < round.cooldown_end_ms,
+  completed: (round) =>
+    currentDate > round.public_round_end_ms && currentDate > round.cooldown_end_ms,
+};
+
+const sortOptions = [
+  {
+    label: "Most to least in pot",
+    val: "least_pots",
+  },
+  {
+    label: "Least to most in pot",
+    val: "most_pots",
+  },
+  {
+    label: "Most to least donations",
+    val: "most_donations",
+  },
+  {
+    label: "Least to most donations",
+    val: "least_donations",
+  },
+];
+
+if (!pots) {
+  PotFactorySDK.asyncGetPots().then((pots) => {
+    pots.forEach(({ id }) => {
+      PotSDK.asyncGetConfig(id).then((potConfig) =>
+        setPots((prevPot) => ({
+          ...prevPot,
+          [id]: { ...potConfig, id },
+        }))
+      );
+    });
+  });
+}
+
+const compareFunction = (a, b) => {
+  // Cooldown Rounds
+  if (filters.cooldown(a)) {
+    return -1;
+  } else if (filters.cooldown(b)) {
+    return 1;
+  }
+  // Active Rounds
+  else if (filters.round_open(a)) {
+    return -1;
+  } else if (filters.round_open(b)) {
+    return 1;
+  }
+  // Application period
+  else if (filters.application_open(a)) {
+    return -1;
+  } else if (filters.application_open(b)) {
+    return 1;
+  }
+  // Default case: no change in order
+  return 0;
+};
+
+useEffect(() => {
+  if (pots) {
+    const potsVal = Object.values(pots);
+    const completed = [];
+    const inprogress = [];
+    potsVal.forEach((round) => {
+      if (filters.completed(round)) {
+        completed.push(round);
+      } else {
+        inprogress.push(round);
+      }
+    });
+    inprogress.sort(compareFunction);
+    setFilteredRounds(inprogress);
+    setInProgressRounds(inprogress);
+    setCompletedRounds(completed);
+  }
+}, [pots]);
+
 const canDeploy = PotFactorySDK.canUserDeployPot(context.accountId);
+
+const Title = styled.div`
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 18px;
+  font-weight: 600;
+  .span {
+    font-weight: 600;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
@@ -20,197 +133,170 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding-bottom: 48px;
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 100px 48px;
-  background: #f6f5f3;
-  width: 100%;
-  @media only screen and (max-width: 480px) {
-    padding: 100px 2rem;
-  }
-`;
-
-const HeaderTitle = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  word-wrap: break-word;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-`;
-
-const HeaderDescription = styled.div`
-  color: #292929;
-  font-size: 44px;
-  font-weight: 400;
-  line-height: 56px;
-  word-wrap: break-word;
-  text-align: center;
-  font-family: "Lora";
-`;
-
-const Divider = styled.div`
-  height: 2px;
-  width: 100%;
-  background-color: #ebebeb;
-  margin-bottom: 40px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 24px;
-`;
-const Content = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin: 50px;
-`;
-
-const Title = styled.div`
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 20px;
-`;
-
-const Icon = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-`;
-
-const IconArrow = styled.img`
-  width: 50px;
-  height: 50px;
-`;
-
-const containerStyle = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin: auto;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  gap: 20px;
-  margin-top: -20px;
-  &::before,
-  &::after {
-    @include white-gradient;
-    content: "";
-    position: absolute;
+  .content {
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    z-index: 2;
+    padding: 0 64px;
+    margin-top: 3rem;
   }
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    ${Title} {
+      margin-right: auto;
+      margin-bottom: 0;
+    }
+    .filters {
+      gap: 1rem;
+      display: flex;
+      align-items: center;
+      .sort {
+        width: 286px;
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0;
+        .title {
+          display: none;
+        }
+        .option {
+          border: none;
+          width: 100%;
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    .content {
+      padding: 0 20px;
+    }
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+`;
 
-  &::after {
-    right: 0;
-    top: 0;
-    transform: rotateZ(180deg);
-  }
-
-  &::before {
-    left: 0;
-    top: 0;
-  }
+const Line = styled.div`
+  height: 1px;
+  width: 100%;
+  background: #c7c7c7;
+  margin: 3rem 0;
 `;
 
 if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
 
-//console.log("props", state.pots);
+const menuClass = `
+width: 286px;
+flex-direction: column;
+padding: 0.5rem;
+gap: 0;
+.title{
+  display: none;
+}
+.option{
+  border: none;
+  width: 100%;
+  padding: 0.5rem;
+}
+`;
+
+const handleFilter = ({ val }) => {
+  let filteredRounds = inProgressRounds;
+  let selectedUpdated = [];
+
+  if (filterSelcted.includes(val)) {
+    selectedUpdated = filterSelcted.filter((item) => item !== val);
+    setFilterSelected(selectedUpdated);
+  } else {
+    selectedUpdated = [...filterSelcted, val];
+    setFilterSelected(selectedUpdated);
+  }
+
+  if (selectedUpdated.length === 0) {
+    return setFilteredRounds(inProgressRounds);
+  }
+
+  filteredRounds = filteredRounds.filter((round) =>
+    selectedUpdated.some((key) => {
+      return filters[key](round) === true;
+    })
+  );
+
+  setFilteredRounds(filteredRounds);
+};
+
+const handleSort = ({ val }) => {
+  const sortedRounds = filteredRounds;
+  switch (val) {
+    case "least_pots":
+      sortedRounds.sort((a, b) => Big(b.matching_pool_balance) - Big(a.matching_pool_balance));
+      break;
+    case "most_pots":
+      sortedRounds.sort((a, b) => Big(a.matching_pool_balance) - Big(b.matching_pool_balance));
+      break;
+    case "most_donations":
+      sortedRounds.sort((a, b) => Big(b.total_public_donations) - Big(a.total_public_donations));
+      break;
+    case "least_donations":
+      sortedRounds.sort((a, b) => Big(a.total_public_donations) - Big(b.total_public_donations));
+      break;
+  }
+
+  setFilteredRounds(sortedRounds);
+  setSortBy(val);
+};
+
 return (
   <Container>
-    <HeaderContent>
-      <HeaderTitle>Explore Pots</HeaderTitle>
-      <HeaderDescription>
-        Donate to matching rounds <br />
-        to get your contributions amplified.
-      </HeaderDescription>
-      <Row>
-        {canDeploy && (
+    <Widget
+      src={`${ownerId}/widget/Pots.HomeBanner`}
+      props={{
+        ...props,
+        canDeploy,
+      }}
+    />
+
+    <div className="content">
+      <div className="header">
+        <Title>
+          Active Pots <span>{filteredRounds.length}</span>
+        </Title>
+        <div className="filters">
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={`${ownerId}/widget/Inputs.FilterDropdown`}
             props={{
-              type: "primary",
-              text: "Deploy Pot",
-              style: {
-                whiteSpace: "nowrap",
-              },
-              href: props.hrefWithParams(`?tab=deploypot`),
+              ...props,
+              onClick: handleFilter,
+              multipleOptions: true,
+              selected: filterSelcted,
             }}
           />
-        )}
-        <Widget
-          src={`${ownerId}/widget/Components.Button`}
-          props={{
-            type: canDeploy ? "secondary" : "primary",
-            text: "Learn More",
-            style: {
-              whiteSpace: "nowrap",
-            },
-            href: "https://potlock.org/chef-training",
-            target: "_blank",
-          }}
-        />
-      </Row>
-    </HeaderContent>
-    {/* <Content>
-      <Title>Featured Pots</Title>
-      <Icon>
-        <IconArrow
-          src="https://img.icons8.com/ios/50/circled-left--v1.png"
-          alt="circled-left--v1"
-        />
-        <IconArrow
-          src="https://img.icons8.com/ios/50/circled-right--v1.png"
-          alt="circled-left--v1"
-        />
-      </Icon>
-    </Content>
-    <containerStyle>
-      {state.pots.map((pot) => (
-        <Widget
-          src={`${ownerId}/widget/Pots.Card`}
-          // loading={
-          //   <div
-          //     style={{
-          //       width: "320px",
-          //       height: "500px",
-          //       borderRadius: "12px",
-          //       background: "white",
-          //       boxShadow: "0px -2px 0px #464646 inset",
-          //       border: "1px solid #292929",
-          //     }}
-          //   />
-          // }
-          props={{
-            ...props,
-            potId: pot.id,
-            potConfig: state.potConfigs[pot.id],
-          }}
-        />
-      ))}
-    </containerStyle> */}
+          <Widget
+            src={`${ownerId}/widget/Inputs.FilterDropdown`}
+            props={{
+              ...props,
+              label: "Sort",
+              labelIcon: "right",
+              options: sortOptions,
+              selected: sortBy,
+              onClick: handleSort,
+              menuClass: "sort",
+            }}
+          />
+        </div>
+      </div>
 
-    {pots && (
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
         props={{
           ...props,
-          items: pots,
+          items: filteredRounds,
           renderItem: (pot) => (
             <Widget
               src={`${ownerId}/widget/Pots.Card`}
@@ -220,9 +306,50 @@ return (
               }}
             />
           ),
-          maxCols: 2,
+          maxCols: 3,
+          responsive: [
+            {
+              breakpoint: 1114,
+              items: 2,
+            },
+            {
+              breakpoint: 768,
+              items: 1,
+            },
+          ],
         }}
       />
-    )}
+      <Line />
+      <Title>
+        Completed Pots <span>{completedRounds.length}</span>
+      </Title>
+      <Widget
+        src={`${ownerId}/widget/Project.ListSection`}
+        props={{
+          ...props,
+          items: completedRounds,
+          renderItem: (pot) => (
+            <Widget
+              src={`${ownerId}/widget/Pots.Card`}
+              props={{
+                ...props,
+                potId: pot.id,
+              }}
+            />
+          ),
+          maxCols: 3,
+          responsive: [
+            {
+              breakpoint: 1114,
+              items: 2,
+            },
+            {
+              breakpoint: 768,
+              items: 1,
+            },
+          ],
+        }}
+      />
+    </div>
   </Container>
 );
