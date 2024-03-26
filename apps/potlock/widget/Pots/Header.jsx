@@ -55,8 +55,11 @@ const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") ||
   ownerId: "",
   NADA_BOT_URL: "",
 };
-const { yoctosToNear, yoctosToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+const { yoctosToNear, yoctosToUsdWithFallback, nearToUsd } = VM.require(
+  "potlock.near/widget/utils"
+) || {
   yoctosToNear: () => "",
+  nearToUsd: 1,
   yoctosToUsdWithFallback: () => "",
 };
 
@@ -167,7 +170,9 @@ return (
         <div className="label">Matching Funds Available:</div>
         <div>
           <div className="near-price">{yoctosToNear(matching_pool_balance, true)}</div>
-          <div lassName="usd-price"> {yoctosToUsdWithFallback(matching_pool_balance, true)}</div>
+          {nearToUsd && (
+            <div lassName="usd-price"> {yoctosToUsdWithFallback(matching_pool_balance, true)}</div>
+          )}
         </div>
       </Fund>
       <ButtonsWrapper>
@@ -257,7 +262,7 @@ return (
       props={{
         ...props,
         showChallengePayoutsModal,
-        onClose: () => setShowChallengePayoutsModal(false),
+        onCancel: () => setShowChallengePayoutsModal(false),
       }}
     />
   </Container>

@@ -1,4 +1,4 @@
-const { showChallengePayoutsModal, onClose, existingChallengeForUser } = props;
+const { showChallengePayoutsModal, onCancel, existingChallengeForUser } = props;
 
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",

@@ -15,13 +15,19 @@ const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
   _address: (address) => address,
 };
 
-const { calculatePayouts, nearToUsdWithFallback, yoctosToUsdWithFallback, formatWithCommas } =
-  VM.require("potlock.near/widget/utils") || {
-    nearToUsdWithFallback: () => "",
-    yoctosToUsdWithFallback: () => "",
-    calculatePayouts: () => {},
-    formatWithCommas: () => "",
-  };
+const {
+  calculatePayouts,
+  nearToUsdWithFallback,
+  yoctosToUsdWithFallback,
+  formatWithCommas,
+  nearToUsd,
+} = VM.require("potlock.near/widget/utils") || {
+  nearToUsdWithFallback: () => "",
+  yoctosToUsdWithFallback: () => "",
+  calculatePayouts: () => {},
+  formatWithCommas: () => "",
+  nearToUsd: 1,
+};
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
@@ -200,19 +206,27 @@ const Table = ({ donations, totalAmount, totalUniqueDonors, title }) => (
     </div>
     <div className="sort">
       <div className="title">Top {title} </div>
-      <div className="sort-btn" onClick={() => setUsdToggle(!usdToggle)}>
-        <svg
-          width="12"
-          height="14"
-          viewBox="0 0 12 14"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9 10.7575V5.5H7.5V10.7575H5.25L8.25 13.75L11.25 10.7575H9ZM3.75 0.25L0.75 3.2425H3V8.5H4.5V3.2425H6.75L3.75 0.25ZM9 10.7575V5.5H7.5V10.7575H5.25L8.25 13.75L11.25 10.7575H9ZM3.75 0.25L0.75 3.2425H3V8.5H4.5V3.2425H6.75L3.75 0.25Z"
-            fill="#7B7B7B"
-          />
-        </svg>
+      <div
+        className="sort-btn"
+        style={{
+          cursor: nearToUsd ? "pointer" : "default",
+        }}
+        onClick={() => (nearToUsd ? setUsdToggle(!usdToggle) : "")}
+      >
+        {nearToUsd && (
+          <svg
+            width="12"
+            height="14"
+            viewBox="0 0 12 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 10.7575V5.5H7.5V10.7575H5.25L8.25 13.75L11.25 10.7575H9ZM3.75 0.25L0.75 3.2425H3V8.5H4.5V3.2425H6.75L3.75 0.25ZM9 10.7575V5.5H7.5V10.7575H5.25L8.25 13.75L11.25 10.7575H9ZM3.75 0.25L0.75 3.2425H3V8.5H4.5V3.2425H6.75L3.75 0.25Z"
+              fill="#7B7B7B"
+            />
+          </svg>
+        )}
         {usdToggle ? "USD" : "NEAR"}
       </div>
     </div>
