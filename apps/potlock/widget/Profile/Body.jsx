@@ -13,26 +13,28 @@ const accountId = props.accountId ?? context.accountId;
 
 const [statusReview, setStatusReview] = useState({ modalOpen: false, notes: "", newStatus: "" });
 
-let RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
+let ListsSDK =
+  VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
     getContractId: () => "",
-    isUserRegistryAdmin: () => {},
+    isRegistryAdmin: () => {},
+    getRegistration: () => {},
   }));
 
-RegistrySDK = RegistrySDK({ env: props.env });
-const registryContractId = RegistrySDK.getContractId();
-const userIsRegistryAdmin = RegistrySDK.isUserRegistryAdmin(context.accountId);
+ListsSDK = ListsSDK({ env: props.env });
+const listsContractId = ListsSDK.getContractId();
+const userIsRegistryAdmin = ListsSDK.isRegistryAdmin(context.accountId);
+const registration = ListsSDK.getRegistration(null, accountId);
 
 const handleUpdateStatus = () => {
   Near.call([
     {
-      contractName: registryContractId,
-      methodName: "admin_set_project_status",
+      contractName: listsContractId,
+      methodName: "update_registration",
       args: {
-        project_id: projectId,
+        registration_id: registration.id,
         status: statusReview.newStatus,
-        review_notes: statusReview.notes,
+        notes: statusReview.notes,
       },
       deposit: NEAR.toIndivisible(0.01).toString(),
     },
@@ -118,7 +120,7 @@ return (
               value: status,
               text: status,
             })),
-            value: { text: props.project.status, value: props.project.status },
+            value: { text: props.registration.status, value: props.registration.status },
             onChange: (status) => {
               if (status.value != project.status) {
                 setStatusReview({ ...statusReview, newStatus: status.value, modalOpen: true });
