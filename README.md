@@ -1,41 +1,37 @@
-# bos-app
-PotLock BOS App
+# PotLock BOS App
 
-## Steps to run
+This repository holds the front-end widgets for [PotLock](https://app.potlock.org/). This project is configured as a [bos-workspace](https://github.com/nearbuilders/bos-workspace).
 
-1. [Install bos-cli](https://github.com/bos-cli-rs/bos-cli-rs#install)
-2. [Install bos-loader](https://github.com/near/bos-loader#installation)
+## Getting started
 
-Note:
-This uses [bos-workspace](https://github.com/sekaiking/bos-workspace/tree/main/src)
+1. Install packages
 
-To run,
+```cmd
+npm install
 ```
+
+2. Start dev environment
+
+```cmd
 npm run dev
 ```
 
-This will serve widgets from
+This will start a gateway at http://127.0.0.1:8080 which will render your local widgets. The entry point for this app is [potlock.near/widget/Index](http://127.0.0.1:8080/potlock.near/widget/Index).
+
+## Running tests
+
+This project uses [playwright](https://playwright.dev/) for end-to-end testing. To run the tests:
+
+```cmd
+npm run test
+```
+
+You may automatically record video with your tests by setting
 
 ```
-http://127.0.0.1:4040/
+use: {
+  video: "on"
+}
 ```
 
-
-Then, either go to [everything.dev/flags](https://everything.dev/flags) or [near.org](https://near.org/flags)
-and save the above address as the flag. 
-
-Now this gateway will render local widgets.
-
-To verify, see:
-
-https://everything.dev/changeme.near/widget/Home
-
-
-
-To understand the workflow,
-change the "changeme.near" account in your bos.config.json. This will be the account that you will deploy from. It will deploy from the /build directory.
-
-Configure this account private and public key in your repository in order to utilize the .github/workflows/release.yml
-
-JSX files created in apps/potluck/widget will render locally
-
+in the [playwright.config.js](./playwright.config.js). After running tests, you will find the output as a `.webm` in `./test-results`. Then, [convert to MP4](https://video.online-convert.com/convert/webm-to-mp4) and share.
