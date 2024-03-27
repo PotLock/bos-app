@@ -21,6 +21,9 @@ return {
     // TODO: paginate
     return Near.view(potId, "get_matching_pool_donations", {});
   },
+  isRoundActive: (potId) => {
+    return Near.asyncView(potId, "is_round_active", {});
+  },
   asyncGetMatchingPoolDonations: (potId) => {
     return Near.asyncView(potId, "get_matching_pool_donations", {});
   },

@@ -1,3 +1,8 @@
+/**
+ * TODO:
+ * - Donate Randomly vs Donate to Project
+ * - PotId provided vs determine active round
+ */
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -61,6 +66,7 @@ const HintText = styled.div`
 
 const ModalBody = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -217,15 +223,7 @@ const NearIcon = (props) => (
   </SvgIcon>
 );
 
-const {
-  recipientId, // TODO: change this to projectId
-  referrerId,
-  potId,
-  // potDetail,
-  onClose,
-  NADABOT_CONTRACT_ID,
-  POT,
-} = props;
+const { recipientId, referrerId, potId, onClose, NADABOT_CONTRACT_ID, POT } = props;
 const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
   VM.require("potlock.near/widget/constants") || {
     DONATION_CONTRACT_ID: "",
@@ -234,16 +232,13 @@ const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPO
     NADA_BOT_URL: "",
     SUPPORTED_FTS: {},
   };
-// console.log("props in donation modal: ", props);
 
 let ListsSDK =
   VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
-    getRegistrations: () => {},
+    getRandomProject: () => {},
   }));
 ListsSDK = ListsSDK({ env: props.env });
-
-const projects = ListsSDK.getRegistrations() || [];
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -259,7 +254,6 @@ let PotFactorySDK =
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
-const pots = PotFactorySDK.getPots();
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getConfig: () => {},
@@ -279,18 +273,6 @@ const { addItemsToCart, clearCart } = VM.require("potlock.near/widget/SDK.cart")
   clearCart: () => {},
 };
 
-const approvedProjectIds = useMemo(
-  // TODO: get projects for pot if potId
-  () => {
-    if (projects) {
-      return projects
-        .filter((project) => project.status === "Approved")
-        .map((project) => project.registrant_id);
-    }
-  },
-  [projects]
-);
-
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 // const CLOSE_ICON_URL =
 //   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
@@ -309,177 +291,103 @@ const DEFAULT_DONATION_AMOUNT = "1";
 
 const MAX_NOTE_LENGTH = 60;
 
-const initialState = {
-  amount: DEFAULT_DONATION_AMOUNT,
-  denomination: DENOMINATION_OPTIONS[0].value,
-  showBreakdown: false,
-  bypassProtocolFee: false,
-  bypassChefFee: false,
-  addNote: false,
-  donationNote: "",
-  donationNoteError: "",
-  allPots: null,
-  detailForPots: {},
-  approvedProjectsForPots: {},
-  activeRoundsForProject: potId ? [potId] : null, // mapping of potId to { potDetail }
-  intervalId: null,
-  ftBalances: null,
-  nearBalance: null,
-  denominationOptions: [{ text: "NEAR", value: "NEAR", selected: true, decimals: 24 }],
-};
+const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR", decimals: 24 }];
 
-State.init(initialState);
-
-const resetState = () => {
-  State.update({ ...initialState });
-};
-
-const activeRound = useMemo(() => {
-  if (!state.activeRoundsForProject) return;
-  return state.activeRoundsForProject[0];
-}, [state.activeRoundsForProject]);
-
-const selectedDenomination = useMemo(
-  () => state.denominationOptions.find((option) => option.selected),
-  [state.denominationOptions]
-);
-
-const ftBalancesRes = useCache(
-  () =>
-    asyncFetch(
-      `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
-        },
-      }
-    )
-      .then((res) => res.body)
-      .catch((e) => console.log("error fetching ft balances: ", e)),
-  `ft-balances-${context.accountId}`
-);
-// console.log("ftBalancesRes: ", ftBalancesRes);
-
-useEffect(() => {
-  if (context.accountId && !potId && !activeRound && ftBalancesRes && !state.ftBalances) {
-    State.update({
-      ftBalances: ftBalancesRes.balances,
-      denominationOptions: state.denominationOptions.concat(
-        ftBalancesRes.balances
-          .map(({ amount, contract_account_id, metadata }) => ({
-            amount,
-            id: contract_account_id,
-            text: metadata.symbol,
-            value: metadata.symbol,
-            icon: metadata.icon,
-            decimals: metadata.decimals,
-            selected: false,
-          }))
-          .filter((option) => option.text.length < 10)
-      ),
-    });
+const ftBalancesRes = fetch(
+  `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
+  {
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+    },
   }
-}, [context.accountId, state.ftBalances, ftBalancesRes, potId, activeRound]);
-
-const nearBalanceRes = useCache(
-  () =>
-    asyncFetch(
-      `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/NEAR`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
-        },
-      }
-    )
-      .then((res) => res.body)
-      .catch((e) => console.log("error fetching near balance: ", e)),
-  `near-balance-${context.accountId}`
 );
 
-useEffect(() => {
-  if (context.accountId && nearBalanceRes && !state.nearBalance) {
-    State.update({
-      nearBalance: nearBalanceRes.balance,
-    });
-  }
-}, [context.accountId, state.nearBalance, nearBalanceRes]);
+let ftBalances = null;
 
-useEffect(() => {
-  if (
-    pots &&
-    Object.keys(state.approvedProjectsForPots).length == pots.length &&
-    Object.keys(state.detailForPots).length == pots.length
-  ) {
-    const activeRoundsForProject = [];
-    for (const pot of pots) {
-      const potDetail = state.detailForPots[pot.id];
-      const approvedProjects = state.approvedProjectsForPots[pot.id];
-      const now = Date.now();
-      const activeRound = approvedProjects.find((proj) => {
-        return (
-          proj.project_id === recipientId &&
-          potDetail.public_round_start_ms < now &&
-          potDetail.public_round_end_ms > now
+if (ftBalancesRes) {
+  ftBalances = ftBalancesRes.body.balances;
+  DENOMINATION_OPTIONS.concat(
+    ftBalances
+      .filter((ft) => ft.text.length < 10)
+      .map(({ amount, contract_account_id, metadata }) => ({
+        amount,
+        id: contract_account_id,
+        text: metadata.symbol,
+        value: metadata.symbol,
+        icon: metadata.icon,
+        decimals: metadata.decimals,
+      }))
+  );
+}
+
+const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
+const [selectedDenomination, setSelectedDenomination] = useState(DENOMINATION_OPTIONS[0]);
+const [bypassProtocolFee, setBypassProtocolFee] = useState(false);
+const [bypassChefFee, setBypassChefFee] = useState(false);
+const [amountError, setAmountError] = useState("");
+const [donationNote, setDonationNote] = useState("");
+const [donationNoteError, setDonationNoteError] = useState("");
+const [showAddNote, setShowAddNote] = useState("");
+
+const nearBalanceRes = fetch(
+  `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/NEAR`,
+  {
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+    },
+  }
+);
+
+// get all active pots
+const activePots = useCache(
+  () =>
+    // get all pots
+    PotFactorySDK.asyncGetPots()
+      .then((pots) => {
+        const activePots = pots.map((pot) =>
+          // if active
+          PotSDK.isRoundActive(pot.id)
+            // check if project had applied
+            .then((isActive) => isActive && pot.id)
+            .catch((e) => {
+              console.error("error checking active round for pot: " + pot.id, e);
+            })
         );
-      });
-      if (activeRound) {
-        activeRoundsForProject.push(pot.id);
-      }
-    }
-    State.update({ activeRoundsForProject });
-  }
-}, [pots, state.approvedProjectsForPots, state.detailForPots]);
+        return Promise.all(activePots);
+      })
+      .catch((e) => {
+        console.error("error getting pots: ", e);
+      }),
+  "active-pots"
+);
 
-useEffect(() => {
-  if (pots) {
-    const detailForPots = {};
-    pots.forEach((pot) => {
-      PotSDK.asyncGetConfig(pot.id)
-        .then((detail) => {
-          detailForPots[pot.id] = detail;
-          if (Object.keys(detailForPots).length === pots.length) {
-            State.update({ detailForPots });
-          }
-        })
-        .catch((e) => {
-          console.error("error getting pot detail: ", e);
-        });
-    });
-  }
-}, [pots]);
+// A possible, better solution, would be to get all active pots
+let activeRound = potId;
 
-useEffect(() => {
-  if (pots) {
-    const approvedProjectsForPots = {};
-    pots.forEach((pot) => {
-      PotSDK.asyncGetApprovedApplications(pot.id)
-        .then((approvedProjects) => {
-          approvedProjectsForPots[pot.id] = approvedProjects;
-          if (Object.keys(approvedProjectsForPots).length === pots.length) {
-            State.update({ approvedProjectsForPots });
-          }
-        })
-        .catch((e) => {
-          console.error("error getting approved projects: ", e);
-        });
+if (!activeRound) {
+  const getActivePot = (activePots ?? [])
+    .filter((pot) => pot)
+    .map((pot) => {
+      const application = PotSDK.getApplicationByProjectId(pot, recipientId);
+      if (application.status === "Approved") return pot;
     });
+
+  if (getActivePot.length) {
+    activeRound = getActivePot[0];
   }
-}, [pots]);
+}
 
 const handleModalClose = () => {
-  resetState();
   onClose();
 };
-
-// console.log("state in donation modal: ", state);
 
 const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
   account_id: context.accountId,
 });
 
-const potDetail = state.detailForPots[activeRound];
+const potDetail = PotSDK.getConfig(activeRound); // this is the active round for this pot
 
 const protocolConfigContractId = potDetail ? potDetail.protocol_config_provider.split(":")[0] : "";
 const protocolConfigViewMethodName = potDetail
@@ -515,20 +423,6 @@ const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoin
 
 const profileName = profile?.name || "No name";
 
-const handleAddToCart = () => {
-  addItemsToCart([
-    {
-      id: recipientId,
-      amount: state.amount,
-      token: selectedDenomination,
-      referrerId,
-      potId: activeRound || null,
-      potDetail: activeRound ? state.detailForPots[activeRound] : null,
-    },
-  ]);
-  handleModalClose();
-};
-
 const isFtDonation = selectedDenomination.text !== "NEAR";
 
 const storageBalanceBounds = Near.view(selectedDenomination.id, "storage_balance_bounds", {});
@@ -545,9 +439,6 @@ const storageBalanceReferrer = referrerId
 const storageBalanceDonationContract = Near.view(selectedDenomination.id, "storage_balance_of", {
   account_id: DONATION_CONTRACT_ID,
 });
-
-// const amountNear =
-//   state.denomination === "NEAR" ? state.amount : (state.amount / nearToUsd).toFixed(2);
 
 const pollForDonationSuccess = (projectId, afterTs) => {
   // poll for updates
@@ -575,28 +466,29 @@ const pollForDonationSuccess = (projectId, afterTs) => {
 
 const handleDonate = () => {
   // const amountIndivisible = SUPPORTED_FTS.NEAR.toIndivisible(parseFloat(amountNear));
-  const donationAmountIndivisible = Big(state.amount).mul(
+  const donationAmountIndivisible = Big(donationAmount).mul(
     new Big(10).pow(selectedDenomination.decimals)
   );
   let projectId = recipientId;
   if (!projectId) {
+    projectId = ListsSDK.getRandomProject();
     // get random project
     const randomIndex = Math.floor(Math.random() * approvedProjectIds.length);
     projectId = approvedProjectIds[randomIndex];
   }
   const args = {
     referrer_id: referrerId,
-    bypass_protocol_fee: state.bypassProtocolFee,
-    message: state.donationNote,
+    bypass_protocol_fee: bypassProtocolFee,
+    message: donationNote,
   };
-  if (state.bypassChefFee) {
+  if (bypassChefFee) {
     args.custom_chef_fee_basis_points = 0;
   }
   const potId = activeRound || null;
   const isPotDonation = potId && isUserHumanVerified === true;
   if (isPotDonation) {
     args.project_id = projectId;
-    if (state.bypassChefFee) {
+    if (bypassChefFee) {
       args.custom_chef_fee_basis_points = 0;
     }
   } else {
@@ -684,7 +576,7 @@ const handleDonate = () => {
           msg: JSON.stringify({
             recipient_id: projectId,
             referrer_id: referrerId || null,
-            bypass_protocol_fee: state.bypassProtocolFee,
+            bypass_protocol_fee: bypassProtocolFee,
             message: args.message,
           }),
         },
@@ -713,28 +605,31 @@ const handleDonate = () => {
   }
 };
 
-const donateLoading = !state.activeRoundsForProject || isUserHumanVerified === null;
-const donateDisabled = donateLoading || state.amountError || state.donationNoteError;
+const donateDisabled = donationNoteError ?? amountError ?? !donationAmount;
+
+const { Layout } = VM.require("devs.near/widget/Layout") ?? {
+  Layout: () => <></>,
+};
 
 const ftBalance = useMemo(() => {
   if (selectedDenomination.text === "NEAR") {
-    return state.nearBalance
-      ? formatWithCommas(Big(state.nearBalance.amount).div(Big(10).pow(24)).toFixed(2))
+    const nearBalance = nearBalanceRes?.body?.balance;
+    return nearBalance
+      ? formatWithCommas(Big(nearBalance.amount).div(Big(10).pow(24)).toFixed(2))
       : "-";
   }
-  const balance = state.denominationOptions.find(
+  const balance = DENOMINATION_OPTIONS.find(
+    // this is where we need the details
     (option) => option.text === selectedDenomination.text
   );
   return balance
     ? formatWithCommas(Big(balance.amount).div(Big(10).pow(balance.decimals)).toFixed(2))
     : "-";
-}, [selectedDenomination, state.ftBalances, state.nearBalance]);
-
-// console.log("ftBalance: ", ftBalance);
+}, [selectedDenomination, ftBalances, nearBalanceRes]);
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal@114153398`}
+    src={"${config_account}/widget/Components.Modal@114153398"}
     props={{
       ...props,
       onClose: (e) => {
@@ -746,36 +641,77 @@ return (
         padding: "0px",
       },
       children: (
-        <>
-          <ModalHeader>
-            <div></div>
-            <ModalHeaderText>Donate {recipientId ? "to project" : "Randomly"}</ModalHeaderText>
-            <PointerIcon
-              viewBox="0 0 14 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              onClick={onClose}
-            >
-              <path
-                d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
-                fill="#7B7B7B"
-              />
-            </PointerIcon>
-          </ModalHeader>
-          {/* {userShouldVerify && (
-            <InfoBanner href={props.NADA_BOT_URL} target="_blank">
-              <div>You are not a verified human on nadabot. Verify Now!</div>
-            </InfoBanner>
-          )} */}
+        <Layout
+          variant="standard"
+          blocks={{
+            Header: () => (
+              <ModalHeader>
+                <div></div>
+                <ModalHeaderText>Donate {recipientId ? "to project" : "Randomly"}</ModalHeaderText>
+                <PointerIcon
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  onClick={onClose}
+                >
+                  <path
+                    d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
+                    fill="#7B7B7B"
+                  />
+                </PointerIcon>
+              </ModalHeader>
+            ),
+            Footer: () => (
+              <ModalFooter>
+                {recipientId && !isFtDonation && (
+                  <Widget
+                    src={"${config_account}/widget/Cart.AddToCart"}
+                    props={{
+                      ownerId: ownerId,
+                      text: donateLoading && "Loading...",
+                      disabled: donateDisabled,
+                      item: {
+                        id: recipientId,
+                        amount: donationAmount,
+                        // ft: "NEAR",
+                        token: selectedDenomination,
+                        referrerId,
+                        potId: activeRound || null,
+                        potDetail: potDetail, // need to have determined active pot
+                      },
+                      handleCallback: () => handleModalClose(), // this can handle modal close
+                    }}
+                  />
+                )}
+                <Widget
+                  src={"${config_account}/widget/Components.Button"}
+                  props={{
+                    type: "primary",
+                    text: donateLoading
+                      ? "Loading..."
+                      : userShouldVerify
+                      ? "Nah, I want to have less impact"
+                      : "Donate",
+                    disabled: donateDisabled,
+                    onClick: handleDonate,
+                    style: {
+                      padding: "12px 16px",
+                    },
+                  }}
+                />
+              </ModalFooter>
+            ),
+          }}
+        >
           <ModalBody>
             {recipientId ? (
               profile === null ? (
-                <Widget src={`${ownerId}/widget/Components.Loading`} />
+                <Widget src={"${config_account}/widget/Components.Loading"} />
               ) : (
                 <Row>
                   <Column>
                     <Widget
-                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      src={"${config_account}/widget/Project.ProfileImage"}
                       props={{
                         ...props,
                         accountId: recipientId,
@@ -809,49 +745,40 @@ return (
             )}
             <Column style={{ width: "100%" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
+                src={"${config_account}/widget/Inputs.Text"}
                 props={{
                   label: "Amount",
                   placeholder: "0",
-                  value: state.amount,
+                  value: donationAmount,
                   onChange: (amount) => {
                     amount = amount.replace(/[^\d.]/g, ""); // remove all non-numeric characters except for decimal
                     if (amount === ".") amount = "0.";
-                    State.update({ amount, amountError: "" });
-                    // error if amount is greater than balance
+                    setDonationAmount(amount);
                     if (
                       Big(amount)
                         .mul(Big(10).pow(isFtDonation ? selectedDenomination.decimals : 24))
-                        .gt(isFtDonation ? selectedDenomination.amount : state.nearBalance.amount)
+                        .gt(isFtDonation ? selectedDenomination.amount : nearBalance.amount)
                     ) {
-                      State.update({ amountError: "Insufficient balance" });
+                      setAmountError("Insufficient balance");
                     } else if (!isFtDonation && parseFloat(amount) < 0.1) {
-                      State.update({ amountError: "Minimum donation is 0.1 NEAR" });
+                      setAmountError("Minimum donation is 0.1 NEAR");
                     }
                   },
-                  error: state.amountError,
+                  error: amountError,
                   inputStyles: {
                     textAlign: "right",
                     borderRadius: "0px 4px 4px 0px",
                   },
                   preInputChildren: (
                     <Widget
-                      src={`${ownerId}/widget/Inputs.Select`}
+                      src={"${config_account}/widget/Inputs.Select"}
                       props={{
                         noLabel: true,
                         placeholder: "",
-                        options: state.denominationOptions,
-                        value: {
-                          text: selectedDenomination.text,
-                          value: selectedDenomination.value,
-                        },
+                        options: DENOMINATION_OPTIONS,
+                        value: selectedDenomination,
                         onChange: ({ text, value }) => {
-                          State.update({
-                            denominationOptions: state.denominationOptions.map((option) => {
-                              option.selected = option.value === value;
-                              return option;
-                            }),
-                          });
+                          setSelectedDenomination({ text, value });
                         },
                         containerStyles: {
                           width: "auto",
@@ -898,17 +825,15 @@ return (
             </Column>
             <Row style={{ padding: "0px", gap: "0px" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"${config_account}/widget/Inputs.Checkbox"}
                 props={{
                   id: "bypassProtocolFeeSelector",
-                  checked: state.bypassProtocolFee,
+                  checked: bypassProtocolFee,
                   onClick: (e) => {
-                    State.update({ bypassProtocolFee: e.target.checked });
+                    setBypassProtocolFee(e.target.checked);
                   },
                 }}
               />
-              {/* <Label htmlFor="bypassProtocolFeeSelector">Bypass protocol fee</Label>
-               */}
               <Label htmlFor="bypassProtocolFeeSelector">
                 Bypass {protocolFeeBasisPoints / 100 || "-"}% protocol fee to{" "}
                 <UserChipLink
@@ -916,7 +841,7 @@ return (
                   target="_blank"
                 >
                   <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    src={"${config_account}/widget/Project.ProfileImage"}
                     props={{
                       ...props,
                       accountId: protocolFeeRecipientAccount,
@@ -935,12 +860,12 @@ return (
             {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
               <Row style={{ padding: "0px", gap: "0px" }}>
                 <Widget
-                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  src={"${config_account}/widget/Inputs.Checkbox"}
                   props={{
                     id: "bypassChefFeeSelector",
-                    checked: state.bypassChefFee,
+                    checked: bypassChefFee,
                     onClick: (e) => {
-                      State.update({ bypassChefFee: e.target.checked });
+                      setBypassChefFee(e.target.checked);
                     },
                   }}
                 />
@@ -951,7 +876,7 @@ return (
                     target="_blank"
                   >
                     <Widget
-                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      src={"${config_account}/widget/Project.ProfileImage"}
                       props={{
                         ...props,
                         accountId: potDetail?.chef,
@@ -967,18 +892,18 @@ return (
               </Row>
             )}
             <Widget
-              src={`${ownerId}/widget/Cart.BreakdownSummary`}
+              src={"${config_account}/widget/Cart.BreakdownSummary"}
               props={{
                 ...props,
                 referrerId,
-                totalAmount: state.amount,
-                bypassProtocolFee: state.bypassProtocolFee,
+                totalAmount: donationAmount,
+                bypassProtocolFee: bypassProtocolFee,
                 ftIcon: selectedDenomination.icon,
               }}
             />
-            {state.addNote ? (
+            {showAddNote ? (
               <Widget
-                src={`${ownerId}/widget/Inputs.TextArea`}
+                src={"${config_account}/widget/Inputs.TextArea"}
                 props={{
                   label: "Note",
                   inputRows: 2,
@@ -986,18 +911,16 @@ return (
                     background: "#FAFAFA",
                   },
                   placeholder: `Add an optional note for the project (max ${MAX_NOTE_LENGTH} characters)`,
-                  value: state.donationNote,
-                  onChange: (donationNote) => State.update({ donationNote }),
+                  value: donationNote,
+                  onChange: (v) => setDonationNote(v),
                   validate: () => {
-                    if (state.donationNote.length > MAX_NOTE_LENGTH) {
-                      State.update({
-                        donationNoteError: `Note must be less than ${MAX_NOTE_LENGTH} characters`,
-                      });
-                      return;
+                    if (onationNote.length > MAX_NOTE_LENGTH) {
+                      setDonationNoteError(`Note must be less than ${MAX_NOTE_LENGTH} characters`);
+                    } else {
+                      setDonationNoteError("");
                     }
-                    State.update({ donationNoteError: "" });
                   },
-                  error: state.donationNoteError,
+                  error: donationNoteError,
                 }}
               />
             ) : (
@@ -1017,7 +940,17 @@ return (
                     fill="#7B7B7B"
                   />
                 </SvgIcon>
-                <AddNote onClick={() => State.update({ addNote: true })}>Add Note</AddNote>
+                <AddNote
+                  onClick={() => {
+                    if (showAddNote) {
+                      setDonationNoteError("");
+                      setDonationNote("");
+                    }
+                    setShowAddNote(!showAddNote);
+                  }}
+                >
+                  {showAddNote ? "Remove Note" : "Add Note"}
+                </AddNote>
               </Row>
             )}
             {activeRound && isUserHumanVerified === false && (
@@ -1051,65 +984,7 @@ return (
               </InfoSection>
             )}
           </ModalBody>
-          <ModalFooter>
-            {recipientId && !isFtDonation && (
-              <Widget
-                src={`${ownerId}/widget/Cart.AddToCart`}
-                props={{
-                  ownerId: ownerId,
-                  text: donateLoading && "Loading...",
-                  onClick: handleAddToCart,
-                  disabled: donateDisabled,
-                  item: {
-                    id: recipientId,
-                    amount: state.amount,
-                    // ft: "NEAR",
-                    token: selectedDenomination,
-                    referrerId,
-                    potId: activeRound || null,
-                    potDetail: activeRound ? state.detailForPots[activeRound] : null,
-                  },
-                  handleCallback: () => handleModalClose(),
-                }}
-              />
-            )}
-            <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "primary",
-                text: donateLoading
-                  ? "Loading..."
-                  : userShouldVerify
-                  ? "Nah, I want to have less impact"
-                  : "Donate",
-                // disabled: !state.reviewMessage || !!state.reviewMessageError,
-                disabled: donateDisabled,
-                onClick: handleDonate,
-                // href: userShouldVerify ? props.NADA_BOT_URL : null,
-                // target: userShouldVerify ? "_blank" : "_self",
-                // iconSrc: userShouldVerify ? NADABOT_ICON_URL : null,
-                style: {
-                  padding: "12px 16px",
-                },
-              }}
-            />
-            {/* <Widget
-              src={`${ownerId}/widget/Components.Button`}
-              props={{
-                type: "primary",
-                text: userShouldVerify ? "Verify Now" : "Donate",
-                // disabled: !state.reviewMessage || !!state.reviewMessageError,
-                onClick: userShouldVerify ? null : handleDonate,
-                href: userShouldVerify ? props.NADA_BOT_URL : null,
-                target: userShouldVerify ? "_blank" : "_self",
-                iconSrc: userShouldVerify ? NADABOT_ICON_URL : null,
-                style: {
-                  padding: "12px 16px",
-                },
-              }}
-            /> */}
-          </ModalFooter>
-        </>
+        </Layout>
       ),
     }}
   />
