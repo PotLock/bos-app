@@ -37,9 +37,12 @@ if (pots && loading) {
 
 const Container = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   > div {
     padding-top: 0rem;
+  }
+  @media screen and (max-width: 1400px) {
+    grid-template-columns: repeat(2, 1fr);
   }
   @media screen and (max-width: 768px) {
     grid-template-columns: repeat(1, 1fr);
@@ -76,7 +79,7 @@ const NoResults = styled.div`
   }
 `;
 
-const PotCard = ({ potId }) => {
+const PotCard = ({ potId }) => (
   <Widget
     src={`${ownerId}/widget/Pots.Card`}
     props={{
@@ -84,8 +87,8 @@ const PotCard = ({ potId }) => {
       potId,
       tab: "pots",
     }}
-  />;
-};
+  />
+);
 
 return loading ? (
   "Loading..."

@@ -53,21 +53,20 @@ const BannerText = styled.div`
   font-weight: 600;
   letter-spacing: 0.015em;
   text-transform: uppercase;
-  display: flex;
-  gap: 0.5rem;
   cursor: ${project.review_notes ? "pointer" : "default"};
   @media screen and (max-width: 768px) {
     font-size: 12px;
   }
 `;
-const Toggle = styled.div`
-  display: flex;
+const Toggle = styled.span`
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
   font-size: 22px;
   color: ${projectStatus.toggleColor};
   white-space: nowrap;
+  margin-left: 0.5rem;
+
   svg {
     width: 12px;
     transition: all 300ms ease-in-out;
@@ -81,6 +80,9 @@ const Toggle = styled.div`
   }
   @media screen and (max-width: 768px) {
     font-size: 12px;
+    svg {
+      width: 8px;
+    }
   }
 `;
 

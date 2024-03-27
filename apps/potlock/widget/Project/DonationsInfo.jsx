@@ -1,8 +1,10 @@
-const { accountId, projectId } = props;
+const { accountId, projectId, donations } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
+const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
+  SUPPORTED_FTS: {},
 };
+
 const { nearToUsd, nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
   nearToUsd: 1,
   nearToUsdWithFallback: () => "",
@@ -84,40 +86,26 @@ const Container = styled.div`
 
 const donationsForProject = DonateSDK.getDonationsForRecipient(props.projectId);
 
-const [totalDonations, totalDonors, totalReferralFees] = useMemo(() => {
-  if (!donationsForProject) {
-    return ["", ""];
-  }
-  const donors = [];
-  let totalDonationAmountNear = new Big(0);
-  let totalReferralFees = new Big(0);
-  for (const donation of donationsForProject) {
-    if (!donors.includes(donation.donor_id)) {
-      donors.push(donation.donor_id);
-    }
-    const totalAmount = new Big(donation.total_amount);
-    const referralAmount = new Big(donation.referrer_fee || "0");
-    const protocolAmount = new Big(donation.protocol_fee || "0");
+// Get total donations & Unique donors count
+const [totalDonationAmountNear, uniqueDonors] = useMemo(() => {
+  let totalNear = Big(0);
+  const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
+  donations.forEach((donation) => {
     if (donation.ft_id === "near" || donation.base_currency === "near") {
-      totalDonationAmountNear = totalDonationAmountNear.plus(
-        totalAmount.minus(referralAmount).minus(protocolAmount)
-      );
+      totalNear = totalNear.plus(Big(donation.total_amount || donation.amount));
     }
-    totalReferralFees = totalReferralFees.plus(referralAmount);
-  }
-  return [
-    totalDonationAmountNear.div(1e24).toNumber().toFixed(2),
-    donors.length,
-    totalReferralFees.div(1e24).toNumber().toFixed(2),
-  ];
-}, [donationsForProject]);
+  });
+  const totalDonationAmountNear = SUPPORTED_FTS["NEAR"].fromIndivisible(totalNear.toString());
+
+  return [totalDonationAmountNear, uniqueDonors?.length];
+}, [donations]);
 
 return (
   <Container>
     <div className="donations-info">
-      <div className="amount">{nearToUsdWithFallback(totalDonations)}</div>
+      <div className="amount">{nearToUsdWithFallback(totalDonationAmountNear)}</div>
       <div className="donors">
-        Raised from <span> {totalDonors}</span> Donor{totalDonors?.length === 1 ? "" : "s"}
+        Raised from <span> {uniqueDonors}</span> donor{uniqueDonors === 1 ? "" : "s"}
       </div>
     </div>
     <div className="btn-wrapper">

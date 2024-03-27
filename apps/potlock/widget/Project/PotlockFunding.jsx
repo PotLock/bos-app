@@ -372,7 +372,6 @@ const ImgIcon = styled.img`
   width: 21px;
   height: 21px;
 `;
-
 const stats = {
   ...(totalDonationAmountNear
     ? {
@@ -384,7 +383,7 @@ const stats = {
         ),
       }
     : {}),
-  ...(uniqueDonors ? { "Unique Donors": uniqueDonors } : {}),
+  ...(uniqueDonors ? { [`Unique donor${uniqueDonors === 1 ? "" : "s"}`]: uniqueDonors } : {}),
   ...(uniqueDonors ? { "Total Matched": totalMatched + "N" } : {}),
 };
 
