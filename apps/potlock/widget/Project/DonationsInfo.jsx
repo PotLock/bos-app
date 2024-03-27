@@ -96,7 +96,7 @@ return (
     <div className="donations-info">
       <div className="amount">{nearToUsdWithFallback(totalDonationAmountNear)}</div>
       <div className="donors">
-        Raised from <span> {uniqueDonors}</span> donor{uniqueDonors === 1 ? "" : "s"}
+        Raised from <span> {uniqueDonors}</span> {uniqueDonors === 1 ? "donor" : "donors"}
       </div>
     </div>
     <div className="btn-wrapper">
