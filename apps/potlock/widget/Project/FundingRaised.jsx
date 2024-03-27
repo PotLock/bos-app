@@ -52,7 +52,7 @@ const [totalDonationAmountNear, uniqueDonors, totalMatched] = useMemo(() => {
   let totalNear = Big(0);
   const uniqueDonors = [...new Set(donations.map((donation) => donation.donor_id))];
   donations.forEach((donation) => {
-    if (donation.ft_id === "near" || donation.base_currency === "NEAR") {
+    if (donation.ft_id === "near" || donation.base_currency === "near") {
       totalNear = totalNear.plus(Big(donation.total_amount || donation.amount));
     }
   });

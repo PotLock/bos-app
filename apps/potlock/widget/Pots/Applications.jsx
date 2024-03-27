@@ -441,6 +441,9 @@ const Status = styled.div`
   div {
     font-weight: 500;
   }
+  svg {
+    width: 1rem;
+  }
   @media only screen and (max-width: 768px) {
     padding: 6px;
     div {
@@ -588,14 +591,18 @@ return (
               <div className="header">
                 <div className="header-info">
                   <ProfileImg profile={profile} />
-                  {profile?.name && <div className="name">{_address(profile?.name, 13)}</div>}
-                  <a
-                    className="address"
-                    href={hrefWithParams(`?tab=project&projectId=${project_id}`)}
-                    target="_blank"
-                  >
-                    {_address(project_id)}
-                  </a>
+                  {profile?.name && <div className="name">{_address(profile?.name, 10)}</div>}
+
+                  <OverlayTrigger placement="top" overlay={<Tooltip>{project_id}</Tooltip>}>
+                    <a
+                      className="address"
+                      href={hrefWithParams(`?tab=project&projectId=${project_id}`)}
+                      target="_blank"
+                    >
+                      {_address(project_id, 10)}
+                    </a>
+                  </OverlayTrigger>
+
                   <Dot />
                   <div className="date">{daysAgo(submitted_at)}</div>
                 </div>

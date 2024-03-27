@@ -9,7 +9,9 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
-const { getTimePassed } = VM.require(`potlock.near/widget/Components.DonorsUtils`);
+const { getTimePassed } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+  getTimePassed: () => "",
+};
 const payoutsChallenges = PotSDK.getPayoutsChallenges(potId); // TODO: ADD THIS BACK IN
 
 const userIsAdminOrGreater = PotSDK.isUserPotAdminOrGreater(potId, context.accountId); // TODO: ADD THIS BACK IN

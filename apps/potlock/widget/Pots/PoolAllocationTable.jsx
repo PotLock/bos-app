@@ -34,13 +34,6 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetApprovedApplications: () => {},
   getMatchingPoolDonations: () => {},
 };
-const RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
-  (() => ({
-    asyncGetProjectById: () => {},
-  }));
-
-const registry = RegistrySDK({ env });
 
 const [projectsId, setProjectsId] = useState(null);
 const [projectsDonations, setProjectsDonations] = useState({});
