@@ -28,8 +28,12 @@ const {
 const [isMatchingPoolModalOpen, setIsMatchingPoolModalOpen] = useState(false);
 const [showChallengePayoutsModal, setShowChallengePayoutsModal] = useState(false);
 
+const { IPFS_BASE_URL } = VM.require("potlock.near/widget/constants") || {
+  IPFS_BASE_URL: "",
+};
+
 const NADABOT_ICON_URL =
-  IPFS_BASE_URL + "bafkreib2iag425b6dktehxlrshchyp2pccg5r6ea2blrnzppqia77kzdbe";
+  IPFS_BASE_URL + "bafkreiecgkoybmplo4o542fphclxrhh4nlof5uit3lkzyv4eo2qymrpsru";
 
 const projectNotRegistered = registryStatus === null;
 const userIsAdminOrGreater = admins.includes(context.accountId) || owner === context.accountId;
@@ -176,7 +180,7 @@ return (
         </div>
       </Fund>
       <ButtonsWrapper>
-        {publicRoundOpen && nav !== "projects" && (
+        {publicRoundOpen && (nav !== "projects" || !sybilRequirementMet) && context.accountId && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{

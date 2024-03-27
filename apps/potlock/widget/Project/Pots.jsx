@@ -36,8 +36,16 @@ if (pots && loading) {
 }
 
 const Container = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   > div {
     padding-top: 0rem;
+  }
+  @media screen and (max-width: 1400px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(1, 1fr);
   }
 `;
 
@@ -71,29 +79,24 @@ const NoResults = styled.div`
   }
 `;
 
+const PotCard = ({ potId }) => (
+  <Widget
+    src={`${ownerId}/widget/Pots.Card`}
+    props={{
+      ...props,
+      potId,
+      tab: "pots",
+    }}
+  />
+);
+
 return loading ? (
   "Loading..."
 ) : potIds.length ? (
   <Container>
-    <Widget
-      src={`${ownerId}/widget/Project.ListSection`}
-      props={{
-        ...props,
-        tab: "pots",
-        items: potIds,
-        renderItem: (pot) => (
-          <Widget
-            src={`${ownerId}/widget/Pots.Card`}
-            props={{
-              ...props,
-              potId: pot,
-              // potConfig: potsConfig[pot], // TODO: this should be fetched in the pot card widget
-            }}
-          />
-        ),
-        maxCols: 2,
-      }}
-    />
+    {potIds.map((potId) => (
+      <PotCard potId={potId} />
+    ))}
   </Container>
 ) : (
   <NoResults>

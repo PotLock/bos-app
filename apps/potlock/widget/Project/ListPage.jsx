@@ -496,7 +496,12 @@ let ListsSDK =
   }));
 ListsSDK = ListsSDK({ env: props.env });
 
+const accountId = context.accountId;
 const isRegistryAdmin = ListsSDK.isRegistryAdmin(context.accountId);
+const allRegistrations = ListsSDK.getRegistrations() || [];
+const isRegisteredProject = allRegistrations.find(
+  (registration) => registration.registrant_id === accountId
+);
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -504,8 +509,6 @@ let DonateSDK =
     getConfig: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
-
-const allRegistrations = ListsSDK.getRegistrations() || [];
 
 // console.log("allProjects: ", allProjects);
 
@@ -851,8 +854,12 @@ return (
               style: { padding: "16px 24px" },
             }}
           /> */}
-          <ButtonRegisterProject href={"?tab=createproject"}>
-            Register Your Project
+          <ButtonRegisterProject
+            href={
+              isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"
+            }
+          >
+            {isRegisteredProject ? "View Your Project" : "Register Your Project"}
           </ButtonRegisterProject>
         </ButtonsContainer>
         <Widget src="potlock.near/widget/Project.DonationStats" />
@@ -889,7 +896,7 @@ return (
                   // allowDonate:
                   //   sybilRequirementMet &&
                   //   publicRoundOpen &&
-                  //   project.project_id !== context.accountId,
+                  //   project.project_id !== accountId,
                   // requireVerification: !sybilRequirementMet,
                 }}
               />
@@ -975,7 +982,7 @@ return (
                     // allowDonate:
                     //   sybilRequirementMet &&
                     //   publicRoundOpen &&
-                    //   project.project_id !== context.accountId,
+                    //   project.project_id !== accountId,
                     // requireVerification: !sybilRequirementMet,
                   }}
                 />
