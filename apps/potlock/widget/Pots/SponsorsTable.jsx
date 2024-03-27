@@ -173,7 +173,7 @@ return sponsors.length ? (
             </a>
             <div className="sponsors-amount">
               {amount.toFixed(2).replace(/[.,]00$/, "")}N{" "}
-              <Percentage>{percentage_share}%</Percentage>{" "}
+              <Percentage>{percentage_share === "0" ? "<0.01" : percentage_share}%</Percentage>{" "}
             </div>
           </TrRow>
         );

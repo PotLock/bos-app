@@ -1,4 +1,5 @@
 const { potId } = props;
+
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
@@ -53,6 +54,16 @@ const Title = styled.div`
     font-weight: inherit;
     display: flex;
     align-items: baseline;
+  }
+  .usd-amount {
+    font-size: 14px;
+    font-weight: 400;
+    margin-left: 0.25rem;
+  }
+  .text {
+    font-size: 14px;
+    color: #7b7b7b;
+    margin-left: 0.5rem;
   }
 `;
 
@@ -221,12 +232,8 @@ return (
       <Title>
         <div>
           {amountNear}
-          {amountUsd && (
-            <span style={{ fontSize: "14px", fontWeight: 400, lineHeight: "24px" }}>
-              {amountUsd}
-            </span>
-          )}
-          <span style={{ color: "#7B7B7B", marginLeft: "8px", fontSize: "14px" }}>in pot</span>
+          {amountUsd && <span className="usd-amount">{amountUsd}</span>}
+          <span className="text">in pot</span>
         </div>
       </Title>
       {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}

@@ -119,7 +119,7 @@ const TrRow = styled.div`
     gap: 1rem;
     align-items: center;
     font-weight: 600;
-    width: 70px;
+    width: 74px;
     justify-content: flex-start;
     span {
       display: none;
