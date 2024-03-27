@@ -52,6 +52,18 @@ return ({ env }) => {
       const registration = ListsSDK.getRegistration(listId, registrantId);
       return registration && registration.status === "Approved";
     },
+    getRandomProject: () => {
+      const projects = ListsSDK.getRegistrations() || [];
+      const approvedProjects = projects.filter((project) => project.status === "Approved");
+      const randomIndex = Math.floor(Math.random() * approvedProjects.length);
+      const randomProject = approvedProjects[randomIndex];
+      if (randomProject) {
+        return randomProject.registrant_id;
+      } else {
+        console.log("error getting random project");
+        return;
+      }
+    },
   };
   return ListsSDK;
 };

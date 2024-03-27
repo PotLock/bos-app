@@ -671,7 +671,7 @@ return (
       )}
     </Applications>
     <Widget
-      src={`${ownerId}/widget/Components.Modal`}
+      src={`${ownerId}/widget/Components.Modal@114153398`}
       props={{
         ...props,
         isModalOpen,
