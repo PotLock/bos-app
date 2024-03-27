@@ -45,16 +45,16 @@ const existingHorizonProject = Near.view(HORIZON_CONTRACT_ID, "get_project", {
   account_id: context.accountId,
 });
 
-const RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
+const ListsSDK =
+  VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
-    getProjects: () => {},
-    getProjectById: () => {},
-    asyncGetProjectById: () => {},
+    getRegistrations: () => {},
+    getRegistration: () => {},
+    asyncGetRegistration: () => {},
   }));
-const registry = RegistrySDK({ env: props.env });
+const lists = ListsSDK({ env: props.env });
 
-const projects = registry.getProjects() || [];
+const registrations = lists.getRegistrations() || [];
 
 const imageHeightPx = 120;
 const profileImageTranslateYPx = 220;
@@ -690,7 +690,9 @@ const handleCreateOrUpdateProject = (e) => {
     },
   };
 
-  const potlockRegistryArgs = {};
+  const potlockRegistryArgs = {
+    list_id: 1, // hardcoding to potlock registry list for now
+  };
   const horizonArgs = { account_id: state.isDao ? state.daoAddress : context.accountId };
 
   // first, we have to get the account from social.near to see if it exists. If it doesn't, we need to add 0.1N to the deposit
@@ -716,8 +718,8 @@ const handleCreateOrUpdateProject = (e) => {
       transactions.push(
         // register project on potlock
         {
-          contractName: registry.getContractId(),
-          methodName: "register",
+          contractName: lists.getContractId(),
+          methodName: "register_batch",
           deposit: Big(0.05).mul(Big(10).pow(24)),
           args: potlockRegistryArgs,
         }
@@ -774,10 +776,11 @@ const handleCreateOrUpdateProject = (e) => {
     // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
     const pollId = setInterval(() => {
       // This is an async request, not converting to SDK yet
-      RegistrySDK.asyncGetProjectById(context.accountId).then((_project) => {
-        // won't get here unless project exists
-        clearInterval(pollId);
-        State.update({ registrationSuccess: true });
+      lists.asyncGetRegistration(null, context.accountId).then((_project) => {
+        if (_project) {
+          clearInterval(pollId);
+          State.update({ registrationSuccess: true });
+        }
       });
     }, pollIntervalMs);
   });
@@ -796,7 +799,7 @@ if (props.projectId) {
 }
 
 const registeredProject = useMemo(() => {
-  return registry.getProjectById(state.isDao ? state.daoAddress : context.accountId);
+  return lists.getRegistration(null, state.isDao ? state.daoAddress : context.accountId);
 }, [state.isDao, state.daoAddress]);
 
 console.log("registeredProject: ", registeredProject);
@@ -811,7 +814,7 @@ const proposalInProgress = useMemo(() => {
   return proposals?.find((proposal) => {
     return (
       proposal.status == "InProgress" &&
-      proposal.kind.FunctionCall?.receiver_id == registry.getContractId() &&
+      proposal.kind.FunctionCall?.receiver_id == lists.getContractId() &&
       proposal.kind.FunctionCall?.actions[0]?.method_name == "register"
     );
   });
@@ -895,7 +898,7 @@ const uploadFileUpdateState = (body, callback) => {
 
 return (
   <Container>
-    {!state.socialDataFetched || !projects ? (
+    {!state.socialDataFetched || !registrations ? (
       <div class="spinner-border text-secondary" role="status" />
     ) : proposalInProgress ? (
       <Container

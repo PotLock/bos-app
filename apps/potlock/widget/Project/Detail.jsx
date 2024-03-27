@@ -33,14 +33,14 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForRecipient: () => {},
 };
 
-let RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
+let ListsSDK =
+  VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
-    getProjectById: () => "",
+    getRegistration: () => "",
   }));
-RegistrySDK = RegistrySDK({ env: props.env });
+ListsSDK = ListsSDK({ env: props.env });
 
-const project = RegistrySDK.getProjectById(projectId);
+const registration = ListsSDK.getRegistration(null, projectId);
 
 // Loading Skeleton
 const loadingSkeleton = styled.keyframes`
@@ -104,8 +104,8 @@ const BannerSkeleton = () => (
   </SkeletonContainer>
 );
 
-if (project === null) return <BannerSkeleton />;
-if (project == undefined) {
+if (registration === null) return <BannerSkeleton />;
+if (registration == undefined) {
   return <div style={{ marginTop: "1rem", fontSize: "1.5rem" }}>Project not found</div>;
 }
 
@@ -187,15 +187,15 @@ const Wrapper = styled.div`
 
 return (
   <Wrapper>
-    {project.status !== "Approved" && (
-      <Widget src={`${ownerId}/widget/Project.ProjectBanner`} props={{ ...props, project }} />
+    {registration.status !== "Approved" && (
+      <Widget src={`${ownerId}/widget/Project.ProjectBanner`} props={{ ...props, registration }} />
     )}
     <Widget
       src={`${ownerId}/widget/Profile.Body`}
       props={{
         ...props,
         profile,
-        project,
+        registration,
         post: projectId === accountId,
         nav: props.nav ?? "home",
         donations: allDonations,

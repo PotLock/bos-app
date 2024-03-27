@@ -236,14 +236,14 @@ const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPO
   };
 // console.log("props in donation modal: ", props);
 
-let RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
+let ListsSDK =
+  VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
-    getProjects: () => {},
+    getRegistrations: () => {},
   }));
-RegistrySDK = RegistrySDK({ env: props.env });
+ListsSDK = ListsSDK({ env: props.env });
 
-const projects = RegistrySDK.getProjects() || [];
+const projects = ListsSDK.getRegistrations() || [];
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -285,7 +285,7 @@ const approvedProjectIds = useMemo(
     if (projects) {
       return projects
         .filter((project) => project.status === "Approved")
-        .map((project) => project.id);
+        .map((project) => project.registrant_id);
     }
   },
   [projects]

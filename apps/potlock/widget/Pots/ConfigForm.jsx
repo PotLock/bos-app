@@ -26,14 +26,14 @@ const potFactoryContractId = PotFactorySDK.getContractId();
 const protocolConfig = PotFactorySDK.getProtocolConfig();
 // console.log("props in config form: ", props);
 
-let RegistrySDK =
-  VM.require("potlock.near/widget/SDK.registry") ||
+let ListsSDK =
+  VM.require("potlock.near/widget/SDK.lists") ||
   (() => ({
     getContractId: () => "",
   }));
-RegistrySDK = RegistrySDK({ env: props.env });
+ListsSDK = ListsSDK({ env: props.env });
 
-const DEFAULT_REGISTRY_PROVIDER = `${RegistrySDK.getContractId()}:is_registered`;
+const DEFAULT_REGISTRY_PROVIDER = `${ListsSDK.getContractId()}:is_registered`;
 const DEFAULT_SYBIL_WRAPPER_PROVIDER = `${NADABOT_CONTRACT_ID}:${NADABOT_HUMAN_METHOD}`;
 const CURRENT_SOURCE_CODE_VERSION = "0.1.0";
 const SOURCE_CODE_LINK = "https://github.com/PotLock/core"; // for use in contract source metadata
