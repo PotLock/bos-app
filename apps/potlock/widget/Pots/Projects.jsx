@@ -191,7 +191,8 @@ if (!projects) {
 
 if (!projects) return <div class="spinner-border text-secondary" role="status" />;
 
-const { public_round_start_ms, public_round_end_ms } = potDetail;
+const { public_round_start_ms, public_round_end_ms, referral_fee_public_round_basis_points } =
+  potDetail;
 
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
@@ -280,6 +281,7 @@ return (
                   publicRoundOpen &&
                   project.project_id !== context.accountId,
                 requireVerification: !sybilRequirementMet,
+                potRferralFeeBasisPoints: referral_fee_public_round_basis_points,
                 payoutDetails: payouts[project.project_id] || {
                   donorCount: 0,
                   matchingAmount: "0",
