@@ -1,15 +1,44 @@
 const { project } = props;
 
+const [toggle, setToggle] = useState(false);
+
+const statuses = {
+  Graylisted: {
+    background: "#C7C7C7",
+    text: "GRAYLISTED: needs further review, unsure if project qualifies on public goods",
+    textColor: "#525252",
+    toggleColor: "#FFFFFF",
+  },
+  Rejected: {
+    background: "#DD3345",
+    text: "REJECTED: this project was denied on public goods registry",
+    textColor: "#FEF6EE",
+    toggleColor: "#C7C7C7",
+  },
+  Pending: {
+    background: "#F0CF1F",
+    text: "PENDING: this project has yet to be approved",
+    textColor: "#292929",
+    toggleColor: "#7B7B7B",
+  },
+  Blacklisted: {
+    background: "#292929",
+    text: "BLACKLISTED:  this project has been removed for violating terms",
+    textColor: "#F6F5F3",
+    toggleColor: "#C7C7C7",
+  },
+};
+const projectStatus = statuses[project.status];
+
 const Banner = styled.div`
   width: 100%;
-  background: ${project.status === "Pending" ? "#E6B800" : "#dd3345"};
+  background: ${projectStatus.background};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 8px 0;
-  margin-bottom: 8px;
-  border-radius: 4px;
+  padding: 12px;
+  backdrop-filter: blur(150px);
 `;
 const Row = styled.div`
   display: flex;
@@ -19,47 +48,82 @@ const Row = styled.div`
 `;
 const BannerText = styled.div`
   text-align: center;
-  color: white;
-  font-size: 16px;
+  color: ${projectStatus.textColor};
+  font-size: 22px;
   font-weight: 600;
-  margin: 0 8px;
-  word-break: break-all;
-
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  display: flex;
+  gap: 0.5rem;
+  cursor: ${project.review_notes ? "pointer" : "default"};
   @media screen and (max-width: 768px) {
     font-size: 12px;
-    margin-left: 4px;
   }
 `;
-const BannerAlertSvg = styled.svg`
-  width: 18px;
+const Toggle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 22px;
+  color: ${projectStatus.toggleColor};
+  white-space: nowrap;
+  svg {
+    width: 12px;
+    transition: all 300ms ease-in-out;
+    path {
+      fill: ${projectStatus.toggleColor};
+      stroke: ${projectStatus.toggleColor};
+    }
+  }
+  &.active svg {
+    rotate: 180deg;
+  }
   @media screen and (max-width: 768px) {
-    width: 14px;
+    font-size: 12px;
   }
 `;
+
+const Notes = styled.div`
+  overflow: hidden;
+  transition: all 300ms ease-in-out;
+  font-size: 12px;
+  font-style: italic;
+  color: ${projectStatus.toggleColor};
+  max-height: 0;
+  text-transform: uppercase;
+  max-width: 1270px;
+  &.active {
+    max-height: 80px;
+    margin-top: 12px;
+  }
+`;
+
 return (
   <Banner>
     <Row>
-      <BannerAlertSvg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="white"
-        aria-hidden="true"
-        // width="18px"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-        ></path>
-      </BannerAlertSvg>
-      <BannerText>This project status is {project.status} and has not been approved.</BannerText>
+      <BannerText onClick={() => (project.review_notes ? setToggle(!toggle) : "")}>
+        {projectStatus.text}
+        {project.review_notes && (
+          <Toggle className={`${toggle ? "active" : ""}`}>
+            (See {toggle ? "Less" : "Why"})
+            <svg
+              className={`${toggle ? "active" : ""}`}
+              viewBox="0 0 12 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10.59 0.294922L6 4.87492L1.41 0.294922L0 1.70492L6 7.70492L12 1.70492L10.59 0.294922Z"
+                fill="#C7C7C7"
+              />
+            </svg>
+          </Toggle>
+        )}
+      </BannerText>
     </Row>
     {project.review_notes && (
-      <BannerText style={{ fontStyle: "italic" }}>
-        Admin review notes: {project.review_notes}
-      </BannerText>
+      <Notes className={`${toggle ? "active" : ""}`}>Admin note: {project.review_notes}</Notes>
     )}
   </Banner>
 );
