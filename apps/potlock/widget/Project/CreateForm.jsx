@@ -704,7 +704,7 @@ const handleCreateOrUpdateProject = (e) => {
       methodName: "set",
       args: socialArgs,
     };
-    let depositFloat = JSON.stringify(socialArgs).length * 0.0001;
+    let depositFloat = JSON.stringify(socialArgs).length * 0.00015;
     if (!account) {
       depositFloat += 0.1;
     }
