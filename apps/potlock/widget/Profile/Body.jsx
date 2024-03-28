@@ -24,7 +24,7 @@ let ListsSDK =
 ListsSDK = ListsSDK({ env: props.env });
 const listsContractId = ListsSDK.getContractId();
 const userIsRegistryAdmin = ListsSDK.isRegistryAdmin(context.accountId);
-const registration = ListsSDK.getRegistration(null, accountId);
+const registration = ListsSDK.getRegistration(null, projectId);
 
 const handleUpdateStatus = () => {
   Near.call([
