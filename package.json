@@ -7,13 +7,13 @@
   "type": "module",
   "scripts": {
     "bw": "bos-workspace",
-    "dev": "npm run bw ws dev",
+    "dev": "npm run bw dev",
     "test": "npx playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.38.1",
     "@types/styled-components": "^5.1.26",
-    "bos-workspace": "^1.0.0-alpha",
+    "bos-workspace": "^0.0.1-alpha.6",
     "lint-staged": "^13.2.1",
     "npm-watch": "^0.11.0",
     "prettier": "^2.8.8"
