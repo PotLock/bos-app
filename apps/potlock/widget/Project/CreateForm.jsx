@@ -407,11 +407,16 @@ const accountId = props.projectId
   ? state.daoAddress
   : context.accountId;
 const policy = Near.view(accountId, "get_policy", {});
+const userHasPermissions =
+  policy == null
+    ? false
+    : policy == undefined || doesUserHaveDaoFunctionCallProposalPermissions(policy);
 
-const userHasPermissions = useMemo(() => {
-  if (!policy) return true;
-  return doesUserHaveDaoFunctionCallProposalPermissions(policy);
-}, [policy]);
+// const userHasPermissions = useMemo(() => {
+//   if (policy == undefined) return true;
+//   if (policy == null) return false;
+//   return doesUserHaveDaoFunctionCallProposalPermissions(policy);
+// }, [policy]);
 
 const getImageUrlFromSocialImage = (image) => {
   if (image.url) {
