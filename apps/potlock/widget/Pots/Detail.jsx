@@ -281,7 +281,8 @@ useEffect(() => {
 // const registryRequirementMet = state.isOnRegistry || !potDetail.registry_provider;
 const registrationApproved = state.registryStatus === "Approved";
 const registrationNotApproved = state.registryStatus && state.registryStatus !== "Approved";
-const canApply = registrationApproved || !potDetail?.registry_provider;
+const registrationApprovedOrNoRegistryProvider =
+  registrationApproved || !potDetail?.registry_provider;
 
 const isError = state.applicationMessageError || state.daoAddressError;
 
@@ -419,15 +420,27 @@ return (
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "primary",
-                  text: canApply
-                    ? state.isDao
-                      ? "Propose to Send Application"
-                      : "Send application"
+                  // text: registrationApprovedOrNoRegistryProvider
+                  //   ? state.isDao
+                  //     ? "Propose to Send Application"
+                  //     : "Send application"
+                  //   : "Register to apply",
+                  text: state.isDao
+                    ? "Propose to Send Application"
+                    : registrationApprovedOrNoRegistryProvider
+                    ? "Send application"
                     : "Register to apply",
-                  onClick: canApply ? handleSendApplication : null,
+                  onClick:
+                    state.isDao || registrationApprovedOrNoRegistryProvider
+                      ? handleSendApplication
+                      : null,
                   disabled: isError,
-                  href: canApply ? null : props.hrefWithParams(`?tab=createproject`),
-                  target: canApply ? "_self" : "_blank",
+                  href:
+                    state.isDao || registrationApprovedOrNoRegistryProvider
+                      ? null
+                      : props.hrefWithParams(`?tab=createproject`),
+                  target:
+                    state.isDao || registrationApprovedOrNoRegistryProvider ? "_self" : "_blank",
                 }}
               />
             </Row>
