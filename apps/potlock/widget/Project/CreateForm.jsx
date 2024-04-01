@@ -410,7 +410,8 @@ const policy = Near.view(accountId, "get_policy", {});
 const userHasPermissions =
   policy == null
     ? false
-    : policy == undefined || doesUserHaveDaoFunctionCallProposalPermissions(policy);
+    : policy == undefined ||
+      doesUserHaveDaoFunctionCallProposalPermissions(context.accountId, policy);
 
 // const userHasPermissions = useMemo(() => {
 //   if (policy == undefined) return true;

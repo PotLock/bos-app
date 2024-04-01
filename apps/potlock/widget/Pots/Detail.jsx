@@ -390,7 +390,10 @@ return (
                       .then((policy) => {
                         const hasPermissions = !policy
                           ? false
-                          : doesUserHaveDaoFunctionCallProposalPermissions(policy);
+                          : doesUserHaveDaoFunctionCallProposalPermissions(
+                              context.accountId,
+                              policy
+                            );
                         State.update({
                           daoAddressError: hasPermissions
                             ? ""
