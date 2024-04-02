@@ -106,11 +106,11 @@ return {
       : [];
     return team;
   },
-  doesUserHaveDaoFunctionCallProposalPermissions: (policy) => {
+  doesUserHaveDaoFunctionCallProposalPermissions: (accountId, policy) => {
     // TODO: break this out (NB: duplicated in Project.CreateForm)
     const userRoles = policy.roles.filter((role) => {
       if (role.kind === "Everyone") return true;
-      return role.kind.Group && role.kind.Group.includes(context.accountId);
+      return role.kind.Group && role.kind.Group.includes(accountId);
     });
     const kind = "call";
     const action = "AddProposal";
