@@ -209,12 +209,6 @@ return (
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
-              // text:
-              //   projectNotRegistered && registry_provider
-              //     ? "Register to Apply"
-              //     : registrationApproved || !registry_provider
-              //     ? "Apply to pot"
-              //     : `Project Registration ${registryStatus}`,
               text:
                 registryStatus && !registrationApproved
                   ? `Project Registration ${registryStatus}`
@@ -222,13 +216,6 @@ return (
               style: { marginRight: "24px" },
               disabled: registryStatus && !registrationApproved,
               onClick: () => setApplicationModalOpen(true),
-              // projectNotRegistered && registry_provider
-              //   ? null
-              //   : () => setApplicationModalOpen(true),
-              // href:
-              //   projectNotRegistered && registry_provider
-              //     ? props.hrefWithParams(`?tab=createproject`)
-              //     : null,
             }}
           />
         )}
