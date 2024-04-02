@@ -220,14 +220,15 @@ return (
                   ? `Project Registration ${registryStatus}`
                   : "Apply to pot",
               style: { marginRight: "24px" },
-              onClick:
-                projectNotRegistered && registry_provider
-                  ? null
-                  : () => setApplicationModalOpen(true),
-              href:
-                projectNotRegistered && registry_provider
-                  ? props.hrefWithParams(`?tab=createproject`)
-                  : null,
+              disabled: registryStatus && !registrationApproved,
+              onClick: () => setApplicationModalOpen(true),
+              // projectNotRegistered && registry_provider
+              //   ? null
+              //   : () => setApplicationModalOpen(true),
+              // href:
+              //   projectNotRegistered && registry_provider
+              //     ? props.hrefWithParams(`?tab=createproject`)
+              //     : null,
             }}
           />
         )}
