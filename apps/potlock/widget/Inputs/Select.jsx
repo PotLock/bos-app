@@ -143,9 +143,7 @@ return (
             aria-label={value.value}
             placeholder={<Placeholder>{placeholder}</Placeholder>}
           />
-          {/* {props.iconRight ? (
-            <Select.Icon>{props.iconRight}</Select.Icon>
-          ) : ( */}
+
           <Select.Icon>
             <svg
               width="12"
@@ -155,15 +153,11 @@ return (
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M1 1.5L6 6.5L11 1.5"
-                stroke="currentColor"
-                stroke-width="1.66667"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                d="M10.59 0.295044L6 4.87504L1.41 0.295044L0 1.70504L6 7.70504L12 1.70504L10.59 0.295044Z"
+                fill="#7B7B7B"
               />
             </svg>
           </Select.Icon>
-          {/* )} */}
         </Input>
       </Select.Trigger>
 

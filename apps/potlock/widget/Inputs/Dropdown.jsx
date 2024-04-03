@@ -78,7 +78,7 @@ return (
   <>
     {openFilter && <Screen onClick={() => setOpenFilter(false)} />}
     <div style={{ position: "relative" }} onClick={() => setOpenFilter(!openFilter)}>
-      <FilterButton>
+      <FilterButton style={props.buttonStyle || {}}>
         {sortVal || title}
         <FilterIcon>
           <svg

@@ -1082,12 +1082,8 @@ return (
                   : userShouldVerify
                   ? "Nah, I want to have less impact"
                   : "Donate",
-                // disabled: !state.reviewMessage || !!state.reviewMessageError,
                 disabled: donateDisabled,
                 onClick: handleDonate,
-                // href: userShouldVerify ? props.NADA_BOT_URL : null,
-                // target: userShouldVerify ? "_blank" : "_self",
-                // iconSrc: userShouldVerify ? NADABOT_ICON_URL : null,
                 style: {
                   padding: "12px 16px",
                 },

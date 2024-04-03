@@ -22,7 +22,8 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -38,10 +39,11 @@ const ModalOverlay = styled.div`
 
 const ModalContainer = styled.div`
   width: 383px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 0px 1px rgba(41, 41, 41, 0.1), 0px 8px 12px -4px rgba(41, 41, 41, 0.1),
+    0px 20px 32px -10px rgba(41, 41, 41, 0.1), 0px 32px 44px -16px rgba(41, 41, 41, 0.1);
   padding: 24px 0px;
   background: white;
-  border-radius: 10px;
-  box-shadow: 20px 20px 32px -4px rgba(93, 93, 93, 0.06);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

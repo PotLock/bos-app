@@ -543,7 +543,7 @@ return (
     </CardLink>
     {state.donateModal.isOpen && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonation`}
+        src={`${ownerId}/widget/ModalDonation.Main`}
         loading={""}
         props={{
           ...props,

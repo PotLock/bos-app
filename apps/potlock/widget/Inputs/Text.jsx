@@ -90,8 +90,6 @@ return (
   <Container>
     {label && <Label>{label}</Label>}
     <InputContainer>
-      {/* {props.prefixText && <InputPrefix>{props.prefixText}</InputPrefix>} */}
-      {/* {props.prefixElement && props.prefixElement} */}
       {props.preInputChildren && props.preInputChildren}
       <Input
         type="text"
