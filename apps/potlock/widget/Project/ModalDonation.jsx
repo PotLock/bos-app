@@ -243,14 +243,6 @@ ListsSDK = ListsSDK({ env: props.env });
 
 const projects = ListsSDK.getRegistrations() || [];
 
-let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
-  (() => ({
-    getConfig: () => {},
-    asyncGetDonationsForDonor: () => {},
-  }));
-DonateSDK = DonateSDK({ env: props.env });
-
 let PotFactorySDK =
   VM.require("potlock.near/widget/SDK.potfactory") ||
   (() => ({
@@ -487,6 +479,14 @@ const protocolConfig =
   protocolConfigContractId && protocolConfigViewMethodName
     ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
     : null;
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+    asyncGetDonationsForDonor: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
 
 const donationContractConfig = !potDetail ? DonateSDK.getConfig() || {} : null;
 

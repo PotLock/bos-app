@@ -5,6 +5,9 @@ const {
   recipientId,
   potRferralFeeBasisPoints,
   ftIcon,
+  bypassChefFee,
+  chef,
+  chefFeeBasisPoints,
 } = props;
 const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
   basisPointsToPercent: () => 0,
@@ -132,8 +135,8 @@ const BreakdownAmount = styled.div`
 `;
 
 const Icon = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 `;
 
 const NearIcon = (props) => (
@@ -160,16 +163,19 @@ State.init({
 if (!donationContractConfig) return "";
 
 const {
-  protocol_fee_basis_points: protocolFeeBasisPoints,
+  protocol_fee_basis_points,
   referral_fee_basis_points,
   protocol_fee_recipient_account: protocolFeeRecipientAccount,
 } = donationContractConfig;
 
+const protocolFeeBasisPoints = props.protocolFeeBasisPoints ?? protocol_fee_basis_points;
 const referralFeeBasisPoints = potRferralFeeBasisPoints || referralFeeBasisPoints;
 
 const TOTAL_BASIS_POINTS = 10_000;
 let projectAllocationBasisPoints =
-  TOTAL_BASIS_POINTS - (bypassProtocolFee ? 0 : protocolFeeBasisPoints);
+  TOTAL_BASIS_POINTS -
+  (bypassProtocolFee || !protocolFeeBasisPoints ? 0 : protocolFeeBasisPoints) -
+  (bypassChefFee || !chefFeeBasisPoints ? 0 : chefFeeBasisPoints);
 if (referrerId) {
   projectAllocationBasisPoints -= referralFeeBasisPoints;
 }
@@ -180,8 +186,41 @@ const protocolFeePercent = basisPointsToPercent(protocolFeeBasisPoints);
 const protocolFeeAmount = (parseFloat(totalAmount) * protocolFeeBasisPoints) / TOTAL_BASIS_POINTS;
 const referrerFeePercent = basisPointsToPercent(referralFeeBasisPoints);
 const referrerFeeAmount = (parseFloat(totalAmount) * referralFeeBasisPoints) / TOTAL_BASIS_POINTS;
+const chefFeePercent = basisPointsToPercent(chefFeeBasisPoints);
+const chefFeeAmount = (parseFloat(totalAmount) * chefFeeBasisPoints) / TOTAL_BASIS_POINTS;
 
-const nearIconUrl = SUPPORTED_FTS.NEAR.iconUrl;
+const fees = [
+  {
+    label: "Protocol fee",
+    percentage: protocolFeePercent,
+    amount: protocolFeeAmount,
+    show: !bypassProtocolFee,
+  },
+  {
+    label: "Referrer fee",
+    percentage: referrerFeePercent,
+    amount: referrerFeeAmount,
+    show: referrerId,
+  },
+  {
+    label: "Chef fee",
+    percentage: chefFeePercent,
+    amount: chefFeeAmount,
+    show: !bypassChefFee && chefFeeBasisPoints,
+  },
+  {
+    label: "On-Chain Storage",
+    percentage: "",
+    amount: "<0.01",
+    show: true,
+  },
+  {
+    label: "Project allocation",
+    percentage: projectAllocationPercent,
+    amount: projectAllocationAmount,
+    show: true,
+  },
+];
 
 return (
   <BreakdownSummary
@@ -195,44 +234,21 @@ return (
       className={`breakdown-details ${!state.showBreakdown ? "hidden" : ""}`}
       active={state.showBreakdown}
     >
-      {!bypassProtocolFee && (
-        <BreakdownItem>
-          <BreakdownItemLeft>Protocol fee ({protocolFeePercent}%)</BreakdownItemLeft>
-          <BreakdownItemRight>
-            <BreakdownAmount>
-              {protocolFeeAmount ? protocolFeeAmount.toFixed(2) : "-"}
-            </BreakdownAmount>
-            {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
-          </BreakdownItemRight>
-        </BreakdownItem>
-      )}
-      {referrerId && (
-        <BreakdownItem>
-          <BreakdownItemLeft>
-            Referrer fee ({referrerFeePercent}% to {referrerId})
-          </BreakdownItemLeft>
-          <BreakdownItemRight>
-            <BreakdownAmount>
-              {referrerFeeAmount ? referrerFeeAmount.toFixed(2) : "-"}
-            </BreakdownAmount>
-            {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
-          </BreakdownItemRight>
-        </BreakdownItem>
-      )}
-      <BreakdownItem>
-        <BreakdownItemLeft>On-Chain Storage</BreakdownItemLeft>
-        <BreakdownItemRight>
-          <BreakdownAmount>{"<0.01"}</BreakdownAmount>
-          {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
-        </BreakdownItemRight>
-      </BreakdownItem>
-      <BreakdownItem>
-        <BreakdownItemLeft>Project allocation ({projectAllocationPercent}%)</BreakdownItemLeft>
-        <BreakdownItemRight>
-          <BreakdownAmount>{projectAllocationAmount.toFixed(2)}</BreakdownAmount>
-          {ftIcon ? <Icon src={ftIcon} /> : <NearIcon />}
-        </BreakdownItemRight>
-      </BreakdownItem>
+      {fees.map(({ show, amount, label, percentage }) => {
+        return show ? (
+          <BreakdownItem key={label}>
+            <BreakdownItemLeft>
+              {label} {percentage ? `(${percentage}%)` : ""}{" "}
+            </BreakdownItemLeft>
+            <BreakdownItemRight>
+              <BreakdownAmount>{typeof amount === "string" ? amount : amount}</BreakdownAmount>
+              {ftIcon ? <Icon src={ftIcon} alt="ft-icon" /> : <NearIcon />}
+            </BreakdownItemRight>
+          </BreakdownItem>
+        ) : (
+          ""
+        );
+      })}
     </div>
   </BreakdownSummary>
 );

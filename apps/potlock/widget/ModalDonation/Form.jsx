@@ -156,11 +156,11 @@ const FormPage = (props) => {
     activeRounds,
     activeRound,
     NADABOT_CONTRACT_ID,
-    updateTab,
+    accountId,
   } = props;
 
   const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
-    account_id: context.accountId,
+    account_id: accountId,
   });
 
   const donationTypes = [
@@ -279,9 +279,6 @@ const FormPage = (props) => {
                 ? "Nah, I want to have less impact"
                 : "Proceed to donate",
               onClick: () => updateState({ currentPage: "confirm" }),
-              style: {
-                padding: "12px 16px",
-              },
             }}
           />
         </Button>

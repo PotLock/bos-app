@@ -1,8 +1,25 @@
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
+const { ownerId, NADABOT_HUMAN_METHOD, DONATION_CONTRACT_ID } = VM.require(
+  "potlock.near/widget/constants"
+) || {
   ownerId: "",
+  NADABOT_HUMAN_METHOD: "",
+  DONATION_CONTRACT_ID: "",
 };
 
 const { nearToUsd } = VM.require("potlock.near/widget/utils");
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+    asyncGetDonationsForDonor: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
+
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getConfig: () => {},
+  asyncGetDonationsForDonor: () => {},
+};
 
 const Container = styled.div`
   display: flex;
@@ -52,11 +69,46 @@ const NoteWrapper = styled.div`
   }
 `;
 
-const TextBold = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  word-wrap: break-word;
-  text-align: center;
+const FeesRemoval = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  .check {
+    display: flex;
+    align-items: center;
+  }
+  .label {
+    margin-right: 4px;
+    margin-left: 8px;
+  }
+  .address {
+    font-weight: 600;
+    gap: 4px;
+    display: flex;
+    align-items: center;
+    color: #292929;
+    transition: all 300ms;
+    &:hover {
+      color: #dd3345;
+      text-decoration: none;
+    }
+  }
+  .profile-image {
+    border-radius: 50%;
+    width: 17px;
+    height: 17px;
+  }
+`;
+
+const Button = styled.div`
+  display: flex;
+  margin-top: 4rem;
+  margin-bottom: 0.5rem;
+  button {
+    padding: 12px 16px;
+    width: 100%;
+    font-weight: 500;
+  }
 `;
 
 const NearIcon = (props) => (
@@ -76,16 +128,277 @@ const NearIcon = (props) => (
   </SvgIcon>
 );
 
+const ProfileImg = ({ accountId }) => (
+  <Widget
+    src={`${ownerId}/widget/Project.ProfileImage`}
+    props={{
+      accountId,
+      style: {},
+    }}
+  />
+);
+
+const CheckBox = ({ id, checked, onClick }) => (
+  <Widget
+    src={`${ownerId}/widget/Inputs.Checkbox`}
+    props={{
+      id,
+      checked,
+      onClick,
+    }}
+  />
+);
+
+const getFeesBasisPoints = (protocolConfig, potDetail, donationContractConfig) => {
+  if (protocolConfig) {
+    return [
+      protocolConfig.account_id,
+      protocolConfig.basis_points,
+      potDetail.referral_fee_public_round_basis_points,
+    ];
+  } else if (donationContractConfig) {
+    return [
+      donationContractConfig.protocol_fee_recipient_account,
+      donationContractConfig.protocol_fee_basis_points,
+      donationContractConfig.referral_fee_basis_points,
+    ];
+  } else {
+    return ["", 0, 0];
+  }
+};
+
+const pollForDonationSuccess = ({
+  projectId,
+  afterTs,
+  accountId,
+  openDonationSuccessModal,
+  isPotDonation,
+}) => {
+  // poll for updates
+  // TODO: update this to also poll Pot contract
+  const pollIntervalMs = 1000;
+  // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
+  const pollId = setInterval(() => {
+    (isPotDonation ? PotSDK : DonateSDK).asyncGetDonationsForDonor(accountId).then((donations) => {
+      for (const donation of donations) {
+        const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
+        if (
+          ((recipient_id === projectId || project_id === projectId) && donated_at_ms > afterTs) ||
+          donated_at > afterTs
+        ) {
+          // display success message
+          clearInterval(pollId);
+          openDonationSuccessModal(donation);
+        }
+      }
+    });
+  }, pollIntervalMs);
+};
+
 const ConfirmPage = (props) => {
   const {
     selectedDenomination,
     bypassProtocolFee,
+    bypassChefFee,
     donationNote,
     donationNoteError,
     addNote,
     updateState,
+    NADABOT_CONTRACT_ID,
+    selectedRound,
+    recipientId,
+    referrerId,
+    accountId,
+    amount,
+    openDonationSuccessModal,
+    donationType,
   } = props;
-  const amount = "1";
+
+  // check if user is verified for matched doation
+  const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
+    account_id: accountId,
+  });
+
+  // Get protcol, referral & chef Fee
+  const potDetail = PotSDK.getConfig(selectedRound);
+
+  const protocolConfigContractId = potDetail
+    ? potDetail.protocol_config_provider.split(":")[0]
+    : "";
+  const protocolConfigViewMethodName = potDetail
+    ? potDetail.protocol_config_provider.split(":")[1]
+    : "";
+  const protocolConfig =
+    protocolConfigContractId && protocolConfigViewMethodName
+      ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
+      : null;
+
+  const donationContractConfig = !potDetail ? DonateSDK.getConfig() || {} : null;
+
+  const [protocolFeeRecipientAccount, protocolFeeBasisPoints, referralFeeBasisPoints] =
+    getFeesBasisPoints(protocolConfig, potDetail, donationContractConfig);
+
+  const chefFeeBasisPoints = donationType === "pot" ? potDetail?.chef_fee_basis_points : "";
+
+  const storageBalanceBounds = Near.view(selectedDenomination.id, "storage_balance_bounds", {});
+  const storageBalanceProtocolFeeRecipient = Near.view(
+    selectedDenomination.id,
+    "storage_balance_of",
+    { account_id: protocolFeeRecipientAccount }
+  );
+  const storageBalanceReferrer = referrerId
+    ? Near.view(selectedDenomination.id, "storage_balance_of", {
+        account_id: referrerId,
+      })
+    : null;
+  const storageBalanceDonationContract = Near.view(selectedDenomination.id, "storage_balance_of", {
+    account_id: DONATION_CONTRACT_ID,
+  });
+
+  const handleDonate = () => {
+    const donationAmountIndivisible = Big(amount).mul(
+      new Big(10).pow(selectedDenomination.decimals)
+    );
+    let projectId = recipientId;
+
+    const args = {
+      referrer_id: referrerId,
+      bypass_protocol_fee: bypassProtocolFee,
+      message: donationNote,
+      ...(bypassChefFee ? { custom_chef_fee_basis_points: 0 } : {}),
+    };
+
+    const potId = selectedRound || null;
+    const isPotDonation = potId && isUserHumanVerified === true;
+
+    const now = Date.now();
+
+    const successArgs = {
+      projectId,
+      now,
+      accountId,
+      openDonationSuccessModal,
+      isPotDonation,
+    };
+
+    if (isPotDonation) {
+      args.project_id = projectId;
+      if (bypassChefFee) {
+        args.custom_chef_fee_basis_points = 0;
+      }
+    } else {
+      args.recipient_id = projectId;
+    }
+    // FT WORKFLOW:
+    // 1. SEND DEPOSIT TO DONATION CONTRACT
+    /// 2. CALL FT CONTRACT:
+    /// - check for storage balance for all accounts (protocol fee recipient, referrer, project, donation contract)
+    const transactions = [];
+
+    if (isFtDonation) {
+      const ftId = selectedDenomination.id;
+      // add storage deposit transaction
+      let requiredDepositFloat = 0.012; // base amount for donation storage
+      requiredDepositFloat += 0.0001 * args.message.length; // add 0.0001 NEAR per character in message
+      transactions.push({
+        contractName: DONATION_CONTRACT_ID,
+        methodName: "storage_deposit",
+        args: {},
+        deposit: Big(requiredDepositFloat).mul(Big(10).pow(24)),
+        gas: "100000000000000",
+      });
+      const { min, max } = storageBalanceBounds;
+      const storageMaxBig = Big(max);
+
+      // check storage balance for each account
+      if (
+        !args.bypass_protocol_fee &&
+        (!storageBalanceProtocolFeeRecipient ||
+          Big(storageBalanceProtocolFeeRecipient.total).lt(storageMaxBig))
+      ) {
+        transactions.push({
+          contractName: ftId,
+          methodName: "storage_deposit",
+          args: { account_id: protocolFeeRecipientAccount },
+          deposit: storageMaxBig.minus(Big(storageBalanceProtocolFeeRecipient || 0)),
+          gas: "100000000000000",
+        });
+      }
+      // referrer
+      if (
+        referrerId &&
+        (!storageBalanceReferrer || Big(storageBalanceReferrer.total).lt(storageMaxBig))
+      ) {
+        transactions.push({
+          contractName: ftId,
+          methodName: "storage_deposit",
+          args: { account_id: referrerId },
+          deposit: storageMaxBig.minus(Big(storageBalanceReferrer || 0)),
+          gas: "100000000000000",
+        });
+      }
+      // donation contract
+      if (
+        !storageBalanceDonationContract ||
+        Big(storageBalanceDonationContract.total).lt(storageMaxBig)
+      ) {
+        transactions.push({
+          contractName: ftId,
+          methodName: "storage_deposit",
+          args: { account_id: DONATION_CONTRACT_ID },
+          deposit: storageMaxBig.minus(Big(storageBalanceDonationContract || 0)),
+          gas: "100000000000000",
+        });
+      }
+      // project (can't do this till this point)
+      Near.asyncView(ftId, "storage_balance_of", { account_id: projectId }).then((balance) => {
+        if (!balance || Big(balance.total).lt(storageMaxBig)) {
+          transactions.push({
+            contractName: ftId,
+            methodName: "storage_deposit",
+            args: { account_id: projectId },
+            deposit: storageMaxBig.minus(Big(balance || 0)),
+            gas: "100000000000000",
+          });
+        }
+
+        // add donation transaction
+        transactions.push({
+          contractName: ftId,
+          methodName: "ft_transfer_call",
+          args: {
+            receiver_id: DONATION_CONTRACT_ID,
+            amount: donationAmountIndivisible.toFixed(0),
+            msg: JSON.stringify({
+              recipient_id: projectId,
+              referrer_id: referrerId || null,
+              bypass_protocol_fee: bypassProtocolFee,
+              message: args.message,
+            }),
+          },
+          deposit: "1",
+          gas: "300000000000000",
+        });
+        Near.call(transactions);
+        // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+        // <-------- EXTENSION WALLET HANDLING -------->
+        pollForDonationSuccess(successArgs);
+      });
+    } else {
+      transactions.push({
+        contractName: isPotDonation ? potId : DONATION_CONTRACT_ID,
+        methodName: "donate",
+        args,
+        deposit: donationAmountIndivisible.toFixed(0),
+        gas: "300000000000000",
+      });
+      Near.call(transactions);
+      // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+      // <-------- EXTENSION WALLET HANDLING -------->
+      pollForDonationSuccess(successArgs);
+    }
+  };
+
   return (
     <Container>
       <div>
@@ -97,7 +410,7 @@ const ConfirmPage = (props) => {
           <div>
             {amount} <span>{selectedDenomination.text}</span>
           </div>
-          {nearToUsd && <div className="usd-amount">{nearToUsd * amount}</div>}
+          {nearToUsd && <div className="usd-amount">~${nearToUsd * amount}</div>}
         </Amout>
       </div>
       <div>
@@ -106,80 +419,60 @@ const ConfirmPage = (props) => {
           props={{
             ...props,
             referrerId,
+            protocolFeeBasisPoints,
+            bypassChefFee,
+            chef: potDetail?.chef,
+            chefFeeBasisPoints,
             totalAmount: amount,
             bypassProtocolFee: bypassProtocolFee,
             ftIcon: selectedDenomination.icon,
           }}
         />
       </div>
-
-      <Row style={{ padding: "0px", gap: "0px" }}>
-        <Widget
-          src={`${ownerId}/widget/Inputs.Checkbox`}
-          props={{
-            id: "bypassProtocolFeeSelector",
-            checked: state.bypassProtocolFee,
-            onClick: (e) => {
+      <FeesRemoval>
+        <div className="check">
+          <CheckBox
+            id="bypassProtocolFeeSelector"
+            checked={bypassProtocolFee}
+            onClick={(e) => {
               updateState({ bypassProtocolFee: e.target.checked });
-            },
-          }}
-        />
-
-        <Label htmlFor="bypassProtocolFeeSelector">
-          Bypass {protocolFeeBasisPoints / 100 || "-"}% protocol fee to{" "}
-          <UserChipLink
-            href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
-            target="_blank"
-          >
-            <Widget
-              src={`${ownerId}/widget/Project.ProfileImage`}
-              props={{
-                ...props,
-                accountId: protocolFeeRecipientAccount,
-                style: {
-                  height: "12px",
-                  width: "12px",
-                },
-              }}
-            />
-            <TextBold>{protocolFeeRecipientProfile?.name || protocolFeeRecipientAccount}</TextBold>
-          </UserChipLink>
-        </Label>
-      </Row>
-      {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
-        <Row style={{ padding: "0px", gap: "0px" }}>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Checkbox`}
-            props={{
-              id: "bypassChefFeeSelector",
-              checked: state.bypassChefFee,
-              onClick: (e) => {
-                State.update({ bypassChefFee: e.target.checked });
-              },
             }}
           />
-          <Label htmlFor="bypassChefFeeSelector">
-            Bypass {potDetail?.chef_fee_basis_points / 100 || "-"}% chef fee to{" "}
-            <UserChipLink
+
+          <div className="label">Remove {protocolFeeBasisPoints / 100 || "-"}% protocol fee</div>
+          <a
+            href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
+            className="address"
+            target="_blank"
+          >
+            <ProfileImg accountId={protocolFeeRecipientAccount} />
+
+            {protocolFeeRecipientAccount}
+          </a>
+        </div>
+        {potDetail?.chef && chefFeeBasisPoints > 0 && (
+          <div className="check">
+            <CheckBox
+              id="bypassChefFeeSelector"
+              checked={bypassChefFee}
+              onClick={(e) => {
+                updateState({ bypassChefFee: e.target.checked });
+              }}
+            />
+
+            <div className="label"> Remove {chefFeeBasisPoints / 100 || "-"}% chef fee</div>
+            <a
               href={`https://near.social/mob.near/widget/ProfilePage?accountId=${potDetail?.chef}`}
+              className="address"
               target="_blank"
             >
-              <Widget
-                src={`${ownerId}/widget/Project.ProfileImage`}
-                props={{
-                  ...props,
-                  accountId: potDetail?.chef,
-                  style: {
-                    height: "12px",
-                    width: "12px",
-                  },
-                }}
-              />
-              <TextBold>{chefProfile?.name || potDetail?.chef}</TextBold>
-            </UserChipLink>
-          </Label>
-        </Row>
-      )}
+              <ProfileImg accountId={potDetail?.chef} />
+
+              {potDetail?.chef}
+            </a>
+          </div>
+        )}
+      </FeesRemoval>
 
       {addNote ? (
         <Widget
@@ -206,7 +499,7 @@ const ConfirmPage = (props) => {
           }}
         />
       ) : (
-        <NoteWrapper>
+        <NoteWrapper onClick={() => updateState({ addNote: true })}>
           <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M0.249054 13.7509H3.06155L11.3566 5.4559L8.54405 2.6434L0.249054 10.9384V13.7509ZM1.74905 11.5609L8.54405 4.7659L9.23405 5.4559L2.43905 12.2509H1.74905V11.5609Z"
@@ -218,9 +511,19 @@ const ConfirmPage = (props) => {
             />
           </svg>
 
-          <div onClick={() => updateState({ addNote: true })}>Add Note</div>
+          <div>Add Note</div>
         </NoteWrapper>
       )}
+      <Button>
+        <Widget
+          src={`${ownerId}/widget/Components.Button`}
+          props={{
+            type: "primary",
+            text: "Confirm donation",
+            onClick: handleDonate,
+          }}
+        />
+      </Button>
     </Container>
   );
 };

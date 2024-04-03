@@ -1,4 +1,4 @@
-const { accountId, projectId, donations } = props;
+const { accountId, projectId, donations, referrerId } = props;
 
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -112,21 +112,20 @@ return (
     </div>
 
     <Widget
-      src={`${ownerId}/widget/Project.ModalDonation`}
+      src={`${ownerId}/widget/ModalDonation.Main`}
+      loading={""}
       props={{
         ...props,
         isModalOpen: isModalDonationOpen,
         onClose: () => setIsModalDonationOpen(false),
-        recipientId: props.projectId,
-        referrerId: props.referrerId,
-        openDonateToProjectModal: () => setIsModalDonationOpen(true),
+        recipientId: projectId,
+        referrerId: referrerId,
         openDonationModalSuccess: (donation) => {
           setIsModalDonationOpen(false);
           State.update({
             successfulDonation: donation,
           });
         },
-        // potId: state.donateToProjectModal.potId, // TODO: add this in if project is in a pot?
       }}
     />
     {successfulDonation && (

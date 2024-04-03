@@ -108,8 +108,12 @@ const HeaderIcons = styled.div`
       rotate: 90deg;
     }
   }
-  svg:first-of-type {
-    transform: translateX(-4px);
+  div {
+    cursor: pointer;
+    display: flex;
+  }
+  .back-arrow:hover svg {
+    transform: translateX(-10px);
   }
 `;
 
@@ -118,6 +122,8 @@ const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR", decimals: 24 }];
 const { recipientId, referrerId, potId, onClose, NADABOT_CONTRACT_ID, POT } = props;
 
 const DEFAULT_DONATION_AMOUNT = "1";
+
+const accountId = context.accountId;
 
 const initialState = {
   amount: DEFAULT_DONATION_AMOUNT,
@@ -289,15 +295,12 @@ if (!activeRound && !activeRounds) {
 // Get Ft Balances
 useEffect(() => {
   if (!ftBalances) {
-    asyncFetch(
-      `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
-        },
-      }
-    )
+    asyncFetch(`https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${accountId}/balances/FT`, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+      },
+    })
       .then((ftBalancesRes) => {
         if (ftBalancesRes) {
           const ftBalances = ftBalancesRes.body.balances;
@@ -323,7 +326,7 @@ useEffect(() => {
 }, [ftBalances]);
 
 const nearBalanceRes = fetch(
-  `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/NEAR`,
+  `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${accountId}/balances/NEAR`,
   {
     headers: {
       "Content-Type": "application/json",
@@ -367,21 +370,21 @@ return (
             <BannerBg className="right-pattern" />
             <HeaderIcons>
               {currentPage !== "form" && (
-                <svg
+                <div
+                  className="back-arrow"
                   onClick={() =>
                     State.update({
                       currentPage: "form",
                     })
                   }
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path
-                    d="M16 7H3.83L9.42 1.41L8 0L0 8L8 16L9.41 14.59L3.83 9H16V7Z"
-                    fill="#FCCFCF"
-                  />
-                </svg>
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M16 7H3.83L9.42 1.41L8 0L0 8L8 16L9.41 14.59L3.83 9H16V7Z"
+                      fill="#FCCFCF"
+                    />
+                  </svg>
+                </div>
               )}
 
               <svg
@@ -406,6 +409,7 @@ return (
           <ActivePageComponent
             {...props}
             {...state}
+            accountId={accountId}
             updateState={State.update}
             ftBalance={ftBalance}
             activeRounds={activeRounds}
