@@ -85,9 +85,17 @@ const CurrentBalance = styled.div`
   display: flex;
   margin-top: 0.5rem;
   gap: 0.5rem;
-  justify-content: flex-end;
-  div:last-of-type {
-    color: #7b7b7b;
+  flex-wrap: wrap-reverse;
+  justify-content: space-between;
+  .amount-alert {
+    color: #e54141;
+  }
+  .balance {
+    display: flex;
+    gap: 0.5rem;
+    div:last-of-type {
+      color: #7b7b7b;
+    }
   }
 `;
 
@@ -186,7 +194,7 @@ const FormPage = (props) => {
     if (amount === ".") amount = "0.";
     updateState({ amount, amountError: "" });
     // error if amount is greater than balance
-    if (Big(amount).mul(Big(10).pow(selectedDenomination.decimals)).gt(ftBalance)) {
+    if (amount > ftBalance) {
       updateState({ amountError: "Insufficient balance" });
     } else if (!isFtDonation && parseFloat(amount) < 0.1) {
       updateState({ amountError: "Minimum donation is 0.1 NEAR" });
@@ -251,10 +259,13 @@ const FormPage = (props) => {
         />
 
         <CurrentBalance>
-          <div>
-            {ftBalance} <span> {selectedDenomination.text} </span>
+          <div className="amount-alert">{amountError}</div>
+          <div className="balance">
+            <div>
+              {ftBalance} <span> {selectedDenomination.text} </span>
+            </div>
+            <div>available</div>
           </div>
-          <div>available</div>
         </CurrentBalance>
         <Button>
           <Widget

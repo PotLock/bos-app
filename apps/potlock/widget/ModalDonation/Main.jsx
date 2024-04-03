@@ -137,7 +137,7 @@ const initialState = {
   selectedDenomination: DENOMINATION_OPTIONS[0],
   denominationOptions: DENOMINATION_OPTIONS,
   selectedRound: "",
-  currentPage: "form",
+  currentPage: "confirm",
 };
 
 State.init(initialState);
@@ -289,8 +289,6 @@ if (!activeRound && !activeRounds) {
 // Get Ft Balances
 useEffect(() => {
   if (!ftBalances) {
-    console.log("ftBalancesRes", ftBalances);
-
     asyncFetch(
       `https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${context.accountId}/balances/FT`,
       {
@@ -301,8 +299,6 @@ useEffect(() => {
       }
     )
       .then((ftBalancesRes) => {
-        console.log("ftBalancesRes", ftBalancesRes);
-
         if (ftBalancesRes) {
           const ftBalances = ftBalancesRes.body.balances;
           State.update({

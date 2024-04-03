@@ -118,8 +118,6 @@ const Label = styled.label`
 const UserChipLink = styled.a`
   display: flex;
   flex-direction: row;
-  // align-items: center;
-  // justify-content: center;
   padding: 2px 12px;
   margin: 0px 4px;
   gap: 4px;
@@ -133,7 +131,7 @@ const UserChipLink = styled.a`
 
 const TextBold = styled.div`
   color: #292929;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 20px;
   word-wrap: break-word;
