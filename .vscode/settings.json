@@ -1,10 +1,9 @@
 {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "[javascript]": {
-      "editor.formatOnSave": true
-    },
-    "prettier.semi": false,
-    "prettier.singleQuote": true
-  }
-  
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "prettier.semi": false,
+  "prettier.singleQuote": true
+}

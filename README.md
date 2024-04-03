@@ -18,20 +18,6 @@ npm run dev
 
 This will start a gateway at http://127.0.0.1:8080 which will render your local widgets. The entry point for this app is [potlock.near/widget/Index](http://127.0.0.1:8080/potlock.near/widget/Index).
 
-## Running tests
+## Testing framework
 
-This project uses [playwright](https://playwright.dev/) for end-to-end testing. To run the tests:
-
-```cmd
-npm run test
-```
-
-You may automatically record video with your tests by setting
-
-```
-use: {
-  video: "on"
-}
-```
-
-in the [playwright.config.js](./playwright.config.js). After running tests, you will find the output as a `.webm` in `./test-results`. Then, [convert to MP4](https://video.online-convert.com/convert/webm-to-mp4) and share.
+This project uses [playwright](https://playwright.dev/) for end-to-end testing. These tests are located in the [playwright-tests](./playwright-tests) folder. please read the [README](./playwright-tests/README.md) to learn more about running and writing tests.
