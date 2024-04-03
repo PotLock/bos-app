@@ -133,7 +133,7 @@ const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 const cooldownOpen = now >= public_round_end_ms && now < cooldown_end_ms;
 const payoutsPending = cooldown_end_ms && now >= cooldown_end_ms && !all_paid_out;
-const publicRoundClosed = all_paid_out;
+const payoutsCompleted = all_paid_out;
 const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
@@ -199,14 +199,14 @@ const tags = [
     backgroundColor: "#464646",
     borderColor: "#292929",
     textColor: "#FFF",
-    text: "Round closed",
+    text: "Payouts completed",
     preElementsProps: {
       colorOuter: "#656565",
       colorInner: "#A6A6A6",
       animate: false,
     },
     textStyle: { fontWeight: 500, marginLeft: "8px" },
-    visibility: publicRoundClosed,
+    visibility: payoutsCompleted,
   },
 ];
 
