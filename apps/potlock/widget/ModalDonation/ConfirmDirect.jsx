@@ -109,15 +109,12 @@ const FeesRemoval = styled.div`
 
 const Button = styled.div`
   display: flex;
-  margin-top: 4rem;
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
   button {
     padding: 12px 16px;
     width: 100%;
     font-weight: 500;
-  }
-  @media only screen and (max-width: 480px) {
-    margin-top: 2rem;
   }
 `;
 
@@ -198,7 +195,9 @@ const pollForDonationSuccess = ({
         ) {
           // display success message
           clearInterval(pollId);
-          openDonationSuccessModal(donation);
+          openDonationSuccessModal({
+            projectId: donation,
+          });
         }
       }
     });

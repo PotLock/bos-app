@@ -42,7 +42,6 @@ const BreakdownSummary = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  cursor: pointer;
   .breakdown-details {
     display: flex;
     flex-direction: column;

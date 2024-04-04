@@ -766,6 +766,13 @@ const handleTag = (key) => {
   setTagsList(tags);
 };
 
+const getRandomProject = () => {
+  if (projects) {
+    const randomIndex = Math.floor(Math.random() * projects.length);
+    return projects[randomIndex];
+  }
+};
+
 return (
   <>
     <HeroContainer>
@@ -817,6 +824,7 @@ return (
               props={{
                 ...props,
                 isModalOpen: state.isModalOpen,
+                projectId: getRandomProject(),
                 onClose: () =>
                   State.update({
                     isModalOpen: false,

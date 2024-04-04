@@ -21,6 +21,9 @@ const Form = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1.5rem 2rem;
+  @media only screen and (max-width: 480px) {
+    padding: 1.5rem 1.125rem;
+  }
 `;
 
 const Label = styled.div`

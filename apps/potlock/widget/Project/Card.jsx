@@ -1,4 +1,4 @@
-const { potId, potDetail, payoutDetails } = props;
+const { potId, potDetail, payoutDetails, projects } = props;
 const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
