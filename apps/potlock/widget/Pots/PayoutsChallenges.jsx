@@ -321,7 +321,7 @@ return !payoutsChallenges ? (
                     color: resolved ? "#4a7714" : "#C7C7C7",
                   }}
                 >
-                  Resolved
+                  {resolved ? "Resolved" : "Unresolved"}
                 </div>
 
                 {resolved ? (
