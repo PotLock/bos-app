@@ -6,6 +6,12 @@ const { ownerId, NADABOT_HUMAN_METHOD } = VM.require("potlock.near/widget/consta
 const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInput`) || {
   AmountInput: () => {},
 };
+const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
+  CheckBox: () => {},
+};
+const { Nadabot, Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+  CheckBox: () => {},
+};
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getConfig: () => {},
@@ -23,53 +29,6 @@ const Label = styled.div`
   margin-top: 0.5rem;
 `;
 
-const DonationType = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  > div {
-    display: flex;
-    border-radius: 8px;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    cursor: pointer;
-    color: #a6a6a6;
-    background: #f6f5f3;
-    border: 1px solid transparent;
-    &.active {
-      box-shadow: 0px 0px 1.4px 2px #fee6e5;
-      background: white;
-      color: #dd3345;
-      border-color: #dd3345;
-    }
-    &.disabled {
-      pointer-events: none;
-    }
-  }
-`;
-
-const CheckBox = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d9d9d9;
-  display: flex;
-  border-radius: 50%;
-  div {
-    width: 10px;
-    height: 10px;
-    background: transparent;
-    border-radius: 50%;
-    margin: auto;
-  }
-  &.active {
-    border-color: #dd3345;
-    div {
-      background: #dd3345;
-    }
-  }
-`;
-
 const Button = styled.div`
   display: flex;
   margin-top: 4rem;
@@ -79,14 +38,16 @@ const Button = styled.div`
     width: 100%;
     font-weight: 500;
   }
+  @media only screen and (max-width: 480px) {
+    margin-top: 2rem;
+  }
 `;
 
 const CurrentBalance = styled.div`
   display: flex;
   margin-top: 0.5rem;
   gap: 0.5rem;
-  flex-wrap: wrap-reverse;
-  justify-content: space-between;
+  justify-content: flex-end;
   .amount-alert {
     color: #e54141;
   }
@@ -142,9 +103,9 @@ const SelectPot = ({ selectedRound, activeRoundsOptions, updateState }) => (
   </PotSelector>
 );
 
-const FormPage = (props) => {
+const FormDirect = (props) => {
   const {
-    recipientId,
+    projectId,
     profile,
     amount,
     amountError,
@@ -163,6 +124,8 @@ const FormPage = (props) => {
     account_id: accountId,
   });
 
+  const needsToVerify = isUserHumanVerified === false && donationType === "pot";
+
   const donationTypes = [
     {
       label: "Direct donation",
@@ -172,7 +135,8 @@ const FormPage = (props) => {
     {
       label: "Quadratically matched donation",
       val: "pot",
-      disabled: !activeRound && (!activeRounds || activeRounds.length === 0),
+      disabled: !activeRounds || activeRounds.length === 0,
+      disabledText: "(no pots available)",
     },
   ];
 
@@ -185,8 +149,6 @@ const FormPage = (props) => {
     };
   });
 
-  const passedPotConfig = PotSDK.getConfig(activeRound);
-
   const isFtDonation = selectedDenomination.text !== "NEAR";
 
   const HandleAmoutChange = (amount) => {
@@ -195,7 +157,7 @@ const FormPage = (props) => {
     updateState({ amount, amountError: "" });
     // error if amount is greater than balance
     if (amount > ftBalance) {
-      updateState({ amountError: "Insufficient balance" });
+      updateState({ amountError: "You don’t have enough balance to complete this transaction." });
     } else if (!isFtDonation && parseFloat(amount) < 0.1) {
       updateState({ amountError: "Minimum donation is 0.1 NEAR" });
     }
@@ -203,38 +165,25 @@ const FormPage = (props) => {
 
   const isLoading = isUserHumanVerified === null || activeRounds === null;
 
-  return recipientId ? (
+  return projectId ? (
     profile === null ? (
       <Widget src={`${ownerId}/widget/Components.Loading`} />
     ) : (
       <Form>
         <Label>How do you want to donate?</Label>
-        <DonationType>
-          {donationTypes.map((type) => (
-            <div
-              key={type.val}
-              onClick={() =>
-                updateState({
-                  donationType: type.val,
-                })
-              }
-              className={`${donationType === type.val ? "active" : ""} ${
-                type.disabled ? "disabled" : ""
-              }`}
-            >
-              <CheckBox className={`${donationType === type.val ? "active" : ""}`}>
-                <div></div>
-              </CheckBox>
-              <div>
-                {type.label} {type.disabled && <span> (no pots available) </span>}
-              </div>
-            </div>
-          ))}
-        </DonationType>
+        <Checks
+          options={donationTypes}
+          value={donationType}
+          onClick={(val) =>
+            updateState({
+              donationType: val,
+            })
+          }
+        />
         {donationType === "pot" && (
           <PotWrapper>
             <Label>Select Pot</Label>
-            {(activeRound || activeRounds?.length === 1) && (
+            {activeRounds?.length === 1 && (
               <Pot>{Object.values(activeRoundsOptions)[0]?.label}</Pot>
             )}
             {activeRounds?.length > 1 && (
@@ -249,17 +198,18 @@ const FormPage = (props) => {
         >
           Amount
         </Label>
-        <AmountInput
-          value={amount}
-          donationType={donationType}
-          HandleAmoutChange={HandleAmoutChange}
-          updateState={updateState}
-          denominationOptions={denominationOptions}
-          selectedDenomination={selectedDenomination}
-        />
+        {!needsToVerify && (
+          <AmountInput
+            value={amount}
+            donationType={donationType}
+            HandleAmoutChange={HandleAmoutChange}
+            updateState={updateState}
+            denominationOptions={denominationOptions}
+            selectedDenomination={selectedDenomination}
+          />
+        )}
 
         <CurrentBalance>
-          <div className="amount-alert">{amountError}</div>
           <div className="balance">
             <div>
               {ftBalance} <span> {selectedDenomination.text} </span>
@@ -267,17 +217,15 @@ const FormPage = (props) => {
             <div>available</div>
           </div>
         </CurrentBalance>
+        {amountError && <Alert error={amountError} />}
+        {needsToVerify && <Nadabot />}
         <Button>
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
-              disabled: amountError,
-              text: isLoading
-                ? "Loading..."
-                : isUserHumanVerified === false
-                ? "Nah, I want to have less impact"
-                : "Proceed to donate",
+              disabled: amountError || needsToVerify || !amount,
+              text: isLoading ? "Loading..." : "Proceed to donate",
               onClick: () => updateState({ currentPage: "confirm" }),
             }}
           />
@@ -290,5 +238,5 @@ const FormPage = (props) => {
 };
 
 return {
-  FormPage,
+  FormDirect,
 };

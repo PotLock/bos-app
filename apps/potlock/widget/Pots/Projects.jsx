@@ -274,7 +274,8 @@ return (
               loading={<CardSkeleton />}
               props={{
                 ...props,
-                potId,
+                potDetail,
+                projects,
                 projectId: project.project_id,
                 allowDonate:
                   sybilRequirementMet &&

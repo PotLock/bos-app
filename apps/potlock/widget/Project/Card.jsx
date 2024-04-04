@@ -347,7 +347,7 @@ const CardSkeleton = () => (
 State.init({
   donateModal: {
     isOpen: false,
-    recipientId: null,
+    projectId: null,
     referrerId: null,
     potId: null,
     potDetail: null,
@@ -359,7 +359,7 @@ const openDonateModal = () => {
   State.update({
     donateModal: {
       isOpen: true,
-      recipientId: projectId,
+      projectId: projectId,
       referrerId: null,
       potId: null,
       potDetail: null,
@@ -552,7 +552,7 @@ return (
             State.update({
               donateModal: {
                 isOpen: false,
-                recipientId: null,
+                projectId: null,
                 referrerId: null,
                 potId: null,
                 potDetail: null,
@@ -562,7 +562,7 @@ return (
             State.update({
               donateModal: {
                 isOpen: false,
-                recipientId: null,
+                projectId: null,
                 referrerId: null,
                 potId: null,
                 potDetail: null,
@@ -570,9 +570,8 @@ return (
               successfulDonation: donation,
             });
           },
-          recipientId: state.donateModal.recipientId,
+          projectId: state.donateModal.projectId,
           referrerId: props.referrerId,
-          potId,
         }}
       />
     )}

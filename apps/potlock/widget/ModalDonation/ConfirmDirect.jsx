@@ -75,6 +75,7 @@ const FeesRemoval = styled.div`
   gap: 1rem;
   .check {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
   }
   .label {
@@ -94,9 +95,15 @@ const FeesRemoval = styled.div`
     }
   }
   .profile-image {
-    border-radius: 50%;
     width: 17px;
     height: 17px;
+    display: flex !important;
+  }
+  @media only screen and (max-width: 480px) {
+    .address {
+      margin-left: 34px;
+      width: 100%;
+    }
   }
 `;
 
@@ -108,6 +115,9 @@ const Button = styled.div`
     padding: 12px 16px;
     width: 100%;
     font-weight: 500;
+  }
+  @media only screen and (max-width: 480px) {
+    margin-top: 2rem;
   }
 `;
 
@@ -195,7 +205,7 @@ const pollForDonationSuccess = ({
   }, pollIntervalMs);
 };
 
-const ConfirmPage = (props) => {
+const ConfirmDirect = (props) => {
   const {
     selectedDenomination,
     bypassProtocolFee,
@@ -204,20 +214,14 @@ const ConfirmPage = (props) => {
     donationNoteError,
     addNote,
     updateState,
-    NADABOT_CONTRACT_ID,
     selectedRound,
-    recipientId,
+    projectId,
     referrerId,
     accountId,
     amount,
     openDonationSuccessModal,
     donationType,
   } = props;
-
-  // check if user is verified for matched doation
-  const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
-    account_id: accountId,
-  });
 
   // Get protcol, referral & chef Fee
   const potDetail = PotSDK.getConfig(selectedRound);
@@ -259,7 +263,6 @@ const ConfirmPage = (props) => {
     const donationAmountIndivisible = Big(amount).mul(
       new Big(10).pow(selectedDenomination.decimals)
     );
-    let projectId = recipientId;
 
     const args = {
       referrer_id: referrerId,
@@ -269,7 +272,7 @@ const ConfirmPage = (props) => {
     };
 
     const potId = selectedRound || null;
-    const isPotDonation = potId && isUserHumanVerified === true;
+    const isPotDonation = potId;
 
     const now = Date.now();
 
@@ -420,6 +423,7 @@ const ConfirmPage = (props) => {
             ...props,
             referrerId,
             protocolFeeBasisPoints,
+            referralFeeBasisPoints,
             bypassChefFee,
             chef: potDetail?.chef,
             chefFeeBasisPoints,
@@ -529,5 +533,5 @@ const ConfirmPage = (props) => {
 };
 
 return {
-  ConfirmPage,
+  ConfirmDirect,
 };

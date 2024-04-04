@@ -118,13 +118,11 @@ return (
         ...props,
         isModalOpen: isModalDonationOpen,
         onClose: () => setIsModalDonationOpen(false),
-        recipientId: projectId,
-        referrerId: referrerId,
+        projectId,
+        referrerId,
         openDonationModalSuccess: (donation) => {
           setIsModalDonationOpen(false);
-          State.update({
-            successfulDonation: donation,
-          });
+          setSuccessfulDonation(donation);
         },
       }}
     />
@@ -133,12 +131,9 @@ return (
         src={`${ownerId}/widget/Project.ModalSuccess`}
         props={{
           ...props,
-          successfulDonation: state.successfulDonation,
-          isModalOpen: state.successfulDonation != null,
-          onClose: () =>
-            State.update({
-              successfulDonation: null,
-            }),
+          successfulDonation: successfulDonation,
+          isModalOpen: successfulDonation != null,
+          onClose: () => setSuccessfulDonation(null),
         }}
       />
     )}

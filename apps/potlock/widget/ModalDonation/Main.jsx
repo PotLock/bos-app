@@ -8,6 +8,16 @@ const Container = styled.div`
     0px 20px 32px -10px rgba(41, 41, 41, 0.1), 0px 32px 44px -16px rgba(41, 41, 41, 0.1);
   overflow: hidden;
   border-radius: 6px;
+  @media only screen and (max-width: 480px) {
+    top: 0;
+    position: fixed;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: scroll;
+    display: flex;
+    z-index: 1000;
+  }
 `;
 
 const Banner = styled.div`
@@ -35,6 +45,9 @@ const Banner = styled.div`
     width: 30%;
     transform: translate(10%, -10%);
     pointer-events: none;
+  }
+  @media only screen and (max-width: 480px) {
+    padding: 1.125rem;
   }
 `;
 
@@ -119,15 +132,16 @@ const HeaderIcons = styled.div`
 
 const DENOMINATION_OPTIONS = [{ text: "NEAR", value: "NEAR", decimals: 24 }];
 
-const { recipientId, referrerId, potId, onClose, NADABOT_CONTRACT_ID, POT } = props;
+const { projectId, referrerId, potId, onClose, NADABOT_CONTRACT_ID, POT, multiple, potDetail } =
+  props;
 
 const DEFAULT_DONATION_AMOUNT = "1";
 
 const accountId = context.accountId;
 
 const initialState = {
-  amount: DEFAULT_DONATION_AMOUNT,
-  donationType: "direct",
+  amount: "",
+  donationType: multiple ? "auto" : "direct",
   showBreakdown: false,
   bypassProtocolFee: false,
   bypassChefFee: false,
@@ -135,15 +149,14 @@ const initialState = {
   donationNote: "",
   donationNoteError: "",
   allPots: null,
-  detailForPots: {},
-  approvedProjectsForPots: {},
-  activeRoundsForProject: potId ? [potId] : null, // mapping of potId to { potDetail }
   intervalId: null,
   ftBalances: null,
   selectedDenomination: DENOMINATION_OPTIONS[0],
   denominationOptions: DENOMINATION_OPTIONS,
   selectedRound: "",
-  currentPage: "confirm",
+  currentPage: multiple ? "formPot" : "form",
+  selectedProjects: {},
+  toggleAmount: false,
 };
 
 State.init(initialState);
@@ -159,9 +172,6 @@ const {
   donationNote,
   donationNoteError,
   allPots,
-  detailForPots,
-  approvedProjectsForPots,
-  activeRoundsForProject,
   intervalId,
   nearBalance,
   ftBalances,
@@ -173,8 +183,8 @@ const {
 
 const [activeRounds, setActiveRounds] = useState(null);
 
-const profile = Social.getr(`${recipientId}/profile`);
-const profileName = profile?.name || recipientId;
+const profile = Social.getr(`${projectId}/profile`);
+const profileName = profile?.name || projectId;
 
 const MAX_NOTE_LENGTH = 60;
 
@@ -193,8 +203,6 @@ let ListsSDK =
     getRegistrations: () => {},
   }));
 ListsSDK = ListsSDK({ env: props.env });
-
-const projects = ListsSDK.getRegistrations() || [];
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -231,16 +239,24 @@ const { addItemsToCart, clearCart } = VM.require("potlock.near/widget/SDK.cart")
   clearCart: () => {},
 };
 
-const { FormPage } = VM.require("potlock.near/widget/ModalDonation.Form") || {
-  FormPage: () => {},
+const { FormDirect } = VM.require("potlock.near/widget/ModalDonation.Form") || {
+  FormDirect: () => {},
 };
-const { ConfirmPage } = VM.require("potlock.near/widget/ModalDonation.ConfirmPage") || {
-  ConfirmPage: () => {},
+const { FormPot } = VM.require("potlock.near/widget/ModalDonation.FormPot") || {
+  FormPot: () => {},
+};
+const { ConfirmDirect } = VM.require("potlock.near/widget/ModalDonation.ConfirmDirect") || {
+  ConfirmDirect: () => {},
+};
+const { ConfirmPot } = VM.require("potlock.near/widget/ModalDonation.ConfirmPot") || {
+  ConfirmPot: () => {},
 };
 
 const pages = {
-  form: FormPage,
-  confirm: ConfirmPage,
+  form: FormDirect,
+  formPot: FormPot,
+  confirm: ConfirmDirect,
+  confirmPot: ConfirmPot,
 };
 
 const ActivePageComponent = pages[currentPage];
@@ -268,30 +284,38 @@ const pots = useCache(
   "active-pots"
 );
 
-if (!activeRound && !activeRounds) {
-  (pots ?? []).forEach((pot, idx) => {
-    if (pot) {
-      PotSDK.asyncGetApplicationByProjectId(pot, recipientId)
-        .then((application) => {
-          if (application.status === "Approved") {
-            setActiveRounds((prev) => {
-              const prevRounds = prev || [];
-              if (!prevRounds.includes(pot)) {
-                return [...prevRounds, pot];
-              }
-            });
-            if (!selectedRound)
-              State.update({
-                selectedRound: pot,
+useEffect(() => {
+  if (potId && !activeRounds) {
+    setActiveRounds([potId]);
+    State.update({
+      donationType: multiple ? "auto" : "pot",
+    });
+  } else if (!activeRounds && projectId) {
+    (pots ?? []).forEach((pot, idx) => {
+      if (pot) {
+        PotSDK.asyncGetApplicationByProjectId(pot, projectId)
+          .then((application) => {
+            if (application.status === "Approved") {
+              setActiveRounds((prev) => {
+                const prevRounds = prev || [];
+                if (!prevRounds.includes(pot)) {
+                  return [...prevRounds, pot];
+                }
               });
-          } else if (pots.length - 1 === idx && !activeRounds) {
-            setActiveRounds((prev) => [...(prev || [])]);
-          }
-        })
-        .catch((err) => {});
-    }
-  });
-}
+              if (!selectedRound)
+                State.update({
+                  selectedRound: pot,
+                });
+            } else if (pots.length - 1 === idx && !activeRounds) {
+              setActiveRounds((prev) => [...(prev || [])]);
+            }
+          })
+          .catch((err) => {});
+      }
+    });
+  }
+}, [pots]);
+
 // Get Ft Balances
 useEffect(() => {
   if (!ftBalances) {
@@ -365,47 +389,51 @@ return (
       },
       children: (
         <Container>
-          <Banner>
-            <BannerBg className="left-pattern" />
-            <BannerBg className="right-pattern" />
-            <HeaderIcons>
-              {currentPage !== "form" && (
-                <div
-                  className="back-arrow"
-                  onClick={() =>
-                    State.update({
-                      currentPage: "form",
-                    })
-                  }
-                >
-                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M16 7H3.83L9.42 1.41L8 0L0 8L8 16L9.41 14.59L3.83 9H16V7Z"
-                      fill="#FCCFCF"
-                    />
-                  </svg>
-                </div>
-              )}
+          <div>
+            <Banner>
+              <BannerBg className="left-pattern" />
+              <BannerBg className="right-pattern" />
+              <HeaderIcons>
+                {!["form", "formPot"].includes(currentPage) && (
+                  <div
+                    className="back-arrow"
+                    onClick={() =>
+                      State.update({
+                        currentPage: multiple ? "formPot" : "form",
+                      })
+                    }
+                  >
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M16 7H3.83L9.42 1.41L8 0L0 8L8 16L9.41 14.59L3.83 9H16V7Z"
+                        fill="#FCCFCF"
+                      />
+                    </svg>
+                  </div>
+                )}
 
-              <svg
-                onClick={() => onClose()}
-                className="close-icon"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
-                  fill="#FCCFCF"
-                />
-              </svg>
-            </HeaderIcons>
-            {currentPage !== "form" ? (
-              <div> Confirm donation</div>
-            ) : (
-              <div> Donate to {profileName}</div>
-            )}
-          </Banner>
+                <svg
+                  onClick={() => onClose()}
+                  className="close-icon"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z"
+                    fill="#FCCFCF"
+                  />
+                </svg>
+              </HeaderIcons>
+              {["confirmPot", "confirm"].includes(currentPage) ? (
+                <div> Confirm donation</div>
+              ) : currentPage === "formPot" ? (
+                <div>Donate to Projects in {potDetail?.pot_name}</div>
+              ) : (
+                <div> Donate to {profileName}</div>
+              )}
+            </Banner>
+          </div>
           <ActivePageComponent
             {...props}
             {...state}
@@ -413,6 +441,7 @@ return (
             updateState={State.update}
             ftBalance={ftBalance}
             activeRounds={activeRounds}
+            DENOMINATION_OPTION={DENOMINATION_OPTIONS}
           />
         </Container>
       ),

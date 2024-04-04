@@ -39,7 +39,7 @@ const Container = styled.div`
     border: none;
     border-radius: 0;
     &:focus {
-      box-shadow: 0px 0px 0px 4px rgba(82, 82, 82, 0.08);
+      box-shadow: none;
     }
   }
   .usd-amount {
@@ -110,9 +110,14 @@ const AmountInput = (props) => {
   const { value, HandleAmoutChange, donationType, denominationOptions } = props;
   return (
     <Container>
-      <input type="text" value={value} onChange={(e) => HandleAmoutChange(e.target.value)} />
+      <input
+        type="text"
+        value={value}
+        placeholder="0"
+        onChange={(e) => HandleAmoutChange(e.target.value)}
+      />
       <div className="usd-amount"> {nearToUsd ? `~$ ${nearToUsd * value}` : ""}</div>
-      {donationType === "pot" ? (
+      {donationType === "pot" || denominationOptions.length === 1 ? (
         <PotDenominatio>
           <NearIcon />
           <div className="text">{denominationOptions[0].text}</div>

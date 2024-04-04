@@ -169,7 +169,7 @@ const {
 } = donationContractConfig;
 
 const protocolFeeBasisPoints = props.protocolFeeBasisPoints ?? protocol_fee_basis_points;
-const referralFeeBasisPoints = potRferralFeeBasisPoints || referralFeeBasisPoints;
+const referralFeeBasisPoints = potRferralFeeBasisPoints || props.referralFeeBasisPoints;
 
 const TOTAL_BASIS_POINTS = 10_000;
 let projectAllocationBasisPoints =
