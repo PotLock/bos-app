@@ -346,7 +346,7 @@ const ConfirmPot = (props) => {
 
     Near.call(transactions);
 
-    pollForDonationSuccess(successArgs);
+    // pollForDonationSuccess(successArgs);
   };
 
   return (

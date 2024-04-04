@@ -384,7 +384,7 @@ const ConfirmDirect = (props) => {
         Near.call(transactions);
         // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
         // <-------- EXTENSION WALLET HANDLING -------->
-        pollForDonationSuccess(successArgs);
+        // pollForDonationSuccess(successArgs);
       });
     } else {
       transactions.push({
@@ -397,7 +397,7 @@ const ConfirmDirect = (props) => {
       Near.call(transactions);
       // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
       // <-------- EXTENSION WALLET HANDLING -------->
-      pollForDonationSuccess(successArgs);
+      // pollForDonationSuccess(successArgs);
     }
   };
 
