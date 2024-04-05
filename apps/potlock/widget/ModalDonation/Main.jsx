@@ -289,6 +289,7 @@ useEffect(() => {
   if (potId && !activeRounds) {
     setActiveRounds([potId]);
     State.update({
+      selectedRound: potId,
       donationType: multiple ? "auto" : "pot",
     });
   } else if (!activeRounds && projectId) {
