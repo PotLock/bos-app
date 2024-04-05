@@ -96,7 +96,7 @@ return (
         </FilterIcon>
       </FilterButton>
       {openFilter && (
-        <FilterMenu onClick={(e) => e.stopPropagation()}>
+        <FilterMenu onClick={(e) => e.stopPropagation()} style={props.menuStyle || {}}>
           {sortList.map((option) => (
             <FilterItem
               key={option.val}

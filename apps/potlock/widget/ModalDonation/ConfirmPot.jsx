@@ -64,11 +64,11 @@ const Amout = styled.div`
   .toggle-icon {
     width: 8px;
     display: flex;
-    transition: all 300ms ease-in-out;
     margin-left: auto;
     overflow: hidden;
     svg {
       width: 100%;
+      transition: all 300ms ease-in-out;
     }
   }
   img,
@@ -370,14 +370,14 @@ const ConfirmPot = (props) => {
             <div>
               {amount} <span>{selectedDenomination.text}</span>
             </div>
-            {nearToUsd && <div className="usd-amount">~${nearToUsd * amount}</div>}
+            {nearToUsd && <div className="usd-amount">~${(nearToUsd * amount).toFixed(2)}</div>}
             <div className="toggle-icon">
               <svg
                 viewBox="0 0 8 12"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 style={{
-                  rotate: !toggleAmount ? "90deg" : "",
+                  rotate: !toggleAmount ? "" : "90deg",
                 }}
               >
                 <path

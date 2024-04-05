@@ -227,7 +227,7 @@ return (
     // onClick={() => State.update({ showBreakdown: !state.showBreakdown })}
   >
     <Header style={props.headerStyle || {}}>
-      <BreakdownTitle> breakdown</BreakdownTitle>
+      <BreakdownTitle> Breakdown</BreakdownTitle>
     </Header>
     <div
       className={`breakdown-details ${!state.showBreakdown ? "hidden" : ""}`}

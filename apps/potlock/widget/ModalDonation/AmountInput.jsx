@@ -107,7 +107,8 @@ const Dropdown = ({ selectedDenomination, denominationOptions, updateState }) =>
 );
 
 const AmountInput = (props) => {
-  const { value, HandleAmoutChange, donationType, denominationOptions } = props;
+  const { value, HandleAmoutChange, donationType, denominationOptions, selectedDenomination } =
+    props;
   return (
     <Container>
       <input
@@ -116,7 +117,12 @@ const AmountInput = (props) => {
         placeholder="0"
         onChange={(e) => HandleAmoutChange(e.target.value)}
       />
-      <div className="usd-amount"> {nearToUsd ? `~$ ${nearToUsd * value}` : ""}</div>
+      <div className="usd-amount">
+        {" "}
+        {nearToUsd && selectedDenomination.value === "NEAR"
+          ? `~$ ${(nearToUsd * value).toFixed(2)}`
+          : ""}
+      </div>
       {donationType === "pot" || denominationOptions.length === 1 ? (
         <PotDenominatio>
           <NearIcon />

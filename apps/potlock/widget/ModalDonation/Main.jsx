@@ -10,6 +10,7 @@ const Container = styled.div`
   border-radius: 6px;
   @media only screen and (max-width: 480px) {
     top: 0;
+    border-radius: 0;
     position: fixed;
     left: 0;
     width: 100vw;
@@ -156,7 +157,7 @@ const initialState = {
   selectedRound: "",
   currentPage: multiple ? "formPot" : "form",
   selectedProjects: {},
-  toggleAmount: false,
+  toggleAmount: true,
 };
 
 State.init(initialState);
@@ -320,7 +321,7 @@ useEffect(() => {
 
 // Get Ft Balances
 useEffect(() => {
-  if (!ftBalances) {
+  if (!ftBalances && !potId) {
     asyncFetch(`https://near-mainnet.api.pagoda.co/eapi/v1/accounts/${accountId}/balances/FT`, {
       headers: {
         "Content-Type": "application/json",
@@ -367,7 +368,7 @@ const ftBalance = useMemo(() => {
 
     return nearBalance
       ? formatWithCommas(Big(nearBalance.amount).div(Big(10).pow(24)).toFixed(2))
-      : "-";
+      : null;
   }
   const balance = denominationOptions.find(
     // this is where we need the details
@@ -375,7 +376,7 @@ const ftBalance = useMemo(() => {
   );
   return balance
     ? formatWithCommas(Big(balance.amount).div(Big(10).pow(balance.decimals)).toFixed(2))
-    : "-";
+    : null;
 }, [selectedDenomination, ftBalances, nearBalanceRes]);
 
 return (

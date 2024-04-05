@@ -415,7 +415,7 @@ const ConfirmDirect = (props) => {
           <div>
             {amount} <span>{selectedDenomination.text}</span>
           </div>
-          {nearToUsd && <div className="usd-amount">~${nearToUsd * amount}</div>}
+          {nearToUsd && <div className="usd-amount">~${(nearToUsd * amount).toFixed(2)}</div>}
         </Amout>
       </div>
       <div>

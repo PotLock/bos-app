@@ -71,6 +71,9 @@ const PotWrapper = styled.div`
 
 const PotSelector = styled.div`
   display: flex;
+  > div:last-of-type {
+    width: 100%;
+  }
 `;
 
 const Pot = styled.div`
@@ -94,6 +97,10 @@ const SelectPot = ({ selectedRound, activeRoundsOptions, updateState }) => (
           padding: "0.75rem 1rem",
           borderBottomWidth: "2px",
           borderRadius: "6px",
+          justifyContent: "space-between",
+        },
+        menuStyle: {
+          top: "120%",
         },
         FilterMenuCustomStyle: `left:0; right:auto;`,
         handleSortChange: ({ val }) => {
@@ -118,7 +125,6 @@ const FormDirect = (props) => {
     donationType,
     ftBalance,
     activeRounds,
-    activeRound,
     NADABOT_CONTRACT_ID,
     accountId,
   } = props;
@@ -159,7 +165,7 @@ const FormDirect = (props) => {
     if (amount === ".") amount = "0.";
     updateState({ amount, amountError: "" });
     // error if amount is greater than balance
-    if (amount > ftBalance) {
+    if (amount > ftBalance && ftBalance !== null) {
       updateState({ amountError: "You don’t have enough balance to complete this transaction." });
     } else if (!isFtDonation && parseFloat(amount) < 0.1) {
       updateState({ amountError: "Minimum donation is 0.1 NEAR" });
@@ -186,12 +192,7 @@ const FormDirect = (props) => {
         {donationType === "pot" && (
           <PotWrapper>
             <Label>Select Pot</Label>
-            {activeRounds?.length === 1 && (
-              <Pot>{Object.values(activeRoundsOptions)[0]?.label}</Pot>
-            )}
-            {activeRounds?.length > 1 && (
-              <SelectPot {...props} activeRoundsOptions={activeRoundsOptions} />
-            )}
+            <SelectPot {...props} activeRoundsOptions={activeRoundsOptions} />
           </PotWrapper>
         )}
         <Label
@@ -212,14 +213,16 @@ const FormDirect = (props) => {
           />
         )}
 
-        <CurrentBalance>
-          <div className="balance">
-            <div>
-              {ftBalance} <span> {selectedDenomination.text} </span>
+        {ftBalance && (
+          <CurrentBalance>
+            <div className="balance">
+              <div>
+                {ftBalance} <span> {selectedDenomination.text} </span>
+              </div>
+              <div>available</div>
             </div>
-            <div>available</div>
-          </div>
-        </CurrentBalance>
+          </CurrentBalance>
+        )}
         {amountError && <Alert error={amountError} />}
         {needsToVerify && <Nadabot />}
         <Button>

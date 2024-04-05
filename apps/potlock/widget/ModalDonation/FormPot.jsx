@@ -280,7 +280,7 @@ const FormPot = (props) => {
     const totalAmount = 0;
     Object.values(updatedProjects).forEach((amount) => (totalAmount += parseFloat(amount)));
 
-    if (totalAmount > ftBalance) {
+    if (totalAmount > ftBalance && ftBalance !== null) {
       updateState({ amountError: "You don’t have enough balance to complete this transaction." });
     } else if (parseFloat(amount) < 0.1 && parseFloat(amount) !== 0) {
       updateState({ amountError: "Minimum donation is 0.1 NEAR" });
@@ -329,13 +329,14 @@ const FormPot = (props) => {
           </>
         )}
         <CurrentBalance>
-          <div className="balance">
-            <div>
-              {ftBalance} <span> {selectedDenomination.text} </span>
+          {ftBalance && (
+            <div className="balance">
+              <div>
+                {ftBalance} <span> {selectedDenomination.text} </span>
+              </div>
+              <div>available</div>
             </div>
-            <div>available</div>
-          </div>
-
+          )}
           {donationType === "manual" && (
             <TotalAmount>
               <div className="label">Total amount allocated</div>
