@@ -146,7 +146,6 @@ const Projects = styled.div`
     }
   }
   @media only screen and (max-width: 480px) {
-    height: 116px !important;
     .project {
       padding: 0.5rem 1.125rem;
     }

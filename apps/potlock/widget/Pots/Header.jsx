@@ -88,6 +88,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+  padding: 64px 4rem 80px;
   .pool-table {
     max-width: 514px;
     width: 100%;
