@@ -769,7 +769,7 @@ const handleTag = (key) => {
 const getRandomProject = () => {
   if (projects) {
     const randomIndex = Math.floor(Math.random() * projects.length);
-    return projects[randomIndex];
+    return projects[randomIndex]?.registered_by;
   }
 };
 
