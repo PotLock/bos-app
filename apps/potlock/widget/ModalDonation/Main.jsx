@@ -366,16 +366,14 @@ const ftBalance = useMemo(() => {
   if (selectedDenomination.text === "NEAR") {
     const nearBalance = nearBalanceRes?.body?.balance;
 
-    return nearBalance
-      ? formatWithCommas(Big(nearBalance.amount).div(Big(10).pow(24)).toFixed(2))
-      : null;
+    return nearBalance ? parseFloat(Big(nearBalance.amount).div(Big(10).pow(24)).toFixed(2)) : null;
   }
   const balance = denominationOptions.find(
     // this is where we need the details
     (option) => option.text === selectedDenomination.text
   );
   return balance
-    ? formatWithCommas(Big(balance.amount).div(Big(10).pow(balance.decimals)).toFixed(2))
+    ? parseFloat(Big(balance.amount).div(Big(10).pow(balance.decimals)).toFixed(2))
     : null;
 }, [selectedDenomination, ftBalances, nearBalanceRes]);
 
