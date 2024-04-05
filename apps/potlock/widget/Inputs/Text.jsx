@@ -103,6 +103,7 @@ return (
         disabled={!!props.disabled}
         onKeyDown={props.handleKeyPress ?? null}
         style={props.inputStyles || {}}
+        name={props.name}
       />
       {props.percent && <PercentageSign>%</PercentageSign>}
       {props.postInputChildren && props.postInputChildren}

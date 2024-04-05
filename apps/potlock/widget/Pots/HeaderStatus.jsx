@@ -12,6 +12,7 @@ const {
   public_round_start_ms,
   public_round_end_ms,
   cooldown_end_ms,
+  all_paid_out,
 } = potDetail;
 
 const now = Date.now();
@@ -51,8 +52,8 @@ const stats = [
     label: "Payouts completed",
     daysLeft: null,
     started: null,
-    completed: now > cooldown_end_ms && cooldown_end_ms,
-    progress: now > cooldown_end_ms && !!cooldown_end_ms ? 1 : 0,
+    completed: all_paid_out,
+    progress: all_paid_out ? 1 : 0,
   },
 ];
 

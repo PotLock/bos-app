@@ -35,8 +35,7 @@ const filters = {
     currentDate > round.public_round_start_ms && currentDate < round.public_round_end_ms,
   cooldown: (round) =>
     currentDate > round.public_round_end_ms && currentDate < round.cooldown_end_ms,
-  completed: (round) =>
-    currentDate > round.public_round_end_ms && currentDate > round.cooldown_end_ms,
+  completed: (round) => round.all_paid_out,
 };
 
 const sortOptions = [

@@ -108,6 +108,7 @@ const {
   public_round_start_ms,
   public_round_end_ms,
   cooldown_end_ms,
+  all_paid_out,
 } = potConfig;
 
 // const totalAmount =
@@ -130,8 +131,9 @@ const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
-const publicRoundClosed = now >= public_round_end_ms && now > cooldown_end_ms;
 const cooldownOpen = now >= public_round_end_ms && now < cooldown_end_ms;
+const payoutsPending = cooldown_end_ms && now >= cooldown_end_ms && !all_paid_out;
+const payoutsCompleted = all_paid_out;
 const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
@@ -178,19 +180,33 @@ const tags = [
     },
     visibility: cooldownOpen,
   },
+  /* Payouts pending tag */
+  {
+    backgroundColor: "#F7FDE8",
+    borderColor: "#9ADD33",
+    textColor: "#192C07",
+    text: "Payouts pending",
+    preElementsProps: {
+      colorOuter: "#D7F5A1",
+      colorInner: "#9ADD33",
+      animate: true,
+    },
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    visibility: payoutsPending,
+  },
   /* Matching round closed tag */
   {
     backgroundColor: "#464646",
     borderColor: "#292929",
     textColor: "#FFF",
-    text: "Round closed",
+    text: "Payouts completed",
     preElementsProps: {
       colorOuter: "#656565",
       colorInner: "#A6A6A6",
       animate: false,
     },
     textStyle: { fontWeight: 500, marginLeft: "8px" },
-    visibility: publicRoundClosed,
+    visibility: payoutsCompleted,
   },
 ];
 

@@ -809,6 +809,7 @@ return (
               <Widget
                 src={`${ownerId}/widget/Inputs.Text`}
                 props={{
+                  name: "amount",
                   label: "Amount",
                   placeholder: "0",
                   value: state.amount,

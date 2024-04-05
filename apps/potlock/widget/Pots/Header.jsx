@@ -24,6 +24,7 @@ const {
   application_start_ms,
   application_end_ms,
   cooldown_end_ms,
+  all_paid_out,
 } = potDetail;
 
 const [isMatchingPoolModalOpen, setIsMatchingPoolModalOpen] = useState(false);
@@ -46,6 +47,7 @@ const userIsChefOrGreater = userIsAdminOrGreater || chef === context.accountId;
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getApplicationByProjectId: () => {},
   asyncGetApprovedApplications: () => {},
+  adminProcessPayouts: () => {},
 };
 
 const existingApplication = PotSDK.getApplicationByProjectId(potId, context.accountId);
@@ -167,7 +169,16 @@ const Referral = styled.div`
   align-items: center;
 `;
 
+const canPayoutsBeProcessed =
+  now >= public_round_end_ms && userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
+
 const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
+
+const handleProcessPayouts = () => {
+  PotSDK.adminProcessPayouts(potId);
+  // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
+  // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
+};
 
 const existingChallengeForUser = (payoutsChallenges || []).find(
   (challenge) => challenge.challenger_id === context.accountId
@@ -225,21 +236,12 @@ return (
             props={{
               type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               text:
-                projectNotRegistered && registry_provider
-                  ? "Register to Apply"
-                  : registrationApproved || !registry_provider
-                  ? "Apply to pot"
-                  : `Project Registration ${registryStatus}`,
-
+                registryStatus && !registrationApproved
+                  ? `Project Registration ${registryStatus}`
+                  : "Apply to pot",
               style: { marginRight: "24px" },
-              onClick:
-                projectNotRegistered && registry_provider
-                  ? null
-                  : () => setApplicationModalOpen(true),
-              href:
-                projectNotRegistered && registry_provider
-                  ? props.hrefWithParams(`?tab=createproject`)
-                  : null,
+              disabled: registryStatus && !registrationApproved,
+              onClick: () => setApplicationModalOpen(true),
             }}
           />
         )}
@@ -251,6 +253,17 @@ return (
               existingChallengeForUser,
               text: existingChallengeForUser ? "Update challenge" : "Challenge payouts",
               onClick: () => setShowChallengePayoutsModal(true),
+            }}
+          />
+        )}
+        {canPayoutsBeProcessed && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              ...props,
+              type: "primary",
+              text: "Process Payouts",
+              onClick: handleProcessPayouts,
             }}
           />
         )}
