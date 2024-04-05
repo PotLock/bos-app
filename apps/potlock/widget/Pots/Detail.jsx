@@ -15,6 +15,7 @@ const {
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getConfig: () => {},
   asyncGetApplications: () => {},
+  asyncGetPublicRoundDonations: () => {},
 };
 
 const potDetail = PotSDK.getConfig(potId);
@@ -110,8 +111,6 @@ if (state.sybilRequirementMet === null) {
     State.update({ sybilRequirementMet: true });
   }
 }
-
-// console.log("state in pot detail: ", state);
 
 const noPot = potDetail === undefined;
 const loading = potDetail === null;
@@ -286,6 +285,28 @@ const registrationApprovedOrNoRegistryProvider =
 
 const isError = state.applicationMessageError || state.daoAddressError;
 
+// Get total public donations
+const allDonationsPaginated = useCache(() => {
+  const limit = 480; // number of donations to fetch per req
+  const donationsCount = potDetail.public_donations_count;
+  const paginations = [
+    ...Array(parseInt(donationsCount / limit) + (donationsCount % limit > 0 ? 1 : 0)).keys(),
+  ];
+  try {
+    const allDonations = paginations.map((index) =>
+      PotSDK.asyncGetPublicRoundDonations(potId, {
+        from_index: index * limit,
+        limit: limit,
+      })
+    );
+    return Promise.all(allDonations);
+  } catch (error) {
+    console.error(`error getting public donations from ${index} to ${index * limit}`, error);
+  }
+}, "pot-public-donations");
+
+const allDonations = allDonationsPaginated ? allDonationsPaginated.flat() : null;
+
 return (
   <Wrapper>
     <Widget
@@ -304,6 +325,7 @@ return (
         sybilRequirementMet: state.sybilRequirementMet,
         applicationSuccess: state.applicationSuccess,
         registrationApproved,
+        allDonations,
         registryStatus: state.registryStatus,
       }}
     />
@@ -319,6 +341,7 @@ return (
         props={{
           ...props,
           potDetail: potDetail,
+          allDonations,
           sybilRequirementMet: state.sybilRequirementMet,
         }}
       />
