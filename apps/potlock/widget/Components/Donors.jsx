@@ -11,7 +11,6 @@ let PotFactorySDK =
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
-const pots = PotFactorySDK.getPots();
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetMatchingPoolDonations: () => {},
@@ -23,6 +22,7 @@ let DonateSDK =
     asyncGetDonations: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
+const { total_donations_count } = DonateSDK.getConfig();
 
 const Container = styled.div`
   display: flex;
@@ -124,49 +124,45 @@ const Filter = styled.div`
 
 const Loading = () => <LoadingWrapper>Loading...</LoadingWrapper>;
 
-const [index, setIndex] = useState(0);
+if (!total_donations_count) {
+  return <Loading />;
+}
+
+const allDonationsUnflattened = useCache(() => {
+  const limit = 100;
+
+  const totalPages = Math.ceil(total_donations_count / limit);
+
+  const fetchDonationsForIndex = (index) => DonateSDK.asyncGetDonations(index * limit, limit);
+
+  // Array to hold promises for each index
+  const promises = [];
+
+  // Loop through each index and create promises
+  for (let i = 0; i < totalPages; i++) {
+    promises.push(fetchDonationsForIndex(i));
+  }
+
+  return Promise.all(promises);
+}, `total-donations-${total_donations_count}`);
+
+const sponsorshipDonationsUnflattened = useCache(() => {
+  const pots = PotFactorySDK.getPots();
+  return Promise.all(pots.map((pot) => PotSDK.asyncGetMatchingPoolDonations(pot.id)));
+}, "sponsorship-donations");
+
+const allDonations = (allDonationsUnflattened && allDonationsUnflattened.flat()) || [];
+
+const sponsorshipDonations =
+  (sponsorshipDonationsUnflattened && sponsorshipDonationsUnflattened.flat()) || [];
+
 const [currentTab, setTab] = useState("leaderboard");
 const [title, setTitle] = useState("");
 const [filter, setFilter] = useState("");
-const [allDonationsFetched, setAllDonationsFetched] = useState(false);
-const [donationsByPage, setDonationsByPage] = useState({});
-const [sponsorsByPage, setSponsorsByPage] = useState({});
 const [fetchDonationsError, setFetchDonationsError] = useState("");
 
-const limit = 900;
-const cachedDonationsValidityPeriod = 1000 * 60 * 5; // 5 minutes
-
-const getSponsorshipDonations = (potId) => {
-  return PotSDK.asyncGetMatchingPoolDonations(potId).then((donations) => {
-    if (sponsorsByPage[potId]) return "";
-    setSponsorsByPage((prevSponsorsByPage) => {
-      Storage.set("sponsorsByPage", {
-        val: { ...prevSponsorsByPage, [potId]: donations },
-        ts: Date.now(),
-      });
-      return { ...prevSponsorsByPage, [potId]: donations };
-    });
-  });
-};
-
-// Get Sponsorship Donations
-
-if (pots && !sponsorsByPage[pots[pots.length - 1].id]) {
-  const cachedSponsors = Storage.get("sponsorsByPage");
-  if (cachedSponsors && cachedSponsors.ts > Date.now() - cachedDonationsValidityPeriod) {
-    console.log("using cached sponsors");
-    setSponsorsByPage(cachedSponsors.val);
-  } else if (cachedSponsors !== null) {
-    pots.forEach((pot) => {
-      getSponsorshipDonations(pot.id, potDetail);
-    });
-  }
-}
-
 const sponsors = useMemo(() => {
-  if (!sponsorsByPage[pots[pots.length - 1].id]) return [];
-  let sponsors = Object.values(sponsorsByPage).flat();
-  sponsors = sponsors.filter((donation) => filterByDate(filter, donation));
+  let sponsors = sponsorshipDonations.filter((donation) => filterByDate(filter, donation));
   sponsors = sponsors.reduce((accumulator, currentDonation) => {
     accumulator[currentDonation.donor_id] = {
       amount:
@@ -178,47 +174,10 @@ const sponsors = useMemo(() => {
   }, {});
   sponsors = Object.values(sponsors).sort((a, b) => b.amount - a.amount);
   return sponsors;
-}, [sponsorsByPage, filter]);
+}, [sponsorshipDonations, filter]);
 
-if (!allDonationsFetched && !donationsByPage[index]) {
-  // first, try to get from cache
-  const cacheKey = `donationsByPage-${index}-${limit}`;
-  const cachedDonations = Storage.get(cacheKey);
-  if (cachedDonations && cachedDonations.ts > Date.now() - cachedDonationsValidityPeriod) {
-    console.log("using cached donations for page ", index);
-    setDonationsByPage({ ...donationsByPage, [index]: cachedDonations.val });
-    if (cachedDonations.val.length === limit) {
-      setIndex(index + 1);
-    } else {
-      setAllDonationsFetched(true);
-    }
-  } else if (cachedDonations !== null) {
-    // null means it's loading (async)
-    console.log("fetching donations for page", index);
-    const startTime = Date.now();
-    DonateSDK.asyncGetDonations(limit * index, limit)
-      .then((donationsPart) => {
-        const endTime = Date.now();
-        console.log("fetched donations for index", index, "in", endTime - startTime, "ms");
-        // cache the result
-        Storage.set(cacheKey, { val: donationsPart, ts: Date.now() });
-        setDonationsByPage({ ...donationsByPage, [index]: donationsPart });
-        if (donationsPart.length === limit) {
-          setIndex(index + 1);
-        } else {
-          setAllDonationsFetched(true);
-        }
-      })
-      .catch((e) => {
-        setFetchDonationsError(e);
-      });
-  }
-}
-
-const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
-  if (!allDonationsFetched) return [[], {}, []];
-  let donations = Object.values(donationsByPage).flat();
-  donations = donations.filter((donation) => filterByDate(filter, donation));
+const [donations, totalsByDonor, sortedDonations] = useMemo(() => {
+  let donations = allDonations.filter((donation) => filterByDate(filter, donation));
   const totalsByDonor = donations.reduce((accumulator, currentDonation) => {
     accumulator[currentDonation.donor_id] = {
       amount:
@@ -230,7 +189,7 @@ const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
   }, {});
   const sortedDonations = Object.values(totalsByDonor).sort((a, b) => b.amount - a.amount);
   return [donations, totalsByDonor, sortedDonations];
-}, [donationsByPage, allDonationsFetched, filter]);
+}, [allDonations, filter]);
 
 const leaderboard = [
   {
@@ -306,68 +265,57 @@ const sortList = tabs.map((tab) => ({
 
 return (
   <Container>
-    {fetchDonationsError ? (
-      <div>
-        <h1>Error fetching donations</h1>
-        <p>{fetchDonationsError}</p>
-      </div>
-    ) : !allDonationsFetched ? (
-      <Loading />
-    ) : (
-      <>
-        <div className="leaderboard">
-          <h1>Donors Leaderboard</h1>
-          <Widget
-            src={`${ownerId}/widget/Components.DonorsCards`}
-            props={{ ...props, sponsors, sortedDonations, currentTab }}
-          />
-        </div>
-        <Tabs>
-          <Widget
-            src={`${ownerId}/widget/Inputs.Dropdown`}
-            props={{
-              sortVal: title,
-              title: (
-                <MenuItem className="selected" count={tabs[0].count}>
-                  {tabs[0].val}{" "}
-                </MenuItem>
-              ),
-              sortList: sortList,
-              FilterMenuCustomStyle: `left:0; right:auto;`,
-              handleSortChange: ({ val: option }) => {
-                setTitle(
-                  <MenuItem className="selected" count={option.count}>
-                    {option.val}
-                  </MenuItem>
-                );
-                setTab(option.val);
-              },
-            }}
-          />
-          <Filter>
-            {filterOptions.map((option) => (
-              <div
-                className={`option ${filter === option.value ? "active" : ""}`}
-                key={option.value}
-                onClick={() => setFilter(option.value)}
-              >
-                {option.text}
-              </div>
-            ))}
-          </Filter>
-        </Tabs>
-        <Widget
-          src={`${ownerId}/widget/${options.find((option) => option.tab == currentTab).src}`}
-          props={{
-            ...props,
-            allDonations: allDonations,
-            filter,
-            sponsors,
-            sortedDonations,
-            currentTab,
-          }}
-        />
-      </>
-    )}
+    <div className="leaderboard">
+      <h1>Donors Leaderboard</h1>
+      <Widget
+        src={`${ownerId}/widget/Components.DonorsCards`}
+        props={{ ...props, sponsors, sortedDonations, currentTab }}
+      />
+    </div>
+    <Tabs>
+      <Widget
+        src={`${ownerId}/widget/Inputs.Dropdown`}
+        props={{
+          sortVal: title,
+          title: (
+            <MenuItem className="selected" count={tabs[0].count}>
+              {tabs[0].val}{" "}
+            </MenuItem>
+          ),
+          sortList: sortList,
+          FilterMenuCustomStyle: `left:0; right:auto;`,
+          handleSortChange: ({ val: option }) => {
+            setTitle(
+              <MenuItem className="selected" count={option.count}>
+                {option.val}
+              </MenuItem>
+            );
+            setTab(option.val);
+          },
+        }}
+      />
+      <Filter>
+        {filterOptions.map((option) => (
+          <div
+            className={`option ${filter === option.value ? "active" : ""}`}
+            key={option.value}
+            onClick={() => setFilter(option.value)}
+          >
+            {option.text}
+          </div>
+        ))}
+      </Filter>
+    </Tabs>
+    <Widget
+      src={`${ownerId}/widget/${options.find((option) => option.tab == currentTab).src}`}
+      props={{
+        ...props,
+        allDonations: donations,
+        filter,
+        sponsors,
+        sortedDonations,
+        currentTab,
+      }}
+    />
   </Container>
 );
