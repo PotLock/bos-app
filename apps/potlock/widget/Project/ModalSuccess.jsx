@@ -335,7 +335,6 @@ const twitterIntent = useMemo(() => {
   if (!recipientProfile) return;
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
 
-  let tag = "";
   const recipient_id =
     successfulDonationVals[0].recipient_id || successfulDonationVals[0].project_id;
   const profile = recipientProfileVals[0];
@@ -345,11 +344,13 @@ const twitterIntent = useMemo(() => {
       : profile.name
     : recipient_id;
 
-  if (recipientProfileVals?.length === 1) {
-    tag = singlePorject;
-  } else {
-    tag = `${singlePorject} and ${recipientProfileVals?.length - 1} more`;
-  }
+  const tag =
+    `${singlePorject}` +
+    (successfulDonationVals.length > 1
+      ? ` and ${successfulDonationVals?.length - 1} other${
+          successfulDonationVals?.length === 2 ? "" : "s"
+        }`
+      : "");
 
   let url =
     DEFAULT_GATEWAY +

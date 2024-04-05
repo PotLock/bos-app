@@ -820,7 +820,7 @@ return (
           <Button onClick={donateRandomly}>Donate Randomly</Button>
           {state.isModalOpen && (
             <Widget
-              src={`${ownerId}/widget/Project.ModalDonation`}
+              src={`${ownerId}/widget/ModalDonation.Main`}
               props={{
                 ...props,
                 isModalOpen: state.isModalOpen,

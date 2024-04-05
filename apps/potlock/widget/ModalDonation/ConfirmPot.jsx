@@ -245,27 +245,30 @@ const pollForDonationSuccess = ({
   afterTs,
   accountId,
   openDonationSuccessModal,
-  amount,
+  potId,
 }) => {
   // poll for updates
   const pollIntervalMs = 1000;
   // const totalPollTimeMs = 60000; // consider adding in to make sure interval doesn't run indefinitely
   const pollId = setInterval(() => {
-    PotSDK.asyncGetDonationsForDonor(accountId).then((alldonations) => {
-      const donations = {};
-      for (const donation of alldonations) {
-        const { project_id, donated_at_ms, donated_at } = donation;
-        if ((projectIds.includes(project_id) && donated_at_ms > afterTs) || donated_at > afterTs) {
-          donations[project_id] = donation;
+    PotSDK.asyncGetDonationsForDonor(potId, accountId)
+      .then((alldonations) => {
+        const donations = {};
+        for (const donation of alldonations) {
+          const { project_id, donated_at_ms, donated_at } = donation;
+          if (projectIds.includes(project_id) && (donated_at_ms || donated_at) > afterTs) {
+            donations[project_id] = donation;
+          }
         }
-      }
-      if (Object.keys(donations).length === projectIds.length) {
-        // display success message
-        clearInterval(pollId);
-        donations.total_amount = amount;
-        openDonationSuccessModal(donations);
-      }
-    });
+        if (Object.keys(donations).length === projectIds.length) {
+          // display success message
+          clearInterval(pollId);
+          openDonationSuccessModal(donations);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, pollIntervalMs);
 };
 
@@ -311,11 +314,11 @@ const ConfirmPot = (props) => {
 
     const successArgs = {
       projectIds: Object.keys(selectedProjects),
-      now,
+      afterTs: now,
       accountId,
       openDonationSuccessModal,
-      isPotDonation: true,
       amount,
+      potId,
     };
 
     const transactions = [];
@@ -346,7 +349,7 @@ const ConfirmPot = (props) => {
 
     Near.call(transactions);
 
-    // pollForDonationSuccess(successArgs);
+    pollForDonationSuccess(successArgs);
   };
 
   return (

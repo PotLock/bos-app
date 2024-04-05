@@ -310,7 +310,9 @@ useEffect(() => {
               setActiveRounds((prev) => [...(prev || [])]);
             }
           })
-          .catch((err) => {});
+          .catch((err) => {
+            setActiveRounds((prev) => [...(prev || [])]);
+          });
       }
     });
   }

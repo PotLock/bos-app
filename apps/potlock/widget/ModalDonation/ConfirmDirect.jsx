@@ -175,7 +175,7 @@ const getFeesBasisPoints = (protocolConfig, potDetail, donationContractConfig) =
 };
 
 const pollForDonationSuccess = ({
-  projectId,
+  projectId: donatedProject,
   afterTs,
   accountId,
   openDonationSuccessModal,
@@ -189,12 +189,15 @@ const pollForDonationSuccess = ({
     (isPotDonation ? PotSDK : DonateSDK).asyncGetDonationsForDonor(accountId).then((donations) => {
       for (const donation of donations) {
         const { recipient_id, project_id, donated_at_ms, donated_at } = donation; // donation contract uses recipient_id, pot contract uses project_id; donation contract uses donated_at_ms, pot contract uses donated_at
+
         if (
-          ((recipient_id === projectId || project_id === projectId) && donated_at_ms > afterTs) ||
+          ((project_id || recipient_id) === donatedProject &&
+            (donated_at_ms || donated_at) > afterTs) ||
           donated_at > afterTs
         ) {
           // display success message
           clearInterval(pollId);
+
           openDonationSuccessModal({
             projectId: donation,
           });
@@ -277,7 +280,7 @@ const ConfirmDirect = (props) => {
 
     const successArgs = {
       projectId,
-      now,
+      afterTs: now,
       accountId,
       openDonationSuccessModal,
       isPotDonation,
@@ -384,7 +387,7 @@ const ConfirmDirect = (props) => {
         Near.call(transactions);
         // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
         // <-------- EXTENSION WALLET HANDLING -------->
-        // pollForDonationSuccess(successArgs);
+        pollForDonationSuccess(successArgs);
       });
     } else {
       transactions.push({
@@ -397,7 +400,7 @@ const ConfirmDirect = (props) => {
       Near.call(transactions);
       // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
       // <-------- EXTENSION WALLET HANDLING -------->
-      // pollForDonationSuccess(successArgs);
+      pollForDonationSuccess(successArgs);
     }
   };
 
