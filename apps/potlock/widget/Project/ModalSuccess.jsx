@@ -210,10 +210,10 @@ const SocialIcon = styled.svg`
 
 State.init({
   showBreakdown: false,
-  successfulDonation: props.successfulDonation,
 });
-
-const { recipientProfile, successfulDonation, successfulApplication } = state;
+const [successfulDonation, setSuccessfulDonation] = useState(props.successfulDonation);
+const [ftMetadata, setFtMetadata] = useState(null);
+const { recipientProfile, successfulApplication } = state;
 
 const successfulDonationVals = successfulDonation ? Object.values(successfulDonation) : [];
 const recipientProfileVals = recipientProfile ? Object.values(recipientProfile) : [];
@@ -257,6 +257,7 @@ const totalAmount = getTotalAmount();
 
 if (props.isModalOpen && !successfulDonation) {
   const transactionHashes = props.transactionHashes.split(",");
+
   for (let i = 0; i < transactionHashes.length; i++) {
     const txHash = transactionHashes[i];
     const body = JSON.stringify({
@@ -265,71 +266,81 @@ if (props.isModalOpen && !successfulDonation) {
       method: "tx",
       params: [txHash, context.accountId],
     });
-    const res = fetch("https://rpc.mainnet.near.org", {
+    const res = asyncFetch("https://rpc.mainnet.near.org", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body,
-    });
-    if (res.ok) {
-      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
-      const successVal = res.body.result.status?.SuccessValue;
-      let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
-      if (methodName === "donate") {
-        // NEAR donation
-        State.update({
-          successfulDonation: {
-            [decoded?.recipient_id || decoded?.project_id]: decoded,
-          },
-        });
-        break;
-      } else if (methodName === "apply") {
-        // application
-        State.update({
-          successfulApplication: decoded,
-        });
-        break;
-      } else if (methodName === "ft_transfer_call") {
-        // FT donation
+    })
+      .then((res) => {
+        const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
+        const successVal = res.body.result.status?.SuccessValue;
+        const receiver_id = res.body.result.transaction.receiver_id;
+        const result = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+
         const args = JSON.parse(
           Buffer.from(res.body.result.transaction.actions[0].FunctionCall.args, "base64").toString(
             "utf-8"
           )
         );
-        const signerId = res.body.result.transaction.signer_id;
-        Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
-          donor_id: signerId,
-        })
-          .then((donations) => {
-            if (donations.length) {
-              const donation = donations.sort((a, b) => b.donated_at_ms - a.donated_at_ms)[0];
-              State.update({
-                successfulDonation: {
-                  [donation.recipient_id]: donation,
+
+        const recipientId =
+          methodName === "donate"
+            ? result.project_id
+              ? result.project_id
+              : result.recipient_id
+            : methodName === "ft_transfer_call"
+            ? JSON.parse(args.msg).recipient_id
+            : "";
+
+        if (recipientId) {
+          if (methodName === "donate") {
+            setSuccessfulDonation((prev) => ({
+              ...prev,
+              [recipientId]: result,
+            }));
+          } else if (methodName === "apply") {
+            // application
+            State.update({
+              successfulApplication: result,
+            });
+          } else if (methodName === "ft_transfer_call" && recipientId) {
+            asyncFetch(
+              `https://near-mainnet.api.pagoda.co/eapi/v1/nep141/metadata/${receiver_id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
                 },
-              });
-            }
-          })
-          .catch((e) => console.log("error fetching donations for donor: ", e));
-        break;
-      } else {
-        if (i === transactionHashes.length - 1) {
-          // close modal
-          onClose();
+              }
+            )
+              .then((data) => {
+                const metadata = data.body.metadata;
+                setFtMetadata(metadata);
+                setSuccessfulDonation((prev) => ({
+                  ...prev,
+                  [recipientId]: {
+                    project_id: recipientId,
+                    total_amount: result,
+                  },
+                }));
+              })
+              .catch((err) => console.log(err));
+          }
         }
-      }
-    }
+      })
+      .catch((err) => console.log(err));
   }
 }
 
-const ftMetadata = [];
-
-if (statusbar.successfulDonation) {
-  ftMetadata = Object.keys(successfulDonation).map((projectId) =>
-    Near.view(successfulDonation[projectId]?.ft_id, "ft_metadata", {})
-  );
-}
+useEffect(() => {
+  if (successfulDonation && !ftMetadata) {
+    Near.asyncView(successfulDonationVals[0]?.ft_id, "ft_metadata", {}).then((metaDate) =>
+      setFtMetadata(metaDate)
+    );
+  }
+}, [successfulDonation]);
 
 const twitterIntent = useMemo(() => {
   if (!recipientProfile) return;
@@ -416,8 +427,8 @@ return (
           </ModalHeader>
           <ModalMiddel>
             <div className="amount-wrapper">
-              {ftMetadata[0]?.icon ? (
-                <img src={ftMetadata[0].icon} />
+              {ftMetadata?.icon ? (
+                <img src={ftMetadata.icon} />
               ) : (
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_454_78)">
@@ -439,13 +450,13 @@ return (
                   ? parseFloat(
                       // NEAR.fromIndivisible(totalAmount).toString()
                       Big(totalAmount)
-                        .div(Big(10).pow(ftMetadata[0]?.decimals || 24))
+                        .div(Big(10).pow(ftMetadata?.decimals || 24))
                         .toFixed(2)
                     )
                   : "-"}
-                {ftMetadata[0]?.text || "NEAR"}
+                {ftMetadata?.symbol || "NEAR"}
               </Amount>
-              {totalAmount && yoctosToUsd(totalAmount) && (
+              {totalAmount && yoctosToUsd(totalAmount) && !ftMetadata && (
                 <AmountUsd>{yoctosToUsd(totalAmount)} </AmountUsd>
               )}
             </div>
@@ -477,12 +488,12 @@ return (
               ...props,
               referrerId: successfulDonationVals[0]?.referrer_id,
               totalAmount: Big(totalAmount)
-                .div(Big(10).pow(ftMetadata[0]?.decimals || 24))
+                .div(Big(10).pow(ftMetadata?.decimals || 24))
                 .toFixed(2),
               bypassProtocolFee:
                 !successfulDonationVals[0]?.protocol_fee ||
                 successfulDonationVals[0]?.protocol_fee === "0", // TODO: allow user to choose
-              ftIcon: ftMetadata[0]?.icon,
+              ftIcon: ftMetadata?.icon,
             }}
           />
         </ModalMain>

@@ -274,7 +274,7 @@ const ConfirmDirect = (props) => {
     };
 
     const potId = selectedRound || null;
-    const isPotDonation = potId;
+    const isPotDonation = potId && donationType === "pot";
 
     const now = Date.now();
 
@@ -299,6 +299,8 @@ const ConfirmDirect = (props) => {
     /// 2. CALL FT CONTRACT:
     /// - check for storage balance for all accounts (protocol fee recipient, referrer, project, donation contract)
     const transactions = [];
+
+    const isFtDonation = selectedDenomination.text !== "NEAR";
 
     if (isFtDonation) {
       const ftId = selectedDenomination.id;

@@ -293,6 +293,8 @@ useEffect(() => {
       donationType: multiple ? "auto" : "pot",
     });
   } else if (!activeRounds && projectId) {
+    if (!pots) setActiveRounds([]);
+
     (pots ?? []).forEach((pot, idx) => {
       if (pot) {
         PotSDK.asyncGetApplicationByProjectId(pot, projectId)
@@ -313,6 +315,7 @@ useEffect(() => {
             }
           })
           .catch((err) => {
+            console.log(err);
             setActiveRounds((prev) => [...(prev || [])]);
           });
       }
