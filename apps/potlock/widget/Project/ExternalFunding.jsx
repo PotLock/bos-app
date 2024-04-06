@@ -140,7 +140,7 @@ const ArrowDown = (props) => (
   </Arrow>
 );
 
-const externalTableTabs = ["funding Source", "description", "amount"];
+const externalTableTabs = ["funding Source", "description", "date", "amount"];
 
 return (
   <Container>
@@ -165,11 +165,12 @@ return (
           </div>
         ))}
       </div>
-      {externalFunding.map(({ investorName, description, amountReceived, denomination }) => (
+      {externalFunding.map(({ investorName, description, date, amountReceived, denomination }) => (
         <div className="funding-row">
           <div style={{ fontWeight: 600 }}>{investorName}</div>
           <input type="checkbox" className="toggle-check" />
           <div className="description">{description}</div>
+          <div className="date">{date ?? "No specified date"}</div>
           <div className="amount">
             {parseFloat(amountReceived).toLocaleString() + " " + denomination}{" "}
             <ArrowDown showFundingTable={showFundingTable} />

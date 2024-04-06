@@ -174,7 +174,7 @@ const [filteredProjects, setFilteredProjects] = useState([]);
 const [projects, setProjects] = useState(null);
 
 // get projects
-const { ownerId, potId, potDetail, sybilRequirementMet } = props;
+const { ownerId, potId, potDetail, sybilRequirementMet, allDonations } = props;
 const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
   VM.require("potlock.near/widget/utils") || {
     calculatePayouts: () => {},
@@ -197,12 +197,9 @@ const { public_round_start_ms, public_round_end_ms, referral_fee_public_round_ba
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 
-const allDonationsForPot = PotSDK.getPublicRoundDonations(potId) || [];
-
 const payouts = useMemo(() => {
-  if (allDonationsForPot.length)
-    return calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
-}, [allDonationsForPot]);
+  if (allDonations.length) return calculatePayouts(allDonations, potDetail.matching_pool_balance);
+}, [allDonations]);
 
 const searchByWords = (searchTerm) => {
   if (projects.length) {
@@ -274,7 +271,8 @@ return (
               loading={<CardSkeleton />}
               props={{
                 ...props,
-                potId,
+                potDetail,
+                projects,
                 projectId: project.project_id,
                 allowDonate:
                   sybilRequirementMet &&

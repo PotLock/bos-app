@@ -15,14 +15,16 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  border-radius: 6px;
   width: 100%;
   max-width: 600px;
   padding: 24px 24px 18px 24px;
   background: white;
-  border: 1px rgba(41, 41, 41, 0.4) solid;
   display: flex;
   flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 0px 0px 1px rgba(41, 41, 41, 0.1), 0px 8px 12px -4px rgba(41, 41, 41, 0.1),
+    0px 20px 32px -10px rgba(41, 41, 41, 0.1), 0px 32px 44px -16px rgba(41, 41, 41, 0.1);
 `;
 
 const overlayStyle = props.overlayStyle || {};

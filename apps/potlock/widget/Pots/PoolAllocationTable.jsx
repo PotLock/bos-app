@@ -2,7 +2,13 @@ const {
   potId,
   env,
   hrefWithParams,
-  potDetail: { base_currency, total_public_donations, matching_pool_balance },
+  allDonations,
+  potDetail: {
+    base_currency,
+    total_public_donations,
+    matching_pool_balance,
+    public_donations_count,
+  },
 } = props;
 
 const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
@@ -65,7 +71,6 @@ const calcUniqueDonors = (donations) => {
 };
 
 const calcMatchedAmount = (donations) => {
-  console.log("donations", donations);
   const total = Big(0);
   donations.forEach((donation) => {
     total = total.plus(Big(donation.net_amount));
@@ -74,16 +79,14 @@ const calcMatchedAmount = (donations) => {
   return amount;
 };
 
-const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-
-const uniqueDonorIds = allDonationsForPot
-  ? new Set(allDonationsForPot.map((donation) => donation.donor_id))
+const uniqueDonorIds = allDonations
+  ? new Set(allDonations.map((donation) => donation.donor_id))
   : new Set([]);
 
 const donorsCount = uniqueDonorIds.size;
 
-if (!allPayouts && allDonationsForPot?.length > 0) {
-  const calculatedPayouts = calculatePayouts(allDonationsForPot, matching_pool_balance);
+if (!allPayouts && allDonations?.length > 0) {
+  const calculatedPayouts = calculatePayouts(allDonations, matching_pool_balance);
 
   let allPayouts = [];
 

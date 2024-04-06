@@ -8,6 +8,7 @@ const {
   registryStatus,
   hrefWithParams,
   nav,
+  referrerId,
 } = props;
 
 const {
@@ -27,7 +28,10 @@ const {
 } = potDetail;
 
 const [isMatchingPoolModalOpen, setIsMatchingPoolModalOpen] = useState(false);
+const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
+const [successfulDonation, setSuccessfulDonation] = useState(null);
 const [showChallengePayoutsModal, setShowChallengePayoutsModal] = useState(false);
+const [projects, setProjects] = useState(null);
 
 const { IPFS_BASE_URL } = VM.require("potlock.near/widget/constants") || {
   IPFS_BASE_URL: "",
@@ -42,16 +46,23 @@ const userIsChefOrGreater = userIsAdminOrGreater || chef === context.accountId;
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getApplicationByProjectId: () => {},
+  asyncGetApprovedApplications: () => {},
   adminProcessPayouts: () => {},
 };
 
 const existingApplication = PotSDK.getApplicationByProjectId(potId, context.accountId);
 
+useEffect(() => {
+  if (!projects) {
+    PotSDK.asyncGetApprovedApplications(potId).then((projects) => {
+      setProjects(projects);
+    });
+  }
+}, []);
 const applicationExists = existingApplication || applicationSuccess;
 
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
-console.log(potDetail);
 
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 
@@ -174,6 +185,8 @@ const existingChallengeForUser = (payoutsChallenges || []).find(
   (challenge) => challenge.challenger_id === context.accountId
 );
 
+const canDonate = sybilRequirementMet && projects.length > 0;
+
 return (
   <Container>
     <Header>
@@ -191,17 +204,20 @@ return (
         </div>
       </Fund>
       <ButtonsWrapper>
-        {publicRoundOpen && (nav !== "projects" || !sybilRequirementMet) && context.accountId && (
+        {publicRoundOpen && context.accountId && (
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
-              text: sybilRequirementMet ? "Donate" : "Verify to Donate",
-              href: sybilRequirementMet
-                ? hrefWithParams(`?tab=pot&potId=${potId}&nav=projects`)
-                : NADA_BOT_URL,
-              target: sybilRequirementMet ? "_self" : "_blank",
-              iconSrc: sybilRequirementMet ? null : NADABOT_ICON_URL,
+              text: canDonate ? "Donate" : "Verify to Donate",
+              href: canDonate ? null : NADA_BOT_URL,
+              onClick: canDonate
+                ? () => {
+                    setIsModalDonationOpen(true);
+                  }
+                : null,
+              target: canDonate ? "_self" : "_blank",
+              iconSrc: canDonate ? null : NADABOT_ICON_URL,
             }}
           />
         )}
@@ -282,5 +298,34 @@ return (
         onCancel: () => setShowChallengePayoutsModal(false),
       }}
     />
+    <Widget
+      src={`${ownerId}/widget/ModalDonation.Main`}
+      loading={""}
+      props={{
+        ...props,
+        isModalOpen: isModalDonationOpen,
+        onClose: () => setIsModalDonationOpen(false),
+        potId,
+        potDetail,
+        projects,
+        referrerId,
+        multiple: true,
+        openDonationModalSuccess: (donation) => {
+          setIsModalDonationOpen(false);
+          setSuccessfulDonation(donation);
+        },
+      }}
+    />
+    {successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalSuccess`}
+        props={{
+          ...props,
+          successfulDonation: successfulDonation,
+          isModalOpen: successfulDonation != null,
+          onClose: () => setSuccessfulDonation(null),
+        }}
+      />
+    )}
   </Container>
 );

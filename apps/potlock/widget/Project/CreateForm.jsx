@@ -278,30 +278,91 @@ const FundingHeaderItemText = styled.div`
   word-wrap: break-word;
 `;
 
-const TableRow = styled.div`
+const Table = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const TableRowItem = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  padding: 20px;
-  width: ${100 / FUNDING_SOURCE_COLUMNS.length}%;
-`;
-
-const TableRowText = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 24px;
-  word-wrap: break-word;
+  flex-direction: column;
+  border-radius: 6px;
+  border: 1px solid #7b7b7b;
+  background: #fff;
+  .header,
+  .fudning-row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .header {
+    border-bottom: 0.5px solid #7b7b7b;
+  }
+  .fudning-row:not(:last-of-type) {
+    border-bottom: 0.5px solid #7b7b7b;
+  }
+  .item {
+    width: 140px;
+    display: flex;
+    align-items: center;
+    &:nth-of-type(1) {
+      width: 190px;
+    }
+    &:nth-of-type(2) {
+      flex: 1;
+    }
+  }
+  .source {
+    width: 190px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    div {
+      font-weight: 600;
+    }
+    div:last-of-type {
+      color: #7b7b7b;
+      font-weight: 400;
+    }
+  }
+  .amount {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    div:last-child {
+      font-weight: 600;
+    }
+  }
+  .btns {
+    width: 95px;
+    gap: 2rem;
+    justify-content: space-between;
+    svg {
+      cursor: pointer;
+      path {
+        transition: 300ms ease-in-out;
+      }
+      &:hover {
+        path {
+          fill: black;
+        }
+      }
+    }
+  }
+  .header .item {
+    padding: 10px 1rem;
+    color: #7b7b7b;
+    font-weight: 600;
+  }
+  .fudning-row .item {
+    padding: 1rem 1rem;
+  }
+  @media only screen and (max-width: 769px) {
+    .header {
+      display: none;
+    }
+    .fudning-row {
+      flex-direction: column;
+    }
+    .item {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
 `;
 
 State.init({
@@ -902,6 +963,8 @@ const uploadFileUpdateState = (body, callback) => {
 
 // console.log("state in create form: ", state);
 
+console.log(state.fundingSources);
+
 return (
   <Container>
     {!state.socialDataFetched || !registrations ? (
@@ -1436,55 +1499,97 @@ return (
                 </FormSectionRightDiv> */}
               </FormSectionContainer>
               {state.fundingSources.length > 0 && (
-                <FundingHeader>
-                  {FUNDING_SOURCE_COLUMNS.map((column, index) => (
-                    <FundingHeaderItem>
-                      <FundingHeaderItemText key={index}>{column}</FundingHeaderItemText>
-                    </FundingHeaderItem>
-                  ))}
-                </FundingHeader>
-              )}
-              {state.fundingSources.map(
-                ({ investorName, description, amountReceived, denomination }, index) => {
-                  return (
-                    <TableRow key={index}>
-                      <TableRowItem>
-                        <TableRowText>{investorName}</TableRowText>
-                      </TableRowItem>
-                      <TableRowItem>
-                        <TableRowText>{description}</TableRowText>
-                      </TableRowItem>
-                      <TableRowItem>
-                        <TableRowText>{amountReceived}</TableRowText>
-                      </TableRowItem>
-                      <TableRowItem>
-                        <TableRowText>{denomination}</TableRowText>
-                        {/* <Icon
-                          src={EDIT_ICON_URL}
-                          onClick={() => {
+                <Table>
+                  <div className="header">
+                    <div className="item">Funding source</div>
+                    <div className="item">Description</div>
+                    <div className="item amount">Amount</div>
+                    <div className="btns" />
+                  </div>
+                  {state.fundingSources.map((funding, idx) => (
+                    <div className="fudning-row" key={funding.investorName}>
+                      <div className="item source">
+                        <div>{funding.investorName}</div>
+                        {funding.date && (
+                          <div>
+                            {new Date(funding.date).toLocaleDateString("en-US", {
+                              month: "numeric",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      <div className="item">{funding.description}</div>
+                      <div className="item amount">
+                        <div>{funding.denomination}</div>
+                        <div>{funding.amountReceived}</div>
+                      </div>
+                      <div className="btns item">
+                        {/* Edit Button */}
+                        <svg
+                          onClick={() =>
                             State.update({
-                              fundingSourceIndex: index,
-                            });
-                          }}
-                        /> */}
-                        <DeleteIcon
+                              fundingSourceIndex: idx,
+                            })
+                          }
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g clip-path="url(#clip0_446_76)">
+                            <path
+                              d="M15.369 0.290547C14.979 -0.0994531 14.349 -0.0994531 13.959 0.290547L12.129 2.12055L15.879 5.87055L17.709 4.04055C18.099 3.65055 18.099 3.02055 17.709 2.63055L15.369 0.290547Z"
+                              fill="#7B7B7B"
+                            />
+                            <path
+                              d="M-0.000976562 18.0005H3.74902L14.809 6.94055L11.059 3.19055L-0.000976562 14.2505V18.0005ZM1.99902 15.0805L11.059 6.02055L11.979 6.94055L2.91902 16.0005H1.99902V15.0805Z"
+                              fill="#7B7B7B"
+                            />
+                          </g>
+                          <defs>
+                            <clipPath id="clip0_446_76">
+                              <rect width="18" height="18" fill="white" />
+                            </clipPath>
+                          </defs>
+                        </svg>
+                        {/* Delete Button */}
+                        <svg
                           onClick={() => {
                             const updatedFundingSources = state.fundingSources.filter(
-                              (fs, i) => i != index
+                              (fudning, i) => i !== idx
                             );
-                            State.update({ fundingSources: updatedFundingSources });
+                            State.update({
+                              fundingSources: updatedFundingSources,
+                            });
                           }}
-                        />
-                      </TableRowItem>
-                    </TableRow>
-                  );
-                }
+                          width="14"
+                          height="18"
+                          viewBox="0 0 14 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M11 6V16H3V6H11ZM9.5 0H4.5L3.5 1H0V3H14V1H10.5L9.5 0ZM13 4H1V16C1 17.1 1.9 18 3 18H11C12.1 18 13 17.1 13 16V4Z"
+                            fill="#7B7B7B"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
+                </Table>
               )}
               <Widget
                 src={`${ownerId}/widget/Components.Button`}
                 props={{
                   type: "tertiary",
                   text: "Add funding source",
+                  style: {
+                    width: "fit-content",
+                    marginTop: "1rem",
+                  },
                   disabled: state.fundingSources.some(
                     (fs) =>
                       !fs.investorName || !fs.amountReceived || !fs.denomination || !fs.description
@@ -1647,6 +1752,7 @@ return (
             fundingSourceIndex: state.fundingSourceIndex,
             handleAddFundingSource: ({
               investorName,
+              date,
               description,
               amountReceived,
               denomination,
@@ -1655,6 +1761,7 @@ return (
                 if (i == state.fundingSourceIndex) {
                   return {
                     investorName,
+                    date,
                     description,
                     amountReceived,
                     denomination,

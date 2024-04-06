@@ -118,8 +118,6 @@ const Label = styled.label`
 const UserChipLink = styled.a`
   display: flex;
   flex-direction: row;
-  // align-items: center;
-  // justify-content: center;
   padding: 2px 12px;
   margin: 0px 4px;
   gap: 4px;
@@ -133,7 +131,7 @@ const UserChipLink = styled.a`
 
 const TextBold = styled.div`
   color: #292929;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 20px;
   word-wrap: break-word;
@@ -244,14 +242,6 @@ let ListsSDK =
 ListsSDK = ListsSDK({ env: props.env });
 
 const projects = ListsSDK.getRegistrations() || [];
-
-let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
-  (() => ({
-    getConfig: () => {},
-    asyncGetDonationsForDonor: () => {},
-  }));
-DonateSDK = DonateSDK({ env: props.env });
 
 let PotFactorySDK =
   VM.require("potlock.near/widget/SDK.potfactory") ||
@@ -489,6 +479,14 @@ const protocolConfig =
   protocolConfigContractId && protocolConfigViewMethodName
     ? Near.view(protocolConfigContractId, protocolConfigViewMethodName, {})
     : null;
+
+let DonateSDK =
+  VM.require("potlock.near/widget/SDK.donate") ||
+  (() => ({
+    getConfig: () => {},
+    asyncGetDonationsForDonor: () => {},
+  }));
+DonateSDK = DonateSDK({ env: props.env });
 
 const donationContractConfig = !potDetail ? DonateSDK.getConfig() || {} : null;
 
@@ -1083,12 +1081,8 @@ return (
                   : userShouldVerify
                   ? "Nah, I want to have less impact"
                   : "Donate",
-                // disabled: !state.reviewMessage || !!state.reviewMessageError,
                 disabled: donateDisabled,
                 onClick: handleDonate,
-                // href: userShouldVerify ? props.NADA_BOT_URL : null,
-                // target: userShouldVerify ? "_blank" : "_self",
-                // iconSrc: userShouldVerify ? NADABOT_ICON_URL : null,
                 style: {
                   padding: "12px 16px",
                 },

@@ -7,26 +7,26 @@ const {
   fundingSourceIndex,
 } = props;
 
-// console.log("props in add funding source modal: ", props);
-
-State.init({
+const initalState = {
   investorName: fundingSources[fundingSourceIndex]?.investorName || "",
   investorNameError: "",
+  date: fundingSources[fundingSourceIndex]?.date || "",
+  dateError: "",
   description: fundingSources[fundingSourceIndex]?.description || "",
   descriptionError: "",
   denomination: fundingSources[fundingSourceIndex]?.denomination || "",
   denominationError: "",
   amountReceived: fundingSources[fundingSourceIndex]?.amountReceived || "",
   amountReceivedError: "",
-});
+};
 
-// console.log("state in add funding source modal: ", state);
+State.init(initalState);
+
+useEffect(() => {
+  State.update(initalState);
+}, [fundingSources, fundingSourceIndex]);
 
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
-// const MONEY_ICON_URL =
-//   IPFS_BASE_URL + "bafkreiem3zqv4smaflel54lwtl65d7zbulkan3vnfor4fi2sqn3n5p7tpe";
-// const CLOSE_ICON_URL =
-//   IPFS_BASE_URL + "bafkreifyg2vvmdjpbhkylnhye5es3vgpsivhigkjvtv2o4pzsae2z4vi5i";
 
 const ModalHeader = styled.div`
   display: flex;
@@ -145,6 +145,22 @@ return (
               }}
             />
             <Widget
+              src={`${ownerId}/widget/Inputs.Date`}
+              props={{
+                label: (
+                  <>
+                    Date <span>(optional)</span>
+                  </>
+                ),
+
+                //   placeholder: "0", // TODO: possibly add this back in
+                selectTime: false,
+                value: state.date,
+                onChange: (date) => State.update({ date: date }),
+                error: state.dateError,
+              }}
+            />
+            <Widget
               src={`${ownerId}/widget/Inputs.TextArea`}
               props={{
                 label: "Description",
@@ -209,6 +225,7 @@ return (
                   disabled:
                     !state.investorName ||
                     !!state.investorNameError ||
+                    !!state.dateError ||
                     !state.description ||
                     !!state.descriptionError ||
                     !state.denomination ||
@@ -218,6 +235,7 @@ return (
                   onClick: () => {
                     const fundingSource = {
                       investorName: state.investorName,
+                      date: state.date,
                       description: state.description,
                       denomination: state.denomination,
                       amountReceived: state.amountReceived,
@@ -225,6 +243,8 @@ return (
                     State.update({
                       investorName: "",
                       investorNameError: "",
+                      date: "",
+                      dateError: "",
                       description: "",
                       descriptionError: "",
                       denomination: "",

@@ -1,5 +1,5 @@
 // get donations
-const { potId, potDetail } = props;
+const { potId, potDetail, allDonations } = props;
 // potDetail.cooldown_end_ms = 1710105146000; // TODO: remove this line
 const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -297,9 +297,8 @@ State.init({
 
 const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
 
-const allDonationsForPot = Near.view(potId, "get_public_round_donations", {});
-if (!allPayouts && allDonationsForPot) {
-  const calculatedPayouts = calculatePayouts(allDonationsForPot, potDetail.matching_pool_balance);
+if (!allPayouts && allDonations) {
+  const calculatedPayouts = calculatePayouts(allDonations, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
     // handle these payouts, which don't contain all the info needed

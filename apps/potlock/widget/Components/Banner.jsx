@@ -52,7 +52,7 @@ const Container = styled.div`
   bottom: 0;
   left: 0;
   position: fixed;
-  z-index: 1000;
+  z-index: 999;
   background: #7fc41e;
   color: white;
   display: flex;

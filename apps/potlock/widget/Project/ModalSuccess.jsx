@@ -1,4 +1,4 @@
-const { onClose, successfulDonation } = props;
+const { onClose } = props;
 const {
   ownerId,
   SUPPORTED_FTS: { NEAR },
@@ -8,7 +8,7 @@ const {
   SUPPORTED_FTS: {},
   IPFS_BASE_URL: "",
 };
-const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
+const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => null };
 
 let DonateSDK =
   VM.require("potlock.near/widget/SDK.donate") ||
@@ -51,8 +51,8 @@ const ModalMain = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  gap: 24px;
-  padding: 80px 36px;
+  gap: 2rem;
+  padding: 40px 32px;
 `;
 
 const ModalFooter = styled.div`
@@ -67,42 +67,87 @@ const ModalFooter = styled.div`
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 `;
+
+const ModalHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+`;
+
 const HeaderIcon = styled.div`
-  padding: 1rem;
-  width: 64px;
-  height: 64px;
-  border-radius: 44px;
-  background: radial-gradient(97.66% 97.66% at 50% 2.34%, #e84a5b 0%, #c02031 100%);
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25) inset;
+  padding: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #dd3345;
+  box-shadow: 0px 0px 0px 6px #fee6e5;
   svg {
     width: 100%;
     height: 100%;
   }
 `;
+
+const TwitterShare = styled.a`
+  display: flex;
+  gap: 8px;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 1rem;
+  background: rgb(41, 41, 41);
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  :hover {
+    text-decoration: none;
+  }
+`;
+const ModalMiddel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  .amount-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    img,
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+    img {
+      border-radius: 50%;
+    }
+  }
+`;
+
 const Amount = styled.div`
-  color: #292929;
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 40px;
-  font-family: "Lora";
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.33px;
+  text-transform: uppercase;
 `;
 
 const AmountUsd = styled.div`
   color: #7b7b7b;
+  font-size: 22px;
+`;
+
+const ProjectName = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-size: 14px;
-  font-weight: 400;
-  line-height: 24px;
-  word-wrap: break-word;
-`;
-
-const NearIcon = styled.svg`
-  width: 28px;
-  height: 28px;
-`;
-
-const ImgIcon = styled.img`
-  width: 28px;
-  height: 28px;
+  div {
+    color: #7b7b7b;
+  }
+  a {
+    color: #525252;
+    &:hover {
+      text-decoration: none;
+    }
+  }
 `;
 
 const H1 = styled.h1`
@@ -165,31 +210,54 @@ const SocialIcon = styled.svg`
 
 State.init({
   showBreakdown: false,
-  successfulDonation,
 });
+const [successfulDonation, setSuccessfulDonation] = useState(props.successfulDonation);
+const [ftMetadata, setFtMetadata] = useState(null);
+const { recipientProfile, successfulApplication } = state;
 
-const getProfileDataForSuccessfulDonation = (donation) => {
-  const { donor_id, recipient_id, project_id } = donation;
-  Near.asyncView("social.near", "get", {
-    keys: [`${recipient_id || project_id}/profile/**`],
-  }).then((recipientData) => {
+const successfulDonationVals = successfulDonation ? Object.values(successfulDonation) : [];
+const recipientProfileVals = recipientProfile ? Object.values(recipientProfile) : [];
+
+const getProfileDataForSuccessfulDonation = (donationsObj) => {
+  const donations = Object.values(donationsObj);
+  donations.forEach((donation) => {
+    const { donor_id, recipient_id, project_id } = donation;
     Near.asyncView("social.near", "get", {
-      keys: [`${donor_id}/profile/**`],
-    }).then((donorData) => {
-      State.update({
-        recipientProfile: recipientData[recipient_id || project_id]?.profile || {},
-        donorProfile: donorData[donor_id]?.profile || {},
+      keys: [`${recipient_id || project_id}/profile/**`],
+    }).then((recipientData) => {
+      Near.asyncView("social.near", "get", {
+        keys: [`${donor_id}/profile/**`],
+      }).then((donorData) => {
+        State.update({
+          recipientProfile: {
+            ...recipientProfile,
+            [recipient_id || project_id]: recipientData[recipient_id || project_id]?.profile || {},
+          },
+          donorProfile: donorData[donor_id]?.profile || {},
+        });
       });
     });
   });
 };
 
-if (state.successfulDonation && !state.recipientProfile) {
-  getProfileDataForSuccessfulDonation(state.successfulDonation);
+if (successfulDonation && !recipientProfile) {
+  getProfileDataForSuccessfulDonation(successfulDonation);
 }
+const getTotalAmount = () => {
+  const totalAmount = Big(0);
+  if (successfulDonation) {
+    successfulDonationVals.forEach(
+      (doantion) => (totalAmount = totalAmount.plus(Big(doantion.total_amount)))
+    );
+  }
+  return totalAmount.toString();
+};
 
-if (props.isModalOpen && !state.successfulDonation) {
+const totalAmount = getTotalAmount();
+
+if (props.isModalOpen && !successfulDonation) {
   const transactionHashes = props.transactionHashes.split(",");
+
   for (let i = 0; i < transactionHashes.length; i++) {
     const txHash = transactionHashes[i];
     const body = JSON.stringify({
@@ -198,82 +266,111 @@ if (props.isModalOpen && !state.successfulDonation) {
       method: "tx",
       params: [txHash, context.accountId],
     });
-    const res = fetch("https://rpc.mainnet.near.org", {
+    const res = asyncFetch("https://rpc.mainnet.near.org", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body,
-    });
-    // console.log("tx res: ", res);
-    if (res.ok) {
-      const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
-      const successVal = res.body.result.status?.SuccessValue;
-      let decoded = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
-      if (methodName === "donate") {
-        // NEAR donation
-        State.update({
-          successfulDonation: decoded,
-        });
-        break;
-      } else if (methodName === "apply") {
-        // application
-        State.update({
-          successfulApplication: decoded,
-        });
-        break;
-      } else if (methodName === "ft_transfer_call") {
-        // FT donation
+    })
+      .then((res) => {
+        const methodName = res.body.result.transaction.actions[0].FunctionCall.method_name;
+        const successVal = res.body.result.status?.SuccessValue;
+        const receiver_id = res.body.result.transaction.receiver_id;
+        const result = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
+
         const args = JSON.parse(
           Buffer.from(res.body.result.transaction.actions[0].FunctionCall.args, "base64").toString(
             "utf-8"
           )
         );
-        const signerId = res.body.result.transaction.signer_id;
-        Near.asyncView(DONATION_CONTRACT_ID, "get_donations_for_donor", {
-          donor_id: signerId,
-        })
-          .then((donations) => {
-            if (donations.length) {
-              const donation = donations.sort((a, b) => b.donated_at_ms - a.donated_at_ms)[0];
-              State.update({
-                successfulDonation: donation,
-              });
-            }
-          })
-          .catch((e) => console.log("error fetching donations for donor: ", e));
-        break;
-      } else {
-        if (i === transactionHashes.length - 1) {
-          // close modal
-          onClose();
+
+        const recipientId =
+          methodName === "donate"
+            ? result.project_id
+              ? result.project_id
+              : result.recipient_id
+            : methodName === "ft_transfer_call"
+            ? JSON.parse(args.msg).recipient_id
+            : "";
+
+        if (recipientId) {
+          if (methodName === "donate") {
+            setSuccessfulDonation((prev) => ({
+              ...prev,
+              [recipientId]: result,
+            }));
+          } else if (methodName === "apply") {
+            // application
+            State.update({
+              successfulApplication: result,
+            });
+          } else if (methodName === "ft_transfer_call" && recipientId) {
+            asyncFetch(
+              `https://near-mainnet.api.pagoda.co/eapi/v1/nep141/metadata/${receiver_id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-api-key": "dce81322-81b0-491d-8880-9cfef4c2b3c2",
+                },
+              }
+            )
+              .then((data) => {
+                const metadata = data.body.metadata;
+                setFtMetadata(metadata);
+                setSuccessfulDonation((prev) => ({
+                  ...prev,
+                  [recipientId]: {
+                    project_id: recipientId,
+                    total_amount: result,
+                  },
+                }));
+              })
+              .catch((err) => console.log(err));
+          }
         }
-      }
-    }
+      })
+      .catch((err) => console.log(err));
   }
 }
 
-const ftMetadata = Near.view(state.successfulDonation?.ft_id, "ft_metadata", {});
-
-// console.log("state in modal success: ", state);
+useEffect(() => {
+  if (successfulDonation && !ftMetadata) {
+    Near.asyncView(successfulDonationVals[0]?.ft_id, "ft_metadata", {}).then((metaDate) =>
+      setFtMetadata(metaDate)
+    );
+  }
+}, [successfulDonation]);
 
 const twitterIntent = useMemo(() => {
-  if (!state.recipientProfile) return;
+  if (!recipientProfile) return;
   const twitterIntentBase = "https://twitter.com/intent/tweet?text=";
+
+  const recipient_id =
+    successfulDonationVals[0].recipient_id || successfulDonationVals[0].project_id;
+  const profile = recipientProfileVals[0];
+  const singlePorject = profile
+    ? profile.linktree?.twitter
+      ? `@${profile.linktree.twitter}`
+      : profile.name
+    : recipient_id;
+
+  const tag =
+    `${singlePorject}` +
+    (successfulDonationVals.length > 1
+      ? ` and ${successfulDonationVals?.length - 1} other${
+          successfulDonationVals?.length === 2 ? "" : "s"
+        }`
+      : "");
+
   let url =
     DEFAULT_GATEWAY +
-    `${ownerId}/widget/Index?tab=project&projectId=${state.successfulDonation.recipient_id}&referrerId=${context.accountId}`;
-  let text = `I just donated to ${
-    state.recipientProfile
-      ? state.recipientProfile.linktree?.twitter
-        ? `@${state.recipientProfile.linktree.twitter}`
-        : state.recipientProfile.name
-      : state.successfulDonation.recipient_id
-  } on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
+    `${ownerId}/widget/Index?tab=project&projectId=${recipient_id}&referrerId=${context.accountId}`;
+  let text = `I just donated to ${tag} on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
   return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
-}, [state.successfulDonation, state.recipientProfile]);
+}, [successfulDonation, recipientProfile]);
 
 return (
   <Widget
@@ -283,156 +380,123 @@ return (
       contentStyle: {
         padding: "0px",
       },
-      children: state.successfulApplication ? (
+      children: successfulApplication ? (
         <>
           <ModalMain>
             <H1>Thank you for applying!</H1>
-            <TextBold>Your application status: {state.successfulApplication.status}</TextBold>
+            <TextBold>Your application status: {successfulApplication.status}</TextBold>
           </ModalMain>
         </>
-      ) : state.successfulDonation ? (
-        <>
-          <ModalMain>
+      ) : successfulDonation ? (
+        <ModalMain>
+          <ModalHeader>
             <HeaderIcon>
-              <svg viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="18"
+                height="14"
+                viewBox="0 0 18 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
-                  d="M6.39016 7.9C4.12016 7.31 3.39016 6.7 3.39016 5.75C3.39016 4.66 4.40016 3.9 6.09016 3.9C7.87016 3.9 8.53016 4.75 8.59016 6H10.8002C10.7302 4.28 9.68016 2.7 7.59016 2.19V0H4.59016V2.16C2.65016 2.58 1.09016 3.84 1.09016 5.77C1.09016 8.08 3.00016 9.23 5.79016 9.9C8.29016 10.5 8.79016 11.38 8.79016 12.31C8.79016 13 8.30016 14.1 6.09016 14.1C4.03016 14.1 3.22016 13.18 3.11016 12H0.910156C1.03016 14.19 2.67016 15.42 4.59016 15.83V18H7.59016V15.85C9.54016 15.48 11.0902 14.35 11.0902 12.3C11.0902 9.46 8.66016 8.49 6.39016 7.9Z"
+                  d="M5.79499 10.875L1.62499 6.70498L0.204987 8.11498L5.79499 13.705L17.795 1.70498L16.385 0.294983L5.79499 10.875Z"
                   fill="white"
                 />
               </svg>
             </HeaderIcon>
-            <Column>
-              <Row style={{ gap: "9px" }}>
-                <Amount>
-                  {state.successfulDonation?.total_amount
-                    ? parseFloat(
-                        // NEAR.fromIndivisible(state.successfulDonation.total_amount).toString()
-                        Big(state.successfulDonation.total_amount)
-                          .div(Big(10).pow(ftMetadata?.decimals || 24))
-                          .toFixed(2)
-                      )
-                    : "-"}
-                </Amount>
-                {ftMetadata?.icon ? (
-                  <ImgIcon src={ftMetadata.icon} />
-                ) : (
-                  <NearIcon viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="24" rx="12" fill="#CECECE" />
+            <div>Donation Successful</div>
+            <TwitterShare href={twitterIntent} target="_blank">
+              <div>Share to</div>
+              <div className="icon">
+                <svg
+                  width="15"
+                  height="14"
+                  viewBox="0 0 15 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M14.25 13.4035L8.97064 5.70858L8.97965 5.71579L13.7398 0.200562H12.1491L8.27135 4.68956L5.19196 0.200562H1.02012L5.9489 7.38477L5.94831 7.38416L0.75 13.4035H2.34071L6.65183 8.40919L10.0782 13.4035H14.25ZM4.56169 1.40082L11.969 12.2032H10.7084L3.29515 1.40082H4.56169Z"
+                    fill="#DBDBDB"
+                  />
+                </svg>
+              </div>
+            </TwitterShare>
+          </ModalHeader>
+          <ModalMiddel>
+            <div className="amount-wrapper">
+              {ftMetadata?.icon ? (
+                <img src={ftMetadata.icon} />
+              ) : (
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_454_78)">
+                    <circle cx="8" cy="8" r="7.25" stroke="#292929" stroke-width="1.5" />
                     <path
-                      d="M15.616 6.61333L13.1121 10.3333C12.939 10.5867 13.2719 10.8933 13.5117 10.68L15.9756 8.53333C16.0422 8.48 16.1354 8.52 16.1354 8.61333V15.32C16.1354 15.4133 16.0155 15.4533 15.9623 15.3867L8.50388 6.45333C8.26415 6.16 7.91787 6 7.53163 6H7.26526C6.5727 6 6 6.57333 6 7.28V16.72C6 17.4267 6.5727 18 7.27858 18C7.71809 18 8.13097 17.7733 8.3707 17.3867L10.8746 13.6667C11.0477 13.4133 10.7148 13.1067 10.475 13.32L8.0111 15.4533C7.94451 15.5067 7.85128 15.4667 7.85128 15.3733V8.68C7.85128 8.58667 7.97114 8.54667 8.02442 8.61333L15.4828 17.5467C15.7225 17.84 16.0821 18 16.4551 18H16.7214C17.4273 18 18 17.4267 18 16.72V7.28C18 6.57333 17.4273 6 16.7214 6C16.2686 6 15.8557 6.22667 15.616 6.61333Z"
-                      fill="black"
+                      d="M11.1477 4C10.851 4 10.5763 4.15333 10.421 4.406L8.74866 6.88867C8.72453 6.92441 8.71422 6.96772 8.71967 7.01051C8.72511 7.05329 8.74594 7.09264 8.77826 7.1212C8.81057 7.14976 8.85218 7.1656 8.89531 7.16574C8.93844 7.16589 8.98015 7.15034 9.01266 7.122L10.6587 5.69467C10.6683 5.68598 10.6802 5.68028 10.6931 5.67828C10.7059 5.67628 10.719 5.67806 10.7308 5.6834C10.7426 5.68875 10.7526 5.69742 10.7596 5.70836C10.7665 5.7193 10.7702 5.73203 10.77 5.745V10.215C10.77 10.2287 10.7658 10.2421 10.7579 10.2534C10.7501 10.2646 10.7389 10.2732 10.726 10.2778C10.7131 10.2825 10.6991 10.2831 10.6858 10.2795C10.6726 10.2758 10.6608 10.2682 10.652 10.2577L5.67667 4.30167C5.59667 4.20709 5.49701 4.1311 5.38463 4.079C5.27226 4.0269 5.14987 3.99994 5.026 4H4.85233C4.62628 4 4.40949 4.0898 4.24964 4.24964C4.0898 4.40949 4 4.62628 4 4.85233V11.1477C4 11.3333 4.06061 11.5139 4.17263 11.6619C4.28465 11.81 4.44194 11.9174 4.6206 11.9679C4.79926 12.0184 4.98952 12.0091 5.16245 11.9416C5.33538 11.874 5.48152 11.7519 5.57867 11.5937L7.251 9.111C7.27513 9.07525 7.28544 9.03194 7.27999 8.98916C7.27455 8.94637 7.25372 8.90703 7.22141 8.87846C7.18909 8.8499 7.14748 8.83407 7.10435 8.83392C7.06122 8.83377 7.01951 8.84932 6.987 8.87766L5.341 10.3053C5.33134 10.3139 5.31939 10.3195 5.3066 10.3215C5.29381 10.3234 5.28074 10.3216 5.26898 10.3162C5.25721 10.3108 5.24726 10.3021 5.24034 10.2912C5.23342 10.2803 5.22983 10.2676 5.23 10.2547V5.784C5.22997 5.77027 5.23418 5.75687 5.24206 5.74563C5.24993 5.73438 5.26109 5.72584 5.274 5.72117C5.28691 5.71651 5.30094 5.71594 5.31419 5.71955C5.32743 5.72315 5.33924 5.73076 5.348 5.74133L10.3227 11.698C10.4847 11.8893 10.7227 11.9997 10.9733 12H11.147C11.373 12.0001 11.5898 11.9104 11.7498 11.7507C11.9097 11.591 11.9997 11.3744 12 11.1483V4.85233C11.9999 4.62631 11.9101 4.40956 11.7503 4.24974C11.5904 4.08992 11.3737 4.00009 11.1477 4Z"
+                      fill="#292929"
                     />
-                  </NearIcon>
-                )}
-              </Row>
-              {state.successfulDonation?.total_amount &&
-                yoctosToUsd(state.successfulDonation.total_amount) && (
-                  <AmountUsd>
-                    {yoctosToUsd(state.successfulDonation.total_amount) + " USD"}
-                  </AmountUsd>
-                )}
-            </Column>
-            <Row style={{ gap: "8px" }}>
-              <TextBold>Has been donated to</TextBold>
-              <UserChipLink
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_454_78">
+                      <rect width="16" height="16" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+              )}
+              <Amount>
+                {totalAmount
+                  ? parseFloat(
+                      // NEAR.fromIndivisible(totalAmount).toString()
+                      Big(totalAmount)
+                        .div(Big(10).pow(ftMetadata?.decimals || 24))
+                        .toFixed(2)
+                    )
+                  : "-"}
+                {ftMetadata?.symbol || "NEAR"}
+              </Amount>
+              {totalAmount && yoctosToUsd(totalAmount) && !ftMetadata && (
+                <AmountUsd>{yoctosToUsd(totalAmount)} </AmountUsd>
+              )}
+            </div>
+
+            <ProjectName>
+              <div>Has been donated to</div>
+              <a
                 href={props.hrefWithParams(
                   `?tab=project&projectId=${
-                    state.successfulDonation.recipient_id || state.successfulDonation.project_id
+                    successfulDonationVals[0]?.recipient_id || successfulDonationVals[0]?.project_id
                   }`
                 )}
                 target="_blank"
               >
-                {state.successfulDonation && (
-                  <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
-                    props={{
-                      ...props,
-                      accountId:
-                        state.successfulDonation.recipient_id ||
-                        state.successfulDonation.project_id,
-                      style: {
-                        height: "17px",
-                        width: "17px",
-                      },
-                    }}
-                  />
-                )}
-                <TextBold>{state.recipientProfile?.name || "-"}</TextBold>
-              </UserChipLink>
-            </Row>
-            <Widget
-              src={`${ownerId}/widget/Cart.BreakdownSummary`}
-              props={{
-                ...props,
-                referrerId: state.successfulDonation?.referrer_id,
-                totalAmount: NEAR.fromIndivisible(
-                  state.successfulDonation?.total_amount || "0"
-                ).toString(),
-                bypassProtocolFee:
-                  !state.successfulDonation?.protocol_fee ||
-                  state.successfulDonation?.protocol_fee === "0", // TODO: allow user to choose
-                headerStyle: { justifyContent: "center" },
-                ftIcon: ftMetadata?.icon,
-              }}
-            />
-            <Row style={{ width: "100%", justifyContent: "center", gap: "24px" }}>
-              <Widget
-                src={`${ownerId}/widget/Components.Button`}
-                props={{
-                  type: "secondary",
-                  text: "Do it again!",
-                  onClick: () => {
-                    onClose();
-                  },
-                  style: { width: "100%" },
-                }}
-              />
-              <Widget
-                src={`${ownerId}/widget/Components.Button`}
-                props={{
-                  type: "secondary",
-                  text: "Explore projects",
-                  onClick: () => {
-                    onClose();
-                  },
-                  style: { width: "100%" },
-                }}
-              />
-            </Row>
-          </ModalMain>
-          <ModalFooter>
-            <Row style={{ gap: "6px", justifyContent: "center" }}>
-              <TextBold>From</TextBold>
-              <UserChip>
-                {state.donorProfile && (
-                  <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
-                    props={{
-                      ...props,
-                      accountId: state.successfulDonation?.donor_id,
-                      style: {
-                        height: "17px",
-                        width: "17px",
-                      },
-                    }}
-                  />
-                )}
-                <TextBold>{state.donorProfile?.name || "-"}</TextBold>
-              </UserChip>
-            </Row>
-            <Row style={{ gap: "8px", justifyContent: "center" }}>
-              <ShareText>Share to</ShareText>
-              <a href={twitterIntent} target="_blank">
-                <SocialIcon viewBox="0 0 21 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M20.92 2C20.15 2.35 19.32 2.58 18.46 2.69C19.34 2.16 20.02 1.32 20.34 0.31C19.51 0.81 18.59 1.16 17.62 1.36C16.83 0.5 15.72 0 14.46 0C12.11 0 10.19 1.92 10.19 4.29C10.19 4.63 10.23 4.96 10.3 5.27C6.74 5.09 3.57 3.38 1.46 0.79C1.09 1.42 0.88 2.16 0.88 2.94C0.88 4.43 1.63 5.75 2.79 6.5C2.08 6.5 1.42 6.3 0.84 6V6.03C0.84 8.11 2.32 9.85 4.28 10.24C3.65073 10.4122 2.9901 10.4362 2.35 10.31C2.62161 11.1625 3.15354 11.9084 3.87102 12.4429C4.5885 12.9775 5.45545 13.2737 6.35 13.29C4.83363 14.4904 2.954 15.1393 1.02 15.13C0.68 15.13 0.34 15.11 0 15.07C1.9 16.29 4.16 17 6.58 17C14.46 17 18.79 10.46 18.79 4.79C18.79 4.6 18.79 4.42 18.78 4.23C19.62 3.63 20.34 2.87 20.92 2Z"
-                    fill="#7B7B7B"
-                  />
-                </SocialIcon>
+                {recipientProfileVals[0]?.name ||
+                  successfulDonationVals[0]?.recipient_id ||
+                  successfulDonationVals[0]?.project_id ||
+                  "-"}
               </a>
-            </Row>
-          </ModalFooter>
-        </>
+              {successfulDonationVals.length > 1 && (
+                <div>and {successfulDonationVals.length - 1} others</div>
+              )}
+            </ProjectName>
+          </ModalMiddel>
+
+          <Widget
+            src={`${ownerId}/widget/Cart.BreakdownSummary`}
+            props={{
+              ...props,
+              referrerId: successfulDonationVals[0]?.referrer_id,
+              totalAmount: Big(totalAmount)
+                .div(Big(10).pow(ftMetadata?.decimals || 24))
+                .toFixed(2),
+              bypassProtocolFee:
+                !successfulDonationVals[0]?.protocol_fee ||
+                successfulDonationVals[0]?.protocol_fee === "0", // TODO: allow user to choose
+              ftIcon: ftMetadata?.icon,
+            }}
+          />
+        </ModalMain>
       ) : (
         ""
       ),

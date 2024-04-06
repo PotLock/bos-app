@@ -1,6 +1,7 @@
 // get donations
 const {
   potId,
+  allDonations,
   potDetail: { base_currency },
 } = props;
 
@@ -16,10 +17,8 @@ const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.Don
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getPublicRoundDonations: () => {},
 };
-const publicRoundDonations = PotSDK.getPublicRoundDonations(potId);
 
 State.init({
-  allDonations: null,
   filteredDonations: [],
   currentFilter: "date",
   filter: {
@@ -28,11 +27,11 @@ State.init({
   },
 });
 
-const { allDonations, filteredDonations, currentFilter, filter } = state;
+const { filteredDonations, currentFilter, filter } = state;
 
-if (publicRoundDonations && !allDonations) {
-  publicRoundDonations.reverse();
-  State.update({ filteredDonations: publicRoundDonations, allDonations: publicRoundDonations });
+if (allDonations) {
+  const sortedDonations = [...allDonations].reverse();
+  State.update({ filteredDonations: sortedDonations });
 }
 
 if (!allDonations) return <div class="spinner-border text-secondary" role="status" />;

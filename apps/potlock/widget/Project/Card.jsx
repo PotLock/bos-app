@@ -1,4 +1,4 @@
-const { potId, potDetail, payoutDetails } = props;
+const { potId, potDetail, payoutDetails, projects } = props;
 const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
   "potlock.near/widget/utils"
 ) || {
@@ -347,7 +347,7 @@ const CardSkeleton = () => (
 State.init({
   donateModal: {
     isOpen: false,
-    recipientId: null,
+    projectId: null,
     referrerId: null,
     potId: null,
     potDetail: null,
@@ -359,7 +359,7 @@ const openDonateModal = () => {
   State.update({
     donateModal: {
       isOpen: true,
-      recipientId: projectId,
+      projectId: projectId,
       referrerId: null,
       potId: null,
       potDetail: null,
@@ -402,7 +402,9 @@ const [totalAmountNear, totalDonors] = useMemo(() => {
   return [totalDonationAmountNear.toString(), donors.length];
 }, [donationsForProject]);
 
-const projectUrl = props.hrefWithParams(`?tab=project&projectId=${projectId}`);
+const projectUrl = props.hrefWithParams(
+  `?tab=project&projectId=${projectId}${potId ? "&potId=" + potId : ""}`
+);
 
 const getImageSrc = (image) => {
   const defaultImageUrl =
@@ -543,7 +545,7 @@ return (
     </CardLink>
     {state.donateModal.isOpen && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonation`}
+        src={`${ownerId}/widget/ModalDonation.Main`}
         loading={""}
         props={{
           ...props,
@@ -552,7 +554,7 @@ return (
             State.update({
               donateModal: {
                 isOpen: false,
-                recipientId: null,
+                projectId: null,
                 referrerId: null,
                 potId: null,
                 potDetail: null,
@@ -562,7 +564,7 @@ return (
             State.update({
               donateModal: {
                 isOpen: false,
-                recipientId: null,
+                projectId: null,
                 referrerId: null,
                 potId: null,
                 potDetail: null,
@@ -570,9 +572,8 @@ return (
               successfulDonation: donation,
             });
           },
-          recipientId: state.donateModal.recipientId,
+          projectId: state.donateModal.projectId,
           referrerId: props.referrerId,
-          potId,
         }}
       />
     )}

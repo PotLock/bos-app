@@ -766,6 +766,13 @@ const handleTag = (key) => {
   setTagsList(tags);
 };
 
+const getRandomProject = () => {
+  if (projects) {
+    const randomIndex = Math.floor(Math.random() * projects.length);
+    return projects[randomIndex]?.registrant_id;
+  }
+};
+
 return (
   <>
     <HeroContainer>
@@ -813,10 +820,11 @@ return (
           <Button onClick={donateRandomly}>Donate Randomly</Button>
           {state.isModalOpen && (
             <Widget
-              src={`${ownerId}/widget/Project.ModalDonation`}
+              src={`${ownerId}/widget/ModalDonation.Main`}
               props={{
                 ...props,
                 isModalOpen: state.isModalOpen,
+                projectId: getRandomProject(),
                 onClose: () =>
                   State.update({
                     isModalOpen: false,
