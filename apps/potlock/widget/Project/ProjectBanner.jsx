@@ -27,8 +27,14 @@ const statuses = {
     textColor: "#F6F5F3",
     toggleColor: "#C7C7C7",
   },
+  Unregistered: {
+    background: "#DD3345",
+    text: "UNREGISTERED: This account has not registered as a public good",
+    textColor: "#F6F5F3",
+    toggleColor: "#C7C7C7",
+  },
 };
-const registrationStatus = statuses[registration.status];
+const registrationStatus = registration ? statuses[registration.status] : statuses.Unregistered;
 
 const Banner = styled.div`
   width: 100%;
