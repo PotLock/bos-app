@@ -29,7 +29,7 @@ const Container = styled.div`
       div {
         font-weight: 600;
       }
-      @media screen and (max-width: 768px) {
+      @media screen and (max-width: 920px) {
         div {
           display: none;
         }
@@ -52,7 +52,7 @@ const Container = styled.div`
       div {
         text-transform: capitalize;
         width: 100%;
-        max-width: 156px;
+        max-width: 120px;
         text-align: left;
         &:last-of-type {
           justify-content: right;
@@ -81,8 +81,15 @@ const Container = styled.div`
         opacity: 0;
         display: none;
       }
-      @media screen and (max-width: 768px) {
+      .date {
+        display: flex;
+        align-items: center;
+      }
+      @media screen and (max-width: 920px) {
         gap: 8px;
+        .date {
+          order: 2;
+        }
         .description {
           flex-basis: 100%;
           order: 1;
@@ -105,6 +112,11 @@ const Container = styled.div`
         .toggle-check:checked + .description + .amount svg {
           rotate: 0deg;
         }
+      }
+    }
+    @media screen and (max-width: 920px) {
+      .header div:not(:first-of-type) {
+        display: none;
       }
     }
   }
