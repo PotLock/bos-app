@@ -7,10 +7,11 @@ const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInpu
   AmountInput: () => {},
 };
 const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
-  CheckBox: () => {},
+  Checks: () => {},
 };
 const { Nadabot, Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
-  CheckBox: () => {},
+  Nadabot: () => {},
+  Alert: () => {},
 };
 
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {

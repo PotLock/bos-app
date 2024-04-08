@@ -6,7 +6,7 @@ const { ownerId, NADABOT_HUMAN_METHOD } = VM.require("potlock.near/widget/consta
 const { nearToUsd } = VM.require("potlock.near/widget/utils");
 
 const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
-  CheckBox: () => {},
+  Checks: () => {},
 };
 
 const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInput`) || {
@@ -18,7 +18,7 @@ const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) ||
 };
 
 const { Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
-  CheckBox: () => {},
+  Alert: () => {},
 };
 
 const Form = styled.div`
