@@ -58,6 +58,17 @@ const Container = styled.div`
           justify-content: right;
         }
       }
+      .investor {
+        display: flex;
+        flex-direction: column;
+        div:first-of-type {
+          font-weight: 600;
+        }
+      }
+      .mobile-date {
+        display: none;
+        color: #7b7b7b;
+      }
       .amount {
         font-weight: 600;
         display: flex;
@@ -87,8 +98,14 @@ const Container = styled.div`
       }
       @media screen and (max-width: 920px) {
         gap: 8px;
+        div {
+          max-width: initial;
+        }
         .date {
-          order: 2;
+          display: none;
+        }
+        .mobile-date {
+          display: block;
         }
         .description {
           flex-basis: 100%;
@@ -109,7 +126,7 @@ const Container = styled.div`
         .toggle-check:checked + .description {
           max-height: 200px;
         }
-        .toggle-check:checked + .description + .amount svg {
+        .toggle-check:checked ~ div svg {
           rotate: 0deg;
         }
       }
@@ -179,7 +196,10 @@ return (
       </div>
       {externalFunding.map(({ investorName, description, date, amountReceived, denomination }) => (
         <div className="funding-row">
-          <div style={{ fontWeight: 600 }}>{investorName}</div>
+          <div className="investor">
+            <div>{investorName}</div>
+            {date && <div className="date-mobile">{date}</div>}
+          </div>
           <input type="checkbox" className="toggle-check" />
           <div className="description">{description}</div>
           <div className="date">{date ?? "No specified date"}</div>
