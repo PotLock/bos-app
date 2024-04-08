@@ -14,6 +14,7 @@ const {
   cooldown_end_ms,
   all_paid_out,
 } = potDetail;
+console.log(potDetail);
 
 const now = Date.now();
 
@@ -233,7 +234,8 @@ return (
               <ProgressBar progress={progress} started={started} completed={completed} />
               <div>
                 {label}
-                {started && !completed && (
+                {!daysLeft && started && <span>Cooldown pending </span>}
+                {started && !completed && daysLeft && (
                   <span>
                     ends in
                     <Widget
