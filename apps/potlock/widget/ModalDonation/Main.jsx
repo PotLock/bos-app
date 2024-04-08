@@ -284,7 +284,6 @@ const pots = useCache(
       }),
   "active-pots"
 );
-
 useEffect(() => {
   if (potId && !activeRounds) {
     setActiveRounds([potId]);
@@ -292,9 +291,8 @@ useEffect(() => {
       selectedRound: potId,
       donationType: multiple ? "auto" : "pot",
     });
-  } else if (!activeRounds && projectId) {
+  } else if (!activeRounds?.length && projectId) {
     if (!pots) setActiveRounds([]);
-
     (pots ?? []).forEach((pot, idx) => {
       if (pot) {
         PotSDK.asyncGetApplicationByProjectId(pot, projectId)
