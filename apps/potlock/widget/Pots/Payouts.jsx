@@ -127,6 +127,7 @@ const MobileAmount = styled.div`
     font-weight: 600;
   }
   @media screen and (max-width: 768px) {
+    order: 2;
     display: block;
   }
 `;
@@ -151,10 +152,10 @@ const Row = styled.div`
     opacity: 0;
     display: none;
   }
-  .toggle-check:checked + svg {
+  .toggle-check:checked ~ svg {
     rotate: 0deg;
   }
-  .toggle-check:checked + svg + ${MobileAmount} {
+  .toggle-check:checked + ${MobileAmount} {
     max-height: 100px;
   }
   @media screen and (max-width: 768px) {
@@ -212,8 +213,14 @@ const RowText = styled.div`
     color: #7b7b7b;
     font-weight: 600;
     display: none;
-    @media screen and (max-width: 768px) {
-      display: inline-block;
+  }
+  @media screen and (max-width: 768px) {
+    span {
+      display: inline;
+    }
+    &:last-of-type {
+      display: flex;
+      gap: 4px;
     }
   }
 `;
@@ -353,7 +360,7 @@ const searchPayouts = (searchTerm) => {
   return filteredPayouts;
 };
 
-const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 20;
+const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 10;
 
 const ProfileImage = ({ projectId }) => (
   <Widget
@@ -459,13 +466,10 @@ return (
                 </a>
               </RowItem>
               {/* Total Raised */}
-              <RowItem>
-                <RowText>
-                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>{" "}
-                </RowText>
+              <RowItem className="amount">
+                <RowText>{yoctosToNear(totalAmount, true)}</RowText>
               </RowItem>
               <input type="checkbox" className="toggle-check" />
-              <ArrowDown />
               <MobileAmount>
                 <span>{yoctosToNear(totalAmount, true)}</span> raised from
                 <span>{donorCount}</span> unique donors
@@ -475,9 +479,12 @@ return (
                 <RowText>{donorCount}</RowText>
               </RowItem>
               {/* Matching Pool Allocation */}
-              <RowItem className="amount">
-                <RowText>{yoctosToNear(matchingAmount, true)}</RowText>
+              <RowItem>
+                <RowText>
+                  {yoctosToNear(matchingAmount, true)} <span>Allocated</span>
+                </RowText>
               </RowItem>
+              <ArrowDown />
             </Row>
           );
         })

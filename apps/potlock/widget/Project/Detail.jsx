@@ -104,10 +104,16 @@ const BannerSkeleton = () => (
   </SkeletonContainer>
 );
 
-if (registration === null) return <BannerSkeleton />;
-if (registration == undefined) {
-  return <div style={{ marginTop: "1rem", fontSize: "1.5rem" }}>Project not found</div>;
-}
+const account = fetch("https://api3.nearblocks.io/v1/account/" + projectId);
+
+if (registration === null || account === null) return <BannerSkeleton />;
+
+const isObjectNotEmpty = (obj) => Object.keys(obj).length > 0;
+
+const addressExist = account?.body?.account[0];
+
+if (!isObjectNotEmpty(addressExist || {}) && !registration)
+  return <div style={{ marginTop: "1rem", fontSize: "1.5rem" }}>Account does not exist.</div>;
 
 const [directDonations, setDirectDonations] = useState(null);
 // mapping of pot IDs to array of Round Matching Donations for the project
