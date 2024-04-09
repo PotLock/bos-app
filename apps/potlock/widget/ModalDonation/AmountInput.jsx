@@ -116,6 +116,7 @@ const AmountInput = (props) => {
         value={value}
         placeholder="0"
         onChange={(e) => HandleAmoutChange(e.target.value)}
+        name="amount"
       />
       <div className="usd-amount">
         {" "}
