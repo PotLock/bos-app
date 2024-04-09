@@ -27,7 +27,7 @@ test("project with no active pot should donate direct with correct amount", asyn
   // input amount
   await page.fill("input[name=amount]", "100");
 
-  await page.getByRole("button", { name: "Proceed to Donate" }).nth(1).click();
+  await page.getByRole("button", { name: "Proceed to donate" }).click();
 
   // Confirm Donation
   await page.getByRole("button", { name: "Confirm donation" }).click();
