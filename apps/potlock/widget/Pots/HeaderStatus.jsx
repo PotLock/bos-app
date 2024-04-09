@@ -234,7 +234,7 @@ return (
               <ProgressBar progress={progress} started={started} completed={completed} />
               <div>
                 {label}
-                {!daysLeft && started && <span>Cooldown pending </span>}
+                {!daysLeft && started && <span>pending </span>}
                 {started && !completed && daysLeft && (
                   <span>
                     ends in

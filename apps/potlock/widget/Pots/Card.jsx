@@ -131,6 +131,7 @@ const applicationNotStarted = now < application_start_ms;
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 const publicRoundNotStarted = now < public_round_start_ms;
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+const cooldownPending = public_round_end_ms && now >= public_round_end_ms && !cooldown_end_ms;
 const cooldownOpen = now >= public_round_end_ms && now < cooldown_end_ms;
 const payoutsPending = cooldown_end_ms && now >= cooldown_end_ms && !all_paid_out;
 const payoutsCompleted = all_paid_out;
@@ -165,6 +166,20 @@ const tags = [
       animate: true,
     },
     visibility: publicRoundOpen,
+  },
+  /* Cooldown pending tag */
+  {
+    backgroundColor: "#F5F3FF",
+    borderColor: "#A68AFB",
+    textColor: "#2E0F66",
+    text: "Cooldown pending",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#EDE9FE",
+      colorInner: "#A68AFB",
+      animate: true,
+    },
+    visibility: cooldownPending,
   },
   /* Matching round cooldown tag */
   {
