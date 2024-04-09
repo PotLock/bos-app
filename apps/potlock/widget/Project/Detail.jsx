@@ -112,7 +112,7 @@ const isObjectNotEmpty = (obj) => Object.keys(obj).length > 0;
 
 const addressExist = account?.body?.account[0];
 
-if (!isObjectNotEmpty(addressExist || {}))
+if (!isObjectNotEmpty(addressExist || {}) && !registration)
   return <div style={{ marginTop: "1rem", fontSize: "1.5rem" }}>Account does not exist.</div>;
 
 const [directDonations, setDirectDonations] = useState(null);
