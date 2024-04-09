@@ -9,19 +9,32 @@ test("should open donate modal", async ({ page }) => {
   test.setTimeout(120000); // 2 minutes... we want to improve performance
   await page.goto(`${ROOT_SRC}?tab=project&projectId=${DEFAULT_PROJECT_ID}`);
   await page.getByRole("button", { name: "Donate" }).click();
-  expect(await page.isVisible("text=Donate to project")).toBeTruthy();
+  expect(await page.isVisible("text=Donate to")).toBeTruthy();
 });
 
 test("project with no active pot should donate direct with correct amount", async ({ page }) => {
   test.setTimeout(120000); // 2 minutes... we want to improve performance
+
+  // go to project page (PotLock project)
   await page.goto(`${ROOT_SRC}?tab=project&projectId=${DEFAULT_PROJECT_ID}`);
+
+  // click donate button
   await page.getByRole("button", { name: "Donate" }).click();
-  expect(await page.isVisible("text=Donate to project")).toBeTruthy();
+
+  // wait for modal to appear
+  expect(await page.isVisible("text=Donate to")).toBeTruthy();
+
+  // input amount
   await page.fill("input[name=amount]", "100");
-  await page.getByRole("button", { name: "Donate" }).nth(1).click();
+
+  await page.getByRole("button", { name: "Proceed to Donate" }).nth(1).click();
+
+  // Confirm Donation
+  await page.getByRole("button", { name: "Confirm donation" }).click();
 
   // Confirmation modal should be visible
   const transactionObj = JSON.parse(await page.locator("div.modal-body code").innerText());
+  // check if transaction object is correct
   expect(transactionObj).toMatchObject({
     bypass_protocol_fee: false,
     message: "",

@@ -10,7 +10,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("clicking pot card should go to pot page", async ({ page }) => {
-  await page.getByText("NEAR Retroactive Builders").click();
+  const potCard = await page.getByText("NEAR Retroactive Builders");
+
+  await Promise.all([potCard.click(), page.waitForLoadState("load")]);
 
   const url = page.url();
 
