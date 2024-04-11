@@ -1,12 +1,3 @@
-const SearchBarContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  font-size: 14px;
-`;
-
 const Row = styled.div`
   display: flex;
   position: relative;
@@ -17,6 +8,7 @@ const Row = styled.div`
   border: 1px solid #7b7b7b;
   padding: 0.5rem;
   padding-left: 2.5rem;
+  font-size: 14px;
 `;
 
 const SearchIcon = styled.div`
@@ -46,6 +38,7 @@ const SearchBarInput = styled.input`
 
 const FilterButton = styled.div`
   font-weight: 500;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -55,6 +48,10 @@ const FilterButton = styled.div`
   border-radius: 6px;
   border: 1px solid #7b7b7b;
   transition: all 200ms ease-in-out;
+  &.active {
+    color: #fff;
+    background: #292929;
+  }
 `;
 
 const FilterIcon = styled.div`
@@ -68,6 +65,7 @@ const FilterIcon = styled.div`
 const FilterMenu = styled.div`
   position: absolute;
   background: #fff;
+  font-size: 14px;
   top: 110%;
   right: 0;
   padding: 8px;
@@ -91,7 +89,6 @@ const FilterMenu = styled.div`
   @media screen and (max-width: 768px) {
     left: 0;
     background: #fff;
-    width: 250px;
   }
 `;
 
@@ -126,7 +123,7 @@ const onSearchChange = (event) => {
 const [openFilter, setOpenFilter] = useState(false);
 
 return (
-  <SearchBarContainer>
+  <>
     <Row>
       <SearchIcon>
         <svg
@@ -181,5 +178,5 @@ return (
         ))}
       </FilterMenu>
     </div>
-  </SearchBarContainer>
+  </>
 );

@@ -172,7 +172,6 @@ const handleSelect = ({ val, type }) => {
 };
 
 const count = Object.values(selected).reduce((total, list) => total + list.length, 0);
-
 return (
   <Container>
     {toggleMenu && <Screen onClick={() => setToggleMenu(false)} />}
@@ -182,11 +181,8 @@ return (
       {multipleOptions && <Count className={toggleMenu ? "active" : ""}>{count}</Count>}
       {icons[labelIcon]}
     </Label>
-    <Menu
-      className={`${toggleMenu ? "active" : ""} ${menuClass ?? ""}
-`}
-    >
-      {Object.keys(options).map((menuLabel) => (
+    <Menu className={`${toggleMenu ? "active" : ""} ${menuClass ?? ""}`}>
+      {Object.keys(options)?.map((menuLabel) => (
         <>
           <div className="title">Filter by {menuLabel.includes("no label") ? "" : menuLabel}</div>
           {(options[menuLabel] || [])?.map(({ label, val }) => (

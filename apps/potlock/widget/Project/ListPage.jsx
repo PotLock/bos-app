@@ -266,12 +266,7 @@ const ProjectsContainer = styled.div`
   align-items: center;
   width: 100%;
   overflow-y: hidden;
-  // padding: 0px 64px 96px 64px;
-  // background: #fafafa;
-
-  // @media screen and (max-width: 768px) {
-  //   margin-top: 200px;
-  // }
+  padding-top: 5px;
 `;
 
 const HeroContainer = styled.div`
@@ -361,17 +356,21 @@ const HeroContainer = styled.div`
     }
   }
   @media only screen and (max-width: 480px) {
-    .btns a {
+    .btns a,
+    button {
       width: 100%;
       padding: 12px 0;
     }
   }
 `;
 
-const Contaienr = styled.div`
+const Content = styled.div`
   display: flex;
   flex-direction: column;
   padding: 64px 64px 0;
+  @media screen and (max-width: 768px) {
+    padding: 64px 20px 0px;
+  }
 `;
 
 const Header = styled.div`
@@ -388,25 +387,17 @@ const Title = styled.div`
   font-weight: 600;
 `;
 
-const OnBottom = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-`;
-
 const ContainerHeader = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 48px;
+  gap: 1.5rem;
 `;
 
 const ProjectList = styled.div`
   display: grid;
   gap: 31px;
-
+  padding-bottom: 3rem;
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
     grid-template-columns: repeat(1, 1fr);
@@ -432,8 +423,23 @@ const FilterWrapper = styled.div`
     right: auto;
   }
   .left-side-menu {
-    left: auto !important;
+    left: auto;
     right: 0;
+  }
+  @media screen and (max-width: 768px) {
+    flex-wrap: wrap;
+    > div:nth-of-type(2) {
+      width: 100%;
+      order: -1;
+      flex: auto;
+    }
+    .filter-menu {
+      width: 250px !important;
+    }
+    .left-side-menu {
+      right: auto;
+      left: 0;
+    }
   }
 `;
 
@@ -753,7 +759,7 @@ return (
         </div>
       </div>
     </HeroContainer>
-    <Contaienr>
+    <Content>
       <ContainerHeader>
         <Header>
           <Title>Featured Projects</Title>
@@ -785,7 +791,6 @@ return (
             );
           })}
         </ProjectList>
-        <OnBottom></OnBottom>
       </ContainerHeader>
       <Header>
         <Title>
@@ -811,7 +816,7 @@ return (
               title: sort,
               tab: tab,
               numItems: filteredProjects.length,
-              itemName: project,
+              itemName: "project",
               sortList: Object.values(SORT_FILTERS),
               FilterMenuClass: `left-side-menu`,
               setSearchTerm: (value) => {
@@ -856,7 +861,7 @@ return (
           <div style={{ alignSelf: "flex-start", margin: "24px 0px" }}>No results</div>
         )}
       </ProjectsContainer>
-    </Contaienr>
+    </Content>
     {state.isModalOpen && (
       <Widget
         src={`${ownerId}/widget/ModalDonation.Main`}

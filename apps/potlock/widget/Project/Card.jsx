@@ -7,6 +7,11 @@ const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.
   yoctosToUsdWithFallback: () => "",
   nearToUsd: 1,
 };
+
+const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+  _address: (address) => address,
+};
+
 const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   NADA_BOT_URL: "",
@@ -115,9 +120,6 @@ const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
   color: #2e2e2e;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   width: 100%;
 `;
 
@@ -490,7 +492,7 @@ return (
           </ProfileImageContainer>
         </HeaderContainer>
         <Info>
-          <Title>{name}</Title>
+          <Title>{_address(name, 30)}</Title>
           <SubTitle>
             {description.length > MAX_DESCRIPTION_LENGTH
               ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
