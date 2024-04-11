@@ -162,7 +162,6 @@ const handleSelect = ({ val, type, label }) => {
   } else {
     selectedUpdated[type] = [...selectedList, val];
   }
-  console.log("selectedList", selectedUpdated);
 
   setSelected(selectedUpdated);
 

@@ -582,7 +582,6 @@ const containerStyleHeader = {
 };
 
 const SORT_FILTERS = {
-  ALL: "All",
   NEW_TO_OLD: "Newest to Oldest",
   OLD_TO_NEW: "Oldest to Newest",
   // MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
