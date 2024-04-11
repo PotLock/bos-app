@@ -262,13 +262,16 @@ const handleSendApplication = () => {
 };
 
 const verifyIsOnRegistry = (address) => {
-  Near.asyncView("registry.potlock.near", "get_project_by_id", { project_id: address }).then(
-    (project) => {
-      if (project) {
-        State.update({ registryStatus: project.status });
-      }
+  Near.asyncView("lists.potlock.near", "get_registrations_for_registrant", {
+    registrant_id: address,
+  }).then((registrations) => {
+    const registration = registrations.find(
+      (registration) => registration.list_id === 1 // potlock registry list id
+    );
+    if (registration) {
+      State.update({ registryStatus: registration.status });
     }
-  );
+  });
 };
 
 useEffect(() => {
