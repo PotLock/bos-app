@@ -227,6 +227,7 @@ return (
       <div>Projects</div>
       <div>{filteredProjects?.length}</div>
     </Title>
+
     <SearchBar>
       <svg
         width="14"

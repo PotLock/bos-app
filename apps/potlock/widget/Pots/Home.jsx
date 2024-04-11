@@ -38,24 +38,26 @@ const filters = {
   completed: (round) => round.all_paid_out,
 };
 
-const sortOptions = [
-  {
-    label: "Most to least in pot",
-    val: "least_pots",
-  },
-  {
-    label: "Least to most in pot",
-    val: "most_pots",
-  },
-  {
-    label: "Most to least donations",
-    val: "most_donations",
-  },
-  {
-    label: "Least to most donations",
-    val: "least_donations",
-  },
-];
+const sortOptions = {
+  sort: [
+    {
+      label: "Most to least in pot",
+      val: "least_pots",
+    },
+    {
+      label: "Least to most in pot",
+      val: "most_pots",
+    },
+    {
+      label: "Most to least donations",
+      val: "most_donations",
+    },
+    {
+      label: "Least to most donations",
+      val: "least_donations",
+    },
+  ],
+};
 
 if (!pots) {
   PotFactorySDK.asyncGetPots().then((pots) => {

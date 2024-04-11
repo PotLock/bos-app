@@ -1,46 +1,43 @@
-const {
-  title,
-  numItems,
-  itemName,
-  sortList,
-  sortVal,
-  handleSortChange,
-  setSearchTerm,
-  FilterMenuCustomStyle,
-} = props;
-
-const [openFilter, setOpenFilter] = useState(false);
-
-const onSearchChange = (event) => {
-  setSearchTerm(event.target.value);
-};
-
 const SearchBarContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
   width: 100%;
-  background: #f0f0f0;
-  padding: 12px 24px;
-  @media only screen and (max-width: 480px) {
-    padding: 12px 16px 12px 0px;
-  }
+  font-size: 14px;
 `;
 
 const Row = styled.div`
   display: flex;
+  position: relative;
   flex-direction: row;
   align-items: center;
   flex: 1;
+  border-radius: 6px;
+  border: 1px solid #7b7b7b;
+  padding: 0.5rem;
+  padding-left: 2.5rem;
 `;
 
-const SearchBar = styled.input`
+const SearchIcon = styled.div`
+  display: flex;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  svg {
+    height: 100%;
+  }
+`;
+
+const SearchBarInput = styled.input`
   background: none;
   width: 100%;
   outline: none;
   border: none;
-  color: #525252;
   &:focus {
     outline: none;
     border: none;
@@ -48,15 +45,16 @@ const SearchBar = styled.input`
 `;
 
 const FilterButton = styled.div`
-  white-space: nowrap;
-  display: flex;
-  cursor: pointer;
-  gap: 12px;
-  align-items: center;
-  font-size: 14px;
   font-weight: 500;
-  line-height: 20px;
-  color: #525252;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  width: fit-content;
+  padding: 0.54rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #7b7b7b;
+  transition: all 200ms ease-in-out;
 `;
 
 const FilterIcon = styled.div`
@@ -70,7 +68,7 @@ const FilterIcon = styled.div`
 const FilterMenu = styled.div`
   position: absolute;
   background: #fff;
-  top: 100%;
+  top: 110%;
   right: 0;
   padding: 8px;
   display: flex;
@@ -81,7 +79,15 @@ const FilterMenu = styled.div`
   box-shadow: 0px 12px 20px -4px rgba(123, 123, 123, 0.32),
     0px 4px 8px -3px rgba(123, 123, 123, 0.2), 0px 0px 2px 0px rgba(123, 123, 123, 0.36);
   z-index: 2;
-  ${FilterMenuCustomStyle || ""}
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(100px);
+  transition: all 200ms ease-in-out;
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
   @media screen and (max-width: 768px) {
     left: 0;
     background: #fff;
@@ -96,32 +102,47 @@ const FilterItem = styled.div`
   gap: 12px;
   white-space: nowrap;
   &:hover {
-    background: #dd3345;
+    background: #292929;
     color: #fff;
     border-radius: 6px;
   }
 `;
 
-const SearchIcon = styled.div`
-  display: flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-`;
+const {
+  title,
+  numItems,
+  itemName,
+  sortList,
+  sortVal,
+  handleSortChange,
+  setSearchTerm,
+  FilterMenuClass,
+} = props;
+
+const onSearchChange = (event) => {
+  setSearchTerm(event.target.value);
+};
+
+const [openFilter, setOpenFilter] = useState(false);
 
 return (
   <SearchBarContainer>
     <Row>
       <SearchIcon>
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
-            d="M15.7549 14.2549H14.9649L14.6849 13.9849C15.6649 12.8449 16.2549 11.3649 16.2549 9.75488C16.2549 6.16488 13.3449 3.25488 9.75488 3.25488C6.16488 3.25488 3.25488 6.16488 3.25488 9.75488C3.25488 13.3449 6.16488 16.2549 9.75488 16.2549C11.3649 16.2549 12.8449 15.6649 13.9849 14.6849L14.2549 14.9649V15.7549L19.2549 20.7449L20.7449 19.2549L15.7549 14.2549ZM9.75488 14.2549C7.26488 14.2549 5.25488 12.2449 5.25488 9.75488C5.25488 7.26488 7.26488 5.25488 9.75488 5.25488C12.2449 5.25488 14.2549 7.26488 14.2549 9.75488C14.2549 12.2449 12.2449 14.2549 9.75488 14.2549Z"
-            fill="#C7C7C7"
+            d="M12.7549 11.2559H11.9649L11.6849 10.9859C12.6649 9.8459 13.2549 8.3659 13.2549 6.75586C13.2549 3.16586 10.3449 0.255859 6.75488 0.255859C3.16488 0.255859 0.254883 3.16586 0.254883 6.75586C0.254883 10.3459 3.16488 13.2559 6.75488 13.2559C8.3649 13.2559 9.8449 12.6659 10.9849 11.6859L11.2549 11.9659V12.7559L16.2549 17.7459L17.7449 16.2559L12.7549 11.2559ZM6.75488 11.2559C4.26488 11.2559 2.25488 9.2459 2.25488 6.75586C2.25488 4.26586 4.26488 2.25586 6.75488 2.25586C9.2449 2.25586 11.2549 4.26586 11.2549 6.75586C11.2549 9.2459 9.2449 11.2559 6.75488 11.2559Z"
+            fill="#7B7B7B"
           />
         </svg>
       </SearchIcon>
-      <SearchBar
+      <SearchBarInput
         placeholder={`Search (${numItems}) ${numItems === 1 ? itemName : itemName + "s"}`}
         onChange={onSearchChange}
         type="text"
@@ -129,38 +150,36 @@ return (
       />
     </Row>
     <div style={{ position: "relative" }} onClick={() => setOpenFilter(!openFilter)}>
-      <FilterButton>
+      <FilterButton className={openFilter ? "active" : ""}>
         {sortVal || title}
         <FilterIcon>
           <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
+            width="18"
+            height="12"
+            viewBox="0 0 18 12"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              d="M8 3.88667L10.1133 6L11.0533 5.06L8 2L4.94 5.06L5.88667 6L8 3.88667ZM8 12.1133L5.88667 10L4.94667 10.94L8 14L11.06 10.94L10.1133 10L8 12.1133Z"
-              fill="#7B7B7B"
-            />
+            <path d="M0 12H6V10H0V12ZM0 0V2H18V0H0ZM0 7H12V5H0V7Z" fill="#7B7B7B" />
           </svg>
         </FilterIcon>
       </FilterButton>
-      {openFilter && (
-        <FilterMenu onClick={(e) => e.stopPropagation()}>
-          {sortList.map((filter, key) => (
-            <FilterItem
-              key={key}
-              onClick={() => {
-                setOpenFilter(false);
-                handleSortChange(filter);
-              }}
-            >
-              {filter}
-            </FilterItem>
-          ))}
-        </FilterMenu>
-      )}
+      <FilterMenu
+        onClick={(e) => e.stopPropagation()}
+        className={`${FilterMenuClass || ""} ${openFilter ? "active" : ""} `}
+      >
+        {(sortList || []).map((filter, key) => (
+          <FilterItem
+            key={key}
+            onClick={() => {
+              setOpenFilter(false);
+              handleSortChange(filter);
+            }}
+          >
+            {filter}
+          </FilterItem>
+        ))}
+      </FilterMenu>
     </div>
   </SearchBarContainer>
 );
