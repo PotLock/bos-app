@@ -39,7 +39,7 @@ const filters = {
 };
 
 const sortOptions = {
-  sort: [
+  "no-label": [
     {
       label: "Most to least in pot",
       val: "least_pots",
@@ -145,10 +145,7 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-    ${Title} {
-      margin-right: auto;
-      margin-bottom: 0;
-    }
+
     .filters {
       gap: 1rem;
       display: flex;
@@ -192,39 +189,15 @@ if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
 
-const menuClass = `
-width: 286px;
-flex-direction: column;
-padding: 0.5rem;
-gap: 0;
-.title{
-  display: none;
-}
-.option{
-  border: none;
-  width: 100%;
-  padding: 0.5rem;
-}
-`;
-
-const handleFilter = ({ val }) => {
-  let filteredRounds = inProgressRounds;
-  let selectedUpdated = [];
-
-  if (filterSelcted.includes(val)) {
-    selectedUpdated = filterSelcted.filter((item) => item !== val);
-    setFilterSelected(selectedUpdated);
-  } else {
-    selectedUpdated = [...filterSelcted, val];
-    setFilterSelected(selectedUpdated);
-  }
-
-  if (selectedUpdated.length === 0) {
+const handleFilter = (selected) => {
+  const selectedList = Object.values(selected)[0];
+  console.log("selectedList", selectedList);
+  if (selectedList.length === 0) {
     return setFilteredRounds(inProgressRounds);
   }
 
-  filteredRounds = filteredRounds.filter((round) =>
-    selectedUpdated.some((key) => {
+  const filteredRounds = [...inProgressRounds].filter((round) =>
+    selectedList.some((key) => {
       return filters[key](round) === true;
     })
   );
@@ -265,7 +238,12 @@ return (
 
     <div className="content">
       <div className="header">
-        <Title>
+        <Title
+          style={{
+            marginRight: "auto",
+            marginBottom: 0,
+          }}
+        >
           Active Pots <span>{filteredRounds.length}</span>
         </Title>
         <div className="filters">
@@ -275,7 +253,6 @@ return (
               ...props,
               onClick: handleFilter,
               multipleOptions: true,
-              selected: filterSelcted,
             }}
           />
           <Widget
@@ -285,7 +262,6 @@ return (
               label: "Sort",
               labelIcon: "right",
               options: sortOptions,
-              selected: sortBy,
               onClick: handleSort,
               menuClass: "sort",
             }}

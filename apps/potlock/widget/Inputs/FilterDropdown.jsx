@@ -111,7 +111,7 @@ const Screen = styled.div`
 `;
 
 const filterBy = {
-  "no label": [
+  "no-label": [
     {
       label: "Application open",
       val: "application_open",
@@ -124,10 +124,6 @@ const filterBy = {
       label: "Application closed",
       val: "application_closed",
     },
-    // {
-    //   label: "Matching round ended",
-    //   val: "round_end",
-    // },
     {
       label: "Challenge period",
       val: "cooldown",
@@ -155,15 +151,18 @@ const icons = {
   ),
 };
 
-const handleSelect = ({ val, type }) => {
+const handleSelect = ({ val, type, label }) => {
   let selectedUpdated = { ...selected };
   const selectedList = selected[type] || [];
 
-  if (selectedList.includes(val)) {
+  if (!multipleOptions) {
+    selectedUpdated = { val, label };
+  } else if (selectedList.includes(val)) {
     selectedUpdated[type] = selectedList.filter((item) => item !== val);
   } else {
     selectedUpdated[type] = [...selectedList, val];
   }
+  console.log("selectedList", selectedUpdated);
 
   setSelected(selectedUpdated);
 
@@ -188,9 +187,7 @@ return (
           {(options[menuLabel] || [])?.map(({ label, val }) => (
             <div
               className={`option ${
-                (selected === val ||
-                  (multipleOptions && (selected[menuLabel] || [])?.includes(val))) &&
-                "selected"
+                multipleOptions && (selected[menuLabel] || [])?.includes(val) && "selected"
               }`}
               key={val}
               onClick={() => handleSelect({ label, val, type: menuLabel })}
