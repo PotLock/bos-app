@@ -16,6 +16,10 @@ State.init({
   matchingPoolDonationMessageError: "",
   bypassProtocolFee: false,
   bypassChefFee: false,
+  fundAsDao: false,
+  daoAddress: "",
+  daoAddressError: "",
+  daoPolicy: {},
 });
 
 const {
@@ -25,10 +29,16 @@ const {
   matchingPoolDonationMessageError,
   bypassProtocolFee,
   bypassChefFee,
+  fundAsDao,
+  daoAddress,
+  daoAddressError,
 } = state;
 
-const { yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { yoctosToNear, doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
+  "potlock.near/widget/utils"
+) || {
   yoctosToNear: () => "",
+  doesUserHaveDaoFunctionCallProposalPermissions: () => "",
 };
 
 const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
@@ -43,6 +53,11 @@ const { ownerId, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS, ONE_TGAS } = VM.req
   MAX_DONATION_MESSAGE_LENGTH: 0,
   SUPPORTED_FTS: {},
 };
+
+Big.PE = 100;
+const FIFTY_TGAS = "50000000000000";
+const THREE_HUNDRED_TGAS = "300000000000000";
+const MIN_DAO_PROPOSAL_DEPOSIT_FALLBACK = "100000000000000000000000"; // 0.1N
 
 const protocolConfigContractId = protocol_config_provider.split(":")[0];
 const protocolConfigViewMethodName = protocol_config_provider.split(":")[1];
@@ -88,6 +103,38 @@ const handleMatchingPoolDonation = () => {
       gas: ONE_TGAS.mul(100),
     },
   ];
+
+  // if it is a DAO, we need to convert transactions to DAO function call proposals
+  if (state.fundAsDao) {
+    const clonedTransactions = JSON.parse(JSON.stringify(transactions));
+    transactions = clonedTransactions.map((tx) => {
+      const action = {
+        method_name: tx.methodName,
+        gas: FIFTY_TGAS,
+        deposit: tx.deposit ? tx.deposit.toString() : "0",
+        args: Buffer.from(JSON.stringify(tx.args), "utf-8").toString("base64"),
+      };
+      return {
+        ...tx,
+        contractName: state.daoAddress,
+        methodName: "add_proposal",
+        args: {
+          proposal: {
+            description: `Contribute to matching pool for ${potDetail.pot_name} pot (${potId}) on Potlock`,
+            kind: {
+              FunctionCall: {
+                receiver_id: tx.contractName,
+                actions: [action],
+              },
+            },
+          },
+        },
+        deposit: state.daoPolicy.proposal_bond || MIN_DAO_PROPOSAL_DEPOSIT_FALLBACK,
+        gas: THREE_HUNDRED_TGAS,
+      };
+    });
+  }
+
   Near.call(transactions);
   // NB: we won't get here if user used a web wallet, as it will redirect to the wallet
   // <---- EXTENSION WALLET HANDLING ----> // TODO: implement
@@ -99,7 +146,7 @@ const ModalTitle = styled.div`
   font-weight: 400;
   line-height: 20px;
   word-wrap: break-word;
-  margin-bottom: 8px;
+  margin: 8px 0px;
 `;
 
 const Row = styled.div`
@@ -168,6 +215,55 @@ return (
       onClose,
       children: (
         <>
+          <Widget
+            src={`${ownerId}/widget/Inputs.Checkbox`}
+            props={{
+              id: "fundAsDaoSelector",
+              label: "Fund as DAO",
+              checked: fundAsDao,
+              onClick: (e) => {
+                State.update({ fundAsDao: e.target.checked });
+              },
+            }}
+          />
+          {fundAsDao && (
+            <Widget
+              src={`${ownerId}/widget/Inputs.Text`}
+              props={{
+                inputStyle: {
+                  background: "#FAFAFA",
+                },
+                placeholder: "Enter DAO address",
+                value: daoAddress,
+                onChange: (daoAddress) =>
+                  State.update({
+                    daoAddress: daoAddress.trim().toLowerCase(),
+                  }),
+                validate: () => {
+                  Near.asyncView(daoAddress, "get_policy", {})
+                    .then((policy) => {
+                      if (!policy) {
+                        State.update({ daoAddressError: "Invalid DAO address" });
+                      }
+                      if (
+                        !doesUserHaveDaoFunctionCallProposalPermissions(context.accountId, policy)
+                      ) {
+                        State.update({
+                          daoAddressError:
+                            "Your account does not have permission to create proposals",
+                        });
+                      } else {
+                        State.update({ daoAddressError: "", daoPolicy: policy });
+                      }
+                    })
+                    .catch((e) => {
+                      State.update({ daoAddressError: "Invalid DAO address" });
+                    });
+                },
+                error: daoAddressError,
+              }}
+            />
+          )}
           <ModalTitle>
             Enter matching pool contribution amount in NEAR
             {["0", "1"].includes(min_matching_pool_donation_amount)
@@ -317,10 +413,11 @@ return (
               props={{
                 type: "primary",
                 disabled:
+                  daoAddressError ||
                   !matchingPoolDonationAmountNear ||
                   !!matchingPoolDonationAmountNearError ||
                   !parseFloat(matchingPoolDonationAmountNear),
-                text: `Contribute${
+                text: `${fundAsDao ? "Create proposal to contribute " : "Contribute"}${
                   matchingPoolDonationAmountNear
                     ? ` ${matchingPoolDonationAmountNear} ${base_currency.toUpperCase()}`
                     : ""
