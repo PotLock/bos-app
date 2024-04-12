@@ -144,6 +144,20 @@ const tags = [
     backgroundColor: "#EFFEFA",
     borderColor: "#33DDCB",
     textColor: "#023131",
+    text: "Sponsorship Open",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#CAFDF3",
+      colorInner: "#33DDCB",
+      animate: true,
+    },
+    visibility: now < application_start_ms,
+  },
+  /* Application tag */
+  {
+    backgroundColor: "#EFFEFA",
+    borderColor: "#33DDCB",
+    textColor: "#023131",
     text: daysUntil(application_end_ms) + " left to apply",
     textStyle: { fontWeight: 500, marginLeft: "8px" },
     preElementsProps: {
