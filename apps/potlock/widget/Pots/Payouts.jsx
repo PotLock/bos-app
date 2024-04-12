@@ -304,7 +304,7 @@ State.init({
 
 const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
 
-if (!allPayouts && allDonations) {
+if (!allPayouts && allDonations && potDetail) {
   const calculatedPayouts = calculatePayouts(allDonations, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {

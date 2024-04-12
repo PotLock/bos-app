@@ -1,4 +1,5 @@
-const { allDonations, filter, handleSearch, sortDonation, currentFilter, hrefWithParams } = props;
+const { filteredDonations, filter, handleSearch, sortDonation, currentFilter, hrefWithParams } =
+  props;
 const [currentPage, setCurrentPage] = useState(1);
 const perPage = 30; // need to be less than 50
 
@@ -242,53 +243,55 @@ return (
         </SearchIcon>
         <SearchBar placeholder="Search donations" onChange={handleSearch} />
       </SearchBarContainer>
-      {allDonations.length > 0 ? (
-        allDonations.slice((currentPage - 1) * perPage, currentPage * perPage).map((donation) => {
-          const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
-          const projectId = recipient_id || project_id;
-          return (
-            <TrRow>
-              <a
-                href={hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
-                className="address"
-                target="_blank"
-              >
-                <ProfileImg address={donor_id} />
-                <OverlayTrigger placement="top" overlay={<Tooltip>{donor_id}</Tooltip>}>
-                  <div>{_address(donor_id)}</div>
-                </OverlayTrigger>
-              </a>
+      {filteredDonations.length > 0 ? (
+        filteredDonations
+          .slice((currentPage - 1) * perPage, currentPage * perPage)
+          .map((donation) => {
+            const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
+            const projectId = recipient_id || project_id;
+            return (
+              <TrRow>
+                <a
+                  href={hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
+                  className="address"
+                  target="_blank"
+                >
+                  <ProfileImg address={donor_id} />
+                  <OverlayTrigger placement="top" overlay={<Tooltip>{donor_id}</Tooltip>}>
+                    <div>{_address(donor_id)}</div>
+                  </OverlayTrigger>
+                </a>
 
-              <a
-                href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
-                className="address project"
-                target="_blank"
-              >
-                <ProfileImg address={projectId} />
-                <OverlayTrigger placement="top" overlay={<Tooltip>{projectId}</Tooltip>}>
-                  <div>{_address(projectId)}</div>
-                </OverlayTrigger>
-              </a>
-
-              <div className="price">
-                <span>Donated</span>
-                <img src={nearLogo} alt="NEAR" />
-                {calcNetDonationAmount(donation).toFixed(2)}
-              </div>
-
-              <div className="date">
-                {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
-                <MobileProjectAddress
+                <a
                   href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
+                  className="address project"
                   target="_blank"
                 >
                   <ProfileImg address={projectId} />
-                  {_address(projectId)}
-                </MobileProjectAddress>
-              </div>
-            </TrRow>
-          );
-        })
+                  <OverlayTrigger placement="top" overlay={<Tooltip>{projectId}</Tooltip>}>
+                    <div>{_address(projectId)}</div>
+                  </OverlayTrigger>
+                </a>
+
+                <div className="price">
+                  <span>Donated</span>
+                  <img src={nearLogo} alt="NEAR" />
+                  {calcNetDonationAmount(donation).toFixed(2)}
+                </div>
+
+                <div className="date">
+                  {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
+                  <MobileProjectAddress
+                    href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
+                    target="_blank"
+                  >
+                    <ProfileImg address={projectId} />
+                    {_address(projectId)}
+                  </MobileProjectAddress>
+                </div>
+              </TrRow>
+            );
+          })
       ) : (
         <TrRow>No donations</TrRow>
       )}
@@ -299,7 +302,7 @@ return (
         onPageChange: (page) => {
           setCurrentPage(page);
         },
-        data: allDonations,
+        data: filteredDonations,
         currentPage,
         perPage: perPage,
         bgColor: "#292929",
