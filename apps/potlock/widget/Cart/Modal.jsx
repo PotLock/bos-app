@@ -70,7 +70,7 @@ const ModalHeaderText = styled.div`
   text-align: center;
   color: #2e2e2e;
   font-size: 14px;
-  font-family: Mona-Sans;
+  font-family: "Mona Sans", sans-serif;
   font-weight: 600;
   line-height: 16px;
   word-wrap: break-word;

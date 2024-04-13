@@ -23,6 +23,9 @@ const loraCss = fetch(
 
 const Theme = styled.div`
   position: relative;
+  * {
+    font-family: "Mona Sans", sans-serif;
+  }
   ${loraCss}
 `;
 
