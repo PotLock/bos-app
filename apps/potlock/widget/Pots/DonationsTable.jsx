@@ -130,7 +130,6 @@ const TrRow = styled.div`
     }
     :hover {
       text-decoration: none;
-      pointer-events: none;
       .flag {
         opacity: 1;
         pointer-events: all;
@@ -218,6 +217,7 @@ const FlagTooltipWrapper = styled.div`
   max-width: 550px;
   width: max-content;
   margin-top: 8px;
+  cursor: default;
   .content {
     display: flex;
     gap: 1rem;
@@ -339,7 +339,7 @@ const ProfileImg = ({ address }) => (
 );
 
 const FlagTooltip = ({ flag, href, address }) => (
-  <FlagTooltipWrapper className="flag">
+  <FlagTooltipWrapper className="flag" onClick={(e) => e.preventDefault()}>
     <div className="tip-icon">
       <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 5.24537e-07L-2.54292e-07 8L12 8L6 5.24537e-07Z" fill="white" />
@@ -353,7 +353,7 @@ const FlagTooltip = ({ flag, href, address }) => (
           <div className="dot" />
           <div className="admin">
             {flag.flaggedBy} has flagged
-            <a href={href} className="flaged" target="_blank">
+            <a href={href} className="flaged" target="_blank" onClick={(e) => e.stopPropagation()}>
               {address}
             </a>
           </div>
