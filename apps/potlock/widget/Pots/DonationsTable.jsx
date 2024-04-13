@@ -1,20 +1,3 @@
-const { allDonations, filter, handleSearch, sortDonation, currentFilter, hrefWithParams } = props;
-const [currentPage, setCurrentPage] = useState(1);
-const perPage = 30; // need to be less than 50
-
-useEffect(() => {
-  setCurrentPage(1);
-}, [filter]);
-
-const nearLogo =
-  "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
-
-const { ownerId } = VM.require("potlock.near/widget/constants");
-
-const { getTimePassed, _address, calcNetDonationAmount } = VM.require(
-  `potlock.near/widget/Components.DonorsUtils`
-);
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -37,7 +20,7 @@ const Container = styled.div`
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    gap: 1rem;
+    gap: 2rem;
     color: #292929;
     border-bottom: 1px solid rgba(199, 199, 199, 0.5);
     div {
@@ -56,10 +39,12 @@ const Container = styled.div`
     }
     .price {
       width: 70px;
+      margin-right: 5rem;
     }
   }
   .address {
-    width: 143px !important;
+    /* width: 143px !important; */
+    flex: 1;
     justify-content: flex-start !important;
   }
   @media only screen and (max-width: 768px) {
@@ -72,7 +57,7 @@ const Container = styled.div`
 const SearchBarContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
   width: 100%;
   font-size: 14px;
   background: #f6f5f3;
@@ -105,7 +90,7 @@ const TrRow = styled.div`
   display: flex;
   width: 100%;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 2rem;
   padding: 1rem;
   border-top: 1px solid rgb(199 199 199 / 50%);
   > div {
@@ -120,6 +105,7 @@ const TrRow = styled.div`
     align-items: center;
     font-weight: 600;
     width: 74px;
+    margin-right: 5rem;
     justify-content: flex-start;
     span {
       display: none;
@@ -129,6 +115,7 @@ const TrRow = styled.div`
     }
   }
   .address {
+    position: relative;
     color: #292929;
     display: flex;
     align-items: center;
@@ -140,6 +127,14 @@ const TrRow = styled.div`
       width: 1.5rem;
       height: 1.5rem;
       margin-right: 1rem;
+    }
+    :hover {
+      text-decoration: none;
+      pointer-events: none;
+      .flag {
+        opacity: 1;
+        pointer-events: all;
+      }
     }
   }
   .date span {
@@ -195,6 +190,133 @@ const MobileProjectAddress = styled.a`
   }
 `;
 
+const Flag = styled.div`
+  display: flex;
+  align-content: center;
+  gap: 12px;
+  margin-left: auto;
+  opacity: 0;
+  pointer-events: none;
+  font-weight: 500;
+  transition: 300ms ease-in-out;
+`;
+
+const FlagTooltipWrapper = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 300ms ease 0s;
+  top: 100%;
+  background: white;
+  z-index: 1;
+  box-shadow: 0px 0px 1px 0px rgba(41, 41, 41, 0.74), 0px 3px 3px 0px rgba(123, 123, 123, 0.12),
+    0px 6px 6px 0px rgba(123, 123, 123, 0.12);
+  border-radius: 4px;
+  padding: 1rem;
+  max-width: 550px;
+  width: max-content;
+  margin-top: 8px;
+  .content {
+    display: flex;
+    gap: 1rem;
+    .content-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .profile-image {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0;
+    }
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .role {
+      font-weight: 600;
+      color: #7b7b7b;
+    }
+    .dot {
+      width: 5px;
+      height: 5px;
+      background: #7b7b7b;
+      border-radius: 50%;
+    }
+    .admin {
+      font-weight: 600;
+      display: flex;
+      gap: 4px;
+    }
+    .text {
+      color: #7b7b7b;
+    }
+    .flaged {
+      color: #ed464f;
+      font-weight: 600;
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+  .tip-icon {
+    display: flex;
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    height: 8px;
+    transform: translateY(-100%);
+    width: 100%;
+    justify-content: flex-start;
+    left: 0;
+    padding-left: 2.5rem;
+
+    svg {
+      stroke: rgb(41 41 41 / 21%);
+    }
+  }
+`;
+
+const accountId = context.accountId;
+
+const FlagBtn = ({ isFlagged, isProject, address }) =>
+  isFlagged && accountId === isFlagged.flaggedBy ? (
+    <Flag className="flag" onClick={(e) => handleFlag(e, address, isFlagged)}>
+      <svg
+        width="16"
+        height="18"
+        viewBox="0 0 16 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M7.86 2.5L8.26 4.5H13.5V10.5H10.14L9.74 8.5H2.5V2.5H7.86ZM9.5 0.5H0.5V17.5H2.5V10.5H8.1L8.5 12.5H15.5V2.5H9.9L9.5 0.5Z"
+          fill="#7B7B7B"
+        />
+      </svg>
+      <div>Unflag {isProject ? "project" : "donor"}</div>
+    </Flag>
+  ) : (
+    <Flag className="flag" onClick={(e) => handleFlag(e, address, isFlagged)}>
+      <svg
+        width="16"
+        height="18"
+        viewBox="0 0 16 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M7.86 2.5L8.26 4.5H13.5V10.5H10.14L9.74 8.5H2.5V2.5H7.86ZM9.5 0.5H0.5V17.5H2.5V10.5H8.1L8.5 12.5H15.5V2.5H9.9L9.5 0.5Z"
+          fill="#7B7B7B"
+        />
+      </svg>
+      <div>Flag {isProject ? "project" : "donor"}</div>
+    </Flag>
+  );
+
 const Arrow = (props) => (
   <svg
     {...props}
@@ -216,11 +338,130 @@ const ProfileImg = ({ address }) => (
   <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
+const FlagTooltip = ({ flag, href, address }) => (
+  <FlagTooltipWrapper className="flag">
+    <div className="tip-icon">
+      <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 5.24537e-07L-2.54292e-07 8L12 8L6 5.24537e-07Z" fill="white" />
+      </svg>
+    </div>
+    <div className="content">
+      <ProfileImg address={flag.flaggedBy} />
+      <div className="content-info">
+        <div className="title">
+          <div className="role">{flag.role}</div>
+          <div className="dot" />
+          <div className="admin">
+            {flag.flaggedBy} has flagged
+            <a href={href} className="flaged" target="_blank">
+              {address}
+            </a>
+          </div>
+        </div>
+        <div className="text">{flag.potFlaggedAcc[address]}</div>
+      </div>
+    </div>
+  </FlagTooltipWrapper>
+);
+
+const { ownerId } = VM.require("potlock.near/widget/constants");
+const { getTimePassed, _address, calcNetDonationAmount } = VM.require(
+  `potlock.near/widget/Components.DonorsUtils`
+);
+const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+  getFlaggedAccounts: () => {},
+};
+
+const {
+  allDonations,
+  filter,
+  handleSearch,
+  sortDonation,
+  currentFilter,
+  hrefWithParams,
+  potDetail,
+  potId,
+} = props;
+const { admins, owner, chef } = potDetail;
+const SOCIAL_CONTRACT_ID = "social.near";
+
+const nearLogo =
+  "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
+
+const [currentPage, setCurrentPage] = useState(1);
+const [flagAddress, setFlagAddress] = useState(null);
+const [successFlag, setSuccessFlag] = useState(null);
+const perPage = 30; // need to be less than 50
+
+useEffect(() => {
+  setCurrentPage(1);
+}, [filter]);
+
+const handleFlag = (e, address, isFlagged) => {
+  e.preventDefault();
+  if (isFlagged) {
+    const profile = Social.getr(`${accountId}/profile`);
+
+    const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
+    const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
+    delete potFlaggedAcc[address];
+
+    const socialArgs = {
+      data: {
+        [accountId]: {
+          profile: {
+            pLBlacklistedAccounts: JSON.stringify({
+              ...pLBlacklistedAccounts,
+              [potId]: {
+                ...potFlaggedAcc,
+              },
+            }),
+          },
+        },
+      },
+    };
+    const depositFloat = JSON.stringify(socialArgs).length * 0.00015;
+
+    const socialTransaction = {
+      contractName: SOCIAL_CONTRACT_ID,
+      methodName: "set",
+      args: socialArgs,
+      deposit: Big(depositFloat).mul(Big(10).pow(24)),
+    };
+    Near.call(socialTransaction);
+  } else {
+    setFlagAddress(address);
+  }
+};
+
+const potAdmins = [owner, chef, ...admins, "baam25.near"];
+const hasAuthority = potAdmins.includes(accountId);
+
+const profile = Social.getr(`${accountId}/profile`);
+console.log("profile", profile);
+
+const flaggedAddresses =
+  PotSDK.getFlaggedAccounts({ ...potDetail, owner: "baam25.near" }, potId) || [];
+
+console.log("flaggedAddresses", flaggedAddresses);
+
+const checkIfIsFlagged = (address) => flaggedAddresses.find((obj) => obj.potFlaggedAcc[address]);
+
 return (
   <Container>
     <div className="transcation">
       <div className="header">
-        <div className="address">Donor</div>
+        <div
+          className="address"
+          onClick={() => {
+            setSuccessFlag({
+              address: "re.near",
+              reason: "test tEST Tetset",
+            });
+          }}
+        >
+          Donor
+        </div>
         <div className="address">Project</div>
         <div className="sort price" onClick={() => sortDonation("price")}>
           Amount
@@ -246,28 +487,44 @@ return (
         allDonations.slice((currentPage - 1) * perPage, currentPage * perPage).map((donation) => {
           const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
           const projectId = recipient_id || project_id;
+
+          const isDonorFlagged = checkIfIsFlagged(donor_id);
+          const isProjectFlagged = checkIfIsFlagged(projectId);
+
+          const projectHref = hrefWithParams(`?tab=project&projectId=${projectId}`);
+          const profileHref = hrefWithParams(`?tab=profile&accountId=${donor_id}`);
           return (
             <TrRow>
-              <a
-                href={hrefWithParams(`?tab=profile&accountId=${donor_id}`)}
-                className="address"
-                target="_blank"
-              >
+              <a href={profileHref} className="address" target="_blank">
                 <ProfileImg address={donor_id} />
-                <OverlayTrigger placement="top" overlay={<Tooltip>{donor_id}</Tooltip>}>
-                  <div>{_address(donor_id)}</div>
-                </OverlayTrigger>
+                <div>{_address(donor_id)}</div>
+                {isDonorFlagged && (
+                  <FlagTooltip flag={isDonorFlagged} href={profileHref} address={donor_id} />
+                )}
+                {hasAuthority && (
+                  <FlagBtn
+                    isProject={false}
+                    className="flag"
+                    address={donor_id}
+                    isFlagged={isDonorFlagged}
+                  />
+                )}
               </a>
 
-              <a
-                href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
-                className="address project"
-                target="_blank"
-              >
+              <a href={projectHref} className="address project" target="_blank">
                 <ProfileImg address={projectId} />
-                <OverlayTrigger placement="top" overlay={<Tooltip>{projectId}</Tooltip>}>
-                  <div>{_address(projectId)}</div>
-                </OverlayTrigger>
+                <div>{_address(projectId)}</div>
+                {isProjectFlagged && (
+                  <FlagTooltip flag={isProjectFlagged} href={projectHref} address={projectId} />
+                )}
+                {hasAuthority && (
+                  <FlagBtn
+                    isProject={true}
+                    className="flag"
+                    address={projectId}
+                    isFlagged={isProjectFlagged}
+                  />
+                )}
               </a>
 
               <div className="price">
@@ -278,10 +535,7 @@ return (
 
               <div className="date">
                 {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
-                <MobileProjectAddress
-                  href={hrefWithParams(`?tab=project&projectId=${projectId}`)}
-                  target="_blank"
-                >
+                <MobileProjectAddress href={profileHref} target="_blank">
                   <ProfileImg address={projectId} />
                   {_address(projectId)}
                 </MobileProjectAddress>
@@ -303,6 +557,26 @@ return (
         currentPage,
         perPage: perPage,
         bgColor: "#292929",
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Pots.FlagModal`}
+      props={{
+        ...props,
+        flagAddress: flagAddress,
+        isModalOpen: flagAddress != null,
+        setSuccessFlag,
+        onClose: () => setFlagAddress(null),
+      }}
+    />
+    <Widget
+      src={`${ownerId}/widget/Pots.FlagSuccessModal`}
+      props={{
+        ...props,
+        successFlag: successFlag,
+        isModalOpen: successFlag != null,
+
+        onClose: () => setSuccessFlag(null),
       }}
     />
   </Container>

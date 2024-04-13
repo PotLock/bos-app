@@ -4,6 +4,10 @@ let PotFactorySDK =
     getPots: () => {},
   }));
 
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
 return {
   getConfig: (potId) => {
     return Near.view(potId, "get_config", {});
@@ -117,5 +121,40 @@ return {
       gas: "300000000000000",
     };
     Near.call([transaction]);
+  },
+  getFlaggedAccounts: (potDetail, potId) => {
+    const roles = ["owner", "admins", "chef"];
+
+    const flaggedAccounts = [];
+    roles.forEach((role) => {
+      const users = potDetail[role];
+      // check if it a list of addresses or a string
+      if (typeof users === "object") {
+        users.forEach((user) => {
+          const profile = Social.getr(`${user}/profile`);
+          const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
+          const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
+          if (!isEmpty(potFlaggedAcc)) {
+            flaggedAccounts.push({
+              flaggedBy: user,
+              role,
+              potFlaggedAcc,
+            });
+          }
+        });
+      } else {
+        const profile = Social.getr(`${users}/profile`);
+        const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
+        const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
+        if (!isEmpty(potFlaggedAcc)) {
+          flaggedAccounts.push({
+            flaggedBy: users,
+            role,
+            potFlaggedAcc,
+          });
+        }
+      }
+    });
+    return flaggedAccounts;
   },
 };
