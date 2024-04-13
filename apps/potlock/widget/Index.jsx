@@ -23,39 +23,18 @@ const loraCss = fetch(
 
 const Theme = styled.div`
   position: relative;
-  * {
-    font-family: "Mona-Sans";
-    font-feature-settings: "ss01" on, "salt" on;
-    font-style: normal;
-    font-weight: 400;
-  }
   @font-face {
-    font-family: mona-sans;
-    font-style: normal;
-    font-weight: 400;
-    src: local("Mona-Sans"),
-      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Regular.woff) format("woff");
+    font-family: "Mona Sans";
+    src: url("https://github.com/itexpert120/fonts/raw/main/Mona-Sans.woff2")
+        format("woff2 supports variations"),
+      url("https://github.com/itexpert120/fonts/raw/main/Mona-Sans.woff2")
+        format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
   }
-  @font-face {
-    font-family: mona-sans;
-    font-style: normal;
-    font-weight: 500;
-    src: local("Mona-Sans"),
-      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Medium.woff) format("woff");
-  }
-  @font-face {
-    font-family: mona-sans;
-    font-style: normal;
-    font-weight: 600;
-    src: local("Mona-Sans"),
-      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-SemiBold.woff) format("woff");
-  }
-  @font-face {
-    font-family: mona-sans;
-    font-style: normal;
-    font-weight: 700;
-    src: local("Mona-Sans"),
-      url(https://fonts.cdnfonts.com/s/91271/Mona-Sans-Bold.woff) format("woff");
+
+  html {
+    font-family: "Mona Sans", sans-serif;
   }
   ${loraCss}
 `;
