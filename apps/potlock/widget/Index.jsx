@@ -23,19 +23,6 @@ const loraCss = fetch(
 
 const Theme = styled.div`
   position: relative;
-  @font-face {
-    font-family: "Mona Sans";
-    src: url("https://github.com/itexpert120/fonts/raw/main/Mona-Sans.woff2")
-        format("woff2 supports variations"),
-      url("https://github.com/itexpert120/fonts/raw/main/Mona-Sans.woff2")
-        format("woff2-variations");
-    font-weight: 200 900;
-    font-stretch: 75% 125%;
-  }
-
-  html {
-    font-family: "Mona Sans", sans-serif;
-  }
   ${loraCss}
 `;
 
