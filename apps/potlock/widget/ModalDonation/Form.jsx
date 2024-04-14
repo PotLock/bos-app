@@ -173,7 +173,8 @@ const FormDirect = (props) => {
     }
   };
 
-  const isLoading = isUserHumanVerified === null || activeRounds === null;
+  const isLoading =
+    donationType === "pot" ? isUserHumanVerified === null || activeRounds === null : false;
 
   return projectId ? (
     profile === null ? (
