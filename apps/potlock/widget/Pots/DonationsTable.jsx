@@ -47,6 +47,11 @@ const Container = styled.div`
     flex: 1;
     justify-content: flex-start !important;
   }
+  @media only screen and (max-width: 992px) {
+    .header .price {
+      margin-right: 0;
+    }
+  }
   @media only screen and (max-width: 768px) {
     .header {
       display: none;
@@ -136,8 +141,48 @@ const TrRow = styled.div`
       }
     }
   }
+  .project-mobile-view {
+    position: relative;
+    width: fit-content;
+    color: #7b7b7b;
+    border-radius: 14px;
+    padding: 4px 6px;
+    border: 1px solid var(--Neutral-200, #dbdbdb);
+    background: var(--Neutral-100, #ebebeb);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 4px;
+    .profile-image {
+      width: 1.125rem;
+      height: 1.125rem;
+      display: flex !important;
+    }
+    .flag {
+      left: -50%;
+      .tip-icon {
+        padding-left: 50%;
+      }
+    }
+    :hover {
+      text-decoration: none;
+      .flag {
+        opacity: 1;
+        pointer-events: all;
+      }
+    }
+    @media only screen and (max-width: 768px) {
+      display: flex;
+    }
+  }
   .date span {
     display: none;
+  }
+  @media only screen and (max-width: 992px) {
+    .price {
+      margin-right: 0;
+    }
   }
   @media only screen and (max-width: 768px) {
     flex-wrap: wrap;
@@ -167,28 +212,6 @@ const TrRow = styled.div`
   }
 `;
 
-const MobileProjectAddress = styled.a`
-  width: fit-content;
-  color: #7b7b7b;
-  border-radius: 14px;
-  padding: 4px 6px;
-  border: 1px solid var(--Neutral-200, #dbdbdb);
-  background: var(--Neutral-100, #ebebeb);
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 4px;
-  .profile-image {
-    width: 1.125rem;
-    height: 1.125rem;
-    display: flex !important;
-  }
-  @media only screen and (max-width: 768px) {
-    display: flex;
-  }
-`;
-
 const Flag = styled.div`
   display: flex;
   align-content: center;
@@ -198,6 +221,15 @@ const Flag = styled.div`
   pointer-events: none;
   font-weight: 500;
   transition: 300ms ease-in-out;
+  @media only screen and (max-width: 992px) {
+    opacity: 1;
+    div {
+      display: none;
+    }
+  }
+  @media only screen and (max-width: 768px) {
+    margin-left: 0.5rem;
+  }
 `;
 
 const FlagTooltipWrapper = styled.div`
@@ -278,6 +310,14 @@ const FlagTooltipWrapper = styled.div`
       stroke: rgb(41 41 41 / 21%);
     }
   }
+  @media only screen and (max-width: 768px) {
+    width: 300px;
+    padding: 0.5rem;
+    font-size: 12px;
+    .content .profile-image {
+      display: none !important;
+    }
+  }
 `;
 
 const accountId = context.accountId;
@@ -352,9 +392,9 @@ const FlagTooltip = ({ flag, href, address }) => (
           <div className="role">{flag.role}</div>
           <div className="dot" />
           <div className="admin">
-            {flag.flaggedBy} has flagged
+            {_address(flag.flaggedBy)} has flagged
             <a href={href} className="flaged" target="_blank" onClick={(e) => e.stopPropagation()}>
-              {address}
+              {_address(address)}
             </a>
           </div>
         </div>
@@ -362,6 +402,31 @@ const FlagTooltip = ({ flag, href, address }) => (
       </div>
     </div>
   </FlagTooltipWrapper>
+);
+
+const AddressItem = ({ href, address, isFlagged, isProject, className }) => (
+  <a
+    href={href}
+    className={className}
+    target="_blank"
+    onClick={(e) => {
+      isFlagged ? e.preventDefault() : null;
+    }}
+  >
+    <ProfileImg address={address} />
+    <div
+      style={{
+        color: isFlagged ? "#ed464f" : "#292929",
+        fontWeight: "600",
+      }}
+    >
+      {_address(address)}
+    </div>
+    {isFlagged && <FlagTooltip flag={isFlagged} href={href} address={address} />}
+    {hasAuthority && (
+      <FlagBtn isProject={isProject} className="flag" address={address} isFlagged={isFlagged} />
+    )}
+  </a>
 );
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
@@ -391,59 +456,72 @@ const nearLogo =
 const [currentPage, setCurrentPage] = useState(1);
 const [flagAddress, setFlagAddress] = useState(null);
 const [successFlag, setSuccessFlag] = useState(null);
+const [updateFlaggedAddresses, setUpdateFlaggedAddresses] = useState(false);
+const [flaggedAddresses, setFlaggedAddresses] = useState([]);
 const perPage = 30; // need to be less than 50
 
 useEffect(() => {
   setCurrentPage(1);
 }, [filter]);
 
+useEffect(() => {
+  PotSDK.getFlaggedAccounts(potDetail, potId)
+    .then((data) => setFlaggedAddresses(data))
+    .catch((err) => console.log("error getting the flagged accounts ", err));
+}, [successFlag, updateFlaggedAddresses]);
+
 const handleFlag = (e, address, isFlagged) => {
   e.preventDefault();
   if (isFlagged) {
-    const profile = Social.getr(`${accountId}/profile`);
+    // remove flagged account
+    // get latest pLBlacklistedAccounts updates
+    Near.asyncView(SOCIAL_CONTRACT_ID, "get", {
+      keys: [`${accountId}/profile/**`],
+    }).then((profileData) => {
+      const profile = profileData[accountId].profile;
 
-    const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
-    const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
-    delete potFlaggedAcc[address];
+      const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
+      const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
+      delete potFlaggedAcc[address];
 
-    const socialArgs = {
-      data: {
-        [accountId]: {
-          profile: {
-            pLBlacklistedAccounts: JSON.stringify({
-              ...pLBlacklistedAccounts,
-              [potId]: {
-                ...potFlaggedAcc,
-              },
-            }),
+      const socialArgs = {
+        data: {
+          [accountId]: {
+            profile: {
+              pLBlacklistedAccounts: JSON.stringify({
+                ...pLBlacklistedAccounts,
+                [potId]: {
+                  ...potFlaggedAcc,
+                },
+              }),
+            },
           },
         },
-      },
-    };
-    const depositFloat = JSON.stringify(socialArgs).length * 0.00015;
+      };
+      const depositFloat = JSON.stringify(socialArgs).length * 0.00015;
 
-    const socialTransaction = {
-      contractName: SOCIAL_CONTRACT_ID,
-      methodName: "set",
-      args: socialArgs,
-      deposit: Big(depositFloat).mul(Big(10).pow(24)),
-    };
-    Near.call(socialTransaction);
+      const socialTransaction = {
+        contractName: SOCIAL_CONTRACT_ID,
+        methodName: "set",
+        args: socialArgs,
+        deposit: Big(depositFloat).mul(Big(10).pow(24)),
+      };
+      Near.call(socialTransaction);
+
+      // update flaggedAddresses
+      // TODO: check if it is successful before the update
+      setTimeout(() => {
+        setUpdateFlaggedAddresses(!updateFlaggedAddresses);
+      }, 3000);
+    });
   } else {
+    // open flagModal
     setFlagAddress(address);
   }
 };
 
-const potAdmins = [owner, chef, ...admins, "baam25.near"];
+const potAdmins = [owner, chef, ...admins];
 const hasAuthority = potAdmins.includes(accountId);
-
-const profile = Social.getr(`${accountId}/profile`);
-console.log("profile", profile);
-
-const flaggedAddresses =
-  PotSDK.getFlaggedAccounts({ ...potDetail, owner: "baam25.near" }, potId) || [];
-
-console.log("flaggedAddresses", flaggedAddresses);
 
 const checkIfIsFlagged = (address) => flaggedAddresses.find((obj) => obj.potFlaggedAcc[address]);
 
@@ -495,37 +573,24 @@ return (
           const profileHref = hrefWithParams(`?tab=profile&accountId=${donor_id}`);
           return (
             <TrRow>
-              <a href={profileHref} className="address" target="_blank">
-                <ProfileImg address={donor_id} />
-                <div>{_address(donor_id)}</div>
-                {isDonorFlagged && (
-                  <FlagTooltip flag={isDonorFlagged} href={profileHref} address={donor_id} />
-                )}
-                {hasAuthority && (
-                  <FlagBtn
-                    isProject={false}
-                    className="flag"
-                    address={donor_id}
-                    isFlagged={isDonorFlagged}
-                  />
-                )}
-              </a>
+              {/* Donor */}
+              <AddressItem
+                address={donor_id}
+                isFlagged={isDonorFlagged}
+                href={profileHref}
+                isProject={false}
+                className="address"
+              />
 
-              <a href={projectHref} className="address project" target="_blank">
-                <ProfileImg address={projectId} />
-                <div>{_address(projectId)}</div>
-                {isProjectFlagged && (
-                  <FlagTooltip flag={isProjectFlagged} href={projectHref} address={projectId} />
-                )}
-                {hasAuthority && (
-                  <FlagBtn
-                    isProject={true}
-                    className="flag"
-                    address={projectId}
-                    isFlagged={isProjectFlagged}
-                  />
-                )}
-              </a>
+              {/* Project */}
+
+              <AddressItem
+                address={projectId}
+                isFlagged={isProjectFlagged}
+                href={projectHref}
+                isProject={true}
+                className="address project"
+              />
 
               <div className="price">
                 <span>Donated</span>
@@ -535,10 +600,13 @@ return (
 
               <div className="date">
                 {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
-                <MobileProjectAddress href={profileHref} target="_blank">
-                  <ProfileImg address={projectId} />
-                  {_address(projectId)}
-                </MobileProjectAddress>
+                <AddressItem
+                  address={projectId}
+                  isFlagged={isProjectFlagged}
+                  href={projectHref}
+                  isProject={true}
+                  className="project-mobile-view"
+                />
               </div>
             </TrRow>
           );

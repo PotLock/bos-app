@@ -39,7 +39,7 @@ const NavOptionsContainer = styled.div`
     color: #292929;
     border-bottom-color: #292929;
   }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 992px) {
     padding: 0px 1rem;
     overflow-x: scroll;
     .selected {

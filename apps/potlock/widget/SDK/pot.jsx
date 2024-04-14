@@ -4,8 +4,15 @@ let PotFactorySDK =
     getPots: () => {},
   }));
 
+// check if obk is empty
 function isEmpty(obj) {
   return Object.keys(obj).length === 0;
+}
+
+function getSocialProfile(keys) {
+  return Near.asyncView("social.near", "get", {
+    keys,
+  });
 }
 
 return {
@@ -125,36 +132,42 @@ return {
   getFlaggedAccounts: (potDetail, potId) => {
     const roles = ["owner", "admins", "chef"];
 
-    const flaggedAccounts = [];
+    const allUsers = {};
     roles.forEach((role) => {
       const users = potDetail[role];
-      // check if it a list of addresses or a string
       if (typeof users === "object") {
         users.forEach((user) => {
-          const profile = Social.getr(`${user}/profile`);
-          const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
-          const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
-          if (!isEmpty(potFlaggedAcc)) {
-            flaggedAccounts.push({
-              flaggedBy: user,
-              role,
-              potFlaggedAcc,
-            });
-          }
+          allUsers[user] = role === "admins" ? "admin" : role;
         });
       } else {
-        const profile = Social.getr(`${users}/profile`);
-        const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
-        const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
-        if (!isEmpty(potFlaggedAcc)) {
-          flaggedAccounts.push({
-            flaggedBy: users,
-            role,
-            potFlaggedAcc,
-          });
-        }
+        allUsers[users] = role;
       }
     });
-    return flaggedAccounts;
+
+    const flaggedAccounts = [];
+    const socialKeys = Object.keys(allUsers).map((user) => `${user}/profile/**`);
+
+    return new Promise((resolve, reject) => {
+      getSocialProfile(socialKeys)
+        .then((profiles) => {
+          Object.entries(profiles).forEach(([user, { profile }]) => {
+            console.log(profiles);
+            const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
+            const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
+            if (!isEmpty(potFlaggedAcc)) {
+              flaggedAccounts.push({
+                flaggedBy: user,
+                role: allUsers[user],
+                potFlaggedAcc,
+              });
+            }
+          });
+          resolve(flaggedAccounts);
+        })
+        .catch((error) => {
+          console.error("Error fetching social profiles:", error);
+          reject(error);
+        });
+    });
   },
 };
