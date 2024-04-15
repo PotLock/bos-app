@@ -60,6 +60,7 @@ const {
   referral_fee_public_round_basis_points,
   chef_fee_basis_points,
   min_matching_pool_donation_amount,
+  registry_provider,
 } = potDetail;
 
 const fields = [
@@ -110,6 +111,10 @@ const fields = [
   {
     label: "Max. approved projects",
     val: max_projects,
+  },
+  {
+    label: "Registry Provider",
+    val: registry_provider,
   },
   {
     label: "Donor Sybil Resistance",
