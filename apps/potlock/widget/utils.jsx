@@ -177,12 +177,20 @@ return {
       ? "~$" + formatWithCommas(new Big(amountYoctos).mul(nearToUsd).div(1e24).toFixed(2))
       : formatWithCommas(new Big(amountYoctos).div(1e24).toFixed(2)) + (abbreviate ? "N" : " NEAR");
   },
-  calculatePayouts: (allPotDonations, totalMatchingPool) => {
+  calculatePayouts: (allPotDonations, totalMatchingPool, blacklistedAccounts) => {
     // * QF/CLR logic taken from https://github.com/gitcoinco/quadratic-funding/blob/master/quadratic-funding/clr.py *
+    console.log(
+      "Calculting payouts; ignoring blacklisted donors &/or projects: ",
+      blacklistedAccounts.join(", ")
+    );
     console.log("totalMatchingPool: ", totalMatchingPool);
     // first, flatten the list of donations into a list of contributions
     const projectContributions = [];
     for (const d of allPotDonations) {
+      // skip if donor or project is blacklisted
+      if (blacklistedAccounts.includes(d.donor_id) || blacklistedAccounts.includes(d.project_id)) {
+        continue;
+      }
       const amount = new Big(d.total_amount);
       const val = [d.project_id, d.donor_id, amount];
       projectContributions.push(val);
