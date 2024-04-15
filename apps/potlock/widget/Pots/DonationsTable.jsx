@@ -438,7 +438,7 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
 };
 
 const {
-  allDonations,
+  filteredDonations,
   filter,
   handleSearch,
   sortDonation,
@@ -561,56 +561,58 @@ return (
         </SearchIcon>
         <SearchBar placeholder="Search donations" onChange={handleSearch} />
       </SearchBarContainer>
-      {allDonations.length > 0 ? (
-        allDonations.slice((currentPage - 1) * perPage, currentPage * perPage).map((donation) => {
-          const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
-          const projectId = recipient_id || project_id;
+      {filteredDonations.length > 0 ? (
+        filteredDonations
+          .slice((currentPage - 1) * perPage, currentPage * perPage)
+          .map((donation) => {
+            const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
+            const projectId = recipient_id || project_id;
 
-          const isDonorFlagged = checkIfIsFlagged(donor_id);
-          const isProjectFlagged = checkIfIsFlagged(projectId);
+            const isDonorFlagged = checkIfIsFlagged(donor_id);
+            const isProjectFlagged = checkIfIsFlagged(projectId);
 
-          const projectHref = hrefWithParams(`?tab=project&projectId=${projectId}`);
-          const profileHref = hrefWithParams(`?tab=profile&accountId=${donor_id}`);
-          return (
-            <TrRow>
-              {/* Donor */}
-              <AddressItem
-                address={donor_id}
-                isFlagged={isDonorFlagged}
-                href={profileHref}
-                isProject={false}
-                className="address"
-              />
+            const projectHref = hrefWithParams(`?tab=project&projectId=${projectId}`);
+            const profileHref = hrefWithParams(`?tab=profile&accountId=${donor_id}`);
+            return (
+              <TrRow>
+                {/* Donor */}
+                <AddressItem
+                  address={donor_id}
+                  isFlagged={isDonorFlagged}
+                  href={profileHref}
+                  isProject={false}
+                  className="address"
+                />
 
-              {/* Project */}
+                {/* Project */}
 
-              <AddressItem
-                address={projectId}
-                isFlagged={isProjectFlagged}
-                href={projectHref}
-                isProject={true}
-                className="address project"
-              />
-
-              <div className="price">
-                <span>Donated</span>
-                <img src={nearLogo} alt="NEAR" />
-                {calcNetDonationAmount(donation).toFixed(2)}
-              </div>
-
-              <div className="date">
-                {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
                 <AddressItem
                   address={projectId}
                   isFlagged={isProjectFlagged}
                   href={projectHref}
                   isProject={true}
-                  className="project-mobile-view"
+                  className="address project"
                 />
-              </div>
-            </TrRow>
-          );
-        })
+
+                <div className="price">
+                  <span>Donated</span>
+                  <img src={nearLogo} alt="NEAR" />
+                  {calcNetDonationAmount(donation).toFixed(2)}
+                </div>
+
+                <div className="date">
+                  {getTimePassed(donated_at_ms || donated_at)} ago <span> to </span>
+                  <AddressItem
+                    address={projectId}
+                    isFlagged={isProjectFlagged}
+                    href={projectHref}
+                    isProject={true}
+                    className="project-mobile-view"
+                  />
+                </div>
+              </TrRow>
+            );
+          })
       ) : (
         <TrRow>No donations</TrRow>
       )}
@@ -621,7 +623,7 @@ return (
         onPageChange: (page) => {
           setCurrentPage(page);
         },
-        data: allDonations,
+        data: filteredDonations,
         currentPage,
         perPage: perPage,
         bgColor: "#292929",

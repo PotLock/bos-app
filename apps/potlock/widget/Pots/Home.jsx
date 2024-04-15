@@ -27,6 +27,7 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
 const currentDate = Date.now();
 
 const filters = {
+  application_not_started: (round) => currentDate < round.application_start_ms,
   application_open: (round) =>
     currentDate > round.application_start_ms && currentDate < round.application_end_ms,
   application_closed: (round) => currentDate > round.application_end_ms,
@@ -38,24 +39,47 @@ const filters = {
   completed: (round) => round.all_paid_out,
 };
 
-const sortOptions = [
-  {
-    label: "Most to least in pot",
-    val: "least_pots",
-  },
-  {
-    label: "Least to most in pot",
-    val: "most_pots",
-  },
-  {
-    label: "Most to least donations",
-    val: "most_donations",
-  },
-  {
-    label: "Least to most donations",
-    val: "least_donations",
-  },
-];
+const filterBy = {
+  "no-label": [
+    {
+      label: "Application open",
+      val: "application_open",
+    },
+    {
+      label: "Matching round open",
+      val: "round_open",
+    },
+    {
+      label: "Application closed",
+      val: "application_closed",
+    },
+    {
+      label: "Challenge period",
+      val: "cooldown",
+    },
+  ],
+};
+
+const sortOptions = {
+  "no-label": [
+    {
+      label: "Most to least in pot",
+      val: "least_pots",
+    },
+    {
+      label: "Least to most in pot",
+      val: "most_pots",
+    },
+    {
+      label: "Most to least donations",
+      val: "most_donations",
+    },
+    {
+      label: "Least to most donations",
+      val: "least_donations",
+    },
+  ],
+};
 
 if (!pots) {
   PotFactorySDK.asyncGetPots().then((pots) => {
@@ -70,34 +94,60 @@ if (!pots) {
   });
 }
 
-const compareFunction = (a, b) => {
-  // Cooldown Rounds
-  if (filters.cooldown(a)) {
-    return -1;
-  } else if (filters.cooldown(b)) {
-    return 1;
-  }
-  // Active Rounds
-  else if (filters.round_open(a)) {
-    return -1;
-  } else if (filters.round_open(b)) {
-    return 1;
-  }
-  // Application period
-  else if (filters.application_open(a)) {
-    return -1;
-  } else if (filters.application_open(b)) {
-    return 1;
-  }
-  // Default case: no change in order
-  return 0;
+const compareFunction = (pots) => {
+  const potsSort = {
+    cooldown: {
+      check: filters.cooldown,
+      time: "cooldown_end_ms",
+    },
+    active: {
+      check: filters.round_open,
+      time: "public_round_end_ms",
+    },
+    application: {
+      check: filters.application_open,
+      time: "application_end_ms",
+    },
+    not_started: {
+      check: filters.application_not_started,
+      time: "application_start_ms",
+    },
+    rest: {
+      check: (round) => true,
+      time: "application_start_ms",
+    },
+  };
+
+  // sort pots(round status)
+  const listOfPots = {};
+
+  const states = Object.keys(potsSort);
+
+  pots.forEach((pot) => {
+    Object.values(potsSort).some((sort, idx) => {
+      if (sort.check(pot)) {
+        listOfPots[states[idx]] = [...(listOfPots[states[idx]] || []), pot];
+        return true;
+      }
+    });
+  });
+
+  // sort pots(time left)
+  const inProgressPots = [];
+
+  Object.entries(listOfPots).forEach(([status, potsList]) => {
+    potsList.sort((a, b) => a[potsSort[status].time] - b[potsSort[status].time]);
+    inProgressPots.push(...potsList);
+  });
+
+  return inProgressPots;
 };
 
 useEffect(() => {
   if (pots) {
     const potsVal = Object.values(pots);
     const completed = [];
-    const inprogress = [];
+    let inprogress = [];
     potsVal.forEach((round) => {
       if (filters.completed(round)) {
         completed.push(round);
@@ -105,7 +155,7 @@ useEffect(() => {
         inprogress.push(round);
       }
     });
-    inprogress.sort(compareFunction);
+    inprogress = compareFunction(inprogress);
     setFilteredRounds(inprogress);
     setInProgressRounds(inprogress);
     setCompletedRounds(completed);
@@ -143,10 +193,7 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-    ${Title} {
-      margin-right: auto;
-      margin-bottom: 0;
-    }
+
     .filters {
       gap: 1rem;
       display: flex;
@@ -190,39 +237,15 @@ if (!potFactoryConfig) {
   return <div class="spinner-border text-secondary" role="status" />;
 }
 
-const menuClass = `
-width: 286px;
-flex-direction: column;
-padding: 0.5rem;
-gap: 0;
-.title{
-  display: none;
-}
-.option{
-  border: none;
-  width: 100%;
-  padding: 0.5rem;
-}
-`;
-
-const handleFilter = ({ val }) => {
-  let filteredRounds = inProgressRounds;
-  let selectedUpdated = [];
-
-  if (filterSelcted.includes(val)) {
-    selectedUpdated = filterSelcted.filter((item) => item !== val);
-    setFilterSelected(selectedUpdated);
-  } else {
-    selectedUpdated = [...filterSelcted, val];
-    setFilterSelected(selectedUpdated);
-  }
-
-  if (selectedUpdated.length === 0) {
+const handleFilter = (selected) => {
+  const selectedList = Object.values(selected)[0];
+  if (selectedList.length === 0) {
     return setFilteredRounds(inProgressRounds);
   }
 
-  filteredRounds = filteredRounds.filter((round) =>
-    selectedUpdated.some((key) => {
+  const filteredRounds = [...inProgressRounds].filter((round) =>
+    selectedList.some((key) => {
+      console.log("key", key);
       return filters[key](round) === true;
     })
   );
@@ -263,7 +286,12 @@ return (
 
     <div className="content">
       <div className="header">
-        <Title>
+        <Title
+          style={{
+            marginRight: "auto",
+            marginBottom: 0,
+          }}
+        >
           Active Pots <span>{filteredRounds.length}</span>
         </Title>
         <div className="filters">
@@ -271,9 +299,9 @@ return (
             src={`${ownerId}/widget/Inputs.FilterDropdown`}
             props={{
               ...props,
+              options: filterBy,
               onClick: handleFilter,
               multipleOptions: true,
-              selected: filterSelcted,
             }}
           />
           <Widget
@@ -283,13 +311,14 @@ return (
               label: "Sort",
               labelIcon: "right",
               options: sortOptions,
-              selected: sortBy,
               onClick: handleSort,
               menuClass: "sort",
             }}
           />
         </div>
       </div>
+
+      {filteredRounds.length === 0 && <div>No pots</div>}
 
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}

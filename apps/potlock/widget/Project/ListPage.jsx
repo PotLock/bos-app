@@ -5,6 +5,10 @@ const { getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } = VM
   getTeamMembersFromSocialProfileData: () => [],
 };
 
+const { HomeBannerBackground } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+  HomeBannerBackground: () => {},
+};
+
 // Card Skeleton - Loading fallback
 const loadingSkeleton = styled.keyframes`
   0% {
@@ -205,8 +209,6 @@ const Underline = styled.div`
 
 const containerStyle = props.containerStyle ?? {};
 
-const showStats = !props.tab || props.tab == "projects";
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -264,12 +266,7 @@ const ProjectsContainer = styled.div`
   align-items: center;
   width: 100%;
   overflow-y: hidden;
-  // padding: 0px 64px 96px 64px;
-  // background: #fafafa;
-
-  // @media screen and (max-width: 768px) {
-  //   margin-top: 200px;
-  // }
+  padding-top: 5px;
 `;
 
 const HeroContainer = styled.div`
@@ -394,6 +391,15 @@ const StatsSubTitle = styled.div`
   }
 `;
 
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-top: 64px;
+  @media screen and (max-width: 768px) {
+    padding-top: 64px;
+  }
+`;
+
 const Header = styled.div`
   display: flex;
   flex-direction: column;
@@ -402,71 +408,23 @@ const Header = styled.div`
 `;
 
 const Title = styled.div`
-  color: #292929;
-  font-size: 14px;
+  color: rgb(41, 41, 41);
   font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: 1.12px;
-  text-transform: uppercase;
-`;
-
-const TagsWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  font-size: 14px;
-  font-style: normal;
+  font-size: 18px;
   font-weight: 600;
-  line-height: 24px;
-  color: #292929;
-`;
-
-const Tag = styled.div`
-  display: flex;
-  padding: 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  border-radius: 4px;
-  background: #fff;
-  box-shadow: 0px -1px 0px 0px #c7c7c7 inset, 0px 0px 0px 0.5px #c7c7c7;
-  border: 1px solid #c7c7c7;
-  cursor: pointer;
-  &:hover {
-    background: #fef6ee;
-  }
-`;
-
-const OnBottom = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
 `;
 
 const ContainerHeader = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 48px;
-  padding-top: 20px;
-  @media screen and (min-width: 740px) and (max-width: 1400px) {
-    ${props.tab !== "pot" && "padding-top: 120px;"}
-  }
-  // mobile
-  @media screen and (max-width: 739px) {
-    padding-top: 40px;
-  }
+  gap: 1.5rem;
 `;
 
 const ProjectList = styled.div`
   display: grid;
   gap: 31px;
-
+  padding-bottom: 3rem;
   // For mobile devices (1 column)
   @media screen and (max-width: 739px) {
     grid-template-columns: repeat(1, 1fr);
@@ -479,7 +437,36 @@ const ProjectList = styled.div`
 
   // For desktop devices (3 columns)
   @media screen and (min-width: 1024px) {
-    grid-template-columns: repeat(${!props.maxCols || props.maxCols > 2 ? "3" : "2"}, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+const FilterWrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  .filter-menu {
+    left: 0;
+    right: auto;
+  }
+  .left-side-menu {
+    left: auto;
+    right: 0;
+  }
+  @media screen and (max-width: 768px) {
+    flex-wrap: wrap;
+    > div:nth-of-type(2) {
+      width: 100%;
+      order: -1;
+      flex: auto;
+    }
+    .filter-menu {
+      width: 250px !important;
+    }
+    .left-side-menu {
+      right: auto;
+      left: 0;
+    }
   }
 `;
 
@@ -510,17 +497,15 @@ let DonateSDK =
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
-// console.log("allProjects: ", allProjects);
-
-const projects = useMemo(() => {
-  if (!isRegistryAdmin) {
-    return allRegistrations.filter((registration) => registration.status === "Approved");
-  }
+const [projects, approvedProjects] = useMemo(() => {
+  allRegistrations.sort((a, b) =>
+    b.status === "Approved" ? -1 : a.status === "Approved" ? 1 : a.status.localeCompare(b.status)
+  );
   allRegistrations.sort((a, b) => b.submitted_ms - a.submitted_ms);
-  return allRegistrations;
-}, allRegistrations);
 
-// console.log("projects: ", projects);
+  const approvedProjects = allRegistrations.filter((project) => project.status === "Approved");
+  return [allRegistrations, approvedProjects];
+}, allRegistrations);
 
 const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
 const featuredProjects = useMemo(
@@ -529,51 +514,78 @@ const featuredProjects = useMemo(
 );
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
-const [filteredProjects, setFilteredProjects] = useState(projects);
+const [filteredProjects, setFilteredProjects] = useState(approvedProjects);
 const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
-const [tagsList, setTagsList] = useState([
-  {
-    label: "Desci",
-    selected: false,
-  },
-  {
-    label: "Open Source",
-    selected: false,
-  },
-  {
-    label: "Non Profit",
-    selected: false,
-  },
-  {
-    label: "Social Impact",
-    selected: false,
-  },
-  {
-    label: "Climate",
-    selected: false,
-  },
-  {
-    label: "Public Good",
-    selected: false,
-  },
-  {
-    label: "Community",
-    selected: false,
-  },
-  {
-    label: "Education",
-    selected: false,
-  },
-]);
+
+const tagsList = {
+  Category: [
+    {
+      label: "Desci",
+      val: "Desci",
+    },
+    {
+      label: "Open Source",
+      val: "Open Source",
+    },
+    {
+      label: "Non Profit",
+      val: "Non Profit",
+    },
+    {
+      label: "Social Impact",
+      val: "Social Impact",
+    },
+    {
+      label: "Climate",
+      val: "Climate",
+    },
+    {
+      label: "Public Good",
+      val: "Public Good",
+    },
+    {
+      label: "Community",
+      val: "Community",
+    },
+    {
+      label: "Education",
+      val: "Education",
+    },
+  ],
+  Status: [
+    {
+      label: "All",
+      val: "all",
+    },
+    {
+      label: "Approved",
+      val: "Approved",
+    },
+    {
+      label: "Pending",
+      val: "Pending",
+    },
+    {
+      label: "Rejected",
+      val: "Rejected",
+    },
+    {
+      label: "Graylisted",
+      val: "Graylisted",
+    },
+    {
+      label: "Blacklisted",
+      val: "Blacklisted",
+    },
+  ],
+};
 
 useEffect(() => {
   if (filteredProjects.length < 1) {
-    setFilteredProjects(projects);
+    setFilteredProjects(approvedProjects);
   }
 }, [projects]);
-
-// console.log("filter", filteredProjects);
 
 const donateConfig = DonateSDK.getConfig();
 if (donateConfig && !totalDonated && !totalDonation) {
@@ -599,7 +611,6 @@ const containerStyleHeader = {
 };
 
 const SORT_FILTERS = {
-  ALL: "All",
   NEW_TO_OLD: "Newest to Oldest",
   OLD_TO_NEW: "Oldest to Newest",
   // MOST_TO_LEAST_DONATIONS: "Most to Least Donations",
@@ -678,19 +689,19 @@ const handleSortChange = (sortType) => {
   setSort(sortType);
   switch (sortType) {
     case "All":
-      setFilteredProjects(projects);
+      setFilteredProjects(filteredProjects);
       break;
     case "Newest to Oldest":
-      sortNewToOld(projects);
+      sortNewToOld(filteredProjects);
       break;
     case "Oldest to Newest":
-      sortOldToNew(projects);
+      sortOldToNew(filteredProjects);
       break;
     case "Most to Least Donations":
-      sortHighestToLowest(projects);
+      sortHighestToLowest(filteredProjects);
       break;
     case "Least to Most Donations":
-      sortLowestToHighest(projects);
+      sortLowestToHighest(filteredProjects);
       break;
   }
 };
@@ -717,53 +728,35 @@ const searchByWords = (projects, searchTerm) => {
       }
     }
   });
-  //let projectFilterBySearch = [];
-  // projects.forEach((project) => {
-  //   const data = Social.getr(`${project.id}/profile`);
-  //   findId.forEach((id) => {
-  //     if (tagSelected.length > 0) {
-  //       if (data.category == tagSelected[0]) {
-  //         if (project.id == id) {
-  //           results.push(project);
-  //         }
-  //       }
-  //     } else {
-  //       if (project.id == id) {
-  //         results.push(project);
-  //       }
-  //     }
-  //   });
-  // });
-
   setFilteredProjects(results);
 };
-const handleTag = (key) => {
-  //console.log(tagsList[key].value);
-  const tags = tagsList;
-  tags[key].selected = !tagsList[key].selected;
-  const dataArr = projects;
-  let tagSelected = [];
-  tagsList.forEach((tag) => {
-    if (tag.selected) {
-      tagSelected.push(tag.label);
-    }
-  });
-  let projectFilterBySearch = [];
-  dataArr.forEach((item) => {
-    const data = Social.getr(`${item.registrant_id}/profile`);
-    const tagsForProfile = getTagsFromSocialProfileData(data);
-    tagSelected.forEach((tag) => {
-      if (tagsForProfile.includes(tag)) {
-        projectFilterBySearch.push(item);
+
+const checkAllTrue = (arr) => arr.every((item) => item === true);
+
+const filterProjects = (filters) =>
+  projects.filter((item) => {
+    const filterVals = Object.keys(filters).map((type) => {
+      if (filters[type].length === 0) return true;
+
+      if (type === "Category") {
+        const data = Social.getr(`${item.registrant_id}/profile`);
+        const tagsForProfile = getTagsFromSocialProfileData(data);
+        return filters[type].some((tag) => tagsForProfile.includes(tag));
       }
+
+      if (type === "Status") {
+        if (filters[type].includes("all")) return true;
+        return filters[type].includes(item.status);
+      }
+      return true;
     });
+    return checkAllTrue(filterVals);
   });
-  if (tagSelected.length == 0) {
-    setFilteredProjects(dataArr);
-  } else {
-    setFilteredProjects(projectFilterBySearch);
-  }
-  setTagsList(tags);
+const handleTag = (selectedFilters) => {
+  const projectFilterBySearch = filterProjects(selectedFilters);
+  console.log("projectFilterBySearch", projectFilterBySearch);
+
+  setFilteredProjects(projectFilterBySearch);
 };
 
 const getRandomProject = () => {
@@ -776,7 +769,6 @@ const getRandomProject = () => {
 return (
   <>
     <HeroContainer>
-      {/* <Hero src={HERO_BACKGROUND_IMAGE_URL} alt="hero" /> */}
       <HeaderContainer style={containerStyleHeader}>
         <HeaderContent>
           <HeaderTitle>
@@ -811,57 +803,7 @@ return (
         </HeaderContent>
 
         <ButtonsContainer>
-          {/* <Widget
-            src={`${ownerId}/widget/Project.ButtonDonateRandomly`}
-            props={{
-              ...props,
-            }}
-          /> */}
           <Button onClick={donateRandomly}>Donate Randomly</Button>
-          {state.isModalOpen && (
-            <Widget
-              src={`${ownerId}/widget/ModalDonation.Main`}
-              props={{
-                ...props,
-                isModalOpen: state.isModalOpen,
-                projectId: getRandomProject(),
-                onClose: () =>
-                  State.update({
-                    isModalOpen: false,
-                  }),
-                openDonationModalSuccess: (donation) => {
-                  State.update({
-                    isModalOpen: false,
-                    successfulDonation: donation,
-                  });
-                },
-              }}
-            />
-          )}
-          {state.successfulDonation && (
-            <Widget
-              src={`${ownerId}/widget/Project.ModalSuccess`}
-              props={{
-                ...props,
-                successfulDonation: state.successfulDonation,
-                isModalOpen: state.successfulDonation != null,
-                onClose: () =>
-                  State.update({
-                    successfulDonation: null,
-                  }),
-              }}
-            />
-          )}
-          {/* <Widget
-            src={`${ownerId}/widget/Components.Button`}
-            props={{
-              type: "secondary",
-              text: "Register Your Project",
-              disabled: false,
-              href: props.hrefWithParams(`?tab=createproject`),
-              style: { padding: "16px 24px" },
-            }}
-          /> */}
           <ButtonRegisterProject
             href={
               isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"
@@ -873,14 +815,14 @@ return (
         <Widget src="potlock.near/widget/Project.DonationStats" />
       </HeaderContainer>
     </HeroContainer>
-    {props.tab != "pots" && props.tab != "pot" && (
+    <Content>
       <ContainerHeader>
         <Header>
-          <Title>Featured projects</Title>
+          <Title>Featured Projects</Title>
         </Header>
 
         <ProjectList>
-          {featuredProjects.map((project) => {
+          {(featuredProjects || []).map((project) => {
             return (
               <Widget
                 src={`${ownerId}/widget/Project.Card`}
@@ -898,109 +840,120 @@ return (
                 }
                 props={{
                   ...props,
-                  // potId,
                   projectId: project.registrant_id,
                   allowDonate: true,
-                  // allowDonate:
-                  //   sybilRequirementMet &&
-                  //   publicRoundOpen &&
-                  //   project.project_id !== accountId,
-                  // requireVerification: !sybilRequirementMet,
                 }}
               />
             );
           })}
         </ProjectList>
-        <OnBottom></OnBottom>
       </ContainerHeader>
-    )}
-    <Header>
-      <Title>
-        all {tab == "pots" ? "pots" : "projects"}
-        <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
-          {projects.length}
-        </span>
-      </Title>
+      <Header>
+        <Title>
+          All Projects
+          <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
+            {filteredProjects.length}
+          </span>
+        </Title>
+        <FilterWrapper>
+          <Widget
+            src={`${ownerId}/widget/Inputs.FilterDropdown`}
+            props={{
+              ...props,
+              onClick: handleTag,
+              multipleOptions: true,
+              options: tagsList,
+              defaultSelected: {
+                Status: ["Approved"],
+              },
+              menuClass: "filter-menu",
+            }}
+          />
+          <Widget
+            src={`${ownerId}/widget/Project.SearchBar`}
+            props={{
+              title: sort,
+              tab: tab,
+              numItems: filteredProjects.length,
+              itemName: "project",
+              sortList: Object.values(SORT_FILTERS),
+              FilterMenuClass: `left-side-menu`,
+              setSearchTerm: (value) => {
+                searchByWords(projects, value);
+              },
+              handleSortChange: (filter) => {
+                handleSortChange(filter);
+              },
+            }}
+          />
+        </FilterWrapper>
+      </Header>
+      <ProjectsContainer>
+        {filteredProjects.length ? (
+          <Widget
+            src={`${ownerId}/widget/Project.ListSection`}
+            props={{
+              ...props,
+              items: filteredProjects,
+              shouldShuffle: !isRegistryAdmin,
+              renderItem: (project) => {
+                return (
+                  <Widget
+                    src={`${ownerId}/widget/Project.Card`}
+                    loading={<CardSkeleton />}
+                    props={{
+                      ...props,
+                      projectId: project.registrant_id,
+                      allowDonate: true,
+                      // allowDonate:
+                      //   sybilRequirementMet &&
+                      //   publicRoundOpen &&
+                      //   project.project_id !== accountId,
+                      // requireVerification: !sybilRequirementMet,
+                    }}
+                  />
+                );
+              },
+            }}
+          />
+        ) : (
+          <div style={{ alignSelf: "flex-start", margin: "24px 0px" }}>No results</div>
+        )}
+      </ProjectsContainer>
+    </Content>
+    {state.isModalOpen && (
       <Widget
-        src={`${ownerId}/widget/Project.SearchBar`}
+        src={`${ownerId}/widget/ModalDonation.Main`}
         props={{
-          title: sort,
-          tab: tab,
-          numItems: filteredProjects.length,
-          itemName: tab == "pots" ? "pot" : "project",
-          sortList: Object.values(SORT_FILTERS),
-          FilterMenuCustomStyle: `left:auto !important; right:0;`,
-          setSearchTerm: (value) => {
-            searchByWords(projects, value);
-          },
-          handleSortChange: (filter) => {
-            handleSortChange(filter);
+          ...props,
+          isModalOpen: state.isModalOpen,
+          projectId: getRandomProject(),
+          onClose: () =>
+            State.update({
+              isModalOpen: false,
+            }),
+          openDonationModalSuccess: (donation) => {
+            State.update({
+              isModalOpen: false,
+              successfulDonation: donation,
+            });
           },
         }}
       />
-      {tab != "pots" && tab != "pot" && (
-        <TagsWrapper>
-          Tags:
-          {tagsList.map((tag, key) => (
-            <Tag
-              key={key}
-              onClick={() => handleTag(key)}
-              className={`${
-                tag.selected && "gap-2 bg-[#FEF6EE]"
-              } p-2 rounded border text-sm flex items-center  cursor-pointer`}
-            >
-              {tag.selected && (
-                <svg
-                  width="12"
-                  height="10"
-                  viewBox="0 0 12 10"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3.86204 7.58116L1.08204 4.80117L0.135376 5.74116L3.86204 9.46783L11.862 1.46783L10.922 0.527832L3.86204 7.58116Z"
-                    fill="#F4B37D"
-                  ></path>
-                </svg>
-              )}
-              {tag.label}
-            </Tag>
-          ))}
-        </TagsWrapper>
-      )}
-    </Header>
-    <ProjectsContainer>
-      {filteredProjects.length ? (
-        <Widget
-          src={`${ownerId}/widget/Project.ListSection`}
-          props={{
-            ...props,
-            items: filteredProjects,
-            shouldShuffle: !isRegistryAdmin,
-            renderItem: (project) => {
-              return (
-                <Widget
-                  src={`${ownerId}/widget/Project.Card`}
-                  loading={<CardSkeleton />}
-                  props={{
-                    ...props,
-                    // potId,
-                    projectId: project.registrant_id,
-                    allowDonate: true,
-                    // allowDonate:
-                    //   sybilRequirementMet &&
-                    //   publicRoundOpen &&
-                    //   project.project_id !== accountId,
-                    // requireVerification: !sybilRequirementMet,
-                  }}
-                />
-              );
-            },
-          }}
-        />
-      ) : (
-        <div style={{ alignSelf: "flex-start", margin: "24px 0px" }}>No results</div>
-      )}
-    </ProjectsContainer>
+    )}
+    {state.successfulDonation && (
+      <Widget
+        src={`${ownerId}/widget/Project.ModalSuccess`}
+        props={{
+          ...props,
+          successfulDonation: state.successfulDonation,
+          isModalOpen: state.successfulDonation != null,
+          onClose: () =>
+            State.update({
+              successfulDonation: null,
+            }),
+        }}
+      />
+    )}
   </>
 );

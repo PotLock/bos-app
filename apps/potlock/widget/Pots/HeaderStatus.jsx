@@ -14,7 +14,6 @@ const {
   cooldown_end_ms,
   all_paid_out,
 } = potDetail;
-console.log(potDetail);
 
 const now = Date.now();
 
