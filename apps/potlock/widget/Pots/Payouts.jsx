@@ -397,6 +397,7 @@ const ArrowDown = (props) => (
 
 return (
   <Container>
+    <Widget src={`${ownerId}/widget/Pots.FlaggedAccounts`} props={props} />
     <Widget src={`${ownerId}/widget/Pots.PayoutsChallenges`} props={props} />
 
     {!potDetail.all_paid_out && (

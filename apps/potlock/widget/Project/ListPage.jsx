@@ -246,7 +246,7 @@ const SectionTitle = styled.div`
   font-size: 24px;
   font-weight: 600;
   color: #2e2e2e;
-  font-family: Mona-Sans;
+  font-family: "Mona Sans", sans-serif;
 `;
 
 const ProjectsCount = styled.div`
