@@ -131,12 +131,12 @@ const filterBy = {
   ],
 };
 
-const { onClick, menuClass, label, multipleOptions } = props;
+const { onClick, menuClass, label, multipleOptions, defaultSelected } = props;
 const labelIcon = props.labelIcon ?? "center";
 const options = props.options ?? filterBy;
 
 const [toggleMenu, setToggleMenu] = useState(false);
-const [selected, setSelected] = useState({});
+const [selected, setSelected] = useState(defaultSelected || {});
 
 const icons = {
   center: (
@@ -151,6 +151,16 @@ const icons = {
   ),
 };
 
+function findIndexWithAll(listOfLists, target) {
+  for (let i = 0; i < listOfLists.length; i++) {
+    const indexInList = listOfLists[i].indexOf(target);
+    if (indexInList !== -1) {
+      return { listIndex: i, itemIndex: indexInList };
+    }
+  }
+  return { listIndex: -1, itemIndex: -1 }; // Not found
+}
+
 const handleSelect = ({ val, type, label }) => {
   let selectedUpdated = { ...selected };
   const selectedList = selected[type] || [];
@@ -161,6 +171,21 @@ const handleSelect = ({ val, type, label }) => {
     selectedUpdated[type] = selectedList.filter((item) => item !== val);
   } else {
     selectedUpdated[type] = [...selectedList, val];
+  }
+
+  const { listIndex, itemIndex } = findIndexWithAll(Object.values(selectedUpdated), "all");
+
+  const types = Object.keys(selectedUpdated);
+
+  // remove filters if all is selected
+  if (val === "all") {
+    selectedUpdated = {
+      [type]: [val],
+    };
+  }
+  // remove all if another filter is selected
+  else if (listIndex !== -1) {
+    selectedUpdated[types[listIndex]].splice(itemIndex, 1);
   }
 
   setSelected(selectedUpdated);

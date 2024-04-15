@@ -373,7 +373,7 @@ const openDonateModal = () => {
 const projectId = props.project.id || props.projectId;
 const profile = Social.getr(`${projectId}/profile`);
 
-if (!profile) return <CardSkeleton />;
+if (profile === null) return <CardSkeleton />;
 
 const MAX_DESCRIPTION_LENGTH = 80;
 
@@ -492,7 +492,7 @@ return (
           </ProfileImageContainer>
         </HeaderContainer>
         <Info>
-          <Title>{_address(name, 30)}</Title>
+          <Title>{_address(name, 30) || _address(projectId, 30)}</Title>
           <SubTitle>
             {description.length > MAX_DESCRIPTION_LENGTH
               ? description.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
