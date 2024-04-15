@@ -270,106 +270,133 @@ const ProjectsContainer = styled.div`
 `;
 
 const HeroContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
   width: 100%;
+  min-height: 700px;
+  position: relative;
+
+  @media screen and (max-width: 768px) {
+    min-height: 600px;
+  }
+`;
+
+const Hero = styled.img`
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const InfoCardsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
-  min-height: 400px;
-  overflow: hidden;
-  .background {
-    position: absolute;
-    pointer-events: none;
-    height: 100%;
-    left: 0;
-    top: 0;
-  }
-  .content {
-    position: relative;
-    z-index: 1;
-    display: flex;
+  z-index: 1000;
+  margin: 40px 0;
+  gap: 40px;
+
+  @media screen and (max-width: 768px) {
     flex-direction: column;
-    justify-content: center;
-    padding: 64px;
+    gap: 24px;
+    // justify-content: center;
   }
-  .sub-title {
-    color: #dd3345;
-    font-weight: 600;
-    font-size: 16px;
-    margin-top: 0;
-    margin-bottom: 12px;
+`;
+
+const Button = styled.button`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px;
+  background: #dd3345;
+  overflow: hidden;
+  box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
+  border-radius: 6px;
+  border: 1px solid #4a4a4a;
+  gap: 8px;
+  display: inline-flex;
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: none;
+    cursor: pointer;
   }
-  .title {
-    letter-spacing: -0.4px;
+`;
+
+const ButtonRegisterProject = styled.a`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px;
+  background: #fef6ee;
+  overflow: hidden;
+  box-shadow: 0px -2.700000047683716px 0px #4a4a4a inset;
+  border-radius: 6px;
+  border: 1px solid #4a4a4a;
+  gap: 8px;
+  display: inline-flex;
+  text-align: center;
+  color: #2e2e2e;
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: none;
+    cursor: pointer;
+  }
+`;
+
+const Stats = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 40px;
+
+  @media screen and (max-width: 768px) {
+    gap: 16px;
+  }
+`;
+
+const StatsTitle = styled.div`
+  color: #292929;
+  font-size: 44px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 600;
+
+  @media screen and (max-width: 768px) {
+    font-size: 30px;
     font-weight: 500;
-    font-size: 40px;
-    font-family: "Lora";
-    margin: 0;
+    gap: 5px;
   }
+`;
 
-  .btns {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-top: 40px;
-    font-size: 14px;
-    a,
-    button {
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      border-radius: 6px;
-      box-shadow: 0px 0px 0px 1px #292929, 0px -2px 0px 0px #292929 inset;
-      border: none;
-      text-decoration: none;
-      color: #292929;
-      transition: all 300ms;
-      &:hover {
-        background: #292929;
-        color: white;
-      }
-    }
-    button {
-      color: white;
-      background: #dd3345;
-      &:hover {
-      }
-    }
-  }
+const StatsSubTitle = styled.div`
+  color: #525252;
+  font-size: 14px;
 
-  @media only screen and (max-width: 768px) {
-    .content {
-      padding: 64px 20px;
-    }
-    .title {
-      font-size: 36px;
-    }
-    .btns {
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 24px;
-    }
-    .line-break {
-      display: none;
-    }
-  }
-  @media only screen and (max-width: 480px) {
-    .btns a,
-    button {
-      width: 100%;
-      padding: 12px 0;
-    }
+  @media screen and (max-width: 768px) {
+    font-size: 12px;
   }
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 64px 64px 0;
+  padding-top: 64px;
   @media screen and (max-width: 768px) {
-    padding: 64px 20px 0px;
+    padding-top: 64px;
   }
 `;
 
@@ -470,12 +497,14 @@ let DonateSDK =
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
-const projects = useMemo(() => {
+const [projects, approvedProjects] = useMemo(() => {
   allRegistrations.sort((a, b) =>
     b.status === "Approved" ? -1 : a.status === "Approved" ? 1 : a.status.localeCompare(b.status)
   );
   allRegistrations.sort((a, b) => b.submitted_ms - a.submitted_ms);
-  return allRegistrations;
+
+  const approvedProjects = allRegistrations.filter((project) => project.status === "Approved");
+  return [allRegistrations, approvedProjects];
 }, allRegistrations);
 
 const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
@@ -485,7 +514,7 @@ const featuredProjects = useMemo(
 );
 const [totalDonation, setTotalDonation] = useState(0);
 const [totalDonated, setTotalDonated] = useState(0);
-const [filteredProjects, setFilteredProjects] = useState(projects);
+const [filteredProjects, setFilteredProjects] = useState(approvedProjects);
 const [searchTerm, setSearchTerm] = useState("");
 const [sort, setSort] = useState("Sort");
 
@@ -554,7 +583,7 @@ const tagsList = {
 
 useEffect(() => {
   if (filteredProjects.length < 1) {
-    setFilteredProjects(projects);
+    setFilteredProjects(approvedProjects);
   }
 }, [projects]);
 
@@ -707,6 +736,8 @@ const checkAllTrue = (arr) => arr.every((item) => item === true);
 const filterProjects = (filters) =>
   projects.filter((item) => {
     const filterVals = Object.keys(filters).map((type) => {
+      if (filters[type].length === 0) return true;
+
       if (type === "Category") {
         const data = Social.getr(`${item.registrant_id}/profile`);
         const tagsForProfile = getTagsFromSocialProfileData(data);
@@ -723,6 +754,8 @@ const filterProjects = (filters) =>
   });
 const handleTag = (selectedFilters) => {
   const projectFilterBySearch = filterProjects(selectedFilters);
+  console.log("projectFilterBySearch", projectFilterBySearch);
+
   setFilteredProjects(projectFilterBySearch);
 };
 
@@ -736,27 +769,51 @@ const getRandomProject = () => {
 return (
   <>
     <HeroContainer>
-      <HomeBannerBackground className="background" />
-      <div className="content">
-        <h3 className="sub-title">Transforming Funding for Public Goods</h3>
-        <h1 className="title">
-          Discover impact projects, donate directly, & <br className="line-break" /> participate in
-          funding rounds.
-        </h1>
-        <div className="btns">
-          <button onClick={donateRandomly} className="donate-btn">
-            Donate Randomly
-          </button>
+      <HeaderContainer style={containerStyleHeader}>
+        <HeaderContent>
+          <HeaderTitle>
+            Transforming
+            <Underline>
+              <svg
+                width="340"
+                height="42"
+                viewBox="0 0 340 42"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.29967 39C-14.0566 35.9491 49.9788 32.436 71.4774 30.6444C151.734 23.9564 232.915 20.5161 312.9 15"
+                  stroke="#DD3345"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M31.2997 27C9.94337 23.9491 73.9788 20.436 95.4774 18.6444C175.734 11.9564 256.915 8.51608 336.9 3"
+                  stroke="#DD3345"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </Underline>
+          </HeaderTitle>
+          <HeaderTitle>Funding for Public Goods</HeaderTitle>
+          <HeaderDescription>
+            Discover impact projects, donate directly, & participate in funding rounds.
+          </HeaderDescription>
+        </HeaderContent>
 
-          <a
+        <ButtonsContainer>
+          <Button onClick={donateRandomly}>Donate Randomly</Button>
+          <ButtonRegisterProject
             href={
               isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"
             }
           >
             {isRegisteredProject ? "View Your Project" : "Register Your Project"}
-          </a>
-        </div>
-      </div>
+          </ButtonRegisterProject>
+        </ButtonsContainer>
+        <Widget src="potlock.near/widget/Project.DonationStats" />
+      </HeaderContainer>
     </HeroContainer>
     <Content>
       <ContainerHeader>
@@ -795,7 +852,7 @@ return (
         <Title>
           All Projects
           <span style={{ color: "#DD3345", marginLeft: "8px", fontWeight: 600 }}>
-            {projects.length}
+            {filteredProjects.length}
           </span>
         </Title>
         <FilterWrapper>
@@ -806,6 +863,9 @@ return (
               onClick: handleTag,
               multipleOptions: true,
               options: tagsList,
+              defaultSelected: {
+                Status: ["Approved"],
+              },
               menuClass: "filter-menu",
             }}
           />
