@@ -110,30 +110,9 @@ const Screen = styled.div`
   top: 0;
 `;
 
-const filterBy = {
-  "no-label": [
-    {
-      label: "Application open",
-      val: "application_open",
-    },
-    {
-      label: "Matching round open",
-      val: "round_open",
-    },
-    {
-      label: "Application closed",
-      val: "application_closed",
-    },
-    {
-      label: "Challenge period",
-      val: "cooldown",
-    },
-  ],
-};
-
 const { onClick, menuClass, label, multipleOptions, defaultSelected } = props;
 const labelIcon = props.labelIcon ?? "center";
-const options = props.options ?? filterBy;
+const options = props.options ?? {};
 
 const [toggleMenu, setToggleMenu] = useState(false);
 const [selected, setSelected] = useState(defaultSelected || {});

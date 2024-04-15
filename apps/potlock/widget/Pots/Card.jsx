@@ -139,7 +139,7 @@ const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
 const tags = [
-  /* Application tag */
+  /* Application's has not started tag */
   {
     backgroundColor: "#EFFEFA",
     borderColor: "#33DDCB",

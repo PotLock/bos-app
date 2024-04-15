@@ -27,6 +27,7 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
 const currentDate = Date.now();
 
 const filters = {
+  application_not_started: (round) => currentDate < round.application_start_ms,
   application_open: (round) =>
     currentDate > round.application_start_ms && currentDate < round.application_end_ms,
   application_closed: (round) => currentDate > round.application_end_ms,
@@ -36,6 +37,27 @@ const filters = {
   cooldown: (round) =>
     currentDate > round.public_round_end_ms && currentDate < round.cooldown_end_ms,
   completed: (round) => round.all_paid_out,
+};
+
+const filterBy = {
+  "no-label": [
+    {
+      label: "Application open",
+      val: "application_open",
+    },
+    {
+      label: "Matching round open",
+      val: "round_open",
+    },
+    {
+      label: "Application closed",
+      val: "application_closed",
+    },
+    {
+      label: "Challenge period",
+      val: "cooldown",
+    },
+  ],
 };
 
 const sortOptions = {
@@ -72,34 +94,60 @@ if (!pots) {
   });
 }
 
-const compareFunction = (a, b) => {
-  // Cooldown Rounds
-  if (filters.cooldown(a)) {
-    return -1;
-  } else if (filters.cooldown(b)) {
-    return 1;
-  }
-  // Active Rounds
-  else if (filters.round_open(a)) {
-    return -1;
-  } else if (filters.round_open(b)) {
-    return 1;
-  }
-  // Application period
-  else if (filters.application_open(a)) {
-    return -1;
-  } else if (filters.application_open(b)) {
-    return 1;
-  }
-  // Default case: no change in order
-  return 0;
+const compareFunction = (pots) => {
+  const potsSort = {
+    cooldown: {
+      check: filters.cooldown,
+      time: "cooldown_end_ms",
+    },
+    active: {
+      check: filters.round_open,
+      time: "public_round_end_ms",
+    },
+    application: {
+      check: filters.application_open,
+      time: "application_end_ms",
+    },
+    not_started: {
+      check: filters.application_not_started,
+      time: "application_start_ms",
+    },
+    rest: {
+      check: (round) => true,
+      time: "application_start_ms",
+    },
+  };
+
+  // sort pots(round status)
+  const listOfPots = {};
+
+  const states = Object.keys(potsSort);
+
+  pots.forEach((pot) => {
+    Object.values(potsSort).some((sort, idx) => {
+      if (sort.check(pot)) {
+        listOfPots[states[idx]] = [...(listOfPots[states[idx]] || []), pot];
+        return true;
+      }
+    });
+  });
+
+  // sort pots(time left)
+  const inProgressPots = [];
+
+  Object.entries(listOfPots).forEach(([status, potsList]) => {
+    potsList.sort((a, b) => a[potsSort[status].time] - b[potsSort[status].time]);
+    inProgressPots.push(...potsList);
+  });
+
+  return inProgressPots;
 };
 
 useEffect(() => {
   if (pots) {
     const potsVal = Object.values(pots);
     const completed = [];
-    const inprogress = [];
+    let inprogress = [];
     potsVal.forEach((round) => {
       if (filters.completed(round)) {
         completed.push(round);
@@ -107,7 +155,7 @@ useEffect(() => {
         inprogress.push(round);
       }
     });
-    inprogress.sort(compareFunction);
+    inprogress = compareFunction(inprogress);
     setFilteredRounds(inprogress);
     setInProgressRounds(inprogress);
     setCompletedRounds(completed);
@@ -191,13 +239,13 @@ if (!potFactoryConfig) {
 
 const handleFilter = (selected) => {
   const selectedList = Object.values(selected)[0];
-  console.log("selectedList", selectedList);
   if (selectedList.length === 0) {
     return setFilteredRounds(inProgressRounds);
   }
 
   const filteredRounds = [...inProgressRounds].filter((round) =>
     selectedList.some((key) => {
+      console.log("key", key);
       return filters[key](round) === true;
     })
   );
@@ -251,6 +299,7 @@ return (
             src={`${ownerId}/widget/Inputs.FilterDropdown`}
             props={{
               ...props,
+              options: filterBy,
               onClick: handleFilter,
               multipleOptions: true,
             }}
@@ -268,6 +317,8 @@ return (
           />
         </div>
       </div>
+
+      {filteredRounds.length === 0 && <div>No pots</div>}
 
       <Widget
         src={`${ownerId}/widget/Project.ListSection`}
