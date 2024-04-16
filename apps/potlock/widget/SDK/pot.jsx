@@ -151,7 +151,6 @@ return {
       getSocialProfile(socialKeys)
         .then((profiles) => {
           Object.entries(profiles).forEach(([user, { profile }]) => {
-            console.log(profiles);
             const pLBlacklistedAccounts = JSON.parse(profile.pLBlacklistedAccounts || "{}");
             const potFlaggedAcc = pLBlacklistedAccounts[potId] || {};
             if (!isEmpty(potFlaggedAcc)) {

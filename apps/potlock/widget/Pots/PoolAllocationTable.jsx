@@ -31,6 +31,7 @@ const {
   nearToUsdWithFallback: () => "",
   yoctosToUsdWithFallback: () => "",
   calculatePayouts: () => {},
+  getFlaggedAccounts: () => {},
   formatWithCommas: () => "",
   nearToUsd: 1,
 };
@@ -45,6 +46,7 @@ const [projectsId, setProjectsId] = useState(null);
 const [projectsDonations, setProjectsDonations] = useState({});
 const [usdToggle, setUsdToggle] = useState(false);
 const [allPayouts, setAllPayouts] = useState(null);
+const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 
 if (!projectsId) {
   PotSDK.asyncGetApprovedApplications(potId).then((projects) => {
@@ -85,9 +87,20 @@ const uniqueDonorIds = allDonations
 
 const donorsCount = uniqueDonorIds.size;
 
-if (!allPayouts && allDonations?.length > 0) {
-  const calculatedPayouts = calculatePayouts(allDonations, matching_pool_balance);
+if (!flaggedAddresses) {
+  PotSDK.getFlaggedAccounts(potDetail, potId)
+    .then((data) => {
+      const listOfFlagged = [];
+      data.forEach((adminFlaggedAcc) => {
+        const addresses = Object.keys(adminFlaggedAcc.potFlaggedAcc);
+        listOfFlagged.push(...addresses);
+      });
+      setFlaggedAddresses(listOfFlagged);
+    })
+    .catch((err) => console.log("error getting the flagged accounts ", err));
+}
 
+if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
   let allPayouts = [];
 
   if (potDetail.payouts.length) {
@@ -99,6 +112,12 @@ if (!allPayouts && allDonations?.length > 0) {
       };
     });
   } else {
+    const calculatedPayouts = calculatePayouts(
+      allDonations,
+      matching_pool_balance,
+      flaggedAddresses
+    );
+
     // calculate estimated payouts
     allPayouts = Object.entries(calculatedPayouts).map(([projectId, { matchingAmount }]) => {
       return {
