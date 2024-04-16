@@ -139,6 +139,20 @@ const amountNear = yoctosToNear(matching_pool_balance, true);
 const amountUsd = yoctosToUsd(matching_pool_balance);
 
 const tags = [
+  /* Application's has not started tag */
+  {
+    backgroundColor: "#EFFEFA",
+    borderColor: "#33DDCB",
+    textColor: "#023131",
+    text: "Sponsorship Open",
+    textStyle: { fontWeight: 500, marginLeft: "8px" },
+    preElementsProps: {
+      colorOuter: "#CAFDF3",
+      colorInner: "#33DDCB",
+      animate: true,
+    },
+    visibility: now < application_start_ms,
+  },
   /* Application tag */
   {
     backgroundColor: "#EFFEFA",

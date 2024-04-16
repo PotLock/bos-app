@@ -304,7 +304,7 @@ State.init({
 
 const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
 
-if (!allPayouts && allDonations) {
+if (!allPayouts && allDonations && potDetail) {
   const calculatedPayouts = calculatePayouts(allDonations, potDetail.matching_pool_balance);
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
@@ -397,6 +397,7 @@ const ArrowDown = (props) => (
 
 return (
   <Container>
+    <Widget src={`${ownerId}/widget/Pots.FlaggedAccounts`} props={props} />
     <Widget src={`${ownerId}/widget/Pots.PayoutsChallenges`} props={props} />
 
     {!potDetail.all_paid_out && (

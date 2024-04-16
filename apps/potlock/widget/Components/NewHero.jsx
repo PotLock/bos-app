@@ -1,13 +1,4 @@
-const { canDeploy, hrefWithParams } = props;
-
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { HomeBannerBackground } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
-  HomeBannerBackground: () => {},
-};
-
-const Container = styled.div`
+const HeroContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -31,12 +22,11 @@ const Container = styled.div`
     padding: 64px;
   }
   .sub-title {
-    letter-spacing: 1.12px;
-    font-weight: 500;
-    font-size: 14px;
+    color: #dd3345;
+    font-weight: 600;
+    font-size: 16px;
     margin-top: 0;
-    margin-bottom: 24px;
-    text-transform: uppercase;
+    margin-bottom: 12px;
   }
   .title {
     letter-spacing: -0.4px;
@@ -51,27 +41,29 @@ const Container = styled.div`
     align-items: center;
     gap: 2rem;
     margin-top: 40px;
-    a {
+    font-size: 14px;
+    a,
+    button {
       padding: 12px 16px;
-      width: 180px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 500;
       border-radius: 6px;
-      box-shadow: 0px -2px 0px 0px #464646 inset, 0px 0px 0px 1px #464646;
+      box-shadow: 0px 0px 0px 1px #292929, 0px -2px 0px 0px #292929 inset;
+      border: none;
       text-decoration: none;
       color: #292929;
       transition: all 300ms;
-      &:first-of-type {
-        color: white;
-        background: #dd3345;
-        &:hover {
-        }
-      }
       &:hover {
         background: #292929;
         color: white;
+      }
+    }
+    button {
+      color: white;
+      background: #dd3345;
+      &:hover {
       }
     }
   }
@@ -93,7 +85,8 @@ const Container = styled.div`
     }
   }
   @media only screen and (max-width: 480px) {
-    .btns a {
+    .btns a,
+    button {
       width: 100%;
       padding: 12px 0;
     }
@@ -101,20 +94,25 @@ const Container = styled.div`
 `;
 
 return (
-  <Container>
+  <HeroContainer>
     <HomeBannerBackground className="background" />
-
     <div className="content">
-      <h3 className="sub-title">Explore Pots</h3>
+      <h3 className="sub-title">Transforming Funding for Public Goods</h3>
       <h1 className="title">
-        Donate to Matching Rounds <br className="line-break" /> to Get Your Contributions Amplified.
+        Discover impact projects, donate directly, & <br className="line-break" /> participate in
+        funding rounds.
       </h1>
       <div className="btns">
-        {canDeploy && <a href={hrefWithParams(`?tab=deploypot`)}>Deploy Pot</a>}
-        <a href="https://wtfisqf.com" target="_blank">
-          Learn More
+        <button onClick={donateRandomly} className="donate-btn">
+          Donate Randomly
+        </button>
+
+        <a
+          href={isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"}
+        >
+          {isRegisteredProject ? "View Your Project" : "Register Your Project"}
         </a>
       </div>
     </div>
-  </Container>
+  </HeroContainer>
 );

@@ -29,14 +29,13 @@ State.init({
 
 const { filteredDonations, currentFilter, filter } = state;
 
-if (allDonations) {
-  const sortedDonations = [...allDonations].reverse();
-  State.update({ filteredDonations: sortedDonations });
-}
-
+useEffect(() => {
+  if (allDonations && filteredDonations.length === 0) {
+    const sortedDonations = [...allDonations].reverse();
+    State.update({ filteredDonations: sortedDonations });
+  }
+}, [allDonations]);
 if (!allDonations) return <div class="spinner-border text-secondary" role="status" />;
-
-// console.log("donations: ", donations);
 
 const Container = styled.div`
   display: flex;
@@ -81,32 +80,6 @@ const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   flex-wrap: nowrap;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background: #f6f5f3;
-  width: 100%;
-`;
-
-const HeaderItem = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: space-between;
-  justify-content: flex-start;
-  padding: 10px 20px;
-  width: ${100 / columns.length}%;
-`;
-
-const HeaderItemText = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 24px;
-  word-wrap: break-word;
 `;
 
 const Sort = styled.div`
@@ -155,6 +128,7 @@ const searchDonations = (searchTerm) => {
   const filteredDonations = allDonations.filter((donation) => {
     const { donor_id, project_id } = donation;
     const searchFields = [donor_id, project_id];
+
     return searchFields.some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
   });
   return filteredDonations;
@@ -216,7 +190,7 @@ return (
       src={`${ownerId}/widget/Pots.DonationsTable`}
       props={{
         ...props,
-        allDonations: filteredDonations,
+        filteredDonations,
         filter,
         currentFilter,
         handleSearch,
