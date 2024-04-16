@@ -20,16 +20,11 @@ test("clicking pot card should go to pot page", async ({ page }) => {
 });
 
 test("clicking deploy button should go to deploypot page", async ({ page }) => {
-  
   const deployButton = await page.getByText("Deploy");
 
-  await Promise.all([
-    deployButton.click(),
-    page.waitForNavigation({ waitUntil: 'networkidle' }) 
-  ]);
+  await Promise.all([deployButton.click(), page.waitForNavigation({ waitUntil: "networkidle" })]);
 
   expect(page.url()).toContain("/deploypot");
-
 });
 
 test("clicking learn more button should...", async ({ page }) => {
