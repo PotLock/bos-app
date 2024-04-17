@@ -15,6 +15,7 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getPayoutsChallenges: () => {},
   challengePayouts: () => {},
   adminUpdatePayoutsChallenge: () => {},
+  getFlaggedAccounts: () => {},
 };
 
 const userIsAdminOrGreater = PotSDK.isUserPotAdminOrGreater(potId, context.accountId); // TODO: ADD THIS BACK IN
@@ -282,30 +283,34 @@ const AlertSvg = styled.svg`
   }
 `;
 
-const DivLink = styled.div`
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-`;
-
-// const existingChallengeForUser = (payoutsChallenges || []).find(
-//   (challenge) => challenge.challenger_id === context.accountId
-// );
-// if (!challengeReason && existingChallengeForUser) {
-//   State.update({ challengeReason: existingChallengeForUser.reason });
-// }
 State.init({
   allPayouts: null,
   filteredPayouts: null,
   showChallengePayoutsModal: false,
+  flaggedAddresses: null,
 });
 
-const { allPayouts, filteredPayouts, showChallengePayoutsModal } = state;
+const { allPayouts, filteredPayouts, showChallengePayoutsModal, flaggedAddresses } = state;
 
-if (!allPayouts && allDonations && potDetail) {
-  const calculatedPayouts = calculatePayouts(allDonations, potDetail.matching_pool_balance);
+if (!flaggedAddresses) {
+  PotSDK.getFlaggedAccounts(potDetail, potId)
+    .then((data) => {
+      const listOfFlagged = [];
+      data.forEach((adminFlaggedAcc) => {
+        const addresses = Object.keys(adminFlaggedAcc.potFlaggedAcc);
+        listOfFlagged.push(...addresses);
+      });
+      State.update({ flaggedAddresses: listOfFlagged });
+    })
+    .catch((err) => console.log("error getting the flagged accounts ", err));
+}
+
+if (!allPayouts && allDonations && potDetail && flaggedAddresses) {
+  const calculatedPayouts = calculatePayouts(
+    allDonations,
+    potDetail.matching_pool_balance,
+    flaggedAddresses
+  );
   console.log("calculated payouts: ", calculatedPayouts);
   if (potDetail.payouts.length) {
     // handle these payouts, which don't contain all the info needed

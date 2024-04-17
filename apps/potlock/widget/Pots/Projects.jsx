@@ -1,6 +1,7 @@
 const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   getApprovedApplications: () => {},
   getPublicRoundDonations: () => {},
+  getFlaggedAccounts: () => {},
 };
 
 // Card Skeleton - Loading fallback
@@ -172,12 +173,14 @@ const SearchBar = styled.div`
 const [searchTerm, setSearchTerm] = useState("");
 const [filteredProjects, setFilteredProjects] = useState([]);
 const [projects, setProjects] = useState(null);
+const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 
 // get projects
 const { ownerId, potId, potDetail, sybilRequirementMet, allDonations } = props;
 const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
   VM.require("potlock.near/widget/utils") || {
     calculatePayouts: () => {},
+    getFlaggedAccounts: () => {},
     getTagsFromSocialProfileData: () => [],
     getTeamMembersFromSocialProfileData: () => [],
   };
@@ -197,9 +200,23 @@ const { public_round_start_ms, public_round_end_ms, referral_fee_public_round_ba
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
 
+if (!flaggedAddresses) {
+  PotSDK.getFlaggedAccounts(potDetail, potId)
+    .then((data) => {
+      const listOfFlagged = [];
+      data.forEach((adminFlaggedAcc) => {
+        const addresses = Object.keys(adminFlaggedAcc.potFlaggedAcc);
+        listOfFlagged.push(...addresses);
+      });
+      setFlaggedAddresses(listOfFlagged);
+    })
+    .catch((err) => console.log("error getting the flagged accounts ", err));
+}
+
 const payouts = useMemo(() => {
-  if (allDonations.length) return calculatePayouts(allDonations, potDetail.matching_pool_balance);
-}, [allDonations]);
+  if (allDonations.length && flaggedAddresses)
+    return calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses);
+}, [allDonations, flaggedAddresses]);
 
 const searchByWords = (searchTerm) => {
   if (projects.length) {

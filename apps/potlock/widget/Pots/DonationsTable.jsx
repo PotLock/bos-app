@@ -447,7 +447,7 @@ const {
   potDetail,
   potId,
 } = props;
-const { admins, owner, chef } = potDetail;
+const { admins, owner, chef, all_paid_out } = potDetail;
 const SOCIAL_CONTRACT_ID = "social.near";
 
 const nearLogo =
@@ -521,7 +521,7 @@ const handleFlag = (e, address, isFlagged) => {
 };
 
 const potAdmins = [owner, chef, ...admins];
-const hasAuthority = potAdmins.includes(accountId);
+const hasAuthority = potAdmins.includes(accountId) && !all_paid_out;
 
 const checkIfIsFlagged = (address) => flaggedAddresses.find((obj) => obj.potFlaggedAcc[address]);
 
