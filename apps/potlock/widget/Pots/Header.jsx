@@ -9,6 +9,7 @@ const {
   hrefWithParams,
   nav,
   referrerId,
+  allDonations,
 } = props;
 
 const {
@@ -32,6 +33,7 @@ const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [successfulDonation, setSuccessfulDonation] = useState(null);
 const [showChallengePayoutsModal, setShowChallengePayoutsModal] = useState(false);
 const [projects, setProjects] = useState(null);
+const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 
 const { IPFS_BASE_URL } = VM.require("potlock.near/widget/constants") || {
   IPFS_BASE_URL: "",
@@ -68,13 +70,18 @@ const applicationOpen = now >= application_start_ms && now < application_end_ms;
 
 const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
+const canPayoutsBeSet = userIsChefOrGreater && !cooldown_end_ms && !all_paid_out;
+
+const canPayoutsBeProcessed = userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
+
 const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   NADA_BOT_URL: "",
 };
-const { yoctosToNear, yoctosToUsdWithFallback, nearToUsd } = VM.require(
+const { yoctosToNear, yoctosToUsdWithFallback, nearToUsd, calculatePayouts } = VM.require(
   "potlock.near/widget/utils"
 ) || {
+  calculatePayouts: () => {},
   yoctosToNear: () => "",
   nearToUsd: 1,
   yoctosToUsdWithFallback: () => "",
@@ -170,10 +177,33 @@ const Referral = styled.div`
   align-items: center;
 `;
 
-const canPayoutsBeProcessed =
-  now >= public_round_end_ms && userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
-
 const payoutsChallenges = PotSDK.getPayoutsChallenges(potId);
+
+if (!flaggedAddresses) {
+  PotSDK.getFlaggedAccounts(potDetail, potId)
+    .then((data) => {
+      const listOfFlagged = [];
+      data.forEach((adminFlaggedAcc) => {
+        const addresses = Object.keys(adminFlaggedAcc.potFlaggedAcc);
+        listOfFlagged.push(...addresses);
+      });
+      setFlaggedAddresses(listOfFlagged);
+    })
+    .catch((err) => console.log("error getting the flagged accounts ", err));
+}
+
+const handleSetPayouts = () => {
+  if (allDonations && flaggedAddresses !== null) {
+    const payouts = Object.entries(
+      calculatePayouts(allDonations, matching_pool_balance, flaggedAddresses)
+    )
+      .map(([projectId, { matchingAmount }]) => ({ project_id: projectId, amount: matchingAmount }))
+      .filter((payout) => payout.amount !== "0");
+    PotSDK.chefSetPayouts(potId, payouts);
+  } else {
+    console.log("error fetching donations or flagged addresses");
+  }
+};
 
 const handleProcessPayouts = () => {
   PotSDK.adminProcessPayouts(potId);
@@ -254,6 +284,16 @@ return (
               existingChallengeForUser,
               text: existingChallengeForUser ? "Update challenge" : "Challenge payouts",
               onClick: () => setShowChallengePayoutsModal(true),
+            }}
+          />
+        )}
+        {canPayoutsBeSet && (
+          <Widget
+            src={`${ownerId}/widget/Components.Button`}
+            props={{
+              ...props,
+              text: "Set Payouts",
+              onClick: handleSetPayouts,
             }}
           />
         )}

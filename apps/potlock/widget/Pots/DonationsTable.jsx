@@ -6,7 +6,6 @@ const Container = styled.div`
   padding-bottom: 1rem;
   border-radius: 6px;
   border: 1px solid #7b7b7b;
-  overflow: hidden;
   align-items: center;
   gap: 2rem;
   .transcation {
