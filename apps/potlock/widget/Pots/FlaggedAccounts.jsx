@@ -124,7 +124,7 @@ const ProfileImg = ({ address }) => (
   <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
-const { potId, hrefWithParams } = props;
+const { potId, hrefWithParams, potDetail } = props;
 
 const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 const [toggleView, setToggleView] = useState(null);
@@ -144,6 +144,7 @@ if (!flaggedAddresses) {
           });
         });
       });
+
       setFlaggedAddresses(listOfFlagged);
     })
     .catch((err) => console.log("error getting the flagged accounts ", err));
