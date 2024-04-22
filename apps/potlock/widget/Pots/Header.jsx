@@ -155,6 +155,7 @@ const Fund = styled.div`
 `;
 const ButtonsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   a,
   button {
