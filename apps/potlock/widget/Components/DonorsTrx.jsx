@@ -11,7 +11,7 @@ const nearLogo =
 
 const { ownerId } = VM.require("potlock.near/widget/constants");
 
-const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
+const { getTimePassed, _address, reverseArr } = VM.require(
   `potlock.near/widget/Components.DonorsUtils`
 );
 
@@ -140,6 +140,10 @@ const ProfileImg = ({ address }) => (
   <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
+const NEAR_DECEMIALS = 24;
+
+const calcNetDonationAmount = (amount, decimals) => Big(amount).div(Big(`1e${decimals}`));
+
 return allDonations.length ? (
   <Container>
     <div className="transcation">
@@ -152,8 +156,25 @@ return allDonations.length ? (
       {reverseArr(allDonations)
         .slice((currentPage - 1) * perPage, currentPage * perPage)
         .map((donation) => {
-          const { donor_id, recipient_id, donated_at_ms, donated_at, project_id } = donation;
+          const {
+            donor_id,
+            recipient_id,
+            donated_at_ms,
+            donated_at,
+            project_id,
+            ft_id,
+            total_amount,
+          } = donation;
           const projectId = recipient_id || project_id;
+          const isNear = ft_id === "near";
+
+          const frMetaDate = !isNear ? Near.view(ft_id, "ft_metadata", {}) : null;
+          const assetIcon = isNear ? nearLogo : frMetaDate.icon;
+
+          const decimals = isNear ? NEAR_DECEMIALS : frMetaDate.decimals;
+
+          console.log("decimals", decimals);
+
           return (
             <TrRow>
               <a
@@ -175,8 +196,9 @@ return allDonations.length ? (
               </a>
 
               <div className="price">
-                <img src={nearLogo} alt="NEAR" />
-                {calcNetDonationAmount(donation).toFixed(2)}
+                <img src={assetIcon} alt={ft_id} />
+
+                {decimals ? calcNetDonationAmount(total_amount, decimals).toFixed(2) : "-"}
               </div>
 
               <div>{getTimePassed(donated_at_ms || donated_at)} ago</div>
