@@ -223,7 +223,7 @@ const [allDonations, totalsByDonor, sortedDonations] = useMemo(() => {
     accumulator[currentDonation.donor_id] = {
       amount:
         (accumulator[currentDonation.donor_id].amount || 0) +
-        calcNetDonationAmount(currentDonation),
+        (currentDonation.ft_id === "near" ? calcNetDonationAmount(currentDonation) : 0),
       ...currentDonation,
     };
     return accumulator;
