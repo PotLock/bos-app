@@ -215,7 +215,9 @@ if (!flaggedAddresses) {
 
 const payouts = useMemo(() => {
   if (allDonations.length && flaggedAddresses)
-    return calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses);
+    return calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses).then(
+      (payouts) => payouts
+    );
 }, [allDonations, flaggedAddresses]);
 
 const searchByWords = (searchTerm) => {
