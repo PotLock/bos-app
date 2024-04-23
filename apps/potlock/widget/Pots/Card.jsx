@@ -256,12 +256,13 @@ const Tag = (props) => (
         : {}),
     }}
   />
- );
- 
- 
- return (
-  <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
-  data-testid={applicationOpen ? "active-pot" : "inactive-pot"}>
+);
+
+return (
+  <Card
+    href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
+    data-testid={applicationOpen ? "active-pot" : "inactive-pot"}
+  >
     <CardSection>
       <Title>{title}</Title>
       <Description>
@@ -286,5 +287,4 @@ const Tag = (props) => (
       {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
     </CardSection>
   </Card>
- );
- 
+);
