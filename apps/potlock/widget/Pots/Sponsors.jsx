@@ -61,12 +61,6 @@ const Container = styled.div`
   }
 `;
 
-const OuterTextContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-`;
-
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -74,76 +68,6 @@ const TableContainer = styled.div`
   width: 100%;
   margin-top: 35px;
   padding-bottom: 1rem;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background: #f6f5f3;
-  width: 100%;
-`;
-
-const HeaderItem = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: space-between;
-  justify-content: flex-start;
-  padding: 10px 20px;
-  width: 24%;
-  @media screen and (min-width: 390px) and (max-width: 768px) {
-    padding: 10px 15px;
-  }
-  @media screen and (max-width: 390px) {
-    padding: 10px;
-  }
-`;
-
-const HeaderItemText = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 24px;
-  @media screen and (max-width: 390px) {
-    font-size: 12px;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const RowItem = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  padding: 20px;
-  width: 24%;
-  @media screen and (min-width: 390px) and (max-width: 768px) {
-    padding: 10px 15px;
-    gap: 10px;
-  }
-  @media screen and (max-width: 390px) {
-    padding: 10px;
-    gap: 0px;
-  }
-`;
-
-const RowText = styled.div`
-  color: #292929;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 24px;
-  @media screen and (max-width: 390px) {
-    font-size: 12px;
-  }
 `;
 
 const { base_currency } = potDetail;

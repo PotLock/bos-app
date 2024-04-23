@@ -19,6 +19,8 @@ const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.Don
   _address: (address) => address,
 };
 
+const MAX_APPLICATION_MESSAGE_LENGTH = 1000;
+
 const applications = PotSDK.getApplications(potId);
 
 const getApplicationCount = (sortVal) => {
