@@ -457,7 +457,7 @@ const [flagAddress, setFlagAddress] = useState(null);
 const [successFlag, setSuccessFlag] = useState(null);
 const [updateFlaggedAddresses, setUpdateFlaggedAddresses] = useState(false);
 const [flaggedAddresses, setFlaggedAddresses] = useState([]);
-const perPage = 30; // need to be less than 50
+const perPage = 300; // need to be less than 50
 
 useEffect(() => {
   setCurrentPage(1);
@@ -519,7 +519,7 @@ const handleFlag = (e, address, isFlagged) => {
   }
 };
 
-const potAdmins = [owner, chef, ...admins];
+const potAdmins = [owner, chef];
 const hasAuthority = potAdmins.includes(accountId) && !all_paid_out;
 
 const checkIfIsFlagged = (address) => flaggedAddresses.find((obj) => obj.potFlaggedAcc[address]);
@@ -570,25 +570,24 @@ return (
             const isDonorFlagged = checkIfIsFlagged(donor_id);
             const isProjectFlagged = checkIfIsFlagged(projectId);
 
-            const projectHref = hrefWithParams(`?tab=project&projectId=${projectId}`);
-            const profileHref = hrefWithParams(`?tab=profile&accountId=${donor_id}`);
             return (
               <TrRow>
                 {/* Donor */}
                 <AddressItem
                   address={donor_id}
                   isFlagged={isDonorFlagged}
-                  href={profileHref}
                   isProject={false}
                   className="address"
                 />
+
+                {/* Twitter */}
+                <p>twitter</p>
 
                 {/* Project */}
 
                 <AddressItem
                   address={projectId}
                   isFlagged={isProjectFlagged}
-                  href={projectHref}
                   isProject={true}
                   className="address project"
                 />

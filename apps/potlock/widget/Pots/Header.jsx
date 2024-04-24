@@ -321,9 +321,9 @@ return (
         Earn referral fees
       </Referral>
     </Header>
-    <div className="pool-table">
+    {/* <div className="pool-table">
       <Widget src={`${ownerId}/widget/Pots.PoolAllocationTable`} props={props} />
-    </div>
+    </div> */}
     <Widget
       src={`${ownerId}/widget/Pots.FundModal`}
       props={{
