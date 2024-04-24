@@ -22,7 +22,7 @@ const StyledButton = styled.button`
   font-weight: 500;
   line-height: 22px; /* 157.143% */
 
-  transition: all 300ms;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 
   svg path {
     fill: ${(props) => {
@@ -72,7 +72,7 @@ const StyledButton = styled.button`
       case "outline":
         return "0px 0px 0px 1px rgba(15, 15, 15, 0.15), 0px 1px 2px 0px rgba(15, 15, 15, 0.15), 0px 1px 4px -1px rgba(15, 15, 15, 0.15);";
       case "tonal":
-        return "0px 2px 4px -1px #FFF inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.84), 0px 1px 1px 0px rgba(15, 15, 15, 0.15), 0px 2px 4px -1px rgba(15, 15, 15, 0.15), 0px -2px 0px 0px rgba(0, 0, 0, 0.84) inset;";
+        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84), 0px 1px 1px 0px #FFF inset, 0px -2px 0px 0px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 0px rgba(15, 15, 15, 0.15), 0px 1px 4px -1px rgba(5, 5, 5, 0.08);";
       case "standard":
         return "0px 1px 1px 0px rgba(235, 235, 235, 0.15) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.84), 0px 1px 2px 0px rgba(15, 15, 15, 0.15), 0px 1px 4px -1px rgba(15, 15, 15, 0.15);";
       case "primary":
@@ -81,16 +81,31 @@ const StyledButton = styled.button`
   }};
 
   &:hover:not(:disabled) {
-    background: ${(props) => {
+    box-shadow: ${(props) => {
       switch (props.variant) {
         case "primary":
-          return "var(--button-primary-hover-bg, #F6767A)";
+          return " 0px 2px 4px -1px #ED464F inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.84), 0px 1px 1px 0px rgba(15, 15, 15, 0.15), 0px 2px 4px -1px rgba(15, 15, 15, 0.15);";
         case "outline":
-          return "var(--button-outline-hover-bg, rgba(15, 15, 15, 0.15))";
+          return " 0px 1px 4px -1px #0F0F0F26, 0px 1px 2px 0px #0F0F0F26, 0px 0px 0px 1px #0F0F0F26,";
         case "standard":
-          return "var(--button-outline-hover-bg, #b0b0b0)";
+          return " 0px 1px 1px 0px #01010185,0px 0px 0px 1px #000000D6,0px 1px 1px 0px #EBEBEB26 inset;";
         case "tonal":
-          return "var(--button-standard-hover-bg, $fff)";
+          return "0px 2px 4px -1px #0F0F0F26, 0px 1px 1px 0px #0F0F0F26, 0px 0px 0px 1px #000000D6, 0px 2px 4px -1px #FFFFFF inset;";
+      }
+    }};
+  }
+
+  &:active:not(:disabled) {
+    box-shadow: ${(props) => {
+      switch (props.variant) {
+        case "outline":
+          return "0px 2px 4px -1px #0F0F0F26, 0px 1px 1px 0px #0F0F0F26, 0px 0px 0px 1px #000000D6, 0px 2px 4px -1px #FFFFFF inset;";
+        case "primary":
+          return "0px 2px 4px -1px #0F0F0F26, 0px 1px 1px 0px #0F0F0F26, 0px 0px 0px 1px #000000D6, 0px 2px 4px -1px #FFFFFF inset;";
+        case "standard":
+          return "0px 2px 4px -1px #0F0F0F26, 0px 1px 1px 0px #0F0F0F26, 0px 0px 0px 1px #000000D6, 0px 2px 4px -1px #FFFFFF inset;";
+        case "tonal":
+          return "0px 2px 4px -1px rgba(1, 1, 1, 0.35) inset, 0px 1px 1px -1px #FFF, 0px 0px 0px 1px rgba(2, 2, 2, 0.73);";
       }
     }};
   }
