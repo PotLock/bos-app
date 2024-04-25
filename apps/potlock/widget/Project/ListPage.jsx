@@ -507,7 +507,7 @@ const [projects, approvedProjects] = useMemo(() => {
   return [allRegistrations, approvedProjects];
 }, allRegistrations);
 
-const featuredProjectIds = ["magicbuild.near", "potlock.near", "yearofchef.near"];
+const featuredProjectIds = ["v1.foodbank.near", "potlock.near", "yearofchef.near"];
 const featuredProjects = useMemo(
   () => projects.filter((project) => featuredProjectIds.includes(project.registrant_id)),
   projects

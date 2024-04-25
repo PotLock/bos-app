@@ -65,12 +65,13 @@ const applicationExists = existingApplication || applicationSuccess;
 
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+const publicRoundEnded = now > public_round_end_ms;
 
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 
 const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
-const canPayoutsBeSet = userIsChefOrGreater && !cooldown_end_ms && !all_paid_out;
+const canPayoutsBeSet = userIsChefOrGreater && !all_paid_out && publicRoundEnded;
 
 const canPayoutsBeProcessed = userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
 
@@ -155,6 +156,7 @@ const Fund = styled.div`
 `;
 const ButtonsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   a,
   button {
