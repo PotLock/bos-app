@@ -1,5 +1,6 @@
-const { Button } = VM.require("potlock.near/widget/Components.ui.Button") || {
+const { Button, TipOnPotlock } = VM.require("potlock.near/widget/Components.ui.Button") || {
   Button: () => <></>,
+  TipOnPotlock: () => <></>,
 };
 // states
 const [checked, setChecked] = useState(false);
@@ -91,6 +92,18 @@ const ButtonPreview = (
     </div>
   </div>
 );
+
+const TipOnPotlockPreview = (
+  <div>
+    <div className="d-flex align-items-center gap-3 mb-3">
+      <TipOnPotlock variant="outline" />
+      <TipOnPotlock variant="primary" />
+      <TipOnPotlock variant="standard" />
+      <TipOnPotlock variant="tonal" />
+    </div>
+  </div>
+);
+
 const components = [
   {
     name: "Button",
@@ -103,8 +116,7 @@ const components = [
     },
     optionalProps: {
       id: "ID of the button",
-      variant: "Variant of the button (default, primary, outline)",
-      type: "Type of the button (normal, icon)",
+      variant: "Variant of the button (outline, primary, standard, tonal)",
       className: "Additional classnames for button",
       style: "Additional styles for button",
     },
@@ -147,6 +159,33 @@ const components = [
     </div>
   );`,
   },
+  {
+    name: "Public Goods Legos",
+    category: "Buttons/Navigation",
+    widgetSrc: "potlock.near/widget/Components.ui.Button",
+    description: "Button component with four different variants, and icon support.",
+    requiredProps: {
+      onClick: "Callback function to handle button click",
+    },
+    optionalProps: {
+      id: "ID of the button",
+      variant: "Variant of the button (outline, primary, standard, tonal)",
+
+      className: "Additional classnames for button",
+      style: "Additional styles for button",
+    },
+    preview: TipOnPotlockPreview,
+    embedCode: `
+  const { TipOnPotlock } = VM.require("potlock.near/widget/Components.ui.Button");
+  return (
+    <div className="d-flex align-items-center gap-3 mb-3">
+    <TipOnPotlock variant="outline" />
+    <TipOnPotlock variant="primary" />
+    <TipOnPotlock variant="standard" />
+    <TipOnPotlock variant="tonal" />
+  </div>
+  );`,
+  },
 ];
 const renderProps = (props, optional) => {
   return Object.entries(props || {}).map(([key, desc]) => {
@@ -163,7 +202,7 @@ const renderProps = (props, optional) => {
   });
 };
 const renderComponent = (component, index) => {
-  const id = component.name.toLowerCase().replace(" ", "-");
+  const id = component.name.toLowerCase().replace(/ /g, "-");
   return (
     <div className="component">
       <div className="anchor" id={id}>
@@ -197,15 +236,6 @@ const renderComponent = (component, index) => {
               />
             </OverlayTrigger>
           </div>
-          {/* <div className="source">
-            <a
-              href={`/potlock.near/widget/Components.ui.Button`}
-              target="_blank"
-              className="btn btn-outline-primary border-0"
-            >
-              Source
-            </a>
-          </div> */}
         </div>
         <h3>Props</h3>
         <table className="props table table-bordered mb-3">
