@@ -397,9 +397,9 @@ const [totalAmountNear, totalDonors] = useMemo(() => {
     if (!donors.includes(donation.donor_id)) {
       donors.push(donation.donor_id);
     }
-    // if (donation.ft_id === "near" || donation.base_currency === "near") {
-    totalDonationAmountNear = totalDonationAmountNear.plus(new Big(donation.total_amount));
-    // }
+    if (donation.ft_id === "near" || donation.base_currency === "near" || potId) {
+      totalDonationAmountNear = totalDonationAmountNear.plus(new Big(donation.total_amount));
+    }
   }
   return [totalDonationAmountNear.toString(), donors.length];
 }, [donationsForProject]);

@@ -100,6 +100,14 @@ if (!flaggedAddresses) {
     .catch((err) => console.log("error getting the flagged accounts ", err));
 }
 
+const sortAndSetPayouts = (payouts) => {
+  payouts.sort((a, b) => {
+    // sort by matching pool allocation, highest to lowest
+    return b.matchingAmount - a.matchingAmount;
+  });
+  setAllPayouts(payouts.slice(0, 5));
+};
+
 if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
   let allPayouts = [];
 
@@ -111,26 +119,20 @@ if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
         matchingAmount: amount,
       };
     });
+    sortAndSetPayouts(allPayouts);
   } else {
-    const calculatedPayouts = calculatePayouts(
-      allDonations,
-      matching_pool_balance,
-      flaggedAddresses
+    calculatePayouts(allDonations, matching_pool_balance, flaggedAddresses).then(
+      (calculatedPayouts) => {
+        allPayouts = Object.entries(calculatedPayouts).map(([projectId, { matchingAmount }]) => {
+          return {
+            projectId,
+            matchingAmount,
+          };
+        });
+        sortAndSetPayouts(allPayouts);
+      }
     );
-
-    // calculate estimated payouts
-    allPayouts = Object.entries(calculatedPayouts).map(([projectId, { matchingAmount }]) => {
-      return {
-        projectId,
-        matchingAmount,
-      };
-    });
   }
-  allPayouts.sort((a, b) => {
-    // sort by matching pool allocation, highest to lowest
-    return b.matchingAmount - a.matchingAmount;
-  });
-  setAllPayouts(allPayouts.slice(0, 5));
 }
 
 const ProfileImg = ({ profile }) => (
