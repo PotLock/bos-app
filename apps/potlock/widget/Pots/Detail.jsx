@@ -89,7 +89,6 @@ State.init({
   applicationMessage: "",
   applicationMessageError: "",
   applicationSuccess: false,
-  sybilRequirementMet: null,
   isDao: false,
   daoAddress: "",
   daoAddressError: "",
@@ -325,7 +324,6 @@ return (
         ...props,
         potDetail: potDetail,
         setApplicationModalOpen: (isOpen) => State.update({ isApplicationModalOpen: isOpen }),
-        sybilRequirementMet: state.sybilRequirementMet,
         applicationSuccess: state.applicationSuccess,
         registrationApproved,
         allDonations,
@@ -345,7 +343,6 @@ return (
           ...props,
           potDetail: potDetail,
           allDonations,
-          sybilRequirementMet: state.sybilRequirementMet,
         }}
       />
     </BodyContainer>

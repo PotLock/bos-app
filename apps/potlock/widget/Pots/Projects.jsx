@@ -174,6 +174,7 @@ const [searchTerm, setSearchTerm] = useState("");
 const [filteredProjects, setFilteredProjects] = useState([]);
 const [projects, setProjects] = useState(null);
 const [flaggedAddresses, setFlaggedAddresses] = useState(null);
+const [payouts, setPayouts] = useState(null);
 
 // get projects
 const { ownerId, potId, potDetail, allDonations } = props;
@@ -213,12 +214,17 @@ if (!flaggedAddresses) {
     .catch((err) => console.log("error getting the flagged accounts ", err));
 }
 
-const payouts = useMemo(() => {
+if (!payouts) {
   if (allDonations.length && flaggedAddresses)
-    return calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses).then(
-      (payouts) => payouts
-    );
-}, [allDonations, flaggedAddresses]);
+    calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses)
+      .then((payouts) => {
+        setPayouts(payouts ?? []);
+      })
+      .catch((err) => {
+        console.log("error while calculating payouts ", err);
+        setPayouts([]);
+      });
+}
 
 const searchByWords = (searchTerm) => {
   if (projects.length) {

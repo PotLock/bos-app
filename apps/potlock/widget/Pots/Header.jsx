@@ -2,7 +2,6 @@ const {
   potDetail,
   setApplicationModalOpen,
   potId,
-  sybilRequirementMet,
   applicationSuccess,
   registrationApproved,
   registryStatus,
