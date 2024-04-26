@@ -227,7 +227,7 @@ const canDonate = context.accountId && projects.length > 0;
 return (
   <Container>
     <Header>
-      <Title onClick={() => setSuccessfulDonation({})}>{pot_name}</Title>
+      <Title>{pot_name}</Title>
       <Description>
         <Markdown text={pot_description} />
       </Description>
