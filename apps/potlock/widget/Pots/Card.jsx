@@ -240,29 +240,30 @@ const tags = [
 ];
 
 const Tag = (props) => (
-  <Widget
-    src={`${ownerId}/widget/Pots.Tag`}
-    props={{
-      ...props,
-      ...(props.preElementsProps
-        ? {
-            preElements: (
-              <Widget
-                src={`${ownerId}/widget/Components.Indicator`}
-                props={props.preElementsProps}
-              />
-            ),
-          }
-        : {}),
-    }}
-  />
+ <Widget
+   src={`${ownerId}/widget/Pots.Tag`}
+   props={{
+     ...props,
+     ...(props.preElementsProps
+       ? {
+           preElements: (
+             <Widget
+               src={`${ownerId}/widget/Components.Indicator`}
+               props={props.preElementsProps}
+             />
+           ),
+         }
+       : {}),
+   }}
+ />
 );
 
+
 return (
-  <Card
-    href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
-    data-testid={applicationOpen ? "active-pot" : "inactive-pot"}
-  >
+  <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
+    data-testid={
+    (applicationOpen ? "active-pot" : "inactive-pot") + 
+    (payoutsCompleted ? "complete-pot" : "incomplete-pot")}>
     <CardSection>
       <Title>{title}</Title>
       <Description>
@@ -275,8 +276,7 @@ return (
         borderTop: "1px #7B7B7B solid",
         marginTop: "auto",
         height: "fit-content",
-      }}
-    >
+      }}>
       <Title>
         <div>
           {amountNear}
@@ -284,7 +284,8 @@ return (
           <span className="text">in pot</span>
         </div>
       </Title>
-      {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
+      {tags.filter(tag => tag.visibility).map(tag => <Tag {...tag} key={tag.text} />)}
     </CardSection>
   </Card>
-);
+ );
+ 
