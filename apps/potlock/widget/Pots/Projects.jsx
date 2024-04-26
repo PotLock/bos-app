@@ -176,7 +176,7 @@ const [projects, setProjects] = useState(null);
 const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 
 // get projects
-const { ownerId, potId, potDetail, sybilRequirementMet, allDonations } = props;
+const { ownerId, potId, potDetail, allDonations } = props;
 const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
   VM.require("potlock.near/widget/utils") || {
     calculatePayouts: () => {},
@@ -294,11 +294,7 @@ return (
                 potDetail,
                 projects,
                 projectId: project.project_id,
-                allowDonate:
-                  sybilRequirementMet &&
-                  publicRoundOpen &&
-                  project.project_id !== context.accountId,
-                requireVerification: !sybilRequirementMet,
+                allowDonate: publicRoundOpen && project.project_id !== context.accountId,
                 potRferralFeeBasisPoints: referral_fee_public_round_basis_points,
                 payoutDetails: payouts[project.project_id] || {
                   donorCount: 0,

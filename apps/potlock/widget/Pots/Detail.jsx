@@ -97,20 +97,20 @@ State.init({
   registryStatus: null,
 });
 
-if (state.sybilRequirementMet === null) {
-  if (potDetail.sybil_wrapper_provider) {
-    const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
-    Near.asyncView(contractId, methodName, { account_id: context.accountId })
-      .then((result) => {
-        State.update({ sybilRequirementMet: result });
-      })
-      .catch((e) => {
-        State.update({ sybilRequirementMet: false });
-      });
-  } else {
-    State.update({ sybilRequirementMet: true });
-  }
-}
+// if (state.sybilRequirementMet === null) {
+//   if (potDetail.sybil_wrapper_provider) {
+//     const [contractId, methodName] = potDetail.sybil_wrapper_provider.split(":");
+//     Near.asyncView(contractId, methodName, { account_id: context.accountId })
+//       .then((result) => {
+//         State.update({ sybilRequirementMet: result });
+//       })
+//       .catch((e) => {
+//         State.update({ sybilRequirementMet: false });
+//       });
+//   } else {
+//     State.update({ sybilRequirementMet: true });
+//   }
+// }
 
 const noPot = potDetail === undefined;
 const loading = potDetail === null;

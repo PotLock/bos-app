@@ -222,12 +222,12 @@ const existingChallengeForUser = (payoutsChallenges || []).find(
   (challenge) => challenge.challenger_id === context.accountId
 );
 
-const canDonate = sybilRequirementMet && projects.length > 0;
+const canDonate = context.accountId && projects.length > 0;
 
 return (
   <Container>
     <Header>
-      <Title>{pot_name}</Title>
+      <Title onClick={() => setSuccessfulDonation({})}>{pot_name}</Title>
       <Description>
         <Markdown text={pot_description} />
       </Description>

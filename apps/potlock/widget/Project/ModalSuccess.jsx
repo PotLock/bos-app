@@ -3,11 +3,20 @@ const {
   ownerId,
   SUPPORTED_FTS: { NEAR },
   IPFS_BASE_URL,
+  NADABOT_HUMAN_METHOD,
+  NADABOT_CONTRACT_ID,
 } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
   SUPPORTED_FTS: {},
   IPFS_BASE_URL: "",
+  NADABOT_HUMAN_METHOD: "",
+  NADABOT_CONTRACT_ID: "",
 };
+
+const { VerifyInfo } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+  VerifyInfo: () => {},
+};
+
 const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => null };
 
 let DonateSDK =
@@ -372,6 +381,12 @@ const twitterIntent = useMemo(() => {
   return twitterIntentBase + text + `&url=${url}` + `&hashtags=${DEFAULT_SHARE_HASHTAGS.join(",")}`;
 }, [successfulDonation, recipientProfile]);
 
+const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
+  account_id: context.accountId,
+});
+
+const needsToVerify = isUserHumanVerified === false;
+
 return (
   <Widget
     src={`${ownerId}/widget/Components.Modal`}
@@ -496,6 +511,8 @@ return (
               ftIcon: ftMetadata?.icon,
             }}
           />
+
+          {needsToVerify && <VerifyInfo />}
         </ModalMain>
       ) : (
         ""
