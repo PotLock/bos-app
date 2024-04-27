@@ -12,7 +12,6 @@ const StyledButton = styled.button`
   font-weight: 500;
   // font-family: "Mona Sans", sans-serif;
   line-height: 22px;
-
   text-align: center;
   font-feature-settings: "ss01" on, "salt" on;
   /* Mona sans/Text sm/14px:Medium */
@@ -22,7 +21,15 @@ const StyledButton = styled.button`
   font-weight: 500;
   line-height: 22px; /* 157.143% */
 
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 50ms ease;
+
+  flex-direction: ${(props) => {
+    if (props.direction === "right") {
+      return "row";
+    } else if (props.direction === "left") {
+      return "row-reverse";
+    }
+  }};
 
   svg path {
     fill: ${(props) => {
@@ -35,6 +42,8 @@ const StyledButton = styled.button`
           return "#FFFFFF";
         case "primary":
           return "#FFFFFF";
+        case "brand-outline":
+          return "hsla(358, 88%, 71%, 1)";
       }
     }};
   }
@@ -49,8 +58,8 @@ const StyledButton = styled.button`
         return "var(--button-standard-bg, #3D3D3D)";
       case "primary":
         return "var(--button-primary-bg, #DD3345)";
-      case "no-border-primary-tonal":
-        return "#fff";
+      case "brand-outline":
+        return "hsla(0, 0%, 100%, 0.01)";
     }
   }};
 
@@ -64,7 +73,7 @@ const StyledButton = styled.button`
         return "var(--button-standard-color, #FFFFFF)";
       case "primary":
         return "var(--button-primary-color, #FFFFFF)";
-      case "no-border-primary-tonal":
+      case "brand-outline":
         return "hsla(354, 71%, 53%, 1)";
     }
   }};
@@ -72,27 +81,38 @@ const StyledButton = styled.button`
   box-shadow: ${(props) => {
     switch (props.variant) {
       case "outline":
-        return "0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset, 0px -1px 1px 0px rgba(15, 15, 15, 0.15) inset, 0px -1px 4px 0px rgba(5, 5, 5, 0.08) inset;";
+        return "0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset, 0px -1px 0px 0px rgba(15, 15, 15, 0.15) inset, 0px 1px 2px -0.5px rgba(5, 5, 5, 0.08);";
       case "tonal":
-        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px #FFF inset, 0px 1px 0px 0px rgba(0, 0, 0, 0.84);";
+        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px #FFF inset, 0px 0px 0px 2px #FFF inset, 0px 1.5px 0px 0px rgba(0, 0, 0, 0.84);";
       case "standard":
-        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(166, 166, 166, 0.30) inset, 0px 1px 2px 0px rgba(15, 15, 15, 0.15), 0px 1px 3px -1px rgba(5, 5, 5, 0.08);";
+        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(166, 166, 166, 0.40) inset, 0px 0px 0px 2px rgba(166, 166, 166, 0.40) inset, 0px 1px 2px 0px rgba(15, 15, 15, 0.15), 0px 1px 3px -1px rgba(5, 5, 5, 0.08);";
       case "primary":
-        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(246, 118, 122, 0.50) inset, 0px 1px 0px 0px rgba(0, 0, 0, 0.84);";
+        return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(246, 118, 122, 0.50) inset, 0px 0px 0px 2px rgba(246, 118, 122, 0.50) inset, 0px 1.5px 0px 0px rgba(0, 0, 0, 0.84);";
+      case "brand-outline":
+        return "0px 0px 0px 1px rgba(243, 78, 95, 0.78) inset, 0px -1px 0px 0px rgba(73, 8, 19, 0.50) inset, 0px 1px 2px -0.5px rgba(73, 8, 19, 0.20);";
     }
   }};
 
   &:hover:not(:disabled) {
+    transform: ${(props) => {
+      switch (props.variant) {
+        case "primary":
+        case "tonal":
+          return "translateY(1px)";
+      }
+    }};
     box-shadow: ${(props) => {
       switch (props.variant) {
         case "primary":
           return " 0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px #ED464F inset;";
         case "outline":
-          return " 0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset;";
+          return " 0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset, 0px -1px 0px 0px rgba(15, 15, 15, 0.15) inset, 0px 1px 2px -0.5px rgba(5, 5, 5, 0.08);";
         case "standard":
-          return " 0px 0px 0px 1px rgba(0, 0, 0, 0.84), 0px 1px 1px 0px rgba(235, 235, 235, 0.15) inset;";
+          return " 0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(166, 166, 166, 0.40) inset, 0px 0px 0px 2px rgba(166, 166, 166, 0.40) inset, 0px 1px 2px 0px rgba(15, 15, 15, 0.15), 0px 1px 3px -1px rgba(5, 5, 5, 0.08);";
         case "tonal":
           return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px #FFF inset;";
+        case "brand-outline":
+          return "0px 0px 0px 1px rgba(243, 78, 95, 0.78) inset, 0px -1px 0px 0px rgba(73, 8, 19, 0.50) inset, 0px 1px 2px -0.5px rgba(73, 8, 19, 0.20);";
       }
     }};
     background: ${(props) => {
@@ -105,6 +125,8 @@ const StyledButton = styled.button`
           return " #525252";
         case "tonal":
           return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px #FFF inset;";
+        case "brand-outline":
+          return "#FEF3F2";
       }
     }};
   }
@@ -113,46 +135,18 @@ const StyledButton = styled.button`
     box-shadow: ${(props) => {
       switch (props.variant) {
         case "outline":
-          return "0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset, 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
+          return "0px 0px 0px 1px rgba(0, 0, 0, 0.22) inset, 0px -1px 0px 0px rgba(15, 15, 15, 0.15) inset, 0px 1px 2px -0.5px rgba(5, 5, 5, 0.08), 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
         case "primary":
           return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
         case "standard":
-          return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(166, 166, 166, 0.30) inset, 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
+          return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 1px 1px 1px rgba(166, 166, 166, 0.30) inset, 0px 0px 0px 2px rgba(166, 166, 166, 0.30) inset, 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
         case "tonal":
           return "0px 0px 0px 1px rgba(0, 0, 0, 0.84) inset, 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
+        case "brand-outline":
+          return "0px 0px 0px 1px rgba(243, 78, 95, 0.78) inset, 0px -1px 0px 0px rgba(73, 8, 19, 0.50) inset, 0px 1px 2px -0.5px rgba(5, 5, 5, 0.08), 0px 0px 0px 2px #FFF, 0px 0px 0px 4px rgba(0, 0, 0, 0.84);";
       }
     }};
   }
-
-  /* &:disabled {
-    color: ${(props) => {
-    switch (props.variant) {
-      case "outline":
-        return "0px 0px 0px 1px rgba(15, 15, 15, 0.15) inset, 0px 2px 4px -1px rgba(0, 0, 0, 0.22) inset;";
-      case "standard":
-        return "Neutral/400";
-    }
-  }};
-
-    box-shadow: ${(props) => {
-    switch (props.variant) {
-      case "outline":
-        return "0px 0px 0px 1px rgba(15, 15, 15, 0.15) inset, 0px 2px 4px -1px rgba(0, 0, 0, 0.22) inset;";
-
-      case "standard":
-        return "0px 0px 0px 1px rgba(15, 15, 15, 0.15) inset;";
-    }
-  }};
-    background: ${(props) => {
-    switch (props.variant) {
-      case "outline":
-        return "0px 0px 0px 1px rgba(15, 15, 15, 0.15) inset, 0px 2px 4px -1px rgba(0, 0, 0, 0.22) inset;";
-
-      case "standard":
-        return "hsla(0, 0%, 65%, 1)";
-    }
-  }};
-  } */
 
   &:disabled {
     color: ${(props) => {
@@ -189,11 +183,16 @@ const StyledButton = styled.button`
   }
 `;
 
-const TipOnPotlock = ({ variant, onClick, href, ...restProps }) => {
+const TipOnPotlock = ({ direction, variant, onClick, href, ...restProps }) => {
   if (href) {
     return (
       <Link href={href}>
-        <StyledButton onClick={onClick} {...restProps} variant={variant ?? "primary"}>
+        <StyledButton
+          direction={direction ?? "right"}
+          onClick={onClick}
+          {...restProps}
+          variant={variant ?? "primary"}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"
@@ -216,7 +215,12 @@ const TipOnPotlock = ({ variant, onClick, href, ...restProps }) => {
     );
   }
   return (
-    <StyledButton onClick={onClick} {...restProps} variant={variant ?? "primary"}>
+    <StyledButton
+      direction={direction ?? "right"}
+      onClick={onClick}
+      {...restProps}
+      variant={variant ?? "primary"}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="18"
@@ -238,18 +242,28 @@ const TipOnPotlock = ({ variant, onClick, href, ...restProps }) => {
   );
 };
 
-const Button = ({ disabled, children, onClick, href, ...restProps }) => {
+const Button = ({ direction, disabled, children, onClick, href, ...restProps }) => {
   if (href) {
     return (
       <link to={href}>
-        <StyledButton onClick={onClick} disabled={disabled} {...restProps}>
+        <StyledButton
+          direction={direction ?? "right"}
+          onClick={onClick}
+          disabled={disabled}
+          {...restProps}
+        >
           {children}
         </StyledButton>
       </link>
     );
   }
   return (
-    <StyledButton onClick={onClick} disabled={disabled} {...restProps}>
+    <StyledButton
+      direction={direction ?? "right"}
+      onClick={onClick}
+      disabled={disabled}
+      {...restProps}
+    >
       {children}
     </StyledButton>
   );
