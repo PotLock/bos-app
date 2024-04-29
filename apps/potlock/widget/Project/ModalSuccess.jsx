@@ -512,7 +512,7 @@ return (
             }}
           />
 
-          {needsToVerify && <VerifyInfo />}
+          {needsToVerify && !successfulDonationVals[0]?.recipient_id && <VerifyInfo />}
         </ModalMain>
       ) : (
         ""
