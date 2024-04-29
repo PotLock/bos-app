@@ -617,6 +617,8 @@ useEffect(() => {
 }, [state.socialDataFetched, state.isDao, state.daoAddress, context.accountId]);
 
 const isCreateProjectDisabled =
+  !state.profileImage ||
+  !state.backgroundImage ||
   state.daoAddressError ||
   !state.name ||
   state.nameError ||
