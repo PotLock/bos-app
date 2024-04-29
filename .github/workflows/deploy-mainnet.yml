@@ -8,9 +8,9 @@ jobs:
     with:
       deploy-env: "mainnet"
       bw-legacy: true
-      app-name: "potlock"
-      deploy-account-address: potlock.near
-      signer-account-address: potlock.near
-      signer-public-key: ed25519:3iWoL6haUT3FGd9KJjwpAS8fLqk7hAdyBX8trD3vSh6C
+      app-name: "potlock-old"
+      deploy-account-address: old.potlock.near
+      signer-account-address: old.potlock.near
+      signer-public-key: ed25519:9TJVdgA7xRd5HRxysq698CSG7usg23ptjD3YZ8pyNUzr
     secrets:
       SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}
