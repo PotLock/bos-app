@@ -259,7 +259,10 @@ const Tag = (props) => (
 );
 
 return (
-  <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}>
+  <Card
+    href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
+    data-testid={applicationOpen ? "active-pot" : "inactive-pot"}
+  >
     <CardSection>
       <Title>{title}</Title>
       <Description>
