@@ -114,7 +114,7 @@ const { DonationStats } = VM.require("potlock.near/widget/Project.DonationStats"
   DonationStats: () => {},
 };
 
-const NewHero = () => {
+const NewHero = ({ isRegisteredProject, accountId, donateRandomly }) => {
   return (
     <Container>
       <HeroContainer
@@ -122,7 +122,6 @@ const NewHero = () => {
           ...HomeBannerStyle,
         }}
       >
-        {/* <HomeBannerBackground className="background" /> */}
         <div className="content">
           <h3 className="sub-title">Transforming Funding for Public Goods</h3>
           <h1 className="title">

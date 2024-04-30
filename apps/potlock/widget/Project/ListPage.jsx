@@ -637,7 +637,11 @@ const getRandomProject = () => {
 
 return (
   <>
-    <NewHero />
+    <NewHero
+      isRegisteredProject={isRegisteredProject}
+      accountId={accountId}
+      donateRandomly={donateRandomly}
+    />
     <Content>
       <ContainerHeader>
         <Header>
