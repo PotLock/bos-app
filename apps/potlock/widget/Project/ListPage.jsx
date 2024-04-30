@@ -339,7 +339,7 @@ const Content = styled.div`
   flex-direction: column;
   padding: 48px 40px 0;
   @media screen and (max-width: 768px) {
-    padding-top: 40px 20px 0;
+    padding: 40px 20px 0;
   }
 `;
 
