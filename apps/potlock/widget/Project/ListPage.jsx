@@ -722,7 +722,6 @@ return (
             props={{
               ...props,
               items: filteredProjects,
-              shouldShuffle: !isRegistryAdmin,
               renderItem: (project) => {
                 return (
                   <Widget
