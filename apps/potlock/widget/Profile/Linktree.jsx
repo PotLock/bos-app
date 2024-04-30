@@ -91,6 +91,7 @@ return (
     {Object.entries(linktree).map(([k, v], idx) => {
       return k in itemIconUrls && v ? (
         <LinktreeItemContainer
+          key={k}
           href={fullUrls[k](v)}
           disabled={!v}
           onClick={(e) => {

@@ -3,8 +3,8 @@ const { canDeploy, hrefWithParams } = props;
 const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
-const { HomeBannerBackground } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
-  HomeBannerBackground: () => {},
+const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+  HomeBannerStyle: {},
 };
 
 const Container = styled.div`
@@ -101,9 +101,11 @@ const Container = styled.div`
 `;
 
 return (
-  <Container>
-    <HomeBannerBackground className="background" />
-
+  <Container
+    style={{
+      ...HomeBannerStyle,
+    }}
+  >
     <div className="content">
       <h3 className="sub-title">Explore Pots</h3>
       <h1 className="title">
