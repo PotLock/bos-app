@@ -57,7 +57,7 @@ test("should show active pots", async ({ page }) => {
 
   const activePots = page.locator('[data-testid="active-pot"]');
 
-  await activePots.first().waitFor({ timeout: 60000 });
+  await activePots.first().waitFor();
 
   const count = await activePots.count();
   for (let i = 0; i < count; i++) {
@@ -69,13 +69,13 @@ test("should show active pots", async ({ page }) => {
 test("should show completed pots", async ({ page }) => {
   await page.goto(`${ROOT_SRC}?tab=pots`);
 
-  const completedPots = page.locator('[data-testid="complete-pot"]');
+  const completedPots = page.locator('[data-testid="inactive-pot"]');
 
-  await completedPots.first().waitFor({ timeout: 60000 });
+  await completedPots.first().waitFor();
 
-  const count = await activePots.count();
+  const count = await completedPots.count();
   for (let i = 0; i < count; i++) {
-    await expect(activePots.nth(i)).toBeVisible();
+    await expect(completedPots.nth(i)).toBeVisible();
   }
 
 });

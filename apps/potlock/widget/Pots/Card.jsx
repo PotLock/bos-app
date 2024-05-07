@@ -260,10 +260,10 @@ const Tag = (props) => (
 
 
 return (
-  <Card href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
-    data-testid={
-    (applicationOpen ? "active-pot" : "inactive-pot") + 
-    (payoutsCompleted ? "complete-pot" : "incomplete-pot")}>
+  <Card
+    href={props.hrefWithParams(`?tab=pot&potId=${potId}`)}
+    data-testid={applicationOpen ? "active-pot" : "inactive-pot"}
+  >
     <CardSection>
       <Title>{title}</Title>
       <Description>
@@ -276,7 +276,8 @@ return (
         borderTop: "1px #7B7B7B solid",
         marginTop: "auto",
         height: "fit-content",
-      }}>
+      }}
+    >
       <Title>
         <div>
           {amountNear}
@@ -284,8 +285,8 @@ return (
           <span className="text">in pot</span>
         </div>
       </Title>
-      {tags.filter(tag => tag.visibility).map(tag => <Tag {...tag} key={tag.text} />)}
+      {tags.map((tag) => (tag.visibility ? <Tag {...tag} key={tag.text} /> : ""))}
     </CardSection>
   </Card>
- );
+);
  
