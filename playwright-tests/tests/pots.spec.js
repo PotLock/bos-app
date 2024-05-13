@@ -65,7 +65,6 @@ test("should show active pots", async ({ page }) => {
   }
 });
 
-
 test("should show completed pots", async ({ page }) => {
   await page.goto(`${ROOT_SRC}?tab=pots`);
 
@@ -77,7 +76,6 @@ test("should show completed pots", async ({ page }) => {
   for (let i = 0; i < count; i++) {
     await expect(completedPots.nth(i)).toBeVisible();
   }
-
 });
 
 test("should sort pots", async ({ page }) => {

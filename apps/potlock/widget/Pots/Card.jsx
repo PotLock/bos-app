@@ -240,24 +240,23 @@ const tags = [
 ];
 
 const Tag = (props) => (
- <Widget
-   src={`${ownerId}/widget/Pots.Tag`}
-   props={{
-     ...props,
-     ...(props.preElementsProps
-       ? {
-           preElements: (
-             <Widget
-               src={`${ownerId}/widget/Components.Indicator`}
-               props={props.preElementsProps}
-             />
-           ),
-         }
-       : {}),
-   }}
- />
+  <Widget
+    src={`${ownerId}/widget/Pots.Tag`}
+    props={{
+      ...props,
+      ...(props.preElementsProps
+        ? {
+            preElements: (
+              <Widget
+                src={`${ownerId}/widget/Components.Indicator`}
+                props={props.preElementsProps}
+              />
+            ),
+          }
+        : {}),
+    }}
+  />
 );
-
 
 return (
   <Card
@@ -289,4 +288,3 @@ return (
     </CardSection>
   </Card>
 );
- 
