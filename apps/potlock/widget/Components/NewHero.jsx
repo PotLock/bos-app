@@ -1,17 +1,24 @@
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const HeroContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
   width: 100%;
   justify-content: center;
-  min-height: 400px;
+  border: 1px solid #f8d3b0;
+  border-radius: 12px;
   overflow: hidden;
   .background {
     position: absolute;
     pointer-events: none;
-    height: 100%;
-    left: 0;
-    top: 0;
+    left: 0px;
+    width: 100%;
+    top: 0px;
+    min-height: 600px;
   }
   .content {
     position: relative;
@@ -19,7 +26,7 @@ const HeroContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 64px;
+    padding: 64px 40px;
   }
   .sub-title {
     color: #dd3345;
@@ -70,7 +77,7 @@ const HeroContainer = styled.div`
 
   @media only screen and (max-width: 768px) {
     .content {
-      padding: 64px 20px;
+      padding: 48px 20px;
     }
     .title {
       font-size: 36px;
@@ -93,26 +100,55 @@ const HeroContainer = styled.div`
   }
 `;
 
-return (
-  <HeroContainer>
-    <HomeBannerBackground className="background" />
-    <div className="content">
-      <h3 className="sub-title">Transforming Funding for Public Goods</h3>
-      <h1 className="title">
-        Discover impact projects, donate directly, & <br className="line-break" /> participate in
-        funding rounds.
-      </h1>
-      <div className="btns">
-        <button onClick={donateRandomly} className="donate-btn">
-          Donate Randomly
-        </button>
+const Line = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #ebebeb;
+  margin-top: 1rem;
+`;
 
-        <a
-          href={isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"}
-        >
-          {isRegisteredProject ? "View Your Project" : "Register Your Project"}
-        </a>
-      </div>
-    </div>
-  </HeroContainer>
-);
+const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+  HomeBannerStyle: {},
+};
+const { DonationStats } = VM.require("potlock.near/widget/Project.DonationStats") || {
+  DonationStats: () => {},
+};
+
+const NewHero = ({ isRegisteredProject, accountId, donateRandomly }) => {
+  return (
+    <Container>
+      <HeroContainer
+        style={{
+          ...HomeBannerStyle,
+        }}
+      >
+        <div className="content">
+          <h3 className="sub-title">Transforming Funding for Public Goods</h3>
+          <h1 className="title">
+            Discover impact projects, donate directly, & <br className="line-break" /> participate
+            in funding rounds.
+          </h1>
+          <div className="btns">
+            <button onClick={donateRandomly} className="donate-btn">
+              Donate Randomly
+            </button>
+
+            <a
+              href={
+                isRegisteredProject ? `?tab=project&projectId=${accountId}` : "?tab=createproject"
+              }
+            >
+              {isRegisteredProject ? "View Your Project" : "Register Your Project"}
+            </a>
+          </div>
+        </div>
+      </HeroContainer>
+      <DonationStats />
+      <Line />
+    </Container>
+  );
+};
+
+return {
+  NewHero,
+};

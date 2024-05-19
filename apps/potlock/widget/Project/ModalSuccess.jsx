@@ -266,16 +266,16 @@ const totalAmount = getTotalAmount();
 
 if (props.isModalOpen && !successfulDonation) {
   const transactionHashes = props.transactionHashes.split(",");
-
   for (let i = 0; i < transactionHashes.length; i++) {
     const txHash = transactionHashes[i];
+
     const body = JSON.stringify({
       jsonrpc: "2.0",
       id: "dontcare",
       method: "tx",
       params: [txHash, context.accountId],
     });
-    const res = asyncFetch("https://rpc.mainnet.near.org", {
+    asyncFetch("https://rpc.mainnet.near.org", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -287,7 +287,6 @@ if (props.isModalOpen && !successfulDonation) {
         const successVal = res.body.result.status?.SuccessValue;
         const receiver_id = res.body.result.transaction.receiver_id;
         const result = JSON.parse(Buffer.from(successVal, "base64").toString("utf-8")); // atob not working
-
         const args = JSON.parse(
           Buffer.from(res.body.result.transaction.actions[0].FunctionCall.args, "base64").toString(
             "utf-8"
@@ -307,7 +306,7 @@ if (props.isModalOpen && !successfulDonation) {
           if (methodName === "donate") {
             setSuccessfulDonation((prev) => ({
               ...prev,
-              [recipientId]: result,
+              [recipientId]: { ...result, potId: receiver_id },
             }));
           } else if (methodName === "apply") {
             // application
@@ -374,7 +373,9 @@ const twitterIntent = useMemo(() => {
 
   let url =
     DEFAULT_GATEWAY +
-    `${ownerId}/widget/Index?tab=project&projectId=${recipient_id}&referrerId=${context.accountId}`;
+    (successfulDonationVals[0].potId
+      ? `${ownerId}/widget/Index?tab=pot&potId=${successfulDonationVals[0].potId}&referrerId=${context.accountId}`
+      : `${ownerId}/widget/Index?tab=project&projectId=${recipient_id}&referrerId=${context.accountId}`);
   let text = `I just donated to ${tag} on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
@@ -512,7 +513,7 @@ return (
             }}
           />
 
-          {needsToVerify && <VerifyInfo />}
+          {needsToVerify && !successfulDonationVals[0]?.recipient_id && <VerifyInfo />}
         </ModalMain>
       ) : (
         ""

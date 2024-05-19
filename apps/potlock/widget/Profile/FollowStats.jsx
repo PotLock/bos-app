@@ -47,7 +47,7 @@ return (
         <span>Follower{numFollowers !== 1 && "s"}</span>
       </a>
     </div>
-    <div className="me-4">
+    <div>
       <a href={`${profileLink}&nav=following`} className="text-dark">
         {numFollowing !== null ? <span style={{ fontWeight: 600 }}>{numFollowing}</span> : "-"}
 
