@@ -66,7 +66,16 @@ test("should show active pots", async ({ page }) => {
 });
 
 test("should show completed pots", async ({ page }) => {
-  // TODO:
+  await page.goto(`${ROOT_SRC}?tab=pots`);
+
+  const completedPots = page.locator('[data-testid="inactive-pot"]');
+
+  await completedPots.first().waitFor();
+
+  const count = await completedPots.count();
+  for (let i = 0; i < count; i++) {
+    await expect(completedPots.nth(i)).toBeVisible();
+  }
 });
 
 test("should sort pots", async ({ page }) => {
