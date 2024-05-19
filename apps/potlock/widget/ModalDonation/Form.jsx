@@ -9,8 +9,8 @@ const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInpu
 const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
   Checks: () => {},
 };
-const { Nadabot, Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
-  Nadabot: () => {},
+const { VerifyInfo, Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+  VerifyInfo: () => {},
   Alert: () => {},
 };
 
@@ -204,16 +204,14 @@ const FormDirect = (props) => {
         >
           Amount
         </Label>
-        {!needsToVerify && (
-          <AmountInput
-            value={amount}
-            donationType={donationType}
-            HandleAmoutChange={HandleAmoutChange}
-            updateState={updateState}
-            denominationOptions={denominationOptions}
-            selectedDenomination={selectedDenomination}
-          />
-        )}
+        <AmountInput
+          value={amount}
+          donationType={donationType}
+          HandleAmoutChange={HandleAmoutChange}
+          updateState={updateState}
+          denominationOptions={denominationOptions}
+          selectedDenomination={selectedDenomination}
+        />
 
         {ftBalance && (
           <CurrentBalance>
@@ -226,13 +224,14 @@ const FormDirect = (props) => {
           </CurrentBalance>
         )}
         {amountError && <Alert error={amountError} />}
-        {needsToVerify && <Nadabot />}
+        {needsToVerify && <VerifyInfo />}
+
         <Button>
           <Widget
             src={`${ownerId}/widget/Components.Button`}
             props={{
               type: "primary",
-              disabled: amountError || needsToVerify || !amount,
+              disabled: amountError || !amount,
               text: isLoading ? "Loading..." : "Proceed to donate",
               onClick: () => updateState({ currentPage: "confirm" }),
             }}

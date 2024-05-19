@@ -2,7 +2,6 @@ const {
   potDetail,
   setApplicationModalOpen,
   potId,
-  sybilRequirementMet,
   applicationSuccess,
   registrationApproved,
   registryStatus,
@@ -65,12 +64,13 @@ const applicationExists = existingApplication || applicationSuccess;
 
 const now = Date.now();
 const publicRoundOpen = now >= public_round_start_ms && now < public_round_end_ms;
+const publicRoundEnded = now > public_round_end_ms;
 
 const applicationOpen = now >= application_start_ms && now < application_end_ms;
 
 const canApply = applicationOpen && !applicationExists && !userIsChefOrGreater;
 
-const canPayoutsBeSet = userIsChefOrGreater && !cooldown_end_ms && !all_paid_out;
+const canPayoutsBeSet = userIsChefOrGreater && !all_paid_out && publicRoundEnded;
 
 const canPayoutsBeProcessed = userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
 
@@ -155,6 +155,7 @@ const Fund = styled.div`
 `;
 const ButtonsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   a,
   button {
@@ -194,12 +195,17 @@ if (!flaggedAddresses) {
 
 const handleSetPayouts = () => {
   if (allDonations && flaggedAddresses !== null) {
-    const payouts = Object.entries(
-      calculatePayouts(allDonations, matching_pool_balance, flaggedAddresses)
-    )
-      .map(([projectId, { matchingAmount }]) => ({ project_id: projectId, amount: matchingAmount }))
-      .filter((payout) => payout.amount !== "0");
-    PotSDK.chefSetPayouts(potId, payouts);
+    calculatePayouts(allDonations, matching_pool_balance, flaggedAddresses).then(
+      (calculatedPayouts) => {
+        const payouts = Object.entries(calculatedPayouts)
+          .map(([projectId, { matchingAmount }]) => ({
+            project_id: projectId,
+            amount: matchingAmount,
+          }))
+          .filter((payout) => payout.amount !== "0");
+        PotSDK.chefSetPayouts(potId, payouts);
+      }
+    );
   } else {
     console.log("error fetching donations or flagged addresses");
   }
@@ -215,7 +221,7 @@ const existingChallengeForUser = (payoutsChallenges || []).find(
   (challenge) => challenge.challenger_id === context.accountId
 );
 
-const canDonate = sybilRequirementMet && projects.length > 0;
+const canDonate = context.accountId && projects.length > 0;
 
 return (
   <Container>

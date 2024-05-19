@@ -58,6 +58,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
   .text {
     font-size: 22px;
     font-weight: 500;
@@ -98,11 +99,6 @@ const Container = styled.div`
       gap: 0.5rem;
     }
   }
-  // @media screen and (max-width: 480px) {
-  //   .text {
-  //     font-size: 9px;
-  //   }
-  // }
 `;
 const isSingleRound = activeRounds.length === 1;
 const limit = isSingleRound ? 20 : 10;
