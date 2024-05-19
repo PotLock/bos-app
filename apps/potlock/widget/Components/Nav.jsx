@@ -8,7 +8,7 @@ const Nav = styled.div`
   // left: 0;
   width: 100%;
   display: flex;
-  padding: 0 64px 0 64px;
+  padding: 0 40px;
   justify-content: start;
   align-items: center;
   align-self: stretch;

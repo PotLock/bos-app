@@ -174,9 +174,10 @@ const [searchTerm, setSearchTerm] = useState("");
 const [filteredProjects, setFilteredProjects] = useState([]);
 const [projects, setProjects] = useState(null);
 const [flaggedAddresses, setFlaggedAddresses] = useState(null);
+const [payouts, setPayouts] = useState(null);
 
 // get projects
-const { ownerId, potId, potDetail, sybilRequirementMet, allDonations } = props;
+const { ownerId, potId, potDetail, allDonations } = props;
 const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
   VM.require("potlock.near/widget/utils") || {
     calculatePayouts: () => {},
@@ -213,10 +214,17 @@ if (!flaggedAddresses) {
     .catch((err) => console.log("error getting the flagged accounts ", err));
 }
 
-const payouts = useMemo(() => {
+if (!payouts) {
   if (allDonations.length && flaggedAddresses)
-    return calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses);
-}, [allDonations, flaggedAddresses]);
+    calculatePayouts(allDonations, potDetail.matching_pool_balance, flaggedAddresses)
+      .then((payouts) => {
+        setPayouts(payouts ?? []);
+      })
+      .catch((err) => {
+        console.log("error while calculating payouts ", err);
+        setPayouts([]);
+      });
+}
 
 const searchByWords = (searchTerm) => {
   if (projects.length) {
@@ -292,11 +300,7 @@ return (
                 potDetail,
                 projects,
                 projectId: project.project_id,
-                allowDonate:
-                  sybilRequirementMet &&
-                  publicRoundOpen &&
-                  project.project_id !== context.accountId,
-                requireVerification: !sybilRequirementMet,
+                allowDonate: publicRoundOpen && project.project_id !== context.accountId,
                 potRferralFeeBasisPoints: referral_fee_public_round_basis_points,
                 payoutDetails: payouts[project.project_id] || {
                   donorCount: 0,

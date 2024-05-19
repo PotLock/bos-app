@@ -3,6 +3,11 @@ const { ownerId, NADABOT_HUMAN_METHOD } = VM.require("potlock.near/widget/consta
   NADABOT_HUMAN_METHOD: "",
 };
 
+const { VerifyInfo } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+  VerifyInfo: () => {},
+  Alert: () => {},
+};
+
 const { nearToUsd } = VM.require("potlock.near/widget/utils");
 
 const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
@@ -232,6 +237,7 @@ const FormPot = (props) => {
     ftBalance,
     hrefWithParams,
     selectedProjects,
+    NADABOT_CONTRACT_ID,
   } = props;
 
   const projects = props.projects ?? [];
@@ -291,6 +297,12 @@ const FormPot = (props) => {
       selectedProjects: updatedProjects,
     });
   };
+
+  const isUserHumanVerified = Near.view(NADABOT_CONTRACT_ID, NADABOT_HUMAN_METHOD, {
+    account_id: accountId,
+  });
+
+  const needsToVerify = isUserHumanVerified === false;
 
   return (
     <Form>
@@ -355,6 +367,7 @@ const FormPot = (props) => {
           )}
         </CurrentBalance>
         {amountError && <Alert error={amountError} />}
+        {needsToVerify && <VerifyInfo />}
       </Content>
       <Projects style={{ height: projectsContaienrHegiht + "px" }}>
         {projects.map(({ project_id }) => {
@@ -433,7 +446,7 @@ const FormPot = (props) => {
                 : totalAmountAllocated > ftBalance ||
                   amountError ||
                   parseFloat(totalAmountAllocated) === 0),
-            text: isUserHumanVerified ? "Verify to nadabot" : "Proceed to donate",
+            text: "Proceed to donate",
             onClick: () => {
               if (donationType === "auto") updateState({ currentPage: "confirmPot" });
               else {

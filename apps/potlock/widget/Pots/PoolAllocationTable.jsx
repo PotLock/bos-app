@@ -1,15 +1,7 @@
-const {
-  potId,
-  env,
-  hrefWithParams,
-  allDonations,
-  potDetail: {
-    base_currency,
-    total_public_donations,
-    matching_pool_balance,
-    public_donations_count,
-  },
-} = props;
+const { potId, env, hrefWithParams, allDonations, potDetail } = props;
+
+const { base_currency, total_public_donations, matching_pool_balance, public_donations_count } =
+  potDetail;
 
 const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
@@ -100,9 +92,16 @@ if (!flaggedAddresses) {
     .catch((err) => console.log("error getting the flagged accounts ", err));
 }
 
+const sortAndSetPayouts = (payouts) => {
+  payouts.sort((a, b) => {
+    // sort by matching pool allocation, highest to lowest
+    return b.matchingAmount - a.matchingAmount;
+  });
+  setAllPayouts(payouts.slice(0, 5));
+};
+
 if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
   let allPayouts = [];
-
   if (potDetail.payouts.length) {
     allPayouts = potDetail.payouts.map((payout) => {
       const { project_id, amount } = payout;
@@ -111,26 +110,20 @@ if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
         matchingAmount: amount,
       };
     });
+    sortAndSetPayouts(allPayouts);
   } else {
-    const calculatedPayouts = calculatePayouts(
-      allDonations,
-      matching_pool_balance,
-      flaggedAddresses
+    calculatePayouts(allDonations, matching_pool_balance, flaggedAddresses).then(
+      (calculatedPayouts) => {
+        allPayouts = Object.entries(calculatedPayouts).map(([projectId, { matchingAmount }]) => {
+          return {
+            projectId,
+            matchingAmount,
+          };
+        });
+        sortAndSetPayouts(allPayouts);
+      }
     );
-
-    // calculate estimated payouts
-    allPayouts = Object.entries(calculatedPayouts).map(([projectId, { matchingAmount }]) => {
-      return {
-        projectId,
-        matchingAmount,
-      };
-    });
   }
-  allPayouts.sort((a, b) => {
-    // sort by matching pool allocation, highest to lowest
-    return b.matchingAmount - a.matchingAmount;
-  });
-  setAllPayouts(allPayouts.slice(0, 5));
 }
 
 const ProfileImg = ({ profile }) => (
@@ -255,10 +248,14 @@ const Table = ({ donations, totalAmount, totalUniqueDonors, title }) => (
       const matchedAmout = usdToggle
         ? yoctosToUsdWithFallback(matchingAmount || net_amount, true)
         : nearAmount;
+
+      const url = projectId
+        ? `?tab=project&projectId=${projectId}`
+        : `?tab=profile&accountId=${donor_id}`;
       return (
         <Row>
           <div>#{idx + 1}</div>
-          <a className="address" href={hrefWithParams(`?tab=project&projectId=${id}`)}>
+          <a className="address" href={hrefWithParams(url)}>
             <ProfileImg profile={profile} />
             {_address(profile.name || id, 15)}
           </a>
