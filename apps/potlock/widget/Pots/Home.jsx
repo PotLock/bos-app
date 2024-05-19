@@ -96,25 +96,30 @@ if (!pots) {
 
 const compareFunction = (pots) => {
   const potsSort = {
-    cooldown: {
-      check: filters.cooldown,
-      time: "cooldown_end_ms",
-    },
     active: {
       check: filters.round_open,
       time: "public_round_end_ms",
+      items: [],
+    },
+    cooldown: {
+      check: filters.cooldown,
+      time: "cooldown_end_ms",
+      items: [],
     },
     application: {
       check: filters.application_open,
       time: "application_end_ms",
+      items: [],
     },
     not_started: {
       check: filters.application_not_started,
       time: "application_start_ms",
+      items: [],
     },
     rest: {
       check: (round) => true,
       time: "application_start_ms",
+      items: [],
     },
   };
 
@@ -124,9 +129,10 @@ const compareFunction = (pots) => {
   const states = Object.keys(potsSort);
 
   pots.forEach((pot) => {
-    Object.values(potsSort).some((sort, idx) => {
-      if (sort.check(pot)) {
-        listOfPots[states[idx]] = [...(listOfPots[states[idx]] || []), pot];
+    Object.keys(potsSort).some((type) => {
+      const { check, items } = potsSort[type];
+      if (check(pot)) {
+        potsSort[type].items = [...items, pot];
         return true;
       }
     });
@@ -135,11 +141,10 @@ const compareFunction = (pots) => {
   // sort pots(time left)
   const inProgressPots = [];
 
-  Object.entries(listOfPots).forEach(([status, potsList]) => {
-    potsList.sort((a, b) => a[potsSort[status].time] - b[potsSort[status].time]);
-    inProgressPots.push(...potsList);
+  Object.values(potsSort).forEach(({ items, time }) => {
+    items.sort((a, b) => a[time] - b[time]);
+    inProgressPots.push(...items);
   });
-
   return inProgressPots;
 };
 
@@ -245,7 +250,6 @@ const handleFilter = (selected) => {
 
   const filteredRounds = [...inProgressRounds].filter((round) =>
     selectedList.some((key) => {
-      console.log("key", key);
       return filters[key](round) === true;
     })
   );

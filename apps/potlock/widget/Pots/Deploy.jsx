@@ -4,8 +4,8 @@ const { ownerId } = VM.require("potlock.near/widget/constants") || {
   ownerId: "",
 };
 
-const { HomeBannerBackground } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
-  HomeBannerBackground: () => {},
+const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+  HomeBannerStyle: {},
 };
 
 const POT_CODE_LINK = "https://github.com/PotLock/core/tree/main/contracts/pot"; // for directing user to view source code for Pot
@@ -131,9 +131,11 @@ return props.deploymentSuccess || state.deploymentSuccess ? (
   </SuccessContainer>
 ) : (
   <Container>
-    <HeaderContainer>
-      <HomeBannerBackground className="background" />
-
+    <HeaderContainer
+      style={{
+        ...HomeBannerStyle,
+      }}
+    >
       <div className="content">
         <h3 className="sub-title">Deploy pot</h3>
         <h1 className="title">

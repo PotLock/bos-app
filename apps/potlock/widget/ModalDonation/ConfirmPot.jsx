@@ -257,7 +257,7 @@ const pollForDonationSuccess = ({
         for (const donation of alldonations) {
           const { project_id, donated_at_ms, donated_at } = donation;
           if (projectIds.includes(project_id) && (donated_at_ms || donated_at) > afterTs) {
-            donations[project_id] = donation;
+            donations[project_id] = { ...donation, potId };
           }
         }
         if (Object.keys(donations).length === projectIds.length) {
