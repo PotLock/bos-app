@@ -1,0 +1,8 @@
+{
+  "potlock_new": "potlock.testnet",
+  "devs": "neardevs.testnet",
+  "mob": "mike.testnet",
+  "near": "discom.testnet",
+  "socialdb": "v1.social08.testnet",
+  "gateway_url": "https://test.nearbuilders.org"
+}
