@@ -22,7 +22,7 @@ See the [cookbook](#cookbook) for help in covering scenerios. It is possible to 
 To run the tests, you may do so through the command line:
 
 ```cmd
-npm run test
+yarn test
 ```
 
 Or through VS Code **(recommended)**, see [Getting started - VS Code](https://playwright.dev/docs/getting-started-vscode).

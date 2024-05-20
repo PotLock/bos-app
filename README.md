@@ -7,16 +7,16 @@ This repository holds the front-end widgets for [PotLock](https://app.potlock.or
 1. Install packages
 
 ```cmd
-npm install
+yarn install
 ```
 
 2. Start dev environment
 
 ```cmd
-npm run dev
+yarn dev
 ```
 
-This will start a gateway at http://127.0.0.1:8080 which will render your local widgets. The entry point for this app is [potlock.near/widget/Index](http://127.0.0.1:8080/potlock.near/widget/Index).
+This will start a gateway at <http://127.0.0.1:8080> which will render your local widgets. The entry point for this app is [potlock.near/widget/Index](http://127.0.0.1:8080/potlock.near/widget/Index).
 
 ## Testing framework
 
