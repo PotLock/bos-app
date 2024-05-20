@@ -1,9 +1,6 @@
 const { canDeploy, hrefWithParams } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+const { HomeBannerStyle } = VM.require("${config_account}/widget/Pots.HomeBannerBackground") || {
   HomeBannerStyle: {},
 };
 

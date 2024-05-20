@@ -1,9 +1,9 @@
-const { Button, TipOnPotlock } = VM.require("potlock.near/widget/Components.ui.Button") || {
+const { Button, TipOnPotlock } = VM.require("${config_account}/widget/Components.ui.Button") || {
   Button: () => <></>,
   TipOnPotlock: () => <></>,
 };
 
-const { Volunteer, Component } = VM.require("potlock.near/widget/Components.Icons") || {
+const { Volunteer, Component } = VM.require("${config_account}/widget/Components.Icons") || {
   Volunteer: () => <></>,
   Component: () => <></>,
 };
@@ -58,7 +58,7 @@ const components = [
   {
     name: "Button",
     category: "Buttons/Navigation",
-    widgetSrc: "potlock.near/widget/Components.ui.Button",
+    widgetSrc: "${config_account}/widget/Components.ui.Button",
     description: "Button component with four different variants, and icon support.",
     requiredProps: {
       children: "Button Text",
@@ -72,8 +72,8 @@ const components = [
     },
     preview: ButtonPreview,
     embedCode: `
-  const { Button } = VM.require("potlock.near/widget/Components.ui.Button");
-  const { Volunteer } = VM.require("potlock.near/widget/Components.Icons");
+  const { Button } = VM.require("${config_account}/widget/Components.ui.Button");
+  const { Volunteer } = VM.require("${config_account}/widget/Components.Icons");
   
   return (
       <Button
@@ -90,7 +90,7 @@ const components = [
   {
     name: "Public Goods Legos",
     category: "Buttons/Navigation",
-    widgetSrc: "potlock.near/widget/Components.ui.Button",
+    widgetSrc: "${config_account}/widget/Components.ui.Button",
     description: "Button component with four different variants, and icon support.",
     requiredProps: {
       onClick: "Callback function to handle button click",
@@ -104,7 +104,7 @@ const components = [
     },
     preview: TipOnPotlockPreview,
     embedCode: `
-  const { TipOnPotlock } = VM.require("potlock.near/widget/Components.ui.Button");
+  const { TipOnPotlock } = VM.require("${config_account}/widget/Components.ui.Button");
   return (
     <div className="d-flex align-items-center gap-3 mb-3">
     <TipOnPotlock variant="outline" />
@@ -183,7 +183,7 @@ const renderComponent = (component, index) => {
           <Markdown text={`\`\`\`jsx\n${component.embedCode}\n\`\`\``} />
           <div className="embed-copy">
             <Widget
-              src="potlock.near/widget/Components.ui.Button"
+              src="${config_account}/widget/Components.ui.Button"
               props={{
                 text: component.embedCode,
                 className: "btn btn-outline-light",

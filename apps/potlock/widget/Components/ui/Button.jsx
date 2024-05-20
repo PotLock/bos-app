@@ -1,4 +1,4 @@
-const { Volunteer } = VM.require("potlock.near/widget/Components.Icons") || {
+const { Volunteer } = VM.require("${config_account}/widget/Components.Icons") || {
   Volunteer: () => <></>,
 };
 

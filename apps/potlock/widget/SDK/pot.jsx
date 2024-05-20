@@ -1,5 +1,5 @@
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));

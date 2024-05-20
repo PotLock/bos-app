@@ -1,18 +1,16 @@
 const { potId } = props;
 const { doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
-  "potlock.near/widget/utils"
+  "${config_account}/widget/utils"
 ) || { doesUserHaveDaoFunctionCallProposalPermissions: () => "" };
 const {
-  ownerId,
   ONE_TGAS,
   SUPPORTED_FTS: { NEAR },
-} = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+} = VM.require("${config_account}/widget/constants") || {
   ONE_TGAS: 0,
   SUPPORTED_FTS: {},
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
   asyncGetApplications: () => {},
   asyncGetPublicRoundDonations: () => {},
@@ -134,42 +132,42 @@ props.navOptions = [
     label: "Projects",
     id: "projects",
     disabled: false,
-    source: `${ownerId}/widget/Pots.Projects`,
+    source: "${config_account}/widget/Pots.Projects",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=projects`),
   },
   {
     label: "Applications",
     id: "applications",
     disabled: false,
-    source: `${ownerId}/widget/Pots.Applications`,
+    source: "${config_account}/widget/Pots.Applications",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=applications`),
   },
   {
     label: "Donations",
     id: "donations",
     disabled: false,
-    source: `${ownerId}/widget/Pots.Donations`,
+    source: "${config_account}/widget/Pots.Donations",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=donations`),
   },
   {
     label: "Sponsors",
     id: "sponsors",
     disabled: false,
-    source: `${ownerId}/widget/Pots.Sponsors`,
+    source: "${config_account}/widget/Pots.Sponsors",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=sponsors`),
   },
   {
     label: "Payouts",
     id: "payouts",
     disabled: now < potDetail.public_round_start_ms, // TODO: ADD BACK IN
-    source: `${ownerId}/widget/Pots.Payouts`,
+    source: "${config_account}/widget/Pots.Payouts",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=payouts`),
   },
   {
     label: "Settings",
     id: "settings",
     disabled: false,
-    source: `${ownerId}/widget/Pots.Settings`,
+    source: "${config_account}/widget/Pots.Settings",
     href: props.hrefWithParams(`?tab=pot&potId=${potId}&nav=settings`),
   },
 ];
@@ -312,14 +310,14 @@ const allDonations = allDonationsPaginated ? allDonationsPaginated.flat() : null
 return (
   <Wrapper>
     <Widget
-      src={`${ownerId}/widget/Pots.HeaderStatus`}
+      src={"${config_account}/widget/Pots.HeaderStatus"}
       props={{
         ...props,
         potDetail: potDetail,
       }}
     />
     <Widget
-      src={`${ownerId}/widget/Pots.Header`}
+      src={"${config_account}/widget/Pots.Header"}
       props={{
         ...props,
         potDetail: potDetail,
@@ -331,7 +329,7 @@ return (
       }}
     />
     <Widget
-      src={`${ownerId}/widget/Profile.Tabs`}
+      src={"${config_account}/widget/Profile.Tabs"}
       props={{
         ...props,
       }}
@@ -347,7 +345,7 @@ return (
       />
     </BodyContainer>
     <Widget
-      src={`${ownerId}/widget/Components.Modal`}
+      src={"${config_account}/widget/Components.Modal"}
       props={{
         ...props,
         isModalOpen: state.isApplicationModalOpen,
@@ -358,7 +356,7 @@ return (
               Application message <span style={{ color: "#DD3345" }}>*</span>
             </ModalTitle>
             <Widget
-              src={`${ownerId}/widget/Inputs.TextArea`}
+              src={"${config_account}/widget/Inputs.TextArea"}
               props={{
                 noLabel: true,
                 inputRows: 5,
@@ -383,7 +381,7 @@ return (
             />
             <Row style={{ margin: "12px 0px" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"${config_account}/widget/Inputs.Checkbox"}
                 props={{
                   id: "isDaoSelector",
                   checked: state.isDao,
@@ -402,7 +400,7 @@ return (
             </Row>
             {state.isDao && (
               <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
+                src={"${config_account}/widget/Inputs.Text"}
                 props={{
                   label: "DAO address *",
                   placeholder: "E.g. mydao.sputnikdao.near",
@@ -440,7 +438,7 @@ return (
             )}
             <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: "primary",
                   // text: registrationApprovedOrNoRegistryProvider

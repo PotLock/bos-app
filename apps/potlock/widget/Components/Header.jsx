@@ -1,5 +1,3 @@
-const { ownerId } = props;
-
 const headerTitleFontSizePx = 88;
 
 const HeaderContainer = styled.div`
@@ -110,6 +108,8 @@ return (
       {props.buttonPrimary && props.buttonPrimary}
       {props.buttonSecondary && props.buttonSecondary}
     </ButtonsContainer>
-    {showStats && <Widget src={`${ownerId}/widget/Project.DonationStats`} props={{ ...props }} />}
+    {showStats && (
+      <Widget src={"${config_account}/widget/Project.DonationStats"} props={{ ...props }} />
+    )}
   </HeaderContainer>
 );

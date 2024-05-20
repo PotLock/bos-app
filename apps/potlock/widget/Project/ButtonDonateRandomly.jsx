@@ -1,5 +1,3 @@
-const { ownerId } = props;
-
 const Button = styled.button`
   flex-direction: row;
   justify-content: center;
@@ -41,7 +39,7 @@ return (
     <Button onClick={handleDonateRandomly}>Donate Randomly</Button>
     {state.isModalOpen && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalDonation`}
+        src={"${config_account}/widget/Project.ModalDonation"}
         props={{
           ...props,
           isModalOpen: state.isModalOpen,
@@ -60,7 +58,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
+        src={"${config_account}/widget/Project.ModalSuccess"}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,

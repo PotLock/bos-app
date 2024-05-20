@@ -1,3 +1,10 @@
 {
-  "appAccount": "potlock.near"
+  "account": "old.potlock.near",
+  "aliases": ["./aliases.mainnet.json"],
+  "overrides": {
+    "testnet": {
+      "account": "old.potlock.testnet",
+      "aliases": ["./aliases.testnet.json"]
+    }
+  }
 }

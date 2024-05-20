@@ -34,7 +34,7 @@ const [showChallengePayoutsModal, setShowChallengePayoutsModal] = useState(false
 const [projects, setProjects] = useState(null);
 const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 
-const { IPFS_BASE_URL } = VM.require("potlock.near/widget/constants") || {
+const { IPFS_BASE_URL } = VM.require("${config_account}/widget/constants") || {
   IPFS_BASE_URL: "",
 };
 
@@ -45,7 +45,7 @@ const projectNotRegistered = registryStatus === null;
 const userIsAdminOrGreater = admins.includes(context.accountId) || owner === context.accountId;
 const userIsChefOrGreater = userIsAdminOrGreater || chef === context.accountId;
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getApplicationByProjectId: () => {},
   asyncGetApprovedApplications: () => {},
   adminProcessPayouts: () => {},
@@ -74,12 +74,11 @@ const canPayoutsBeSet = userIsChefOrGreater && !all_paid_out && publicRoundEnded
 
 const canPayoutsBeProcessed = userIsAdminOrGreater && now >= cooldown_end_ms && !all_paid_out;
 
-const { ownerId, NADA_BOT_URL } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADA_BOT_URL } = VM.require("${config_account}/widget/constants") || {
   NADA_BOT_URL: "",
 };
 const { yoctosToNear, yoctosToUsdWithFallback, nearToUsd, calculatePayouts } = VM.require(
-  "potlock.near/widget/utils"
+  "${config_account}/widget/utils"
 ) || {
   calculatePayouts: () => {},
   yoctosToNear: () => "",
@@ -242,7 +241,7 @@ return (
       <ButtonsWrapper>
         {publicRoundOpen && context.accountId && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               type: "primary",
               text: canDonate ? "Donate" : "Verify to Donate",
@@ -259,7 +258,7 @@ return (
         )}
         {now < public_round_end_ms && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               type: "secondary",
               text: "Fund matching pool",
@@ -269,7 +268,7 @@ return (
         )}
         {applicationOpen && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               type: registrationApproved || projectNotRegistered ? "primary" : "tertiary",
               text:
@@ -284,7 +283,7 @@ return (
         )}
         {now > public_round_end_ms && now < cooldown_end_ms && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               type: "secondary",
               existingChallengeForUser,
@@ -295,7 +294,7 @@ return (
         )}
         {canPayoutsBeSet && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               ...props,
               text: "Set Payouts",
@@ -305,7 +304,7 @@ return (
         )}
         {canPayoutsBeProcessed && (
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               ...props,
               type: "primary",
@@ -317,7 +316,7 @@ return (
       </ButtonsWrapper>
       <Referral>
         <Widget
-          src={`${ownerId}/widget/Project.CopyIcon`}
+          src={"${config_account}/widget/Project.CopyIcon"}
           props={{
             textToCopy: potLink,
           }}
@@ -326,10 +325,10 @@ return (
       </Referral>
     </Header>
     <div className="pool-table">
-      <Widget src={`${ownerId}/widget/Pots.PoolAllocationTable`} props={props} />
+      <Widget src={"${config_account}/widget/Pots.PoolAllocationTable"} props={props} />
     </div>
     <Widget
-      src={`${ownerId}/widget/Pots.FundModal`}
+      src={"${config_account}/widget/Pots.FundModal"}
       props={{
         ...props,
         isMatchingPoolModalOpen,
@@ -337,7 +336,7 @@ return (
       }}
     />
     <Widget
-      src={`${ownerId}/widget/Pots.ChallengeModal`}
+      src={"${config_account}/widget/Pots.ChallengeModal"}
       props={{
         ...props,
         showChallengePayoutsModal,
@@ -345,7 +344,7 @@ return (
       }}
     />
     <Widget
-      src={`${ownerId}/widget/ModalDonation.Main`}
+      src={"${config_account}/widget/ModalDonation.Main"}
       loading={""}
       props={{
         ...props,
@@ -364,7 +363,7 @@ return (
     />
     {successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
+        src={"${config_account}/widget/Project.ModalSuccess"}
         props={{
           ...props,
           successfulDonation: successfulDonation,

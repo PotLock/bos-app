@@ -1,20 +1,19 @@
-const { ownerId, NADABOT_HUMAN_METHOD } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADABOT_HUMAN_METHOD } = VM.require("${config_account}/widget/constants") || {
   NADABOT_HUMAN_METHOD: "",
 };
 
-const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInput`) || {
+const { AmountInput } = VM.require("${config_account}/widget/ModalDonation.AmountInput") || {
   AmountInput: () => {},
 };
-const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
+const { Checks } = VM.require("${config_account}/widget/ModalDonation.Checks") || {
   Checks: () => {},
 };
-const { VerifyInfo, Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+const { VerifyInfo, Alert } = VM.require("${config_account}/widget/ModalDonation.Banners") || {
   VerifyInfo: () => {},
   Alert: () => {},
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
 };
 
@@ -88,7 +87,7 @@ const Pot = styled.div`
 const SelectPot = ({ selectedRound, activeRoundsOptions, updateState }) => (
   <PotSelector>
     <Widget
-      src={`${ownerId}/widget/Inputs.Dropdown`}
+      src={"${config_account}/widget/Inputs.Dropdown"}
       props={{
         sortVal: activeRoundsOptions ? activeRoundsOptions[selectedRound].label : "",
         showCount: false,
@@ -178,7 +177,7 @@ const FormDirect = (props) => {
 
   return projectId ? (
     profile === null ? (
-      <Widget src={`${ownerId}/widget/Components.Loading`} />
+      <Widget src={"${config_account}/widget/Components.Loading"} />
     ) : (
       <Form>
         <Label>How do you want to donate?</Label>
@@ -228,7 +227,7 @@ const FormDirect = (props) => {
 
         <Button>
           <Widget
-            src={`${ownerId}/widget/Components.Button`}
+            src={"${config_account}/widget/Components.Button"}
             props={{
               type: "primary",
               disabled: amountError || !amount,

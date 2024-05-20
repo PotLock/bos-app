@@ -1,15 +1,12 @@
 const { potId, hrefWithParams } = props;
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getPayoutsChallenges: () => {},
   adminUpdatePayoutsChallenge: () => {},
   isUserPotAdminOrGreater: () => false,
 };
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { getTimePassed } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+const { getTimePassed } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   getTimePassed: () => "",
 };
 const payoutsChallenges = PotSDK.getPayoutsChallenges(potId); // TODO: ADD THIS BACK IN
@@ -262,7 +259,7 @@ const AdminSVG = () => (
   </div>
 );
 const ProfileImg = ({ address }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
 console.log("payoutsChallenges", payoutsChallenges);
@@ -351,7 +348,7 @@ return !payoutsChallenges ? (
       </Table>
       {/* Admin update challenge modal */}
       <Widget
-        src={`${ownerId}/widget/Components.Modal`}
+        src={"${config_account}/widget/Components.Modal"}
         props={{
           isModalOpen: adminModalChallengerId,
           onClose: handleCancelAdminUpdateChallenge,
@@ -371,7 +368,7 @@ return !payoutsChallenges ? (
                   }
                 </div>
                 <Widget
-                  src={`${ownerId}/widget/Inputs.TextArea`}
+                  src={"${config_account}/widget/Inputs.TextArea"}
                   props={{
                     noLabel: true,
                     inputRows: 5,
@@ -395,7 +392,7 @@ return !payoutsChallenges ? (
                   }}
                 />
                 <Widget
-                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  src={"${config_account}/widget/Inputs.Checkbox"}
                   props={{
                     // id: "registrationSelector",
                     label: "Resolve this challenge?",
@@ -410,7 +407,7 @@ return !payoutsChallenges ? (
               </ModalBody>
               <ModalFooter>
                 <Widget
-                  src={`${ownerId}/widget/Components.Button`}
+                  src={"${config_account}/widget/Components.Button"}
                   props={{
                     type: "tertiary",
                     text: "Cancel",
@@ -418,7 +415,7 @@ return !payoutsChallenges ? (
                   }}
                 />
                 <Widget
-                  src={`${ownerId}/widget/Components.Button`}
+                  src={"${config_account}/widget/Components.Button"}
                   props={{
                     type: "primary",
                     text: "Submit",

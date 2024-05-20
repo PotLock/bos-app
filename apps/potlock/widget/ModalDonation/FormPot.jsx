@@ -1,28 +1,27 @@
-const { ownerId, NADABOT_HUMAN_METHOD } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADABOT_HUMAN_METHOD } = VM.require("${config_account}/widget/constants") || {
   NADABOT_HUMAN_METHOD: "",
 };
 
-const { VerifyInfo } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+const { VerifyInfo } = VM.require(`${config_account}/widget/ModalDonation.Banners`) || {
   VerifyInfo: () => {},
   Alert: () => {},
 };
 
-const { nearToUsd } = VM.require("potlock.near/widget/utils");
+const { nearToUsd } = VM.require("${config_account}/widget/utils");
 
-const { Checks } = VM.require(`potlock.near/widget/ModalDonation.Checks`) || {
+const { Checks } = VM.require("${config_account}/widget/ModalDonation.Checks") || {
   Checks: () => {},
 };
 
-const { AmountInput } = VM.require(`potlock.near/widget/ModalDonation.AmountInput`) || {
+const { AmountInput } = VM.require("${config_account}/widget/ModalDonation.AmountInput") || {
   AmountInput: () => {},
 };
 
-const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: (address) => address,
 };
 
-const { Alert } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+const { Alert } = VM.require("${config_account}/widget/ModalDonation.Banners") || {
   Alert: () => {},
 };
 
@@ -199,7 +198,7 @@ const Button = styled.div`
 
 const ProfileImg = ({ profile }) => (
   <Widget
-    src={`${ownerId}/widget/Project.ProfileImage`}
+    src={"${config_account}/widget/Project.ProfileImage"}
     props={{
       profile,
       style: {},
@@ -436,7 +435,7 @@ const FormPot = (props) => {
       </Projects>
       <Button>
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"${config_account}/widget/Components.Button"}
           props={{
             type: "primary",
             disabled:

@@ -2,16 +2,15 @@ const { projectId, tab } = props;
 
 const accountId = context.accountId;
 
-const { DONATION_CONTRACT_ID, ownerId } = VM.require("potlock.near/widget/constants") || {
+const { DONATION_CONTRACT_ID } = VM.require("${config_account}/widget/constants") || {
   DONATION_CONTRACT_ID: "",
-  ownerId: "",
 };
-const { ProjectOptions } = VM.require(`${ownerId}/widget/Project.Options`) || {
+const { ProjectOptions } = VM.require("${config_account}/widget/Project.Options") || {
   ProjectOptions: () => [],
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getDonationsForRecipient: () => {},
     // asyncGetDonationsForRecipient: () => {},
@@ -19,7 +18,7 @@ let DonateSDK =
 DonateSDK = DonateSDK({ env: props.env });
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
@@ -27,14 +26,14 @@ PotFactorySDK = PotFactorySDK({ env: props.env });
 
 const pots = PotFactorySDK.getPots();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetConfig: () => {},
   asyncGetDonationsForProject: () => {},
   asyncGetDonationsForRecipient: () => {},
 };
 
 let ListsSDK =
-  VM.require("potlock.near/widget/SDK.lists") ||
+  VM.require("${config_account}/widget/SDK.lists") ||
   (() => ({
     getRegistration: () => "",
   }));
@@ -194,10 +193,13 @@ const Wrapper = styled.div`
 return (
   <Wrapper>
     {registration.status !== "Approved" && (
-      <Widget src={`${ownerId}/widget/Project.ProjectBanner`} props={{ ...props, registration }} />
+      <Widget
+        src={"${config_account}/widget/Project.ProjectBanner"}
+        props={{ ...props, registration }}
+      />
     )}
     <Widget
-      src={`${ownerId}/widget/Profile.Body`}
+      src={"${config_account}/widget/Profile.Body"}
       props={{
         ...props,
         profile,

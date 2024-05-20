@@ -5,16 +5,17 @@ const {
   potDetail: { base_currency },
 } = props;
 
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
-const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+const { getTimePassed, _address } = VM.require(
+  "${config_account}/widget/Components.DonorsUtils"
+) || {
   getTimePassed: () => "",
   _address: (address) => address,
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getPublicRoundDonations: () => {},
 };
 
@@ -157,7 +158,7 @@ const handleSearch = ({ target: { value } }) => {
 
 const ProfileImg = (address) => (
   <Widget
-    src={`${ownerId}/widget/Project.ProfileImage`}
+    src={"${config_account}/widget/Project.ProfileImage"}
     props={{
       ...props,
       accountId: address,
@@ -187,7 +188,7 @@ return (
       </div>
     </Sort>
     <Widget
-      src={`${ownerId}/widget/Pots.DonationsTable`}
+      src={"${config_account}/widget/Pots.DonationsTable"}
       props={{
         ...props,
         filteredDonations,

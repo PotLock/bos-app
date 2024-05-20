@@ -1,9 +1,5 @@
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getFlaggedAccounts: () => {},
-};
-
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
 };
 
 const Line = styled.div`
@@ -122,7 +118,7 @@ const Flag = styled.div`
   }
 `;
 const ProfileImg = ({ address }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
 const { potId, hrefWithParams, potDetail } = props;

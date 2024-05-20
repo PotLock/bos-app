@@ -189,24 +189,24 @@ const profileName = profile?.name || projectId;
 
 const MAX_NOTE_LENGTH = 60;
 
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
-  VM.require("potlock.near/widget/constants") || {
-    DONATION_CONTRACT_ID: "",
-    NADABOT_HUMAN_METHOD: "",
-    ownerId: "",
-    NADA_BOT_URL: "",
-    SUPPORTED_FTS: {},
-  };
+const { DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } = VM.require(
+  "${config_account}/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  NADABOT_HUMAN_METHOD: "",
+  NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
+};
 
 let ListsSDK =
-  VM.require("potlock.near/widget/SDK.lists") ||
+  VM.require("${config_account}/widget/SDK.lists") ||
   (() => ({
     getRegistrations: () => {},
   }));
 ListsSDK = ListsSDK({ env: props.env });
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
     asyncGetDonationsForDonor: () => {},
@@ -214,14 +214,14 @@ let DonateSDK =
 DonateSDK = DonateSDK({ env: props.env });
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 
 PotFactorySDK = PotFactorySDK({ env: props.env });
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
   asyncGetConfig: () => {},
   getApprovedApplications: () => {},
@@ -230,26 +230,26 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   isRoundActive: () => {},
 };
 
-const { nearToUsd, formatWithCommas } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, formatWithCommas } = VM.require("${config_account}/widget/utils") || {
   nearToUsd: 1,
   formatWithCommas: () => {},
 };
 
-const { addItemsToCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
+const { addItemsToCart, clearCart } = VM.require("${config_account}/widget/SDK.cart") || {
   addItemsToCart: () => {},
   clearCart: () => {},
 };
 
-const { FormDirect } = VM.require("potlock.near/widget/ModalDonation.Form") || {
+const { FormDirect } = VM.require("${config_account}/widget/ModalDonation.Form") || {
   FormDirect: () => {},
 };
-const { FormPot } = VM.require("potlock.near/widget/ModalDonation.FormPot") || {
+const { FormPot } = VM.require("${config_account}/widget/ModalDonation.FormPot") || {
   FormPot: () => {},
 };
-const { ConfirmDirect } = VM.require("potlock.near/widget/ModalDonation.ConfirmDirect") || {
+const { ConfirmDirect } = VM.require("${config_account}/widget/ModalDonation.ConfirmDirect") || {
   ConfirmDirect: () => {},
 };
-const { ConfirmPot } = VM.require("potlock.near/widget/ModalDonation.ConfirmPot") || {
+const { ConfirmPot } = VM.require("${config_account}/widget/ModalDonation.ConfirmPot") || {
   ConfirmPot: () => {},
 };
 
@@ -381,7 +381,7 @@ const ftBalance = useMemo(() => {
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       onClose: (e) => {

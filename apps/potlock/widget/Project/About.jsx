@@ -1,9 +1,6 @@
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
 const { profile } = props;
 const { name, description, plPublicGoodReason } = profile;
-const { getTeamMembersFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+const { getTeamMembersFromSocialProfileData } = VM.require("${config_account}/widget/utils") || {
   getTeamMembersFromSocialProfileData: () => [],
 };
 
@@ -123,7 +120,10 @@ const SmartContracts = () =>
       {smartContracts.map(([chain, contract]) => {
         return (
           <div className="contract">
-            <Widget src={`${ownerId}/widget/Project.CopyIcon`} props={{ textToCopy: contract }} />
+            <Widget
+              src={"${config_account}/widget/Project.CopyIcon"}
+              props={{ textToCopy: contract }}
+            />
             <div className="text">
               <div className="address">{contract}</div>
               <div className="chain">{chain}</div>
@@ -138,7 +138,7 @@ const SmartContracts = () =>
 
 const AboutItem = ({ title, text }) => (
   <Widget
-    src={`${ownerId}/widget/Project.AboutItem`}
+    src={"${config_account}/widget/Project.AboutItem"}
     props={{
       ...props,
       title,
@@ -149,7 +149,7 @@ const AboutItem = ({ title, text }) => (
 
 const Team = () => (
   <Widget
-    src={`${ownerId}/widget/Project.Team`}
+    src={"${config_account}/widget/Project.Team"}
     props={{
       ...props,
       team: getTeamMembersFromSocialProfileData(props.profile),

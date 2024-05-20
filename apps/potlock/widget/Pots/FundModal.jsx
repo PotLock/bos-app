@@ -35,20 +35,19 @@ const {
 } = state;
 
 const { yoctosToNear, doesUserHaveDaoFunctionCallProposalPermissions } = VM.require(
-  "potlock.near/widget/utils"
+  "${config_account}/widget/utils"
 ) || {
   yoctosToNear: () => "",
   doesUserHaveDaoFunctionCallProposalPermissions: () => "",
 };
 
-const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: () => "",
 };
 
-const { ownerId, MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS, ONE_TGAS } = VM.require(
-  "potlock.near/widget/constants"
+const { MAX_DONATION_MESSAGE_LENGTH, SUPPORTED_FTS, ONE_TGAS } = VM.require(
+  "${config_account}/widget/constants"
 ) || {
-  ownerId: "",
   ONE_TGAS: 0,
   MAX_DONATION_MESSAGE_LENGTH: 0,
   SUPPORTED_FTS: {},
@@ -208,7 +207,7 @@ console.log(protocolFeeRecipientProfile);
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       isModalOpen: isMatchingPoolModalOpen,
@@ -216,7 +215,7 @@ return (
       children: (
         <>
           <Widget
-            src={`${ownerId}/widget/Inputs.Checkbox`}
+            src={"${config_account}/widget/Inputs.Checkbox"}
             props={{
               id: "fundAsDaoSelector",
               label: "Fund as DAO",
@@ -228,7 +227,7 @@ return (
           />
           {fundAsDao && (
             <Widget
-              src={`${ownerId}/widget/Inputs.Text`}
+              src={"${config_account}/widget/Inputs.Text"}
               props={{
                 inputStyle: {
                   background: "#FAFAFA",
@@ -271,7 +270,7 @@ return (
               : `(Min. ${yoctosToNear(min_matching_pool_donation_amount)})`}
           </ModalTitle>
           <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
+            src={"${config_account}/widget/Inputs.Text"}
             props={{
               inputStyle: {
                 background: "#FAFAFA",
@@ -290,7 +289,7 @@ return (
             }}
           />
           <Widget
-            src={`${ownerId}/widget/Inputs.TextArea`}
+            src={"${config_account}/widget/Inputs.TextArea"}
             props={{
               noLabel: true,
               inputRows: 5,
@@ -316,7 +315,7 @@ return (
           />
           <Row>
             <Widget
-              src={`${ownerId}/widget/Inputs.Checkbox`}
+              src={"${config_account}/widget/Inputs.Checkbox"}
               props={{
                 id: "bypassProtocolFeeSelector",
                 checked: bypassProtocolFee,
@@ -328,11 +327,11 @@ return (
             <Label htmlFor="bypassProtocolFeeSelector">
               Bypass {protocolConfig?.basis_points / 100 || "-"}% protocol fee to{" "}
               <UserChipLink
-                href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolConfig?.account_id}`}
+                href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${protocolConfig?.account_id}`}
                 target="_blank"
               >
                 <Widget
-                  src={`${ownerId}/widget/Project.ProfileImage`}
+                  src={"${config_account}/widget/Project.ProfileImage"}
                   props={{
                     ...props,
                     accountId: protocolConfig?.account_id,
@@ -351,7 +350,7 @@ return (
           {chef && chef_fee_basis_points > 0 && (
             <Row style={{ marginTop: "6px" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"${config_account}/widget/Inputs.Checkbox"}
                 props={{
                   id: "bypassChefFeeSelector",
                   checked: bypassChefFee,
@@ -363,11 +362,11 @@ return (
               <Label htmlFor="bypassChefFeeSelector">
                 Bypass {chef_fee_basis_points / 100 || "-"}% chef fee to
                 <UserChipLink
-                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${chef}`}
+                  href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${chef}`}
                   target="_blank"
                 >
                   <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    src={"${config_account}/widget/Project.ProfileImage"}
                     props={{
                       ...props,
                       accountId: chef,
@@ -409,7 +408,7 @@ return (
           </Row>
           <Row style={{ justifyContent: "flex-end", marginTop: "12px" }}>
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "primary",
                 disabled:

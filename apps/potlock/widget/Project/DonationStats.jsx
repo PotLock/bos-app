@@ -27,11 +27,11 @@ const StatsSubTitle = styled.div`
   font-weight: 400;
 `;
 
-const { yoctosToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+const { yoctosToUsdWithFallback } = VM.require("${config_account}/widget/utils") || {
   yoctosToUsdWithFallback: (amount) => amount,
 };
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
   }));

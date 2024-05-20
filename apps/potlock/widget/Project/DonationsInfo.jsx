@@ -1,11 +1,10 @@
 const { accountId, projectId, donations, referrerId } = props;
 
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { nearToUsd, nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, nearToUsdWithFallback } = VM.require("${config_account}/widget/utils") || {
   nearToUsd: 1,
   nearToUsdWithFallback: () => "",
 };
@@ -14,7 +13,7 @@ const [isModalDonationOpen, setIsModalDonationOpen] = useState(false);
 const [successfulDonation, setSuccessfulDonation] = useState(false);
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getDonationsForRecipient: () => {},
   }));
@@ -101,18 +100,21 @@ return (
     </div>
     <div className="btn-wrapper">
       <Widget
-        src={`${ownerId}/widget/Components.Button`}
+        src={"${config_account}/widget/Components.Button"}
         props={{
           type: "primary",
           text: "Donate",
           onClick: () => setIsModalDonationOpen(true),
         }}
       />
-      <Widget src={`${ownerId}/widget/Project.FollowButton`} props={{ accountId: projectId }} />
+      <Widget
+        src={"${config_account}/widget/Project.FollowButton"}
+        props={{ accountId: projectId }}
+      />
     </div>
 
     <Widget
-      src={`${ownerId}/widget/ModalDonation.Main`}
+      src={"${config_account}/widget/ModalDonation.Main"}
       loading={""}
       props={{
         ...props,
@@ -128,7 +130,7 @@ return (
     />
     {successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
+        src={"${config_account}/widget/Project.ModalSuccess"}
         props={{
           ...props,
           successfulDonation: successfulDonation,

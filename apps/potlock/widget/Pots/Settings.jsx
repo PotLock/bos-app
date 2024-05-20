@@ -3,25 +3,23 @@ const { potDetail, potId, env, hrefWithParams } = props;
 const [editSettings, setEditSettings] = useState(false);
 
 const {
-  ownerId,
   SUPPORTED_FTS: { NEAR },
-} = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+} = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {
     NEAR: {},
   },
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   isUserPotAdminOrGreater: () => {},
 };
 
-const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: (address) => address,
 };
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getContractId: () => {},
   }));
@@ -294,7 +292,7 @@ const Detail = styled.div`
 
 const ProfileImage = ({ address }) => (
   <Widget
-    src={`${ownerId}/widget/Project.ProfileImage`}
+    src={"${config_account}/widget/Project.ProfileImage"}
     props={{
       ...props,
       accountId: address,
@@ -325,7 +323,7 @@ return editSettings ? (
   <Container>
     <Title>Edit Pot settings</Title>
     <Widget
-      src={`${ownerId}/widget/Pots.ConfigForm`}
+      src={"${config_account}/widget/Pots.ConfigForm"}
       props={{
         ...props,
       }}

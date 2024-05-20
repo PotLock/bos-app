@@ -63,7 +63,7 @@ if (!profile) return "";
 return (
   <ItemContainer>
     <Widget
-      src="mob.near/widget/ProfileImage"
+      src="${alias_mob}/widget/ProfileImage"
       props={{
         accountId: props.projectId,
         style: {

@@ -4,9 +4,6 @@ const post = props.post === undefined ?? true;
 const hashtags = props.hashtags || [];
 
 const indexKey = props.indexKey ?? "main";
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
 
 const index = [
   {
@@ -59,7 +56,7 @@ const renderPost = (a) => {
     <div key={JSON.stringify(a)}>
       <Widget
         loading={<div className="w-100" style={{ height: "200px" }} />}
-        src="mob.near/widget/MainPage.N.Post"
+        src="${alias_mob}/widget/MainPage.N.Post"
         props={{
           accountId: a.accountId,
           blockHeight: a.blockHeight,
@@ -140,7 +137,7 @@ const renderRepost = (a) => {
           Reposted by{" "}
           <Widget
             loading={a.accountId}
-            src="mob.near/widget/N.ProfileLine"
+            src="${alias_mob}/widget/N.ProfileLine"
             props={{
               accountId: a.accountId,
               hideImage: true,
@@ -152,7 +149,7 @@ const renderRepost = (a) => {
       </div>
       <Widget
         loading={<div className="w-100" style={{ height: "200px" }} />}
-        src="mob.near/widget/MainPage.N.Post"
+        src="${alias_mob}/widget/MainPage.N.Post"
         props={{
           accountId: post.accountId,
           blockHeight: post.blockHeight,
@@ -186,10 +183,10 @@ const Container = styled.div`
 
 return (
   <Container>
-    {post && <Widget src="potlock.near/widget/Profile.Compose" props={{ initialText }} />}
+    {post && <Widget src="${config_account}/widget/Profile.Compose" props={{ initialText }} />}
 
     <Widget
-      src={`${ownerId}/widget/Profile.MergedIndexFeed`}
+      src={"${config_account}/widget/Profile.MergedIndexFeed"}
       props={{ ...props, index, renderItem, filter: props.filter, threshold: 800 }}
     />
   </Container>

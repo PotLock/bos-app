@@ -1,5 +1,5 @@
 const { profile, projectId } = props;
-const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+const { getTagsFromSocialProfileData } = VM.require("${config_account}/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
 const Tags = styled.div`

@@ -1,5 +1,4 @@
 const {
-  ownerId,
   isModalOpen,
   onClose,
   titleText,
@@ -85,7 +84,7 @@ const MembersText = styled.div`
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       isModalOpen,
       onClose,
@@ -138,14 +137,14 @@ return (
           </ModalHeader>
           <ModalDescription>{descriptionText}</ModalDescription>
           <Widget
-            src={`${ownerId}/widget/Inputs.Text`}
+            src={"${config_account}/widget/Inputs.Text"}
             props={{
               placeholder: "NEAR account ID",
               value: inputValue,
               onChange: onInputChange,
               postInputChildren: (
                 <Widget
-                  src={`${ownerId}/widget/Components.Button`}
+                  src={"${config_account}/widget/Components.Button"}
                   props={{
                     type: "primary",
                     text: "Add",
@@ -169,7 +168,7 @@ return (
             {accountIds.length == 1 ? unitText : `${unitText}s`}
           </MembersText>
           <Widget
-            src={`${ownerId}/widget/Components.AccountsList`}
+            src={"${config_account}/widget/Components.AccountsList"}
             props={{
               accountIds,
               allowRemove: true,

@@ -224,18 +224,18 @@ const {
   NADABOT_CONTRACT_ID,
   POT,
 } = props;
-const { ownerId, DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } =
-  VM.require("potlock.near/widget/constants") || {
-    DONATION_CONTRACT_ID: "",
-    NADABOT_HUMAN_METHOD: "",
-    ownerId: "",
-    NADA_BOT_URL: "",
-    SUPPORTED_FTS: {},
-  };
+const { DONATION_CONTRACT_ID, NADABOT_HUMAN_METHOD, NADA_BOT_URL, SUPPORTED_FTS } = VM.require(
+  "${config_account}/widget/constants"
+) || {
+  DONATION_CONTRACT_ID: "",
+  NADABOT_HUMAN_METHOD: "",
+  NADA_BOT_URL: "",
+  SUPPORTED_FTS: {},
+};
 // console.log("props in donation modal: ", props);
 
 let ListsSDK =
-  VM.require("potlock.near/widget/SDK.lists") ||
+  VM.require("${config_account}/widget/SDK.lists") ||
   (() => ({
     getRegistrations: () => {},
   }));
@@ -244,14 +244,14 @@ ListsSDK = ListsSDK({ env: props.env });
 const projects = ListsSDK.getRegistrations() || [];
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const pots = PotFactorySDK.getPots();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
   asyncGetConfig: () => {},
   getApprovedApplications: () => {},
@@ -259,12 +259,12 @@ const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
 };
 
-const { nearToUsd, formatWithCommas } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd, formatWithCommas } = VM.require("${config_account}/widget/utils") || {
   nearToUsd: 1,
   formatWithCommas: () => {},
 };
 
-const { addItemsToCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
+const { addItemsToCart, clearCart } = VM.require("${config_account}/widget/SDK.cart") || {
   addItemsToCart: () => {},
   clearCart: () => {},
 };
@@ -481,7 +481,7 @@ const protocolConfig =
     : null;
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
     asyncGetDonationsForDonor: () => {},
@@ -732,7 +732,7 @@ const ftBalance = useMemo(() => {
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       onClose: (e) => {
@@ -768,12 +768,12 @@ return (
           <ModalBody>
             {recipientId ? (
               profile === null ? (
-                <Widget src={`${ownerId}/widget/Components.Loading`} />
+                <Widget src={"${config_account}/widget/Components.Loading"} />
               ) : (
                 <Row>
                   <Column>
                     <Widget
-                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      src={"${config_account}/widget/Project.ProfileImage"}
                       props={{
                         ...props,
                         accountId: recipientId,
@@ -807,7 +807,7 @@ return (
             )}
             <Column style={{ width: "100%" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Text`}
+                src={"${config_account}/widget/Inputs.Text"}
                 props={{
                   name: "amount",
                   label: "Amount",
@@ -835,7 +835,7 @@ return (
                   },
                   preInputChildren: (
                     <Widget
-                      src={`${ownerId}/widget/Inputs.Select`}
+                      src={"${config_account}/widget/Inputs.Select"}
                       props={{
                         noLabel: true,
                         placeholder: "",
@@ -897,7 +897,7 @@ return (
             </Column>
             <Row style={{ padding: "0px", gap: "0px" }}>
               <Widget
-                src={`${ownerId}/widget/Inputs.Checkbox`}
+                src={"${config_account}/widget/Inputs.Checkbox"}
                 props={{
                   id: "bypassProtocolFeeSelector",
                   checked: state.bypassProtocolFee,
@@ -911,11 +911,11 @@ return (
               <Label htmlFor="bypassProtocolFeeSelector">
                 Bypass {protocolFeeBasisPoints / 100 || "-"}% protocol fee to{" "}
                 <UserChipLink
-                  href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
+                  href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
                   target="_blank"
                 >
                   <Widget
-                    src={`${ownerId}/widget/Project.ProfileImage`}
+                    src={"${config_account}/widget/Project.ProfileImage"}
                     props={{
                       ...props,
                       accountId: protocolFeeRecipientAccount,
@@ -934,7 +934,7 @@ return (
             {potDetail?.chef && potDetail?.chef_fee_basis_points > 0 && (
               <Row style={{ padding: "0px", gap: "0px" }}>
                 <Widget
-                  src={`${ownerId}/widget/Inputs.Checkbox`}
+                  src={"${config_account}/widget/Inputs.Checkbox"}
                   props={{
                     id: "bypassChefFeeSelector",
                     checked: state.bypassChefFee,
@@ -946,11 +946,11 @@ return (
                 <Label htmlFor="bypassChefFeeSelector">
                   Bypass {potDetail?.chef_fee_basis_points / 100 || "-"}% chef fee to{" "}
                   <UserChipLink
-                    href={`https://near.social/mob.near/widget/ProfilePage?accountId=${potDetail?.chef}`}
+                    href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${potDetail?.chef}`}
                     target="_blank"
                   >
                     <Widget
-                      src={`${ownerId}/widget/Project.ProfileImage`}
+                      src={"${config_account}/widget/Project.ProfileImage"}
                       props={{
                         ...props,
                         accountId: potDetail?.chef,
@@ -966,7 +966,7 @@ return (
               </Row>
             )}
             <Widget
-              src={`${ownerId}/widget/Cart.BreakdownSummary`}
+              src={"${config_account}/widget/Cart.BreakdownSummary"}
               props={{
                 ...props,
                 referrerId,
@@ -977,7 +977,7 @@ return (
             />
             {state.addNote ? (
               <Widget
-                src={`${ownerId}/widget/Inputs.TextArea`}
+                src={"${config_account}/widget/Inputs.TextArea"}
                 props={{
                   label: "Note",
                   inputRows: 2,
@@ -1053,9 +1053,8 @@ return (
           <ModalFooter>
             {recipientId && !isFtDonation && (
               <Widget
-                src={`${ownerId}/widget/Cart.AddToCart`}
+                src={"${config_account}/widget/Cart.AddToCart"}
                 props={{
-                  ownerId: ownerId,
                   text: donateLoading && "Loading...",
                   onClick: handleAddToCart,
                   disabled: donateDisabled,
@@ -1073,7 +1072,7 @@ return (
               />
             )}
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "primary",
                 text: donateLoading
@@ -1089,7 +1088,7 @@ return (
               }}
             />
             {/* <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "primary",
                 text: userShouldVerify ? "Verify Now" : "Donate",

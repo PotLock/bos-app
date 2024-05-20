@@ -1,8 +1,8 @@
-const { getCartItemCount } = VM.require("potlock.near/widget/SDK.cart") ?? {
+const { getCartItemCount } = VM.require("${config_account}/widget/SDK.cart") ?? {
   getCartItemCount: () => 0,
 };
 
-const { CartModal } = VM.require("potlock.near/widget/Cart.Modal") ?? {
+const { CartModal } = VM.require("${config_account}/widget/Cart.Modal") ?? {
   CartModal: () => <></>,
 };
 

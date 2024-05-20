@@ -1,6 +1,6 @@
 const { potId, potDetail, payoutDetails, projects } = props;
 const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.require(
-  "potlock.near/widget/utils"
+  "${config_account}/widget/utils"
 ) || {
   ipfsUrlFromCid: () => "",
   yoctosToNear: () => "",
@@ -8,25 +8,24 @@ const { nearToUsd, ipfsUrlFromCid, yoctosToNear, yoctosToUsdWithFallback } = VM.
   nearToUsd: 1,
 };
 
-const { _address } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: (address) => address,
 };
 
-const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADA_BOT_URL, SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   NADA_BOT_URL: "",
   SUPPORTED_FTS: {},
 };
-const { getTagsFromSocialProfileData } = VM.require("potlock.near/widget/utils") || {
+const { getTagsFromSocialProfileData } = VM.require("${config_account}/widget/utils") || {
   getTagsFromSocialProfileData: () => [],
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getDonationsForProject: () => {},
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getDonationsForRecipient: () => {},
   }));
@@ -449,7 +448,7 @@ return (
           <BackgroundImageContainer>
             {profile.backgroundImage?.nft ? (
               <Widget
-                src="mob.near/widget/Image"
+                src="${alias_mob}/widget/Image"
                 props={{
                   image: profile.backgroundImage,
                   alt: "background",
@@ -471,7 +470,7 @@ return (
           <ProfileImageContainer class="profile-picture d-inline-block">
             {profile.image?.nft ? (
               <Widget
-                src="mob.near/widget/Image"
+                src="${alias_mob}/widget/Image"
                 props={{
                   image: profile.image,
                   alt: "avatar",
@@ -547,7 +546,7 @@ return (
     </CardLink>
     {state.donateModal.isOpen && (
       <Widget
-        src={`${ownerId}/widget/ModalDonation.Main`}
+        src={"${config_account}/widget/ModalDonation.Main"}
         loading={""}
         props={{
           ...props,
@@ -581,7 +580,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
+        src={"${config_account}/widget/Project.ModalSuccess"}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,

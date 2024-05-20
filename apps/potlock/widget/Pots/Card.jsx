@@ -1,15 +1,12 @@
 const { potId } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { daysUntil, yoctosToNear, yoctosToUsd } = VM.require("potlock.near/widget/utils") || {
+const { daysUntil, yoctosToNear, yoctosToUsd } = VM.require("${config_account}/widget/utils") || {
   daysUntil: () => "",
   yoctosToNear: () => "",
   yoctosToUsd: () => "",
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
 };
 const potConfig = PotSDK.getConfig(potId);
@@ -241,14 +238,14 @@ const tags = [
 
 const Tag = (props) => (
   <Widget
-    src={`${ownerId}/widget/Pots.Tag`}
+    src={"${config_account}/widget/Pots.Tag"}
     props={{
       ...props,
       ...(props.preElementsProps
         ? {
             preElements: (
               <Widget
-                src={`${ownerId}/widget/Components.Indicator`}
+                src={"${config_account}/widget/Components.Indicator"}
                 props={props.preElementsProps}
               />
             ),

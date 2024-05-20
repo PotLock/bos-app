@@ -1,18 +1,14 @@
 const { projectId } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const pots = PotFactorySDK.getPots();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetApprovedApplications: () => {},
 };
 
@@ -81,7 +77,7 @@ const NoResults = styled.div`
 
 const PotCard = ({ potId }) => (
   <Widget
-    src={`${ownerId}/widget/Pots.Card`}
+    src={"${config_account}/widget/Pots.Card"}
     props={{
       ...props,
       potId,

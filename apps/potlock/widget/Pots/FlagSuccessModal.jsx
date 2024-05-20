@@ -27,15 +27,11 @@ const Container = styled.div`
   }
 `;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
 const { onClose, successFlag } = props;
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       onClose: (e) => {

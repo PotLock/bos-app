@@ -374,7 +374,7 @@ const Arrow = (props) => (
 );
 
 const ProfileImg = ({ address }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
 const FlagTooltip = ({ flag, href, address }) => (
@@ -428,11 +428,10 @@ const AddressItem = ({ href, address, isFlagged, isProject, className }) => (
   </a>
 );
 
-const { ownerId } = VM.require("potlock.near/widget/constants");
 const { getTimePassed, _address, calcNetDonationAmount } = VM.require(
-  `potlock.near/widget/Components.DonorsUtils`
+  "${config_account}/widget/Components.DonorsUtils"
 );
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getFlaggedAccounts: () => {},
 };
 
@@ -447,7 +446,6 @@ const {
   potId,
 } = props;
 const { admins, owner, chef, all_paid_out } = potDetail;
-const SOCIAL_CONTRACT_ID = "social.near";
 
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
@@ -474,7 +472,7 @@ const handleFlag = (e, address, isFlagged) => {
   if (isFlagged) {
     // remove flagged account
     // get latest pLBlacklistedAccounts updates
-    Near.asyncView(SOCIAL_CONTRACT_ID, "get", {
+    Near.asyncView("${alias_socialdb}", "get", {
       keys: [`${accountId}/profile/**`],
     }).then((profileData) => {
       const profile = profileData[accountId].profile;
@@ -500,7 +498,7 @@ const handleFlag = (e, address, isFlagged) => {
       const depositFloat = JSON.stringify(socialArgs).length * 0.00015;
 
       const socialTransaction = {
-        contractName: SOCIAL_CONTRACT_ID,
+        contractName: "${alias_socialdb}",
         methodName: "set",
         args: socialArgs,
         deposit: Big(depositFloat).mul(Big(10).pow(24)),
@@ -617,7 +615,7 @@ return (
       )}
     </div>
     <Widget
-      src={`${ownerId}/widget/Components.Pagination`}
+      src={"${config_account}/widget/Components.Pagination"}
       props={{
         onPageChange: (page) => {
           setCurrentPage(page);
@@ -629,7 +627,7 @@ return (
       }}
     />
     <Widget
-      src={`${ownerId}/widget/Pots.FlagModal`}
+      src={"${config_account}/widget/Pots.FlagModal"}
       props={{
         ...props,
         flagAddress: flagAddress,
@@ -639,7 +637,7 @@ return (
       }}
     />
     <Widget
-      src={`${ownerId}/widget/Pots.FlagSuccessModal`}
+      src={"${config_account}/widget/Pots.FlagSuccessModal"}
       props={{
         ...props,
         successFlag: successFlag,

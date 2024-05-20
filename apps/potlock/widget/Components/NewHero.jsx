@@ -107,10 +107,10 @@ const Line = styled.div`
   margin-top: 1rem;
 `;
 
-const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+const { HomeBannerStyle } = VM.require("${config_account}/widget/Pots.HomeBannerBackground") || {
   HomeBannerStyle: {},
 };
-const { DonationStats } = VM.require("potlock.near/widget/Project.DonationStats") || {
+const { DonationStats } = VM.require("${config_account}/widget/Project.DonationStats") || {
   DonationStats: () => {},
 };
 

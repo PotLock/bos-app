@@ -1,11 +1,13 @@
-const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+const { basisPointsToPercent } = VM.require("${config_account}/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
-const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { removeItemsFromCart, updateItemInCart } = VM.require("potlock.near/widget/SDK.cart") || {
+const { removeItemsFromCart, updateItemInCart } = VM.require(
+  "${config_account}/widget/SDK.cart"
+) || {
   removeItemsFromCart: () => {},
   updateItemInCart: () => {},
 };
@@ -171,7 +173,7 @@ return (
   <ItemContainer>
     <ItemLeft>
       <Widget
-        src={"potlock.near/widget/Inputs.Checkbox"}
+        src={"${config_account}/widget/Inputs.Checkbox"}
         props={{
           id: "selector-" + projectId,
           checked,
@@ -182,7 +184,7 @@ return (
     <ItemRight>
       <ImageContainer>
         <Widget
-          src="mob.near/widget/ProfileImage"
+          src="${alias_mob}/widget/ProfileImage"
           props={{
             accountId: projectId,
             style: {
@@ -203,7 +205,7 @@ return (
             {profile.name ?? ""}
           </Title>
           <Widget
-            src={"potlock.near/widget/Pots.Tag"}
+            src={"${config_account}/widget/Pots.Tag"}
             props={{
               ...props,
               backgroundColor: isPotDonation ? "#FEF6EE" : "#F6F5F3",
@@ -219,7 +221,7 @@ return (
         </Row>
         <Description>{profile.description ?? ""}</Description>
         <Widget
-          src={"potlock.near/widget/Inputs.Text"}
+          src={"${config_account}/widget/Inputs.Text"}
           props={{
             label: "Amount",
             placeholder: "0",
@@ -241,7 +243,7 @@ return (
             },
             preInputChildren: (
               <Widget
-                src={"potlock.near/widget/Inputs.Select"}
+                src={"${config_account}/widget/Inputs.Select"}
                 props={{
                   noLabel: true,
                   placeholder: "",
@@ -277,7 +279,7 @@ return (
           }}
         />
         <Widget
-          src={"potlock.near/widget/Cart.BreakdownSummary"}
+          src={"${config_account}/widget/Cart.BreakdownSummary"}
           props={{
             ...props,
             ftIcon: itemToken.icon,

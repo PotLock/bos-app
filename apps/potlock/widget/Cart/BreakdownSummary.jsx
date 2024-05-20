@@ -9,16 +9,16 @@ const {
   chef,
   chefFeeBasisPoints,
 } = props;
-const { basisPointsToPercent } = VM.require("potlock.near/widget/utils") || {
+const { basisPointsToPercent } = VM.require("${config_account}/widget/utils") || {
   basisPointsToPercent: () => 0,
 };
 
-const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
   }));

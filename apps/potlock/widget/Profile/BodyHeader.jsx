@@ -1,6 +1,5 @@
 const {
   profile: { name },
-  ownerId,
   accountId,
   projectId,
 } = props;
@@ -131,7 +130,7 @@ return (
                 : projectId || accountId}
             </AccountId>
             <Widget
-              src={`${ownerId}/widget/Project.CopyIcon`}
+              src={"${config_account}/widget/Project.CopyIcon"}
               props={{
                 textToCopy: projectId ? projectId : accountId,
                 customStyle: `height: 18px;`,
@@ -140,7 +139,7 @@ return (
           </AccountInfoContainer>
           {canEdit && (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "secondary",
                 text: "Edit profile",
@@ -152,7 +151,7 @@ return (
           )}
           {accountId === context.accountId && !projectId && (
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "secondary",
                 style: { marginLeft: "auto" },
@@ -164,13 +163,13 @@ return (
           )}
         </NameContainer>
         <Widget
-          src={`${ownerId}/widget/Profile.Tags`}
+          src={"${config_account}/widget/Profile.Tags"}
           props={{
             ...props,
           }}
         />
         <Widget
-          src={`${ownerId}/widget/Profile.Linktree`}
+          src={"${config_account}/widget/Profile.Linktree"}
           props={{
             ...props,
           }}
@@ -178,7 +177,7 @@ return (
       </Info>
       {projectId && (
         <Widget
-          src={`${ownerId}/widget/Project.DonationsInfo`}
+          src={"${config_account}/widget/Project.DonationsInfo"}
           props={{
             ...props,
             accountId: projectId || accountId,

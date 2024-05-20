@@ -159,11 +159,7 @@ const ButtonsWrapper = styled.div`
   }
 `;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
 const MAX_REASON_LENGTH = 250;
-const SOCIAL_CONTRACT_ID = "social.near";
 const accountId = context.accountId;
 
 const [reason, setReason] = useState("");
@@ -177,7 +173,7 @@ const onCancel = () => {
 };
 
 const fetchSocialProfile = () => {
-  return Near.asyncView(SOCIAL_CONTRACT_ID, "get", { keys: [`${accountId}/profile/**`] });
+  return Near.asyncView("${alias_socialdb}", "get", { keys: [`${accountId}/profile/**`] });
 };
 
 const handleSuccess = () => {
@@ -229,12 +225,12 @@ const handleFlag = () => {
     };
 
     const socialTransaction = {
-      contractName: SOCIAL_CONTRACT_ID,
+      contractName: "${alias_socialdb}",
       methodName: "set",
       args: socialArgs,
     };
 
-    Near.asyncView(SOCIAL_CONTRACT_ID, "get_account", {
+    Near.asyncView("${alias_socialdb}", "get_account", {
       account_id: accountId,
     }).then((account) => {
       let depositFloat = JSON.stringify(socialArgs).length * 0.00015;
@@ -250,7 +246,7 @@ const handleFlag = () => {
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       onCancel: (e) => {
@@ -285,7 +281,7 @@ return (
           <Content>
             <div>
               <Widget
-                src={`${ownerId}/widget/Inputs.TextArea`}
+                src={"${config_account}/widget/Inputs.TextArea"}
                 props={{
                   label: "Reason",
                   inputRows: 4,
@@ -335,7 +331,7 @@ return (
                 Cancel
               </button>
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: "primary",
                   text: "Confirm",

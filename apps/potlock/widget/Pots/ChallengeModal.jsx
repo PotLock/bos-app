@@ -1,9 +1,5 @@
 const { showChallengePayoutsModal, onCancel, existingChallengeForUser } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
 const ModalHeader = styled.div`
   display: flex;
   flex-direction: row;
@@ -69,7 +65,7 @@ const MAX_CHALLENGE_TEXT_LENGTH = 1000;
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       isModalOpen: showChallengePayoutsModal,
       onClose: handleCancelChallenge,
@@ -82,7 +78,7 @@ return (
           <ModalBody>
             <div>Explain the reason for your challenge</div>
             <Widget
-              src={`${ownerId}/widget/Inputs.TextArea`}
+              src={"${config_account}/widget/Inputs.TextArea"}
               props={{
                 noLabel: true,
                 inputRows: 5,
@@ -108,7 +104,7 @@ return (
           </ModalBody>
           <ModalFooter>
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "tertiary",
                 text: "Cancel",
@@ -116,7 +112,7 @@ return (
               }}
             />
             <Widget
-              src={`${ownerId}/widget/Components.Button`}
+              src={"${config_account}/widget/Components.Button"}
               props={{
                 type: "primary",
                 text: "Submit Challenge",

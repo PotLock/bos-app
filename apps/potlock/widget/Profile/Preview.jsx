@@ -1,5 +1,4 @@
 const accountId = props.accountId ?? context.accountId;
-const ownerId = props.ownerId;
 const profile = Social.getr(`${accountId}/profile`);
 
 const name = profile.name;
@@ -12,7 +11,7 @@ return (
       className="text-decoration-none link-dark"
     >
       <Widget
-        src="mob.near/widget/ProfileImage"
+        src="${alias_mob}/widget/ProfileImage"
         props={{
           profile,
           accountId,

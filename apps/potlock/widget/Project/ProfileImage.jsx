@@ -1,4 +1,4 @@
-// * taken from mob.near/widget/ProfileImage with minor tweaks for expanded composability *
+// * taken from ${alias_mob}/widget/ProfileImage with minor tweaks for expanded composability *
 
 const accountId = props.accountId ?? context.accountId;
 const className = props.className ?? "profile-image d-inline-block";
@@ -49,7 +49,7 @@ const inner = fast ? (
   <div className={className} style={style} key={JSON.stringify(image)}>
     <Widget
       loading={<div className={`d-inline-block ${imageClassName}`} style={imageWrapperStyle} />}
-      src="mob.near/widget/Image"
+      src="${alias_mob}/widget/Image"
       props={{
         image,
         alt: title,
@@ -65,7 +65,7 @@ const inner = fast ? (
 return props.tooltip ? (
   <Widget
     loading={inner}
-    src="mob.near/widget/Profile.OverlayTrigger"
+    src="${alias_mob}/widget/Profile.OverlayTrigger"
     props={{ accountId, children: inner }}
   />
 ) : (

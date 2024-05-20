@@ -1,5 +1,5 @@
 const { getCartItemCount, getCart, removeItemsFromCart } = VM.require(
-  "potlock.near/widget/SDK.cart"
+  "${config_account}/widget/SDK.cart"
 ) ?? {
   getCartItemCount: () => 0,
   getCart: () => {},
@@ -131,7 +131,7 @@ const CartModal = ({ Trigger }) => {
               (Object.keys(cart) ?? []).map((projectId) => {
                 return (
                   <Widget
-                    src={"potlock.near/widget/Cart.CartModalItem"}
+                    src={"${config_account}/widget/Cart.CartModalItem"}
                     props={{
                       ...props,
                       projectId,
@@ -148,13 +148,13 @@ const CartModal = ({ Trigger }) => {
             )}
             <ButtonContainer>
               <Widget
-                src={"potlock.near/widget/Components.Button"}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: "primary",
                   text: "Proceed to donate",
                   disabled: numCartItems === 0,
                   href: href({
-                    widgetSrc: "potlock.near/widget/Index",
+                    widgetSrc: "${config_account}/widget/Index",
                     params: { tab: "cart", referrerId: props.referrerId },
                   }),
                   style: {
@@ -164,7 +164,7 @@ const CartModal = ({ Trigger }) => {
                 }}
               />
               <Widget
-                src={"potlock.near/widget/Components.Button"}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: numCartItems === 0 ? "primary" : "secondary",
                   text: "Continue shopping",

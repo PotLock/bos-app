@@ -1,7 +1,5 @@
-const { ownerId } = props;
-
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getContractId: () => {},
     getConfig: () => {},
@@ -20,7 +18,7 @@ PotFactorySDK = PotFactorySDK({ env: props.env });
 const potFactoryContractId = PotFactorySDK.getContractId();
 const potFactoryConfig = PotFactorySDK.getConfig();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetConfig: () => {},
 };
 
@@ -281,7 +279,7 @@ const handleSort = ({ val }) => {
 return (
   <Container>
     <Widget
-      src={`${ownerId}/widget/Pots.HomeBanner`}
+      src={"${config_account}/widget/Pots.HomeBanner"}
       props={{
         ...props,
         canDeploy,
@@ -300,7 +298,7 @@ return (
         </Title>
         <div className="filters">
           <Widget
-            src={`${ownerId}/widget/Inputs.FilterDropdown`}
+            src={"${config_account}/widget/Inputs.FilterDropdown"}
             props={{
               ...props,
               options: filterBy,
@@ -309,7 +307,7 @@ return (
             }}
           />
           <Widget
-            src={`${ownerId}/widget/Inputs.FilterDropdown`}
+            src={"${config_account}/widget/Inputs.FilterDropdown"}
             props={{
               ...props,
               label: "Sort",
@@ -325,13 +323,13 @@ return (
       {filteredRounds.length === 0 && <div>No pots</div>}
 
       <Widget
-        src={`${ownerId}/widget/Project.ListSection`}
+        src={"${config_account}/widget/Project.ListSection"}
         props={{
           ...props,
           items: filteredRounds,
           renderItem: (pot) => (
             <Widget
-              src={`${ownerId}/widget/Pots.Card`}
+              src={"${config_account}/widget/Pots.Card"}
               props={{
                 ...props,
                 potId: pot.id,
@@ -356,13 +354,13 @@ return (
         Completed Pots <span>{completedRounds.length}</span>
       </Title>
       <Widget
-        src={`${ownerId}/widget/Project.ListSection`}
+        src={"${config_account}/widget/Project.ListSection"}
         props={{
           ...props,
           items: completedRounds,
           renderItem: (pot) => (
             <Widget
-              src={`${ownerId}/widget/Pots.Card`}
+              src={"${config_account}/widget/Pots.Card"}
               props={{
                 ...props,
                 potId: pot.id,

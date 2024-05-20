@@ -1,8 +1,4 @@
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
-const { nearToUsd } = VM.require("potlock.near/widget/utils");
+const { nearToUsd } = VM.require("${config_account}/widget/utils");
 
 const SvgIcon = styled.svg`
   width: 16px;
@@ -71,7 +67,7 @@ const PotDenominatio = styled.div`
 const Dropdown = ({ selectedDenomination, denominationOptions, updateState }) => (
   <DropdownWrapper>
     <Widget
-      src={`${ownerId}/widget/Inputs.Select`}
+      src={"${config_account}/widget/Inputs.Select"}
       props={{
         noLabel: true,
         placeholder: "",
