@@ -12,32 +12,38 @@ test("should open donate modal", async ({ page }) => {
   expect(await page.isVisible("text=Donate to")).toBeTruthy();
 });
 
-test("project with no active pot should donate direct with correct amount", async ({ page }) => {
-  test.setTimeout(120000); // 2 minutes... we want to improve performance
+test.describe("User is logged in", () => {
+  test.use({
+    storageState: "playwright-tests/storage-states/wallet-connected.json",
+  });
 
-  // go to project page (PotLock project)
-  await page.goto(`${ROOT_SRC}?tab=project&projectId=${DEFAULT_PROJECT_ID}`);
+  test("project with no active pot should donate direct with correct amount", async ({ page }) => {
+    test.setTimeout(120000); // 2 minutes... we want to improve performance
 
-  // click donate button
-  await page.getByRole("button", { name: "Donate" }).click();
+    // go to project page (PotLock project)
+    await page.goto(`${ROOT_SRC}?tab=project&projectId=${DEFAULT_PROJECT_ID}`);
 
-  // wait for modal to appear
-  expect(await page.isVisible("text=Donate to")).toBeTruthy();
+    // click donate button
+    await page.getByRole("button", { name: "Donate" }).click();
 
-  // input amount
-  await page.fill("input[name=amount]", "100");
+    // wait for modal to appear
+    expect(await page.isVisible("text=Donate to")).toBeTruthy();
 
-  await page.getByRole("button", { name: "Proceed to donate" }).click();
+    // input amount
+    await page.fill("input[name=amount]", "1");
 
-  // Confirm Donation
-  await page.getByRole("button", { name: "Confirm donation" }).click();
+    await page.getByRole("button", { name: "Proceed to donate" }).click();
 
-  // Confirmation modal should be visible
-  const transactionObj = JSON.parse(await page.locator("div.modal-body code").innerText());
-  // check if transaction object is correct
-  expect(transactionObj).toMatchObject({
-    bypass_protocol_fee: false,
-    message: "",
-    recipient_id: DEFAULT_PROJECT_ID,
+    // Confirm Donation
+    await page.getByRole("button", { name: "Confirm donation" }).click();
+
+    // Confirmation modal should be visible
+    const transactionObj = JSON.parse(await page.locator("div.modal-body code").innerText());
+    // check if transaction object is correct
+    expect(transactionObj).toMatchObject({
+      bypass_protocol_fee: false,
+      message: "",
+      recipient_id: DEFAULT_PROJECT_ID,
+    });
   });
 });
