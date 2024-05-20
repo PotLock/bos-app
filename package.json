@@ -9,7 +9,7 @@
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
     "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'",
     "bw": "bos-workspace",
-    "dev": "npm run bw dev",
+    "dev": "npm run bw ws dev",
     "test": "npx playwright test"
   },
   "devDependencies": {
