@@ -107,7 +107,7 @@ return (
     })}
     <LinktreeItemContainer
       target="_blank"
-      href={`https://near.social/mob.near/widget/ProfilePage?accountId=${
+      href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${
         props.projectId || props.accountId
       }`}
     >

@@ -1,7 +1,6 @@
 const { donations, potPayouts, directDonations, matchingRoundDonations, profile } = props;
 
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
@@ -77,7 +76,7 @@ return externalFunding.length === 0 && donations.length === 0 ? (
   <Container>
     {externalFunding.length > 0 && (
       <Widget
-        src={`${ownerId}/widget/Project.ExternalFunding`}
+        src={"${config_account}/widget/Project.ExternalFunding"}
         props={{ ...props, externalFunding }}
       />
     )}
@@ -85,7 +84,7 @@ return externalFunding.length === 0 && donations.length === 0 ? (
 
     {donations.length > 0 && (
       <Widget
-        src={`${ownerId}/widget/Project.PotlockFunding`}
+        src={"${config_account}/widget/Project.PotlockFunding"}
         props={{ ...props, totalDonationAmountNear, uniqueDonors, totalMatched }}
       />
     )}

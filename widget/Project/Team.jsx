@@ -1,5 +1,3 @@
-const { ownerId } = props;
-
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -83,7 +81,7 @@ const Col2 = styled.div`
 
 const ProfileImg = ({ teamMember }) => (
   <Widget
-    src="mob.near/widget/ProfileImage"
+    src="${alias_mob}/widget/ProfileImage"
     props={{
       accountId: teamMember,
       imageClassName: "",

@@ -1,6 +1,5 @@
 return ({ env }) => {
   const contractId = env === "staging" ? "lists.staging.potlock.near" : "lists.potlock.near";
-  // const contractId = "lists.staging.potlock.near";
   const potlockRegistryListId = 1;
 
   const ListsSDK = {

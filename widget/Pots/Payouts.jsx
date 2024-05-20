@@ -1,16 +1,15 @@
 // get donations
 const { potId, potDetail, allDonations } = props;
 // potDetail.cooldown_end_ms = 1710105146000; // TODO: remove this line
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
-const { calculatePayouts, yoctosToNear } = VM.require("potlock.near/widget/utils") || {
+const { calculatePayouts, yoctosToNear } = VM.require("${config_account}/widget/utils") || {
   calculatePayouts: () => {},
   yoctosToNear: () => "",
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   isUserPotAdminOrGreater: () => {},
   getPayoutsChallenges: () => {},
   challengePayouts: () => {},
@@ -368,7 +367,7 @@ const MAX_ACCOUNT_ID_DISPLAY_LENGTH = 10;
 
 const ProfileImage = ({ projectId }) => (
   <Widget
-    src={`${ownerId}/widget/Project.ProfileImage`}
+    src={"${config_account}/widget/Project.ProfileImage"}
     props={{
       ...props,
       accountId: projectId,
@@ -401,8 +400,8 @@ const ArrowDown = (props) => (
 
 return (
   <Container>
-    <Widget src={`${ownerId}/widget/Pots.FlaggedAccounts`} props={props} />
-    <Widget src={`${ownerId}/widget/Pots.PayoutsChallenges`} props={props} />
+    <Widget src={"${config_account}/widget/Pots.FlaggedAccounts"} props={props} />
+    <Widget src={"${config_account}/widget/Pots.PayoutsChallenges"} props={props} />
 
     {!potDetail.all_paid_out && (
       <InfoContainer>

@@ -1,7 +1,5 @@
-const { ownerId } = props;
-
 let ListsSDK =
-  VM.require("potlock.near/widget/SDK.lists") ||
+  VM.require("${config_account}/widget/SDK.lists") ||
   (() => ({
     getRegistrations: () => {},
   }));
@@ -23,6 +21,10 @@ const Container = styled.div`
 
 return (
   <Container>
-    <Widget key="feed" src={`${ownerId}/widget/Profile.Feed`} props={{ accounts: registrantIds }} />
+    <Widget
+      key="feed"
+      src={"${config_account}/widget/Profile.Feed"}
+      props={{ accounts: registrantIds }}
+    />
   </Container>
 );

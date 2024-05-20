@@ -285,11 +285,11 @@ return (
               </NavTab>
             );
           })}
-          <Widget src={"potlock.near/widget/Cart.NavItem"} props={props} />
+          <Widget src={"${config_account}/widget/Cart.NavItem"} props={props} />
         </NavTabs>
       </NavRight>
       <NavRightMobile>
-        <Widget src={"potlock.near/widget/Cart.NavItem"} props={props} />
+        <Widget src={"${config_account}/widget/Cart.NavItem"} props={props} />
         <NavTab onClick={() => setIsNavMenuOpen(!isNavMenuOpen)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -3,13 +3,12 @@ const { potId, env, hrefWithParams, allDonations, potDetail } = props;
 const { base_currency, total_public_donations, matching_pool_balance, public_donations_count } =
   potDetail;
 
-const { ownerId, NADA_BOT_URL, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADA_BOT_URL, SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   NADA_BOT_URL: "",
   SUPPORTED_FTS: {},
 };
 
-const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: (address) => address,
 };
 
@@ -19,7 +18,7 @@ const {
   yoctosToUsdWithFallback,
   formatWithCommas,
   nearToUsd,
-} = VM.require("potlock.near/widget/utils") || {
+} = VM.require("${config_account}/widget/utils") || {
   nearToUsdWithFallback: () => "",
   yoctosToUsdWithFallback: () => "",
   calculatePayouts: () => {},
@@ -28,7 +27,7 @@ const {
   nearToUsd: 1,
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
   asyncGetApprovedApplications: () => {},
   getMatchingPoolDonations: () => {},
@@ -127,7 +126,7 @@ if (!allPayouts && allDonations?.length > 0 && flaggedAddresses) {
 }
 
 const ProfileImg = ({ profile }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ profile, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ profile, style: {} }} />
 );
 
 const Container = styled.div`

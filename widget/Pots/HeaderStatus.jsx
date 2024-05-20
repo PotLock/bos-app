@@ -1,9 +1,5 @@
 const { potDetail } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
 const [mobileMenuActive, setMobileMenuActive] = useState(false);
 
 const {
@@ -238,7 +234,7 @@ return (
                   <span>
                     ends in
                     <Widget
-                      src={`${ownerId}/widget/Pots.TimeLeft`}
+                      src={"${config_account}/widget/Pots.TimeLeft"}
                       props={{
                         daysLeft,
                       }}

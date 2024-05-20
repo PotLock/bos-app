@@ -1,4 +1,4 @@
-const { ownerId, accountId, projectId, nav } = props;
+const { accountId, projectId, nav } = props;
 
 const Container = styled.div`
   display: flex;
@@ -62,7 +62,7 @@ return (
     <div className="tab-content">
       <div className="tab-pane fade in show active" role="tabpanel">
         <Widget
-          src={`${ownerId}/widget/Profile.FollowersList`}
+          src={"${config_account}/widget/Profile.FollowersList"}
           props={{ ...props, accountId: projectId || accountId }}
         />
       </div>

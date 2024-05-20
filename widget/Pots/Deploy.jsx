@@ -1,10 +1,6 @@
 const { canDeploy, hrefWithParams } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
-const { HomeBannerStyle } = VM.require("potlock.near/widget/Pots.HomeBannerBackground") || {
+const { HomeBannerStyle } = VM.require("${config_account}/widget/Pots.HomeBannerBackground") || {
   HomeBannerStyle: {},
 };
 
@@ -120,7 +116,7 @@ return props.deploymentSuccess || state.deploymentSuccess ? (
   <SuccessContainer>
     <HeaderTitle>Deployment Successful!</HeaderTitle>
     <Widget
-      src={`${ownerId}/widget/Components.Button`}
+      src={"${config_account}/widget/Components.Button"}
       props={{
         type: "primary",
         text: "View all pots",
@@ -161,7 +157,7 @@ return props.deploymentSuccess || state.deploymentSuccess ? (
       </div>
     </HeaderContainer>
     <Widget
-      src={`${ownerId}/widget/Pots.ConfigForm`}
+      src={"${config_account}/widget/Pots.ConfigForm"}
       props={{
         ...props,
       }}

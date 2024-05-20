@@ -1,5 +1,5 @@
 return {
-  ownerId: "potlock.near",
+  ownerId: "${config_account}",
   PROJECT_STATUSES: ["Pending", "Approved", "Rejected", "Graylisted", "Blacklisted"],
   DONATION_CONTRACT_ID: "donate.potlock.near",
   NADABOT_HUMAN_METHOD: "is_human",

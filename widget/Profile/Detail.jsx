@@ -1,10 +1,8 @@
 const {
   DONATION_CONTRACT_ID,
-  ownerId,
   SUPPORTED_FTS: { NEAR },
-} = VM.require("potlock.near/widget/constants") || {
+} = VM.require("${config_account}/widget/constants") || {
   DONATION_CONTRACT_ID: "",
-  ownerId: "",
   SUPPORTED_FTS: {
     NEAR: {
       fromIndivisible: () => {},
@@ -15,7 +13,7 @@ const {
 const accountId = props.accountId ?? context.accountId;
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getDonationsForDonor: () => {},
     asyncGetDonationsForDonor: () => {},
@@ -23,19 +21,19 @@ let DonateSDK =
 DonateSDK = DonateSDK({ env: props.env });
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const pots = PotFactorySDK.getPots();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetConfig: () => {},
   asyncGetDonationsForDonor: () => {},
 };
 
-const { ProfileOptions } = VM.require(`${ownerId}/widget/Profile.Options`) || {
+const { ProfileOptions } = VM.require("${config_account}/widget/Profile.Options") || {
   ProfileOptions: () => [],
 };
 
@@ -127,7 +125,7 @@ const Wrapper = styled.div`
 return (
   <Wrapper>
     <Widget
-      src={`${ownerId}/widget/Profile.Body`}
+      src={"${config_account}/widget/Profile.Body"}
       props={{
         ...props,
         profile,

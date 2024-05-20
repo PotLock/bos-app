@@ -1,22 +1,21 @@
-const { ownerId, NADABOT_HUMAN_METHOD, DONATION_CONTRACT_ID } = VM.require(
-  "potlock.near/widget/constants"
+const { NADABOT_HUMAN_METHOD, DONATION_CONTRACT_ID } = VM.require(
+  "${config_account}/widget/constants"
 ) || {
-  ownerId: "",
   NADABOT_HUMAN_METHOD: "",
   DONATION_CONTRACT_ID: "",
 };
 
-const { nearToUsd } = VM.require("potlock.near/widget/utils");
+const { nearToUsd } = VM.require("${config_account}/widget/utils");
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
     asyncGetDonationsForDonor: () => {},
   }));
 DonateSDK = DonateSDK({ env: props.env });
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getConfig: () => {},
   asyncGetDonationsForDonor: () => {},
 };
@@ -137,7 +136,7 @@ const NearIcon = (props) => (
 
 const ProfileImg = ({ accountId }) => (
   <Widget
-    src={`${ownerId}/widget/Project.ProfileImage`}
+    src={"${config_account}/widget/Project.ProfileImage"}
     props={{
       accountId,
       style: {},
@@ -147,7 +146,7 @@ const ProfileImg = ({ accountId }) => (
 
 const CheckBox = ({ id, checked, onClick }) => (
   <Widget
-    src={`${ownerId}/widget/Inputs.Checkbox`}
+    src={"${config_account}/widget/Inputs.Checkbox"}
     props={{
       id,
       checked,
@@ -424,7 +423,7 @@ const ConfirmDirect = (props) => {
       </div>
       <div>
         <Widget
-          src={`${ownerId}/widget/Cart.BreakdownSummary`}
+          src={"${config_account}/widget/Cart.BreakdownSummary"}
           props={{
             ...props,
             referrerId,
@@ -451,7 +450,7 @@ const ConfirmDirect = (props) => {
 
           <div className="label">Remove {protocolFeeBasisPoints / 100 || "-"}% protocol fee</div>
           <a
-            href={`https://near.social/mob.near/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
+            href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${protocolFeeRecipientAccount}`}
             className="address"
             target="_blank"
           >
@@ -472,7 +471,7 @@ const ConfirmDirect = (props) => {
 
             <div className="label"> Remove {chefFeeBasisPoints / 100 || "-"}% chef fee</div>
             <a
-              href={`https://near.social/mob.near/widget/ProfilePage?accountId=${potDetail?.chef}`}
+              href={`https://near.social/${alias_mob}/widget/ProfilePage?accountId=${potDetail?.chef}`}
               className="address"
               target="_blank"
             >
@@ -486,7 +485,7 @@ const ConfirmDirect = (props) => {
 
       {addNote ? (
         <Widget
-          src={`${ownerId}/widget/Inputs.TextArea`}
+          src={"${config_account}/widget/Inputs.TextArea"}
           props={{
             label: "Note",
             inputRows: 2,
@@ -526,7 +525,7 @@ const ConfirmDirect = (props) => {
       )}
       <Button>
         <Widget
-          src={`${ownerId}/widget/Components.Button`}
+          src={"${config_account}/widget/Components.Button"}
           props={{
             type: "primary",
             text: "Confirm donation",

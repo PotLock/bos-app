@@ -1,4 +1,4 @@
-// forked from mob.near/widget/FollowsYouBadge
+// forked from ${alias_mob}/widget/FollowsYouBadge
 
 if (!props.accountId || !context.accountId) {
   return "";

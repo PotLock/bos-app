@@ -1,9 +1,5 @@
 const { ShowFollowers, registration, projectId, tab } = props;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-
 const accountId = props.accountId ?? context.accountId;
 
 if (!accountId) {
@@ -76,7 +72,7 @@ const BannerSkeleton = () => (
   </SkeletonContainer>
 );
 if (profile === null) {
-  return <Widget src={`${ownerId}/widget/Profile.BannerSkeleton`} />;
+  return <Widget src={"${config_account}/widget/Profile.BannerSkeleton"} />;
 }
 
 const name = profile.name || "No-name profile";
@@ -402,7 +398,7 @@ return (
   <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
     <BackgroundImageContainer>
       <Widget
-        src="mob.near/widget/Image"
+        src="${alias_mob}/widget/Image"
         props={{
           image: backgroundImage,
           alt: "profile background",
@@ -433,7 +429,7 @@ return (
       <ProfileImageContainer>
         <CameraSvg height={24} />
         <Widget
-          src={`${ownerId}/widget/Project.ProfileImage`}
+          src={"${config_account}/widget/Project.ProfileImage"}
           props={{
             profile,
             accountId,
@@ -478,7 +474,7 @@ return (
             </Verified>
           )}
           <Widget
-            src={`${ownerId}/widget/Profile.FollowStats`}
+            src={"${config_account}/widget/Profile.FollowStats"}
             props={{ ...props, accountId: projectId || accountId }}
           />
         </ProfileStats>

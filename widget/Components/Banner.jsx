@@ -1,10 +1,10 @@
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetConfig: () => {},
 };
 

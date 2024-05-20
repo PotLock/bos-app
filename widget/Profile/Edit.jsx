@@ -1,5 +1,5 @@
 return (
   <div style={{ paddingTop: "24px" }}>
-    <Widget src="mob.near/widget/ProfileEditor" />
+    <Widget src="${alias_mob}/widget/ProfileEditor" />
   </div>
 );

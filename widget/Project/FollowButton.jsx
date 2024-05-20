@@ -1,4 +1,3 @@
-const { ownerId } = props;
 if (!props.accountId || !context.accountId || context.accountId === props.accountId) {
   return "";
 }
@@ -83,7 +82,7 @@ return (
     onClick={() => {
       const transactions = [
         {
-          contractName: "social.near",
+          contractName: "${alias_socialdb}",
           methodName: "set",
           deposit: Big(JSON.stringify(socialArgs).length * 0.00003).mul(Big(10).pow(24)),
           args: socialArgs,

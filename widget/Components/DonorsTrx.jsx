@@ -9,10 +9,8 @@ useEffect(() => {
 const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
-const { ownerId } = VM.require("potlock.near/widget/constants");
-
 const { getTimePassed, _address, reverseArr } = VM.require(
-  `potlock.near/widget/Components.DonorsUtils`
+  "${config_account}/widget/Components.DonorsUtils"
 );
 
 const Container = styled.div`
@@ -137,7 +135,7 @@ const NoResult = styled.div`
 `;
 
 const ProfileImg = ({ address }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
 const NEAR_DECEMIALS = 24;
@@ -207,7 +205,7 @@ return allDonations.length ? (
         })}
     </div>
     <Widget
-      src={`${ownerId}/widget/Components.Pagination`}
+      src={"${config_account}/widget/Components.Pagination"}
       props={{
         onPageChange: (page) => {
           setCurrentPage(page);

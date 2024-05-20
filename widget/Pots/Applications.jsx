@@ -1,21 +1,21 @@
 // get applications
 const { potId, potDetail, hrefWithParams } = props;
-const { daysAgo } = VM.require("potlock.near/widget/utils") || { daysAgo: () => "" };
+const { daysAgo } = VM.require("${config_account}/widget/utils") || { daysAgo: () => "" };
 const {
   ONE_TGAS,
-  ownerId,
   SUPPORTED_FTS: { NEAR },
-} = VM.require("potlock.near/widget/constants") || {
+} = VM.require("${config_account}/widget/constants") || {
   ONE_TGAS: 0,
-  ownerId: "",
   SUPPORTED_FTS: {},
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getApplications: () => {},
 };
 
-const { getTimePassed, _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`) || {
+const { getTimePassed, _address } = VM.require(
+  "${config_account}/widget/Components.DonorsUtils"
+) || {
   _address: (address) => address,
 };
 
@@ -227,7 +227,7 @@ const handleSort = (key) => {
 };
 
 const ProfileImg = ({ profile }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ profile, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ profile, style: {} }} />
 );
 
 const Container = styled.div`
@@ -515,7 +515,7 @@ return (
   <Container>
     <div className="dropdown">
       <Widget
-        src={`${ownerId}/widget/Inputs.Dropdown`}
+        src={"${config_account}/widget/Inputs.Dropdown"}
         props={{
           sortVal: (
             <DropdownLabel digit={APPLICATIONS_FILTERS[filterVal].count.toString().length}>
@@ -644,7 +644,7 @@ return (
                   <>
                     {status !== "Approved" && (
                       <Widget
-                        src={`${ownerId}/widget/Components.Button`}
+                        src={"${config_account}/widget/Components.Button"}
                         props={{
                           type: "secondary",
                           text: "Approve",
@@ -654,7 +654,7 @@ return (
                     )}
                     {status !== "Rejected" && (
                       <Widget
-                        src={`${ownerId}/widget/Components.Button`}
+                        src={"${config_account}/widget/Components.Button"}
                         props={{
                           type: "primary",
                           text: "Reject",
@@ -673,7 +673,7 @@ return (
       )}
     </Applications>
     <Widget
-      src={`${ownerId}/widget/Components.Modal`}
+      src={"${config_account}/widget/Components.Modal"}
       props={{
         ...props,
         isModalOpen,
@@ -690,7 +690,7 @@ return (
             <ModalBody>
               <div>Leave a note *</div>
               <Widget
-                src={`${ownerId}/widget/Inputs.TextArea`}
+                src={"${config_account}/widget/Inputs.TextArea"}
                 props={{
                   noLabel: true,
                   inputRows: 5,
@@ -716,7 +716,7 @@ return (
             </ModalBody>
             <ModalFooter>
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: "tertiary",
                   text: "Cancel",
@@ -724,7 +724,7 @@ return (
                 }}
               />
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   type: "primary",
                   text: "Submit",

@@ -1,6 +1,5 @@
 const { isModalOpen, onClose } = props;
-const { NADA_BOT_URL, ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { NADA_BOT_URL } = VM.require("${config_account}/widget/constants") || {
   NADA_BOT_URL: "",
 };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
@@ -78,7 +77,7 @@ const Image = styled.img`
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       isModalOpen,
@@ -106,7 +105,7 @@ return (
             <Image src={IMAGE_URL} />
             <Row style={{ alignItems: "flex-end" }}>
               <Widget
-                src={`${ownerId}/widget/Components.Button`}
+                src={"${config_account}/widget/Components.Button"}
                 props={{
                   href: NADA_BOT_URL,
                   target: "_blank",

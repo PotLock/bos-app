@@ -49,7 +49,7 @@ return (
         <MembersListItem>
           <MembersListItemLeft>
             <Widget
-              src="mob.near/widget/ProfileImage"
+              src="${alias_mob}/widget/ProfileImage"
               props={{
                 accountId,
                 style: {

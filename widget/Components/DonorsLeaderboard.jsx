@@ -2,8 +2,7 @@ const { sponsors, sortedDonations, filter, currentTab, tab } = props;
 const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
 const isInPot = tab === "pot";
 
-const { ownerId } = VM.require("potlock.near/widget/constants");
-const { nearToUsd } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsd } = VM.require("${config_account}/widget/utils") || {
   nearToUsd: 1,
 };
 
@@ -18,7 +17,7 @@ const nearLogo =
   "https://ipfs.near.social/ipfs/bafkreicdcpxua47eddhzjplmrs23mdjt63czowfsa2jnw4krkt532pa2ha";
 
 const { getTimePassed, _address, calcNetDonationAmount, reverseArr } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
+  "${config_account}/widget/Components.DonorsUtils"
 );
 
 const Container = styled.div`
@@ -150,7 +149,7 @@ donations.forEach((donation) => {
 });
 
 const ProfileImg = ({ donor_id }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: donor_id, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: donor_id, style: {} }} />
 );
 
 return donations.length ? (
@@ -191,7 +190,7 @@ return donations.length ? (
       })}
     </div>
     <Widget
-      src={`${ownerId}/widget/Components.Pagination`}
+      src={"${config_account}/widget/Components.Pagination"}
       props={{
         onPageChange: (page) => {
           setCurrentPage(page);

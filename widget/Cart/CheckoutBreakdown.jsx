@@ -1,21 +1,21 @@
-const { yoctosToNear } = VM.require("potlock.near/widget/utils") || { yoctosToNear: () => "" };
-const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { yoctosToNear } = VM.require("${config_account}/widget/utils") || { yoctosToNear: () => "" };
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { getCart, clearCart } = VM.require("potlock.near/widget/SDK.cart") || {
+const { getCart, clearCart } = VM.require("${config_account}/widget/SDK.cart") || {
   getCart: () => {},
   clearCart: () => {},
 };
 
 const cart = getCart();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetDonationsForDonor: () => {},
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     asyncGetDonationsForDonor: () => {},
     getContractId: () => "",
@@ -280,7 +280,7 @@ return (
         </TotalContainer>
       )}
     <Widget
-      src={"potlock.near/widget/Components.Button"}
+      src={"${config_account}/widget/Components.Button"}
       props={{
         type: "primary",
         text: `Process Donation`,

@@ -1,12 +1,11 @@
 // get donations
 const { potId, potDetail } = props;
 
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getMatchingPoolDonations: () => {},
 };
 
@@ -77,7 +76,7 @@ const maxRowItemLength = 14;
 return (
   <Container>
     <Widget
-      src={`${ownerId}/widget/Pots.SponsorsBoard`}
+      src={"${config_account}/widget/Pots.SponsorsBoard"}
       props={{
         ...props,
         donations: state.sponsorshipDonations.slice(0, 6),
@@ -86,7 +85,7 @@ return (
     />
     <TableContainer>
       <Widget
-        src={`${ownerId}/widget/Pots.SponsorsTable`}
+        src={"${config_account}/widget/Pots.SponsorsTable"}
         props={{
           ...props,
           sponsors: state.sponsorshipDonations,

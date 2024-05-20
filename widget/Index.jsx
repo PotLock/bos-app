@@ -1,7 +1,4 @@
-const ownerId = "potlock.near";
 const donationContractId = "donate.potlock.near";
-// const potFactoryContractId =
-//   props.env === "staging" ? "potfactory.staging.potlock.near" : "v1.potfactory.potlock.near";
 const nadabotContractId = props.env === "staging" ? "v1.staging.nadabot.near" : "v1.nadabot.near";
 
 const CREATE_PROJECT_TAB = "createproject";
@@ -67,7 +64,6 @@ const getTabWidget = (tab) => {
 const props = {
   ...(props ?? {}),
   ...(state ?? {}),
-  ownerId: "potlock.near",
   NADABOT_CONTRACT_ID: nadabotContractId,
   referrerId: props.referrerId,
   hrefWithParams: (href) => {
@@ -88,7 +84,7 @@ const props = {
 if (props.transactionHashes) {
   switch (props.tab) {
     case CART_TAB:
-      const { clearCart } = VM.require("potlock.near/widget/SDK.cart") ?? {
+      const { clearCart } = VM.require("${config_account}/widget/SDK.cart") ?? {
         clearCart: () => {},
       };
       // if checkout was successful after wallet redirect, clear cart
@@ -103,7 +99,9 @@ if (props.tab === EDIT_PROJECT_TAB) {
   props.edit = true;
 }
 
-const tabContent = <Widget src={`${ownerId}/widget/${getTabWidget(props.tab)}`} props={props} />;
+const tabContent = (
+  <Widget src={`${config_account}/widget/${getTabWidget(props.tab)}`} props={props} />
+);
 
 const Content = styled.div`
   width: 100%;
@@ -126,14 +124,14 @@ const isForm = [CREATE_PROJECT_TAB].includes(props.tab);
 
 return (
   <Theme>
-    <Widget src={`${ownerId}/widget/Components.Nav`} props={props} />
+    <Widget src={"${config_account}/widget/Components.Nav"} props={props} />
     <Content className={isForm ? "form" : ""}>{tabContent}</Content>
-    <Widget src={`${ownerId}/widget/Components.Attribution`} />
+    <Widget src={"${config_account}/widget/Components.Attribution"} />
     {props.tab !== POT_DETAIL_TAB && props.tab !== POTS_TAB && (
-      <Widget src={`${ownerId}/widget/Components.Banner`} props={props} />
+      <Widget src={"${config_account}/widget/Components.Banner"} props={props} />
     )}
     <Widget
-      src={`${ownerId}/widget/Project.ModalSuccess`}
+      src={"${config_account}/widget/Project.ModalSuccess"}
       props={{
         ...props,
         isModalOpen: state.successModal.isOpen,

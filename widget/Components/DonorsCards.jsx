@@ -2,13 +2,10 @@ const { sponsors, sortedDonations, currentTab } = props;
 
 const donations = currentTab === "sponsors" ? sponsors : sortedDonations;
 
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { nearToUsdWithFallback } = VM.require("potlock.near/widget/utils") || {
+const { nearToUsdWithFallback } = VM.require("${config_account}/widget/utils") || {
   nearToUsdWithFallback: () => "",
 };
-const { _address } = VM.require(`${ownerId}/widget/Components.DonorsUtils`);
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils");
 
 const Container = styled.div`
   display: flex;
@@ -73,7 +70,7 @@ const Card = ({ donor }) => {
         ) : (
           <>
             <Widget
-              src="mob.near/widget/Image"
+              src="${alias_mob}/widget/Image"
               props={{
                 image: profile.backgroundImage,
                 className: "background",
@@ -84,7 +81,7 @@ const Card = ({ donor }) => {
             />
             <div className="tag">{rank}</div>
             <Widget
-              src="mob.near/widget/Image"
+              src="${alias_mob}/widget/Image"
               props={{
                 image: profile.image,
                 className: "profile",

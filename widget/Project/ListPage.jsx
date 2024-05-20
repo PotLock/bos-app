@@ -1,11 +1,11 @@
 const { getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } = VM.require(
-  "potlock.near/widget/utils"
+  "${config_account}/widget/utils"
 ) || {
   getTagsFromSocialProfileData: () => [],
   getTeamMembersFromSocialProfileData: () => [],
 };
 
-const { NewHero } = VM.require("potlock.near/widget/Components.NewHero") || {
+const { NewHero } = VM.require("${config_account}/widget/Components.NewHero") || {
   NewHero: () => {},
 };
 
@@ -129,10 +129,7 @@ const CardSkeleton = () => (
 // ListPage Content
 
 const { tab } = props;
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
-const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => "" };
+const { yoctosToUsd } = VM.require("${config_account}/widget/utils") || { yoctosToUsd: () => "" };
 const IPFS_BASE_URL = "https://nftstorage.link/ipfs/";
 const HERO_BACKGROUND_IMAGE_URL =
   IPFS_BASE_URL + "bafkreiewg5afxbkvo6jbn6jgv7zm4mtoys22jut65fldqtt7wagar4wbga";
@@ -419,7 +416,7 @@ State.init({
 });
 
 let ListsSDK =
-  VM.require("potlock.near/widget/SDK.lists") ||
+  VM.require("${config_account}/widget/SDK.lists") ||
   (() => ({
     getRegistrations: () => {},
     isRegistryAdmin: () => {},
@@ -434,7 +431,7 @@ const isRegisteredProject = allRegistrations.find(
 );
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     getConfig: () => {},
   }));
@@ -450,7 +447,7 @@ const [projects, approvedProjects] = useMemo(() => {
   return [allRegistrations, approvedProjects];
 }, allRegistrations);
 
-const featuredProjectIds = ["v1.foodbank.near", "potlock.near", "yearofchef.near"];
+const featuredProjectIds = ["v1.foodbank.near", "${config_account}", "yearofchef.near"];
 const featuredProjects = useMemo(
   () => projects.filter((project) => featuredProjectIds.includes(project.registrant_id)),
   projects
@@ -652,7 +649,7 @@ return (
           {(featuredProjects || []).map((project) => {
             return (
               <Widget
-                src={`${ownerId}/widget/Project.Card`}
+                src={"${config_account}/widget/Project.Card"}
                 loading={
                   <div
                     style={{
@@ -684,7 +681,7 @@ return (
         </Title>
         <FilterWrapper>
           <Widget
-            src={`${ownerId}/widget/Inputs.FilterDropdown`}
+            src={"${config_account}/widget/Inputs.FilterDropdown"}
             props={{
               ...props,
               onClick: handleTag,
@@ -697,7 +694,7 @@ return (
             }}
           />
           <Widget
-            src={`${ownerId}/widget/Project.SearchBar`}
+            src={"${config_account}/widget/Project.SearchBar"}
             props={{
               title: sort,
               tab: tab,
@@ -718,14 +715,14 @@ return (
       <ProjectsContainer>
         {filteredProjects.length ? (
           <Widget
-            src={`${ownerId}/widget/Project.ListSection`}
+            src={"${config_account}/widget/Project.ListSection"}
             props={{
               ...props,
               items: filteredProjects,
               renderItem: (project) => {
                 return (
                   <Widget
-                    src={`${ownerId}/widget/Project.Card`}
+                    src={"${config_account}/widget/Project.Card"}
                     loading={<CardSkeleton />}
                     props={{
                       ...props,
@@ -749,7 +746,7 @@ return (
     </Content>
     {state.isModalOpen && (
       <Widget
-        src={`${ownerId}/widget/ModalDonation.Main`}
+        src={"${config_account}/widget/ModalDonation.Main"}
         props={{
           ...props,
           isModalOpen: state.isModalOpen,
@@ -769,7 +766,7 @@ return (
     )}
     {state.successfulDonation && (
       <Widget
-        src={`${ownerId}/widget/Project.ModalSuccess`}
+        src={"${config_account}/widget/Project.ModalSuccess"}
         props={{
           ...props,
           successfulDonation: state.successfulDonation,

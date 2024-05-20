@@ -1,4 +1,4 @@
-const { ownerId, backgroundColor, borderColor, textColor, text } = props;
+const { backgroundColor, borderColor, textColor, text } = props;
 
 const textStyle = props.textStyle || {};
 

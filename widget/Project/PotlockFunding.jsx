@@ -11,16 +11,17 @@ const {
   totalMatched,
 } = props;
 
-const { ownerId, SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
-const { _address, getTimePassed } = VM.require(`potlock.near/widget/Components.DonorsUtils`) || {
+const { _address, getTimePassed } = VM.require(
+  "${config_account}/widget/Components.DonorsUtils"
+) || {
   _address: () => "",
   getTimePassed: () => "",
 };
-const { nearToUsd } = VM.require("potlock.near/widget/utils");
+const { nearToUsd } = VM.require("${config_account}/widget/utils");
 
 const [filter, setFilter] = useState({
   date: false, // false === ascending
@@ -398,7 +399,7 @@ const NearIcon = (props) => (
 );
 
 const ProfileImg = ({ address }) => (
-  <Widget src="mob.near/widget/ProfileImage" props={{ accountId: address, style: {} }} />
+  <Widget src="${alias_mob}/widget/ProfileImage" props={{ accountId: address, style: {} }} />
 );
 
 const PotIcon = () => (
@@ -466,7 +467,7 @@ return (
       ))}
       <div className="dropdown">
         <Widget
-          src={`${ownerId}/widget/Inputs.Dropdown`}
+          src={"${config_account}/widget/Inputs.Dropdown"}
           props={{
             sortVal: (
               <DropdownLabel digit={sortList[sort].count.toString().length}>
@@ -601,7 +602,7 @@ return (
       {filteredDonations.length === 0 && <div className="funding-row">No Donations</div>}
     </PotlockFunding>
     <Widget
-      src={`${ownerId}/widget/Components.Pagination`}
+      src={"${config_account}/widget/Components.Pagination"}
       props={{
         onPageChange: (page) => {
           setCurrentPage(page);

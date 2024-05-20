@@ -1,4 +1,4 @@
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   getApprovedApplications: () => {},
   getPublicRoundDonations: () => {},
   getFlaggedAccounts: () => {},
@@ -177,9 +177,9 @@ const [flaggedAddresses, setFlaggedAddresses] = useState(null);
 const [payouts, setPayouts] = useState(null);
 
 // get projects
-const { ownerId, potId, potDetail, allDonations } = props;
+const { potId, potDetail, allDonations } = props;
 const { calculatePayouts, getTagsFromSocialProfileData, getTeamMembersFromSocialProfileData } =
-  VM.require("potlock.near/widget/utils") || {
+  VM.require("${config_account}/widget/utils") || {
     calculatePayouts: () => {},
     getFlaggedAccounts: () => {},
     getTagsFromSocialProfileData: () => [],
@@ -274,7 +274,7 @@ return (
       />
     </SearchBar>
     <Widget
-      src={`${ownerId}/widget/Project.ListSection`}
+      src={"${config_account}/widget/Project.ListSection"}
       props={{
         ...props,
         shouldShuffle: true,
@@ -293,7 +293,7 @@ return (
         renderItem: (project) => {
           return (
             <Widget
-              src={`${ownerId}/widget/Project.Card`}
+              src={"${config_account}/widget/Project.Card"}
               loading={<CardSkeleton />}
               props={{
                 ...props,

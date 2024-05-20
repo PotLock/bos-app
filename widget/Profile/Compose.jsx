@@ -65,7 +65,7 @@ return (
   <>
     <div style={{ margin: "0 -12px" }}>
       <Widget
-        src="mob.near/widget/MainPage.N.Common.Compose"
+        src="${alias_mob}/widget/MainPage.N.Common.Compose"
         props={{
           placeholder: "What's happening?",
           onChange: state.onChange,
@@ -92,7 +92,7 @@ return (
     {state.content && (
       <Widget
         key="post-preview"
-        src="mob.near/widget/MainPage.N.Post"
+        src="${alias_mob}/widget/MainPage.N.Post"
         props={{
           accountId: context.accountId,
           content: state.content,

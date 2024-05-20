@@ -6,11 +6,11 @@ const sponsorsLeaderboard = [
   donations.slice(3, 5),
 ].filter((subList) => subList.length > 0);
 
-const { _address } = VM.require("potlock.near/widget/Components.DonorsUtils") || {
+const { _address } = VM.require("${config_account}/widget/Components.DonorsUtils") || {
   _address: () => "",
 };
 
-const { SUPPORTED_FTS } = VM.require("potlock.near/widget/constants") || {
+const { SUPPORTED_FTS } = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
 };
 
@@ -107,7 +107,7 @@ const Container = styled.div`
 
 const ProfileImg = ({ profile }) => (
   <Widget
-    src="mob.near/widget/Image"
+    src="${alias_mob}/widget/Image"
     props={{
       image: profile.image,
       style: {},

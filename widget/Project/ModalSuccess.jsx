@@ -1,26 +1,24 @@
 const { onClose } = props;
 const {
-  ownerId,
   SUPPORTED_FTS: { NEAR },
   IPFS_BASE_URL,
   NADABOT_HUMAN_METHOD,
   NADABOT_CONTRACT_ID,
-} = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
+} = VM.require("${config_account}/widget/constants") || {
   SUPPORTED_FTS: {},
   IPFS_BASE_URL: "",
   NADABOT_HUMAN_METHOD: "",
   NADABOT_CONTRACT_ID: "",
 };
 
-const { VerifyInfo } = VM.require(`potlock.near/widget/ModalDonation.Banners`) || {
+const { VerifyInfo } = VM.require("${config_account}/widget/ModalDonation.Banners") || {
   VerifyInfo: () => {},
 };
 
-const { yoctosToUsd } = VM.require("potlock.near/widget/utils") || { yoctosToUsd: () => null };
+const { yoctosToUsd } = VM.require("${config_account}/widget/utils") || { yoctosToUsd: () => null };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     asyncGetDonationsForDonor: () => {},
     getContractId: () => "",
@@ -374,8 +372,8 @@ const twitterIntent = useMemo(() => {
   let url =
     DEFAULT_GATEWAY +
     (successfulDonationVals[0].potId
-      ? `${ownerId}/widget/Index?tab=pot&potId=${successfulDonationVals[0].potId}&referrerId=${context.accountId}`
-      : `${ownerId}/widget/Index?tab=project&projectId=${recipient_id}&referrerId=${context.accountId}`);
+      ? "${config_account}/widget/Index?tab=pot&potId=${successfulDonationVals[0].potId}&referrerId=${context.accountId}"
+      : "${config_account}/widget/Index?tab=project&projectId=${recipient_id}&referrerId=${context.accountId}");
   let text = `I just donated to ${tag} on @${POTLOCK_TWITTER_ACCOUNT_ID}! Support public goods at `;
   text = encodeURIComponent(text);
   url = encodeURIComponent(url);
@@ -390,7 +388,7 @@ const needsToVerify = isUserHumanVerified === false;
 
 return (
   <Widget
-    src={`${ownerId}/widget/Components.Modal`}
+    src={"${config_account}/widget/Components.Modal"}
     props={{
       ...props,
       contentStyle: {
@@ -499,7 +497,7 @@ return (
           </ModalMiddel>
 
           <Widget
-            src={`${ownerId}/widget/Cart.BreakdownSummary`}
+            src={"${config_account}/widget/Cart.BreakdownSummary"}
             props={{
               ...props,
               referrerId: successfulDonationVals[0]?.referrer_id,

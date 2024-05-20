@@ -1,24 +1,21 @@
-const { ownerId } = VM.require("potlock.near/widget/constants") || {
-  ownerId: "",
-};
 const { calcNetDonationAmount, filterByDate } = VM.require(
-  `${ownerId}/widget/Components.DonorsUtils`
+  "${config_account}/widget/Components.DonorsUtils"
 );
 
 let PotFactorySDK =
-  VM.require("potlock.near/widget/SDK.potfactory") ||
+  VM.require("${config_account}/widget/SDK.potfactory") ||
   (() => ({
     getPots: () => {},
   }));
 PotFactorySDK = PotFactorySDK({ env: props.env });
 const pots = PotFactorySDK.getPots();
 
-const PotSDK = VM.require("potlock.near/widget/SDK.pot") || {
+const PotSDK = VM.require("${config_account}/widget/SDK.pot") || {
   asyncGetMatchingPoolDonations: () => {},
 };
 
 let DonateSDK =
-  VM.require("potlock.near/widget/SDK.donate") ||
+  VM.require("${config_account}/widget/SDK.donate") ||
   (() => ({
     asyncGetDonations: () => {},
   }));
@@ -318,13 +315,13 @@ return (
         <div className="leaderboard">
           <h1>Donors Leaderboard</h1>
           <Widget
-            src={`${ownerId}/widget/Components.DonorsCards`}
+            src={"${config_account}/widget/Components.DonorsCards"}
             props={{ ...props, sponsors, sortedDonations, currentTab }}
           />
         </div>
         <Tabs>
           <Widget
-            src={`${ownerId}/widget/Inputs.Dropdown`}
+            src={"${config_account}/widget/Inputs.Dropdown"}
             props={{
               sortVal: title,
               title: (
@@ -357,7 +354,7 @@ return (
           </Filter>
         </Tabs>
         <Widget
-          src={`${ownerId}/widget/${options.find((option) => option.tab == currentTab).src}`}
+          src={`${config_account}/widget/${options.find((option) => option.tab == currentTab).src}`}
           props={{
             ...props,
             allDonations: allDonations,
