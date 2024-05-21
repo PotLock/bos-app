@@ -7,7 +7,7 @@ jobs:
     uses: NEARBuilders/bos-workspace/.github/workflows/deploy.yml@main
     with:
       deploy-env: "mainnet"
-      bw-legacy: true
+      bw-legacy: false
       app-name: "potlock"
       deploy-account-address: old.potlock.near
       signer-account-address: old.potlock.near
