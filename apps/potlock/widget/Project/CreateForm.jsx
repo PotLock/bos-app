@@ -954,18 +954,6 @@ if (props.edit && !userHasPermissions) {
   return <h3 style={{ textAlign: "center", paddingTop: "32px" }}>Unauthorized</h3>;
 }
 
-const uploadFileUpdateState = (body, callback) => {
-  asyncFetch("https://ipfs.near.social/add", {
-    method: "POST",
-    headers: { Accept: "application/json" },
-    body,
-  }).then(callback);
-};
-
-// console.log("state in create form: ", state);
-
-console.log(state.fundingSources);
-
 return (
   <Container>
     {!state.socialDataFetched || !registrations ? (
@@ -1038,21 +1026,11 @@ return (
             // allowEdit: true,
             backgroundImage: state.backgroundImage,
             profileImage: state.profileImage,
-            bgImageOnChange: (files) => {
-              if (files) {
-                uploadFileUpdateState(files[0], (res) => {
-                  const ipfs_cid = res.body.cid;
-                  State.update({ backgroundImage: { ipfs_cid } });
-                });
-              }
+            bgImageOnChange: (img) => {
+              State.update({ backgroundImage: img });
             },
-            profileImageOnChange: (files) => {
-              if (files) {
-                uploadFileUpdateState(files[0], (res) => {
-                  const ipfs_cid = res.body.cid;
-                  State.update({ profileImage: { ipfs_cid } });
-                });
-              }
+            profileImageOnChange: (img) => {
+              State.update({ profileImage: img });
             },
             children: (
               <LowerBannerContainer>

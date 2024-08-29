@@ -10,6 +10,14 @@ const editable = props.bgImageOnChange && props.profileImageOnChange;
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
+const uploadFileUpdateState = (body, callback) => {
+  asyncFetch("https://ipfs.near.social/add", {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body,
+  }).then(callback);
+};
+
 // Loading Skeleton
 const loadingSkeleton = styled.keyframes`
   0% {
@@ -77,11 +85,14 @@ if (profile === null) {
 
 const name = profile.name || "No-name profile";
 const image = profile.image;
-const backgroundImage = props.backgroundImage || profile.backgroundImage;
-const profileImage = props.profileImage || image;
 const imageStyle = props.imageStyle ?? {};
 const backgroundStyle = props.backgroundStyle ?? {};
 const containerStyle = props.containerStyle ?? {};
+
+State.init({
+  profileImage: props.profileImage || profile.image,
+  backgroundImage: props.backgroundImage || profile.backgroundImage,
+});
 
 const statuses = {
   Approved: {
@@ -394,8 +405,28 @@ const CameraSvg = ({ height }) => (
   </svg>
 );
 
-return (
-  <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
+const Avatar = ({ imageStyle, profileImage }) => {
+  return (
+    <ProfileImageContainer>
+      <Widget
+        src={"${config_account}/widget/Project.ProfileImage"}
+        props={{
+          image: profileImage,
+          profile: {},
+          accountId,
+          style: { ...imageStyle },
+          imageClassName: "rounded-circle",
+          thumbnail: false,
+          fast: false,
+        }}
+      />
+      <CameraSvg height={24} />
+    </ProfileImageContainer>
+  );
+};
+
+const BackgroundImage = ({ backgroundImage, backgroundStyle }) => {
+  return (
     <BackgroundImageContainer>
       <Widget
         src="${alias_mob}/widget/Image"
@@ -408,55 +439,66 @@ return (
         }}
       />
       <CameraSvg height={48} />
-      {editable && (
+    </BackgroundImageContainer>
+  );
+};
+
+return (
+  <Container className="pt-0 position-relative" style={{ ...containerStyle }}>
+    {editable ? (
+      <Files
+        multiple={false}
+        accepts={["image/*"]}
+        minFileSize={1}
+        style={{
+          zIndex: 4,
+          top: 0,
+          width: "100%",
+          height: backgroundStyle.height ?? "100%",
+          position: "absolute",
+        }}
+        clickable
+        onChange={(files) => {
+          if (files) {
+            uploadFileUpdateState(files[0], (res) => {
+              const ipfs_cid = res.body.cid;
+              State.update({ backgroundImage: { ipfs_cid } });
+              props.bgImageOnChange({ ipfs_cid });
+            });
+          }
+        }}
+      >
+        <BackgroundImage
+          backgroundImage={state.backgroundImage}
+          backgroundStyle={backgroundStyle}
+        />
+      </Files>
+    ) : (
+      <BackgroundImage backgroundImage={state.backgroundImage} backgroundStyle={backgroundStyle} />
+    )}
+    <ProfileWraper>
+      {editable ? (
         <Files
           multiple={false}
           accepts={["image/*"]}
           minFileSize={1}
-          style={{
-            zIndex: 4,
-            top: 0,
-            width: "100%",
-            height: backgroundStyle.height ?? "100%",
-            position: "absolute",
-          }}
           clickable
-          onChange={props.bgImageOnChange}
-        />
-      )}
-    </BackgroundImageContainer>
-    <ProfileWraper>
-      <ProfileImageContainer>
-        <CameraSvg height={24} />
-        <Widget
-          src={"${config_account}/widget/Project.ProfileImage"}
-          props={{
-            profile,
-            accountId,
-            style: { ...imageStyle },
-            imageClassName: "rounded-circle",
-            thumbnail: false,
-            image: profileImage,
+          onChange={(files) => {
+            if (files) {
+              uploadFileUpdateState(files[0], (res) => {
+                const ipfs_cid = res.body.cid;
+                State.update({ profileImage: { ipfs_cid } });
+                console.log("ipfs_cid: ", ipfs_cid);
+                props.profileImageOnChange({ ipfs_cid });
+              });
+            }
           }}
-        />
-
-        {editable && (
-          <Files
-            multiple={false}
-            accepts={["image/*"]}
-            minFileSize={1}
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              left: 0,
-              top: 0,
-            }}
-            clickable
-            onChange={props.profileImageOnChange}
-          ></Files>
-        )}
-      </ProfileImageContainer>
+        >
+          <Avatar imageStyle={imageStyle} profileImage={state.profileImage} />
+        </Files>
+      ) : (
+        <Avatar imageStyle={imageStyle} profileImage={state.profileImage} />
+      )}
       {ShowFollowers && (
         <ProfileStats>
           {tab === "profile" && nadaBotVerified ? (
