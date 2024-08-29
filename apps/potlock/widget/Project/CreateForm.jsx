@@ -1000,9 +1000,11 @@ return (
               type: "primary",
               text: "View your project",
               disabled: false,
-              href: props.hrefWithParams(
-                `?tab=project&projectId=${registeredProject?.id || context.accountId}`
-              ),
+              href:
+                props.hrefWithParams &&
+                props.hrefWithParams(
+                  `?tab=project&projectId=${registeredProject?.id || context.accountId}`
+                ),
             }}
           />
           <Widget
@@ -1011,7 +1013,7 @@ return (
               type: "secondary",
               text: "View all projects",
               disabled: false,
-              href: props.hrefWithParams(`?tab=projects`),
+              href: props.hrefWithParams && props.hrefWithParams(`?tab=projects`),
             }}
           />
         </ButtonsContainer>
