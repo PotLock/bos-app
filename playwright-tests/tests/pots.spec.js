@@ -48,8 +48,14 @@ test.describe("Admin is logged in", () => {
   });
 });
 
-test("clicking learn more button should...", async ({ page }) => {
-  // TODO:
+test("clicking learn more button should redirect to wtfisqr.com", async ({ page }) => {
+  const newTabPromise = page.waitForEvent("popup");
+
+  await page.getByText("Learn More").click();
+  const newTab = await newTabPromise;
+  await newTab.waitForLoadState();
+
+  await expect(newTab).toHaveURL("https://www.wtfisqf.com/");
 });
 
 test("should show active pots", async ({ page }) => {
