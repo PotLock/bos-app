@@ -5,8 +5,14 @@ on:
     branches:
       - main
 
+# Cancel superseded PR checks; keep every non-PR invocation independent.
+concurrency:
+  group: continuous-integration.yml-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   prettier:
+    timeout-minutes: 60
     name: Prettier
     runs-on: ubuntu-latest
     steps:
@@ -20,6 +26,7 @@ jobs:
       - name: Run code formatting check
         run: yarn run fmt:check
   playwright-tests:
+    timeout-minutes: 60
     name: Playwright tests
     runs-on: ubuntu-latest
     steps:
